@@ -6,6 +6,7 @@ import (
 )
 
 func TestFakeStorer_Conformance(t *testing.T) {
+	t.Parallel()
 	testStorerConformance(t, func(t *testing.T) conformanceFixture {
 		return conformanceFixture{
 			name:   "fake",

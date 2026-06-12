@@ -1,5 +1,5 @@
 {
-  "name": "MLS-Grid-Sync — Nix Dev Environment",
+  "name": "${localWorkspaceFolderBasename} — Nix Dev Environment",
   "build": {
     "dockerfile": "Dockerfile"
   },

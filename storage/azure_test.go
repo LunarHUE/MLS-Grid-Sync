@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/testcontainers/testcontainers-go"
@@ -19,48 +21,60 @@ const azuriteConnStrTemplate = "DefaultEndpointsProtocol=http;" +
 	"AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;" +
 	"BlobEndpoint=http://{{HOST}}:{{PORT}}/devstoreaccount1;"
 
-// startAzurite spins up an Azurite blob-only container and returns the
-// connection string pointed at the mapped port. Cleanup is registered
-// on t.
+// One Azurite container is shared by every test in the process — tests
+// already isolate via randContainerName, so per-test containers buy
+// nothing. The container is reaped by testcontainers' ryuk at process
+// exit, so no Terminate is registered.
+var (
+	azuriteOnce sync.Once
+	azuriteConn string
+	azuriteErr  error
+)
+
+// startAzurite returns the connection string of the shared Azurite
+// blob-only container, starting it on first use.
 func startAzurite(t *testing.T) string {
 	t.Helper()
-	ctx := context.Background()
+	azuriteOnce.Do(func() {
+		ctx := context.Background()
 
-	// EMULATOR DIVERGENCE: the published `azurite:latest` tag trails the
-	// azblob SDK's default API version (e.g. SDK sends 2026-04-06; the
-	// image returns InvalidHeaderValue). `--skipApiVersionCheck` makes
-	// Azurite accept any API version. Real Azure validates the version
-	// for real, so REAL-CLOUD VALIDATION must pin the SDK to a version
-	// the prod account supports — flagged here so this isn't forgotten
-	// at deploy time. See plan watch items.
-	ctr, err := testcontainers.Run(ctx,
-		"mcr.microsoft.com/azure-storage/azurite:latest",
-		testcontainers.WithExposedPorts("10000/tcp"),
-		testcontainers.WithCmd("azurite-blob", "--blobHost", "0.0.0.0", "--skipApiVersionCheck"),
-		testcontainers.WithWaitStrategy(
-			wait.ForListeningPort("10000/tcp"),
-		),
-	)
-	if err != nil {
-		t.Fatalf("start azurite: %v", err)
-	}
-	t.Cleanup(func() {
-		if err := ctr.Terminate(ctx); err != nil {
-			t.Logf("terminate azurite: %v", err)
+		// EMULATOR DIVERGENCE: the published `azurite:latest` tag trails the
+		// azblob SDK's default API version (e.g. SDK sends 2026-04-06; the
+		// image returns InvalidHeaderValue). `--skipApiVersionCheck` makes
+		// Azurite accept any API version. Real Azure validates the version
+		// for real, so REAL-CLOUD VALIDATION must pin the SDK to a version
+		// the prod account supports — flagged here so this isn't forgotten
+		// at deploy time. See plan watch items.
+		ctr, err := testcontainers.Run(ctx,
+			"mcr.microsoft.com/azure-storage/azurite:latest",
+			testcontainers.WithExposedPorts("10000/tcp"),
+			testcontainers.WithCmd("azurite-blob", "--blobHost", "0.0.0.0", "--skipApiVersionCheck"),
+			testcontainers.WithWaitStrategy(
+				wait.ForListeningPort("10000/tcp"),
+			),
+		)
+		if err != nil {
+			azuriteErr = fmt.Errorf("start azurite: %w", err)
+			return
 		}
-	})
 
-	host, err := ctr.Host(ctx)
-	if err != nil {
-		t.Fatalf("azurite host: %v", err)
+		host, err := ctr.Host(ctx)
+		if err != nil {
+			azuriteErr = fmt.Errorf("azurite host: %w", err)
+			return
+		}
+		port, err := ctr.MappedPort(ctx, "10000/tcp")
+		if err != nil {
+			azuriteErr = fmt.Errorf("azurite port: %w", err)
+			return
+		}
+		conn := strings.ReplaceAll(azuriteConnStrTemplate, "{{HOST}}", host)
+		azuriteConn = strings.ReplaceAll(conn, "{{PORT}}", port.Port())
+	})
+	if azuriteErr != nil {
+		t.Fatalf("shared azurite container: %v", azuriteErr)
 	}
-	port, err := ctr.MappedPort(ctx, "10000/tcp")
-	if err != nil {
-		t.Fatalf("azurite port: %v", err)
-	}
-	conn := strings.ReplaceAll(azuriteConnStrTemplate, "{{HOST}}", host)
-	conn = strings.ReplaceAll(conn, "{{PORT}}", port.Port())
-	return conn
+	return azuriteConn
 }
 
 // randContainerName returns a fresh per-test-call container name.
@@ -76,6 +90,7 @@ func randContainerName(t *testing.T) string {
 }
 
 func TestAzureBlobStorer_Conformance(t *testing.T) {
+	t.Parallel()
 	conn := startAzurite(t)
 
 	testStorerConformance(t, func(t *testing.T) conformanceFixture {
@@ -116,6 +131,7 @@ func TestAzureBlobStorer_Conformance(t *testing.T) {
 }
 
 func TestNewAzureBlob_ConnectionStringBranch(t *testing.T) {
+	t.Parallel()
 	conn := startAzurite(t)
 	s, err := NewAzureBlob(context.Background(), conn, "", randContainerName(t))
 	if err != nil {
@@ -127,6 +143,7 @@ func TestNewAzureBlob_ConnectionStringBranch(t *testing.T) {
 }
 
 func TestNewAzureBlob_ConnectionStringTakesPrecedence(t *testing.T) {
+	t.Parallel()
 	// Both fields set: connection_string wins. If precedence reversed,
 	// we'd try to use DefaultAzureCredential against the bogus
 	// account_url and fail before container create.
@@ -142,6 +159,7 @@ func TestNewAzureBlob_ConnectionStringTakesPrecedence(t *testing.T) {
 }
 
 func TestNewAzureBlob_BothEmpty(t *testing.T) {
+	t.Parallel()
 	_, err := NewAzureBlob(context.Background(), "", "", "container")
 	if err == nil {
 		t.Fatal("expected error when both connection_string and account_url empty")
@@ -152,6 +170,7 @@ func TestNewAzureBlob_BothEmpty(t *testing.T) {
 }
 
 func TestNewAzureBlob_MissingContainer(t *testing.T) {
+	t.Parallel()
 	conn := startAzurite(t)
 	_, err := NewAzureBlob(context.Background(), conn, "", "")
 	if err == nil {
@@ -160,6 +179,7 @@ func TestNewAzureBlob_MissingContainer(t *testing.T) {
 }
 
 func TestNewAzureBlob_IdempotentCreate(t *testing.T) {
+	t.Parallel()
 	conn := startAzurite(t)
 	container := randContainerName(t)
 	if _, err := NewAzureBlob(context.Background(), conn, "", container); err != nil {

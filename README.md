@@ -58,27 +58,24 @@ docker run -p 8080:8080 \
 docker run ghcr.io/lunarhue/mls-grid-sync:latest sync
 ```
 
-Build locally (needs a GitHub token with read access to the private
-`github.com/lunarhue/libs-go` module, passed as a BuildKit secret):
+Build locally:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build --secret id=gh_token,env=GH_TOKEN -t mls-grid-sync:dev .
+docker build -t mls-grid-sync:dev .
 ```
 
 ## CI/CD
 
 `.github/workflows/ci.yml`:
 
-- **Pull requests** — `go build`, `go vet`, `go test ./...` (Testcontainers
-  against real Postgres).
+- **Pull requests** — `go build`, `go vet`, `go test ./...` inside the
+  flake's `ci` dev shell (Testcontainers against real Postgres).
 - **Push to `main`** — tests, then build & push
   `ghcr.io/lunarhue/mls-grid-sync` tagged `latest` + `sha-<short>`.
 - **Tags `v*`** — additionally tagged `<version>` and `<major>.<minor>`.
 
-Required repository secret: `GH_PRIVATE_REPO_TOKEN` — a PAT with read access
-to `lunarhue/libs-go` (used by `go mod download` on the runner and inside the
-Docker build via a BuildKit secret). GHCR pushes use the built-in
-`GITHUB_TOKEN`.
+No secrets to configure: GHCR pushes use the workflow's built-in
+`GITHUB_TOKEN` (`packages: write` permission is set in the workflow).
 
 ## Local development
 

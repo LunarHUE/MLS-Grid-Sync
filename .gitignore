@@ -27,9 +27,8 @@ config.yml
 .env
 .env.*
 
-# direnv
+# direnv (committed .envrc just says `use flake`; cache dir stays local)
 .direnv/
-.envrc
 
 # Editor/IDE & OS
 .DS_Store
