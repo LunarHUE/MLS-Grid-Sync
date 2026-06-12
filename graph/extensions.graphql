@@ -1,0 +1,49 @@
+# Phase 3 §7: visibility-aware traversals from Property.
+#
+# Property.media is a new field — there is no ent edge from Property to Media
+# (Media is polymorphic by resource_type + resource_record_key, see
+# ent/schema/media.go). The resolver filters mlg_can_view = true so a hidden
+# listing's photos disappear from GraphQL traversal even before the upstream
+# Media delta lands the durable tombstone.
+#
+# Property.listAgent / Property.listOffice are already declared in
+# ent.graphql via entgql's edge generation, but they auto-resolve through the
+# ent edge loader and return tombstoned rows. The gqlgen.yml `fields` override
+# for these names routes them through our custom resolvers that apply the same
+# mlg_can_view = true filter.
+
+extend type Property {
+  """
+  Media records that polymorphically reference this Property
+  (resource_type=property, resource_record_key=listing_key). Filtered to
+  mlg_can_view=true so tombstoned photos don't appear in GraphQL traversal
+  even before the upstream Media delta lands.
+  """
+  media: [Media!]!
+
+  """
+  Agent and office references on a Property are SOFT KEYS — the underlying
+  *_key columns are not constrained by a DB foreign key, because real MLS
+  feeds routinely reference agents and offices that are absent from the feed
+  (retired, transferred, out of subscription). A non-null *Key with a null
+  resolved entity is a valid state: "outside this feed." Consumers see the
+  string key field regardless. All eight resolvers apply mlg_can_view=true
+  so tombstoned rows resolve null.
+  """
+  listAgent: Member
+  coListAgent: Member
+  buyerAgent: Member
+  coBuyerAgent: Member
+  listOffice: Office
+  coListOffice: Office
+  buyerOffice: Office
+  coBuyerOffice: Office
+}
+
+extend type Member {
+  """
+  Soft-key reference via office_key (no DB FK). See Property soft-key note.
+  Filtered to mlg_can_view=true.
+  """
+  office: Office
+}

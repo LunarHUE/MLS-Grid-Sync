@@ -1,0 +1,32 @@
+schema:
+  - graph/*.graphql
+
+exec:
+  filename: graph/generated.go
+  package: graph
+
+autobind:
+  - github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent
+
+models:
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.String
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.String
+  Decimal:
+    model:
+      - github.com/99designs/gqlgen/graphql.String
+  StringArray:
+    model:
+      - github.com/99designs/gqlgen/graphql.Any
+  Node:
+    model:
+      - github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent.Noder
+  # Property.listAgent / listOffice (and the 6 sibling co-list/buyer/co-buyer
+  # roles, plus Member.office) are declared in graph/extensions.graphql now —
+  # they are no longer ent edges, so entgql doesn't emit them and there's no
+  # auto-resolver to override. The manual resolvers in graph/resolver.go apply
+  # the mlg_can_view=true visibility filter directly.

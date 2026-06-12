@@ -1,0 +1,1843 @@
+directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @goModel(model: String, models: [String!], forceGenerate: Boolean) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+"""
+Define a Relay Cursor type:
+https://relay.dev/graphql/connections.htm#sec-Cursor
+"""
+scalar Cursor
+type Lookup implements Node {
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  The name of the lookup category (e.g., Appliances, Cooling)
+  """
+  lookupName: String!
+  """
+  Human-friendly display name as it appears in payloads
+  """
+  lookupValue: String!
+  """
+  Data Dictionary LookupDisplayName
+  """
+  standardLookupValue: String
+}
+"""
+A connection to a list of items.
+"""
+type LookupConnection {
+  """
+  A list of edges.
+  """
+  edges: [LookupEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type LookupEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: Lookup
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type Media implements Node {
+  """
+  RESO MediaKey
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  Discriminator for the polymorphic FK
+  """
+  resourceType: MediaResourceType!
+  """
+  References property.listing_key | member.member_key | office.office_key
+  """
+  resourceRecordKey: String!
+  mediaType: String
+  mediaURL: String
+  imageHeight: Int
+  imageWidth: Int
+  imageSizeDescription: String
+  longDescription: String
+  order: Int
+  preferredPhotoYn: Boolean
+  """
+  MediaModificationTimestamp — Media's version of source_modified_at
+  """
+  mediaModificationTimestamp: Time
+  extendedFields: Map
+  """
+  Set when the binary has been downloaded into attachment
+  """
+  attachmentID: ID
+  currentVersionID: UUID
+}
+"""
+A connection to a list of items.
+"""
+type MediaConnection {
+  """
+  A list of edges.
+  """
+  edges: [MediaEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type MediaEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: Media
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+"""
+MediaResourceType is enum for the field resource_type
+"""
+enum MediaResourceType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media.ResourceType") {
+  property
+  member
+  office
+}
+type MediaVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: MediaVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  Discriminator for the polymorphic FK
+  """
+  resourceType: MediaVersionResourceType!
+  """
+  References property.listing_key | member.member_key | office.office_key
+  """
+  resourceRecordKey: String!
+  mediaType: String
+  mediaURL: String
+  imageHeight: Int
+  imageWidth: Int
+  imageSizeDescription: String
+  longDescription: String
+  order: Int
+  preferredPhotoYn: Boolean
+  """
+  MediaModificationTimestamp — Media's version of source_modified_at
+  """
+  mediaModificationTimestamp: Time
+  extendedFields: Map
+  mediaKey: String!
+  syncEventID: UUID!
+  rawOutputID: UUID
+}
+"""
+MediaVersionChangeType is enum for the field change_type
+"""
+enum MediaVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/mediaversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type MediaVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [MediaVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type MediaVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: MediaVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+"""
+MediaVersionResourceType is enum for the field resource_type
+"""
+enum MediaVersionResourceType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/mediaversion.ResourceType") {
+  property
+  member
+  office
+}
+type Member implements Node {
+  """
+  PK = MemberKey (canonical identifier from MLS Grid)
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  MLS-visible identifier (e.g. ABC123); unique alt-key
+  """
+  memberMlsID: String
+  memberFirstName: String
+  memberMiddleName: String
+  memberLastName: String
+  memberFullName: String
+  memberNamePrefix: String
+  memberNameSuffix: String
+  memberNickname: String
+  memberStatus: String
+  memberDirectPhone: String
+  memberMobilePhone: String
+  memberHomePhone: String
+  memberPreferredPhone: String
+  memberPreferredPhoneExt: String
+  memberOfficePhoneExt: String
+  memberFax: String
+  memberAddress1: String
+  memberAddress2: String
+  memberCity: String
+  memberStateOrProvince: String
+  memberPostalCode: String
+  memberPostalCodePlus4: String
+  memberCountry: String
+  memberCountyOrParish: String
+  officeKey: String
+  officeMlsID: String
+  extendedFields: Map
+  currentVersionID: UUID
+}
+"""
+A connection to a list of items.
+"""
+type MemberConnection {
+  """
+  A list of edges.
+  """
+  edges: [MemberEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type MemberEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: Member
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type MemberVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: MemberVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  MLS-visible identifier (e.g. ABC123); unique alt-key
+  """
+  memberMlsID: String
+  memberFirstName: String
+  memberMiddleName: String
+  memberLastName: String
+  memberFullName: String
+  memberNamePrefix: String
+  memberNameSuffix: String
+  memberNickname: String
+  memberStatus: String
+  memberDirectPhone: String
+  memberMobilePhone: String
+  memberHomePhone: String
+  memberPreferredPhone: String
+  memberPreferredPhoneExt: String
+  memberOfficePhoneExt: String
+  memberFax: String
+  memberAddress1: String
+  memberAddress2: String
+  memberCity: String
+  memberStateOrProvince: String
+  memberPostalCode: String
+  memberPostalCodePlus4: String
+  memberCountry: String
+  memberCountyOrParish: String
+  officeKey: String
+  officeMlsID: String
+  extendedFields: Map
+  memberKey: String!
+  syncEventID: UUID!
+  rawOutputID: UUID
+}
+"""
+MemberVersionChangeType is enum for the field change_type
+"""
+enum MemberVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/memberversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type MemberVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [MemberVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type MemberVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: MemberVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+"""
+An object with an ID.
+Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
+"""
+interface Node @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent.Noder") {
+  """
+  The id of the object.
+  """
+  id: ID!
+}
+type Office implements Node {
+  """
+  PK = OfficeKey (canonical identifier from MLS Grid)
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  MLS-visible identifier; unique alt-key
+  """
+  officeMlsID: String
+  officeName: String
+  officeStatus: String
+  officeType: String
+  officePhone: String
+  officePhoneExt: String
+  officeFax: String
+  officeAddress1: String
+  officeAddress2: String
+  officeCity: String
+  officeStateOrProvince: String
+  officePostalCode: String
+  officePostalCodePlus4: String
+  officeCountyOrParish: String
+  officeCorporateLicense: String
+  officeNationalAssociationID: String
+  mainOfficeKey: ID
+  mainOfficeMlsID: String
+  officeBrokerKey: String
+  officeBrokerMlsID: String
+  officeManagerKey: String
+  idxOfficeParticipationYn: Boolean
+  photosChangeTimestamp: Time
+  extendedFields: Map
+  currentVersionID: UUID
+  mainOffice: Office
+  branches: [Office!]
+}
+"""
+A connection to a list of items.
+"""
+type OfficeConnection {
+  """
+  A list of edges.
+  """
+  edges: [OfficeEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type OfficeEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: Office
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type OfficeVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: OfficeVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  MLS-visible identifier; unique alt-key
+  """
+  officeMlsID: String
+  officeName: String
+  officeStatus: String
+  officeType: String
+  officePhone: String
+  officePhoneExt: String
+  officeFax: String
+  officeAddress1: String
+  officeAddress2: String
+  officeCity: String
+  officeStateOrProvince: String
+  officePostalCode: String
+  officePostalCodePlus4: String
+  officeCountyOrParish: String
+  officeCorporateLicense: String
+  officeNationalAssociationID: String
+  mainOfficeKey: String
+  mainOfficeMlsID: String
+  officeBrokerKey: String
+  officeBrokerMlsID: String
+  officeManagerKey: String
+  idxOfficeParticipationYn: Boolean
+  photosChangeTimestamp: Time
+  extendedFields: Map
+  officeKey: String!
+  syncEventID: UUID!
+  rawOutputID: UUID
+}
+"""
+OfficeVersionChangeType is enum for the field change_type
+"""
+enum OfficeVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/officeversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type OfficeVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [OfficeVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type OfficeVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: OfficeVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type OpenHouse implements Node {
+  """
+  RESO OpenHouseKey
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  FK to property.listing_key
+  """
+  listingKey: String!
+  listingID: String
+  openHouseDate: Time
+  openHouseStartTime: Time
+  openHouseEndTime: Time
+  openHouseStatus: String
+  openHouseType: String
+  extendedFields: Map
+  currentVersionID: UUID
+  """
+  Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
+  """
+  parentListingKey: ID
+  property: Property
+}
+"""
+A connection to a list of items.
+"""
+type OpenHouseConnection {
+  """
+  A list of edges.
+  """
+  edges: [OpenHouseEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type OpenHouseEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: OpenHouse
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type OpenHouseVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: OpenHouseVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  FK to property.listing_key
+  """
+  listingKey: String!
+  listingID: String
+  openHouseDate: Time
+  openHouseStartTime: Time
+  openHouseEndTime: Time
+  openHouseStatus: String
+  openHouseType: String
+  extendedFields: Map
+  openHouseKey: String!
+  syncEventID: UUID!
+  rawOutputID: UUID
+}
+"""
+OpenHouseVersionChangeType is enum for the field change_type
+"""
+enum OpenHouseVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/openhouseversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type OpenHouseVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [OpenHouseVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type OpenHouseVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: OpenHouseVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+"""
+Possible directions in which to order a list of items when provided an `orderBy` argument.
+"""
+enum OrderDirection {
+  """
+  Specifies an ascending order for a given `orderBy` argument.
+  """
+  ASC
+  """
+  Specifies a descending order for a given `orderBy` argument.
+  """
+  DESC
+}
+"""
+Information about pagination in a connection.
+https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
+"""
+type PageInfo {
+  """
+  When paginating forwards, are there more items?
+  """
+  hasNextPage: Boolean!
+  """
+  When paginating backwards, are there more items?
+  """
+  hasPreviousPage: Boolean!
+  """
+  When paginating backwards, the cursor to continue.
+  """
+  startCursor: Cursor
+  """
+  When paginating forwards, the cursor to continue.
+  """
+  endCursor: Cursor
+}
+type Property implements Node {
+  """
+  Natural PK: the RESO ListingKey
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  listingID: String
+  parcelNumber: String
+  mlsStatus: String
+  standardStatus: String
+  majorChangeType: String
+  majorChangeTimestamp: Time
+  listingContractDate: Time
+  onMarketTimestamp: Time
+  originalEntryTimestamp: Time
+  photosChangeTimestamp: Time
+  availabilityDate: Time
+  listPrice: Decimal
+  originalListPrice: Decimal
+  previousListPrice: Decimal
+  taxAnnualAmount: Decimal
+  taxAssessedValue: Int
+  taxYear: Int
+  propertyType: String
+  propertySubType: String
+  newConstructionYn: Boolean
+  bedroomsTotal: Int
+  bathroomsTotalInteger: Int
+  bathroomsFull: Int
+  bathroomsHalf: Int
+  mainLevelBedrooms: Int
+  livingArea: Decimal
+  buildingAreaTotal: Decimal
+  lotSizeAcres: Decimal
+  lotSizeSquareFeet: Decimal
+  storiesTotal: Int
+  yearBuilt: Int
+  garageSpaces: Decimal
+  coveredSpaces: Decimal
+  parkingTotal: Decimal
+  fireplacesTotal: Int
+  poolPrivateYn: Boolean
+  waterfrontYn: Boolean
+  viewYn: Boolean
+  horseYn: Boolean
+  streetNumber: String
+  streetNumberNumeric: Int
+  streetName: String
+  streetSuffix: String
+  streetDirPrefix: String
+  streetDirSuffix: String
+  unitNumber: String
+  unparsedAddress: String
+  city: String
+  stateOrProvince: String
+  postalCode: String
+  postalCodePlus4: String
+  country: String
+  countyOrParish: String
+  subdivisionName: String
+  mlsAreaMajor: String
+  latitude: Decimal
+  longitude: Decimal
+  elementarySchool: String
+  middleOrJuniorSchool: String
+  highSchool: String
+  highSchoolDistrict: String
+  listAgentKey: String
+  listAgentMlsID: String
+  coListAgentKey: String
+  coListAgentMlsID: String
+  buyerAgentKey: String
+  buyerAgentMlsID: String
+  coBuyerAgentKey: String
+  coBuyerAgentMlsID: String
+  listOfficeKey: String
+  listOfficeMlsID: String
+  coListOfficeKey: String
+  coListOfficeMlsID: String
+  buyerOfficeKey: String
+  buyerOfficeMlsID: String
+  coBuyerOfficeKey: String
+  coBuyerOfficeMlsID: String
+  internetEntireListingDisplayYn: Boolean
+  internetAddressDisplayYn: Boolean
+  internetAutomatedValuationDisplayYn: Boolean
+  internetConsumerCommentYn: Boolean
+  appliances: StringArray
+  cooling: StringArray
+  heating: StringArray
+  flooring: StringArray
+  roof: StringArray
+  exteriorFeatures: StringArray
+  interiorFeatures: StringArray
+  parkingFeatures: StringArray
+  poolFeatures: StringArray
+  view: StringArray
+  waterfrontFeatures: StringArray
+  communityFeatures: StringArray
+  accessibilityFeatures: StringArray
+  utilities: StringArray
+  sewer: StringArray
+  waterSource: StringArray
+  lotFeatures: StringArray
+  patioAndPorchFeatures: StringArray
+  securityFeatures: StringArray
+  constructionMaterials: StringArray
+  foundationDetails: StringArray
+  levels: StringArray
+  fireplaceFeatures: StringArray
+  spaFeatures: StringArray
+  fencing: StringArray
+  horseAmenities: StringArray
+  windowFeatures: StringArray
+  petsAllowed: StringArray
+  disclosures: StringArray
+  propertyCondition: StringArray
+  specialListingConditions: StringArray
+  greenEnergyEfficient: StringArray
+  greenSustainability: StringArray
+  syndicateTo: StringArray
+  publicRemarks: String
+  syndicationRemarks: String
+  directions: String
+  furnished: String
+  directionFaces: String
+  extendedFields: Map
+  """
+  Points at the latest property_version row
+  """
+  currentVersionID: UUID
+  rooms: [PropertyRoom!]
+  unitTypes: [PropertyUnitType!]
+  openHouses: [OpenHouse!]
+}
+"""
+A connection to a list of items.
+"""
+type PropertyConnection {
+  """
+  A list of edges.
+  """
+  edges: [PropertyEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type PropertyEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: Property
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type PropertyRoom implements Node {
+  """
+  RESO RoomKey
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  FK to property.listing_key
+  """
+  listingKey: String!
+  roomType: String
+  roomLevel: String
+  roomFeatures: StringArray
+  extendedFields: Map
+  currentVersionID: UUID
+  """
+  Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
+  """
+  parentListingKey: ID
+  property: Property
+}
+"""
+A connection to a list of items.
+"""
+type PropertyRoomConnection {
+  """
+  A list of edges.
+  """
+  edges: [PropertyRoomEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type PropertyRoomEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: PropertyRoom
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type PropertyRoomVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: PropertyRoomVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  FK to property.listing_key
+  """
+  listingKey: String!
+  roomType: String
+  roomLevel: String
+  roomFeatures: StringArray
+  extendedFields: Map
+  roomKey: String!
+  syncEventID: UUID!
+  rawOutputID: UUID
+}
+"""
+PropertyRoomVersionChangeType is enum for the field change_type
+"""
+enum PropertyRoomVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyroomversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type PropertyRoomVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [PropertyRoomVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type PropertyRoomVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: PropertyRoomVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type PropertyUnitType implements Node {
+  """
+  RESO UnitTypeKey
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  FK to property.listing_key
+  """
+  listingKey: String!
+  unitTypeBedsTotal: Int
+  unitTypeFurnished: String
+  extendedFields: Map
+  currentVersionID: UUID
+  """
+  Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
+  """
+  parentListingKey: ID
+  property: Property
+}
+"""
+A connection to a list of items.
+"""
+type PropertyUnitTypeConnection {
+  """
+  A list of edges.
+  """
+  edges: [PropertyUnitTypeEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type PropertyUnitTypeEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: PropertyUnitType
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type PropertyUnitTypeVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: PropertyUnitTypeVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  """
+  FK to property.listing_key
+  """
+  listingKey: String!
+  unitTypeBedsTotal: Int
+  unitTypeFurnished: String
+  extendedFields: Map
+  unitTypeKey: String!
+  syncEventID: UUID!
+  rawOutputID: UUID
+}
+"""
+PropertyUnitTypeVersionChangeType is enum for the field change_type
+"""
+enum PropertyUnitTypeVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittypeversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type PropertyUnitTypeVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [PropertyUnitTypeVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type PropertyUnitTypeVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: PropertyUnitTypeVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type PropertyVersion implements Node {
+  id: ID!
+  validFrom: Time!
+  """
+  Nil means this is the current version
+  """
+  validTo: Time
+  changeType: PropertyVersionChangeType!
+  """
+  Keys that differ from the prior version
+  """
+  changedFields: Map
+  processorVersion: String!
+  """
+  Upstream ModificationTimestamp — canonical ordering
+  """
+  sourceModifiedAt: Time!
+  originatingSystemName: String
+  """
+  MLS Grid delete flag — false means record is removed upstream
+  """
+  mlgCanView: Boolean!
+  """
+  Allowed use-case groups
+  """
+  mlgCanUse: [String!]
+  listingID: String
+  parcelNumber: String
+  mlsStatus: String
+  standardStatus: String
+  majorChangeType: String
+  majorChangeTimestamp: Time
+  listingContractDate: Time
+  onMarketTimestamp: Time
+  originalEntryTimestamp: Time
+  photosChangeTimestamp: Time
+  availabilityDate: Time
+  listPrice: Decimal
+  originalListPrice: Decimal
+  previousListPrice: Decimal
+  taxAnnualAmount: Decimal
+  taxAssessedValue: Int
+  taxYear: Int
+  propertyType: String
+  propertySubType: String
+  newConstructionYn: Boolean
+  bedroomsTotal: Int
+  bathroomsTotalInteger: Int
+  bathroomsFull: Int
+  bathroomsHalf: Int
+  mainLevelBedrooms: Int
+  livingArea: Decimal
+  buildingAreaTotal: Decimal
+  lotSizeAcres: Decimal
+  lotSizeSquareFeet: Decimal
+  storiesTotal: Int
+  yearBuilt: Int
+  garageSpaces: Decimal
+  coveredSpaces: Decimal
+  parkingTotal: Decimal
+  fireplacesTotal: Int
+  poolPrivateYn: Boolean
+  waterfrontYn: Boolean
+  viewYn: Boolean
+  horseYn: Boolean
+  streetNumber: String
+  streetNumberNumeric: Int
+  streetName: String
+  streetSuffix: String
+  streetDirPrefix: String
+  streetDirSuffix: String
+  unitNumber: String
+  unparsedAddress: String
+  city: String
+  stateOrProvince: String
+  postalCode: String
+  postalCodePlus4: String
+  country: String
+  countyOrParish: String
+  subdivisionName: String
+  mlsAreaMajor: String
+  latitude: Decimal
+  longitude: Decimal
+  elementarySchool: String
+  middleOrJuniorSchool: String
+  highSchool: String
+  highSchoolDistrict: String
+  listAgentKey: String
+  listAgentMlsID: String
+  coListAgentKey: String
+  coListAgentMlsID: String
+  buyerAgentKey: String
+  buyerAgentMlsID: String
+  coBuyerAgentKey: String
+  coBuyerAgentMlsID: String
+  listOfficeKey: String
+  listOfficeMlsID: String
+  coListOfficeKey: String
+  coListOfficeMlsID: String
+  buyerOfficeKey: String
+  buyerOfficeMlsID: String
+  coBuyerOfficeKey: String
+  coBuyerOfficeMlsID: String
+  internetEntireListingDisplayYn: Boolean
+  internetAddressDisplayYn: Boolean
+  internetAutomatedValuationDisplayYn: Boolean
+  internetConsumerCommentYn: Boolean
+  appliances: StringArray
+  cooling: StringArray
+  heating: StringArray
+  flooring: StringArray
+  roof: StringArray
+  exteriorFeatures: StringArray
+  interiorFeatures: StringArray
+  parkingFeatures: StringArray
+  poolFeatures: StringArray
+  view: StringArray
+  waterfrontFeatures: StringArray
+  communityFeatures: StringArray
+  accessibilityFeatures: StringArray
+  utilities: StringArray
+  sewer: StringArray
+  waterSource: StringArray
+  lotFeatures: StringArray
+  patioAndPorchFeatures: StringArray
+  securityFeatures: StringArray
+  constructionMaterials: StringArray
+  foundationDetails: StringArray
+  levels: StringArray
+  fireplaceFeatures: StringArray
+  spaFeatures: StringArray
+  fencing: StringArray
+  horseAmenities: StringArray
+  windowFeatures: StringArray
+  petsAllowed: StringArray
+  disclosures: StringArray
+  propertyCondition: StringArray
+  specialListingConditions: StringArray
+  greenEnergyEfficient: StringArray
+  greenSustainability: StringArray
+  syndicateTo: StringArray
+  publicRemarks: String
+  syndicationRemarks: String
+  directions: String
+  furnished: String
+  directionFaces: String
+  extendedFields: Map
+  listingKey: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
+}
+"""
+PropertyVersionChangeType is enum for the field change_type
+"""
+enum PropertyVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyversion.ChangeType") {
+  insert
+  update
+  delete
+}
+"""
+A connection to a list of items.
+"""
+type PropertyVersionConnection {
+  """
+  A list of edges.
+  """
+  edges: [PropertyVersionEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type PropertyVersionEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: PropertyVersion
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
+type Query {
+  """
+  Fetches an object given its ID.
+  """
+  node(
+    """
+    ID of the object.
+    """
+    id: ID!
+  ): Node
+  """
+  Lookup nodes by a list of IDs.
+  """
+  nodes(
+    """
+    The list of node IDs.
+    """
+    ids: [ID!]!
+  ): [Node]!
+  lookups(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): LookupConnection!
+  mediaSlice(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): MediaConnection!
+  mediaVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): MediaVersionConnection!
+  members(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): MemberConnection!
+  memberVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): MemberVersionConnection!
+  offices(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): OfficeConnection!
+  officeVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): OfficeVersionConnection!
+  openHouses(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): OpenHouseConnection!
+  openHouseVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): OpenHouseVersionConnection!
+  properties(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PropertyConnection!
+  propertyRooms(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PropertyRoomConnection!
+  propertyRoomVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PropertyRoomVersionConnection!
+  propertyUnitTypes(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PropertyUnitTypeConnection!
+  propertyUnitTypeVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PropertyUnitTypeVersionConnection!
+  propertyVersions(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PropertyVersionConnection!
+  sourceSystems(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: Cursor
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: Cursor
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): SourceSystemConnection!
+}
+type SourceSystem implements Node {
+  """
+  Stable slug like 'mlsgrid'
+  """
+  id: ID!
+  createdAt: Time!
+  modifiedAt: Time!
+  sourceSystemName: String!
+}
+"""
+A connection to a list of items.
+"""
+type SourceSystemConnection {
+  """
+  A list of edges.
+  """
+  edges: [SourceSystemEdge]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+"""
+An edge in a connection.
+"""
+type SourceSystemEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: SourceSystem
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor!
+}
