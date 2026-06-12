@@ -1,0 +1,791 @@
+package graph
+
+import (
+	"context"
+
+	"entgo.io/contrib/entgql"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+	"github.com/shopspring/decimal"
+
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
+	entmedia "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/member"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/office"
+)
+
+type Resolver struct{ client *ent.Client }
+
+func NewSchema(client *ent.Client) graphql.ExecutableSchema {
+	return NewExecutableSchema(Config{Resolvers: &Resolver{client: client}})
+}
+
+// --- type aliases for sub-resolvers ---
+
+type queryResolver struct{ *Resolver }
+type mediaResolver struct{ *Resolver }
+type mediaVersionResolver struct{ *Resolver }
+type memberResolver struct{ *Resolver }
+type memberVersionResolver struct{ *Resolver }
+type officeResolver struct{ *Resolver }
+type officeVersionResolver struct{ *Resolver }
+type openHouseResolver struct{ *Resolver }
+type openHouseVersionResolver struct{ *Resolver }
+type propertyResolver struct{ *Resolver }
+type propertyRoomResolver struct{ *Resolver }
+type propertyRoomVersionResolver struct{ *Resolver }
+type propertyUnitTypeResolver struct{ *Resolver }
+type propertyUnitTypeVersionResolver struct{ *Resolver }
+type propertyVersionResolver struct{ *Resolver }
+
+func (r *Resolver) Query() QueryResolver                               { return &queryResolver{r} }
+func (r *Resolver) Media() MediaResolver                               { return &mediaResolver{r} }
+func (r *Resolver) MediaVersion() MediaVersionResolver                 { return &mediaVersionResolver{r} }
+func (r *Resolver) Member() MemberResolver                             { return &memberResolver{r} }
+func (r *Resolver) MemberVersion() MemberVersionResolver               { return &memberVersionResolver{r} }
+func (r *Resolver) Office() OfficeResolver                             { return &officeResolver{r} }
+func (r *Resolver) OfficeVersion() OfficeVersionResolver               { return &officeVersionResolver{r} }
+func (r *Resolver) OpenHouse() OpenHouseResolver                       { return &openHouseResolver{r} }
+func (r *Resolver) OpenHouseVersion() OpenHouseVersionResolver         { return &openHouseVersionResolver{r} }
+func (r *Resolver) Property() PropertyResolver                         { return &propertyResolver{r} }
+func (r *Resolver) PropertyRoom() PropertyRoomResolver                 { return &propertyRoomResolver{r} }
+func (r *Resolver) PropertyRoomVersion() PropertyRoomVersionResolver   { return &propertyRoomVersionResolver{r} }
+func (r *Resolver) PropertyUnitType() PropertyUnitTypeResolver         { return &propertyUnitTypeResolver{r} }
+func (r *Resolver) PropertyUnitTypeVersion() PropertyUnitTypeVersionResolver {
+	return &propertyUnitTypeVersionResolver{r}
+}
+func (r *Resolver) PropertyVersion() PropertyVersionResolver { return &propertyVersionResolver{r} }
+
+// --- helpers ---
+
+func uuidPtr(u *uuid.UUID) *string {
+	if u == nil {
+		return nil
+	}
+	s := u.String()
+	return &s
+}
+
+func uuidStr(u uuid.UUID) string { return u.String() }
+
+func decimalPtr(d *decimal.Decimal) *string {
+	if d == nil {
+		return nil
+	}
+	s := d.String()
+	return &s
+}
+
+func int16Ptr(v *int16) *int {
+	if v == nil {
+		return nil
+	}
+	i := int(*v)
+	return &i
+}
+
+func stringArray(arr pq.StringArray) any {
+	if arr == nil {
+		return nil
+	}
+	return []string(arr)
+}
+
+// ============================================================
+// QueryResolver
+// ============================================================
+
+// entityTables lists every GraphQL-exposed table. Because entity IDs are plain
+// MLS Grid strings (no type prefix), we probe tables in order to resolve a
+// bare ID to its concrete type.
+var entityTables = []string{
+	"lookup",
+	"media", "media_version",
+	"member", "member_version",
+	"office", "office_version",
+	"open_house", "open_house_version",
+	"property", "property_room", "property_room_version",
+	"property_unit_type", "property_unit_type_version",
+	"property_version",
+	"source_system",
+}
+
+func (r *queryResolver) Node(ctx context.Context, id string) (ent.Noder, error) {
+	for _, table := range entityTables {
+		noder, err := r.client.Noder(ctx, id, ent.WithFixedNodeType(table))
+		if err == nil {
+			return noder, nil
+		}
+		if !ent.IsNotFound(err) {
+			return nil, err
+		}
+	}
+	return nil, nil
+}
+
+func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, error) {
+	noders := make([]ent.Noder, len(ids))
+	for i, id := range ids {
+		noder, err := r.Node(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		noders[i] = noder
+	}
+	return noders, nil
+}
+
+func (r *queryResolver) Lookups(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.LookupConnection, error) {
+	return r.client.Lookup.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) MediaSlice(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaConnection, error) {
+	return r.client.Media.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) MediaVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaVersionConnection, error) {
+	return r.client.MediaVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) Members(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberConnection, error) {
+	return r.client.Member.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) MemberVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberVersionConnection, error) {
+	return r.client.MemberVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) Offices(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeConnection, error) {
+	return r.client.Office.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) OfficeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeVersionConnection, error) {
+	return r.client.OfficeVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) OpenHouses(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseConnection, error) {
+	return r.client.OpenHouse.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseVersionConnection, error) {
+	return r.client.OpenHouseVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+	return r.client.Property.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) PropertyRooms(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomConnection, error) {
+	return r.client.PropertyRoom.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) PropertyRoomVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomVersionConnection, error) {
+	return r.client.PropertyRoomVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) PropertyUnitTypes(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeConnection, error) {
+	return r.client.PropertyUnitType.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) PropertyUnitTypeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeVersionConnection, error) {
+	return r.client.PropertyUnitTypeVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) PropertyVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyVersionConnection, error) {
+	return r.client.PropertyVersion.Query().Paginate(ctx, after, first, before, last)
+}
+
+func (r *queryResolver) SourceSystems(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.SourceSystemConnection, error) {
+	return r.client.SourceSystem.Query().Paginate(ctx, after, first, before, last)
+}
+
+// ============================================================
+// MediaResolver — type conversions for fields gqlgen can't autobind
+// ============================================================
+
+func (r *mediaResolver) Order(ctx context.Context, obj *ent.Media) (*int, error) {
+	return int16Ptr(obj.Order), nil
+}
+
+func (r *mediaResolver) AttachmentID(ctx context.Context, obj *ent.Media) (*string, error) {
+	return uuidPtr(obj.AttachmentID), nil
+}
+
+func (r *mediaResolver) CurrentVersionID(ctx context.Context, obj *ent.Media) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// MediaVersionResolver
+// ============================================================
+
+func (r *mediaVersionResolver) Order(ctx context.Context, obj *ent.MediaVersion) (*int, error) {
+	return int16Ptr(obj.Order), nil
+}
+
+func (r *mediaVersionResolver) SyncEventID(ctx context.Context, obj *ent.MediaVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+
+func (r *mediaVersionResolver) RawOutputID(ctx context.Context, obj *ent.MediaVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}
+
+// ============================================================
+// MemberResolver
+// ============================================================
+
+func (r *memberResolver) CurrentVersionID(ctx context.Context, obj *ent.Member) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// MemberVersionResolver
+// ============================================================
+
+func (r *memberVersionResolver) SyncEventID(ctx context.Context, obj *ent.MemberVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+
+func (r *memberVersionResolver) RawOutputID(ctx context.Context, obj *ent.MemberVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}
+
+// ============================================================
+// OfficeResolver
+// ============================================================
+
+func (r *officeResolver) CurrentVersionID(ctx context.Context, obj *ent.Office) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// OfficeVersionResolver
+// ============================================================
+
+func (r *officeVersionResolver) SyncEventID(ctx context.Context, obj *ent.OfficeVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+
+func (r *officeVersionResolver) RawOutputID(ctx context.Context, obj *ent.OfficeVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}
+
+// ============================================================
+// OpenHouseResolver
+// ============================================================
+
+func (r *openHouseResolver) CurrentVersionID(ctx context.Context, obj *ent.OpenHouse) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// OpenHouseVersionResolver
+// ============================================================
+
+func (r *openHouseVersionResolver) SyncEventID(ctx context.Context, obj *ent.OpenHouseVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+
+func (r *openHouseVersionResolver) RawOutputID(ctx context.Context, obj *ent.OpenHouseVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}
+
+// ============================================================
+// PropertyResolver — Decimal, int16, StringArray, UUID conversions
+// ============================================================
+
+func (r *propertyResolver) ListPrice(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.ListPrice), nil
+}
+func (r *propertyResolver) OriginalListPrice(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.OriginalListPrice), nil
+}
+func (r *propertyResolver) PreviousListPrice(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.PreviousListPrice), nil
+}
+func (r *propertyResolver) TaxAnnualAmount(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.TaxAnnualAmount), nil
+}
+func (r *propertyResolver) TaxYear(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.TaxYear), nil
+}
+func (r *propertyResolver) BedroomsTotal(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.BedroomsTotal), nil
+}
+func (r *propertyResolver) BathroomsTotalInteger(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.BathroomsTotalInteger), nil
+}
+func (r *propertyResolver) BathroomsFull(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.BathroomsFull), nil
+}
+func (r *propertyResolver) BathroomsHalf(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.BathroomsHalf), nil
+}
+func (r *propertyResolver) MainLevelBedrooms(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.MainLevelBedrooms), nil
+}
+func (r *propertyResolver) LivingArea(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.LivingArea), nil
+}
+func (r *propertyResolver) BuildingAreaTotal(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.BuildingAreaTotal), nil
+}
+func (r *propertyResolver) LotSizeAcres(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.LotSizeAcres), nil
+}
+func (r *propertyResolver) LotSizeSquareFeet(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.LotSizeSquareFeet), nil
+}
+func (r *propertyResolver) StoriesTotal(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.StoriesTotal), nil
+}
+func (r *propertyResolver) YearBuilt(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.YearBuilt), nil
+}
+func (r *propertyResolver) GarageSpaces(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.GarageSpaces), nil
+}
+func (r *propertyResolver) CoveredSpaces(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.CoveredSpaces), nil
+}
+func (r *propertyResolver) ParkingTotal(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.ParkingTotal), nil
+}
+func (r *propertyResolver) FireplacesTotal(ctx context.Context, obj *ent.Property) (*int, error) {
+	return int16Ptr(obj.FireplacesTotal), nil
+}
+func (r *propertyResolver) Latitude(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.Latitude), nil
+}
+func (r *propertyResolver) Longitude(ctx context.Context, obj *ent.Property) (*string, error) {
+	return decimalPtr(obj.Longitude), nil
+}
+func (r *propertyResolver) Appliances(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Appliances), nil
+}
+func (r *propertyResolver) Cooling(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Cooling), nil
+}
+func (r *propertyResolver) Heating(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Heating), nil
+}
+func (r *propertyResolver) Flooring(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Flooring), nil
+}
+func (r *propertyResolver) Roof(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Roof), nil
+}
+func (r *propertyResolver) ExteriorFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.ExteriorFeatures), nil
+}
+func (r *propertyResolver) InteriorFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.InteriorFeatures), nil
+}
+func (r *propertyResolver) ParkingFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.ParkingFeatures), nil
+}
+func (r *propertyResolver) PoolFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.PoolFeatures), nil
+}
+func (r *propertyResolver) View(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.View), nil
+}
+func (r *propertyResolver) WaterfrontFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.WaterfrontFeatures), nil
+}
+func (r *propertyResolver) CommunityFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.CommunityFeatures), nil
+}
+func (r *propertyResolver) AccessibilityFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.AccessibilityFeatures), nil
+}
+func (r *propertyResolver) Utilities(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Utilities), nil
+}
+func (r *propertyResolver) Sewer(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Sewer), nil
+}
+func (r *propertyResolver) WaterSource(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.WaterSource), nil
+}
+func (r *propertyResolver) LotFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.LotFeatures), nil
+}
+func (r *propertyResolver) PatioAndPorchFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.PatioAndPorchFeatures), nil
+}
+func (r *propertyResolver) SecurityFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.SecurityFeatures), nil
+}
+func (r *propertyResolver) ConstructionMaterials(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.ConstructionMaterials), nil
+}
+func (r *propertyResolver) FoundationDetails(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.FoundationDetails), nil
+}
+func (r *propertyResolver) Levels(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Levels), nil
+}
+func (r *propertyResolver) FireplaceFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.FireplaceFeatures), nil
+}
+func (r *propertyResolver) SpaFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.SpaFeatures), nil
+}
+func (r *propertyResolver) Fencing(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Fencing), nil
+}
+func (r *propertyResolver) HorseAmenities(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.HorseAmenities), nil
+}
+func (r *propertyResolver) WindowFeatures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.WindowFeatures), nil
+}
+func (r *propertyResolver) PetsAllowed(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.PetsAllowed), nil
+}
+func (r *propertyResolver) Disclosures(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.Disclosures), nil
+}
+func (r *propertyResolver) PropertyCondition(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.PropertyCondition), nil
+}
+func (r *propertyResolver) SpecialListingConditions(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.SpecialListingConditions), nil
+}
+func (r *propertyResolver) GreenEnergyEfficient(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.GreenEnergyEfficient), nil
+}
+func (r *propertyResolver) GreenSustainability(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.GreenSustainability), nil
+}
+func (r *propertyResolver) SyndicateTo(ctx context.Context, obj *ent.Property) (any, error) {
+	return stringArray(obj.SyndicateTo), nil
+}
+func (r *propertyResolver) CurrentVersionID(ctx context.Context, obj *ent.Property) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// Property.media + 8 agent/office soft-key resolvers, Member.office
+// ============================================================
+//
+// Property.media is a polymorphic query (resource_type+resource_record_key)
+// with no ent edge. The eight agent/office resolvers and Member.office wrap
+// soft keys: the *_key columns have no DB FK because real MLS feeds reference
+// agents and offices that are absent from the feed (retired, transferred,
+// out of subscription). A non-null key with a null resolved entity is a
+// VALID state — the consumer still sees the *Key string field. Every
+// resolver applies mlg_can_view=true so tombstoned-but-present rows resolve
+// null too.
+
+func (r *propertyResolver) Media(ctx context.Context, obj *ent.Property) ([]*ent.Media, error) {
+	return r.client.Media.Query().
+		Where(
+			entmedia.ResourceTypeEQ(entmedia.ResourceTypeProperty),
+			entmedia.ResourceRecordKeyEQ(obj.ID),
+			entmedia.MlgCanView(true),
+		).
+		All(ctx)
+}
+
+func (r *propertyResolver) resolveMember(ctx context.Context, key *string) (*ent.Member, error) {
+	if key == nil {
+		return nil, nil
+	}
+	m, err := r.client.Member.Query().
+		Where(member.IDEQ(*key), member.MlgCanView(true)).
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, nil
+	}
+	return m, err
+}
+
+func (r *propertyResolver) resolveOffice(ctx context.Context, key *string) (*ent.Office, error) {
+	if key == nil {
+		return nil, nil
+	}
+	o, err := r.client.Office.Query().
+		Where(office.IDEQ(*key), office.MlgCanView(true)).
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, nil
+	}
+	return o, err
+}
+
+func (r *propertyResolver) ListAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error) {
+	return r.resolveMember(ctx, obj.ListAgentKey)
+}
+func (r *propertyResolver) CoListAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error) {
+	return r.resolveMember(ctx, obj.CoListAgentKey)
+}
+func (r *propertyResolver) BuyerAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error) {
+	return r.resolveMember(ctx, obj.BuyerAgentKey)
+}
+func (r *propertyResolver) CoBuyerAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error) {
+	return r.resolveMember(ctx, obj.CoBuyerAgentKey)
+}
+func (r *propertyResolver) ListOffice(ctx context.Context, obj *ent.Property) (*ent.Office, error) {
+	return r.resolveOffice(ctx, obj.ListOfficeKey)
+}
+func (r *propertyResolver) CoListOffice(ctx context.Context, obj *ent.Property) (*ent.Office, error) {
+	return r.resolveOffice(ctx, obj.CoListOfficeKey)
+}
+func (r *propertyResolver) BuyerOffice(ctx context.Context, obj *ent.Property) (*ent.Office, error) {
+	return r.resolveOffice(ctx, obj.BuyerOfficeKey)
+}
+func (r *propertyResolver) CoBuyerOffice(ctx context.Context, obj *ent.Property) (*ent.Office, error) {
+	return r.resolveOffice(ctx, obj.CoBuyerOfficeKey)
+}
+
+func (r *memberResolver) Office(ctx context.Context, obj *ent.Member) (*ent.Office, error) {
+	if obj.OfficeKey == nil {
+		return nil, nil
+	}
+	o, err := r.client.Office.Query().
+		Where(office.IDEQ(*obj.OfficeKey), office.MlgCanView(true)).
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, nil
+	}
+	return o, err
+}
+
+// ============================================================
+// PropertyRoomResolver
+// ============================================================
+
+func (r *propertyRoomResolver) RoomFeatures(ctx context.Context, obj *ent.PropertyRoom) (any, error) {
+	return stringArray(obj.RoomFeatures), nil
+}
+
+func (r *propertyRoomResolver) CurrentVersionID(ctx context.Context, obj *ent.PropertyRoom) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// PropertyRoomVersionResolver
+// ============================================================
+
+func (r *propertyRoomVersionResolver) RoomFeatures(ctx context.Context, obj *ent.PropertyRoomVersion) (any, error) {
+	return stringArray(obj.RoomFeatures), nil
+}
+
+func (r *propertyRoomVersionResolver) SyncEventID(ctx context.Context, obj *ent.PropertyRoomVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+
+func (r *propertyRoomVersionResolver) RawOutputID(ctx context.Context, obj *ent.PropertyRoomVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}
+
+// ============================================================
+// PropertyUnitTypeResolver
+// ============================================================
+
+func (r *propertyUnitTypeResolver) UnitTypeBedsTotal(ctx context.Context, obj *ent.PropertyUnitType) (*int, error) {
+	return int16Ptr(obj.UnitTypeBedsTotal), nil
+}
+
+func (r *propertyUnitTypeResolver) CurrentVersionID(ctx context.Context, obj *ent.PropertyUnitType) (*string, error) {
+	return uuidPtr(obj.CurrentVersionID), nil
+}
+
+// ============================================================
+// PropertyUnitTypeVersionResolver
+// ============================================================
+
+func (r *propertyUnitTypeVersionResolver) UnitTypeBedsTotal(ctx context.Context, obj *ent.PropertyUnitTypeVersion) (*int, error) {
+	return int16Ptr(obj.UnitTypeBedsTotal), nil
+}
+
+func (r *propertyUnitTypeVersionResolver) SyncEventID(ctx context.Context, obj *ent.PropertyUnitTypeVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+
+func (r *propertyUnitTypeVersionResolver) RawOutputID(ctx context.Context, obj *ent.PropertyUnitTypeVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}
+
+// ============================================================
+// PropertyVersionResolver — same conversions as PropertyResolver plus version fields
+// ============================================================
+
+func (r *propertyVersionResolver) ListPrice(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.ListPrice), nil
+}
+func (r *propertyVersionResolver) OriginalListPrice(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.OriginalListPrice), nil
+}
+func (r *propertyVersionResolver) PreviousListPrice(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.PreviousListPrice), nil
+}
+func (r *propertyVersionResolver) TaxAnnualAmount(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.TaxAnnualAmount), nil
+}
+func (r *propertyVersionResolver) TaxYear(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.TaxYear), nil
+}
+func (r *propertyVersionResolver) BedroomsTotal(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.BedroomsTotal), nil
+}
+func (r *propertyVersionResolver) BathroomsTotalInteger(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.BathroomsTotalInteger), nil
+}
+func (r *propertyVersionResolver) BathroomsFull(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.BathroomsFull), nil
+}
+func (r *propertyVersionResolver) BathroomsHalf(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.BathroomsHalf), nil
+}
+func (r *propertyVersionResolver) MainLevelBedrooms(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.MainLevelBedrooms), nil
+}
+func (r *propertyVersionResolver) LivingArea(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.LivingArea), nil
+}
+func (r *propertyVersionResolver) BuildingAreaTotal(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.BuildingAreaTotal), nil
+}
+func (r *propertyVersionResolver) LotSizeAcres(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.LotSizeAcres), nil
+}
+func (r *propertyVersionResolver) LotSizeSquareFeet(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.LotSizeSquareFeet), nil
+}
+func (r *propertyVersionResolver) StoriesTotal(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.StoriesTotal), nil
+}
+func (r *propertyVersionResolver) YearBuilt(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.YearBuilt), nil
+}
+func (r *propertyVersionResolver) GarageSpaces(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.GarageSpaces), nil
+}
+func (r *propertyVersionResolver) CoveredSpaces(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.CoveredSpaces), nil
+}
+func (r *propertyVersionResolver) ParkingTotal(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.ParkingTotal), nil
+}
+func (r *propertyVersionResolver) FireplacesTotal(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
+	return int16Ptr(obj.FireplacesTotal), nil
+}
+func (r *propertyVersionResolver) Latitude(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.Latitude), nil
+}
+func (r *propertyVersionResolver) Longitude(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return decimalPtr(obj.Longitude), nil
+}
+func (r *propertyVersionResolver) Appliances(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Appliances), nil
+}
+func (r *propertyVersionResolver) Cooling(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Cooling), nil
+}
+func (r *propertyVersionResolver) Heating(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Heating), nil
+}
+func (r *propertyVersionResolver) Flooring(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Flooring), nil
+}
+func (r *propertyVersionResolver) Roof(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Roof), nil
+}
+func (r *propertyVersionResolver) ExteriorFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.ExteriorFeatures), nil
+}
+func (r *propertyVersionResolver) InteriorFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.InteriorFeatures), nil
+}
+func (r *propertyVersionResolver) ParkingFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.ParkingFeatures), nil
+}
+func (r *propertyVersionResolver) PoolFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.PoolFeatures), nil
+}
+func (r *propertyVersionResolver) View(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.View), nil
+}
+func (r *propertyVersionResolver) WaterfrontFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.WaterfrontFeatures), nil
+}
+func (r *propertyVersionResolver) CommunityFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.CommunityFeatures), nil
+}
+func (r *propertyVersionResolver) AccessibilityFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.AccessibilityFeatures), nil
+}
+func (r *propertyVersionResolver) Utilities(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Utilities), nil
+}
+func (r *propertyVersionResolver) Sewer(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Sewer), nil
+}
+func (r *propertyVersionResolver) WaterSource(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.WaterSource), nil
+}
+func (r *propertyVersionResolver) LotFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.LotFeatures), nil
+}
+func (r *propertyVersionResolver) PatioAndPorchFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.PatioAndPorchFeatures), nil
+}
+func (r *propertyVersionResolver) SecurityFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.SecurityFeatures), nil
+}
+func (r *propertyVersionResolver) ConstructionMaterials(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.ConstructionMaterials), nil
+}
+func (r *propertyVersionResolver) FoundationDetails(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.FoundationDetails), nil
+}
+func (r *propertyVersionResolver) Levels(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Levels), nil
+}
+func (r *propertyVersionResolver) FireplaceFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.FireplaceFeatures), nil
+}
+func (r *propertyVersionResolver) SpaFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.SpaFeatures), nil
+}
+func (r *propertyVersionResolver) Fencing(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Fencing), nil
+}
+func (r *propertyVersionResolver) HorseAmenities(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.HorseAmenities), nil
+}
+func (r *propertyVersionResolver) WindowFeatures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.WindowFeatures), nil
+}
+func (r *propertyVersionResolver) PetsAllowed(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.PetsAllowed), nil
+}
+func (r *propertyVersionResolver) Disclosures(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.Disclosures), nil
+}
+func (r *propertyVersionResolver) PropertyCondition(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.PropertyCondition), nil
+}
+func (r *propertyVersionResolver) SpecialListingConditions(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.SpecialListingConditions), nil
+}
+func (r *propertyVersionResolver) GreenEnergyEfficient(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.GreenEnergyEfficient), nil
+}
+func (r *propertyVersionResolver) GreenSustainability(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.GreenSustainability), nil
+}
+func (r *propertyVersionResolver) SyndicateTo(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
+	return stringArray(obj.SyndicateTo), nil
+}
+func (r *propertyVersionResolver) SyncEventID(ctx context.Context, obj *ent.PropertyVersion) (string, error) {
+	return uuidStr(obj.SyncEventID), nil
+}
+func (r *propertyVersionResolver) RawOutputID(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
+	return uuidPtr(obj.RawOutputID), nil
+}

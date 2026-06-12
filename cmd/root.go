@@ -1,0 +1,170 @@
+package cmd
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"net/http"
+	_ "net/http/pprof" // registers handlers on http.DefaultServeMux when imported
+	"os"
+	"runtime"
+
+	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
+	_ "github.com/lib/pq" // Postgres driver for Ent
+	"github.com/lunarhue/libs-go/log"
+	"github.com/spf13/cobra"
+
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/config"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
+	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync/processor"
+)
+
+var appConfig *config.Config
+
+var rootCmd = &cobra.Command{
+	Use:   "mls-cli",
+	Short: "MLS Grid Sync and Asset Pipeline",
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		cfg, err := config.Load()
+		if err != nil {
+			return err
+		}
+		appConfig = cfg
+		startProfilingServer(cfg.Profiling)
+		return nil
+	},
+}
+
+// startProfilingServer starts the in-process pprof HTTP server on
+// 127.0.0.1 when profiling.enabled is true. Net effect when disabled is
+// zero (no listener, no block sampling). See docs/profiling.md for the
+// investigation runbook this enables.
+func startProfilingServer(cfg config.ProfilingConfig) {
+	if !cfg.Enabled {
+		return
+	}
+	port := cfg.Port
+	if port == 0 {
+		port = 6060
+	}
+	addr := fmt.Sprintf("127.0.0.1:%d", port)
+
+	// Block profile sampling rate of 1 reports every blocking event;
+	// fine for an investigation pass, would be too noisy in steady state.
+	runtime.SetBlockProfileRate(1)
+
+	go func() {
+		log.Infof("pprof: listening on http://%s/debug/pprof/", addr)
+		srv := &http.Server{Addr: addr, Handler: nil} // nil = http.DefaultServeMux
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Errorf("pprof: server exited with error: %v", err)
+		}
+	}()
+}
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+// components bundles everything a subcommand might need so reprocess and
+// validate-typed can reach the processor stack and the raw *sql.DB
+// without copy-pasting the wiring.
+type components struct {
+	svc   *sync.Service
+	db    *ent.Client
+	sqlDB *sql.DB
+	proc  *processor.Processor
+}
+
+func setupComponents(ctx context.Context) (*components, error) {
+	if appConfig.MLS.Token == "" {
+		return nil, fmt.Errorf("fatal: MLS token is missing from configuration")
+	}
+
+	sqlDB, err := sql.Open("postgres", appConfig.Database.DSN)
+	if err != nil {
+		return nil, fmt.Errorf("failed opening connection to postgres: %w", err)
+	}
+
+	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
+	db := ent.NewClient(ent.Driver(drv))
+
+	if err := db.Schema.Create(ctx); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed creating schema resources: %w", err)
+	}
+
+	mlsClient := mls.NewClient(appConfig.MLS.Token)
+
+	proc := processor.New(db, sqlDB,
+		processor.NewLookupProcessor(),
+		processor.NewOfficeProcessor(),
+		processor.NewMemberProcessor(),
+		processor.NewPropertyProcessor(),
+		processor.NewOpenHouseProcessor(),
+		processor.NewMediaProcessor(),
+		processor.NewPropertyRoomProcessor(),
+		processor.NewPropertyUnitTypeProcessor(),
+	)
+
+	storer, err := newStorer(appConfig.Storage)
+	if err != nil {
+		db.Close()
+		return nil, fmt.Errorf("storage backend: %w", err)
+	}
+	svc := sync.NewService(mlsClient, db, sqlDB, storer, proc)
+
+	return &components{svc: svc, db: db, sqlDB: sqlDB, proc: proc}, nil
+}
+
+// newStorer dispatches on Storage.Backend. All four backends are
+// wired: fake (no-op), local (filesystem with cap + atomic writes),
+// azure (Azure Blob via azblob), s3 (S3 / S3-compatible via
+// aws-sdk-go-v2). Per-backend validation lives in the constructor.
+func newStorer(cfg config.StorageConfig) (storage.Storer, error) {
+	backend := cfg.Backend
+	if backend == "" {
+		backend = "fake"
+	}
+	switch backend {
+	case "fake":
+		return &storage.FakeStorer{}, nil
+	case "local":
+		root := cfg.Local.RootDir
+		if root == "" {
+			return nil, fmt.Errorf("local backend requires storage.local.root_dir")
+		}
+		cap := cfg.Local.CapBytes
+		if cap <= 0 {
+			return nil, fmt.Errorf("local backend requires storage.local.cap_bytes > 0")
+		}
+		return storage.NewLocal(root, cap)
+	case "azure":
+		return storage.NewAzureBlob(context.Background(),
+			cfg.Azure.ConnectionString, cfg.Azure.AccountURL, cfg.Azure.Container)
+	case "s3":
+		return storage.NewS3(context.Background(),
+			cfg.S3.Endpoint, cfg.S3.Bucket, cfg.S3.Region,
+			cfg.S3.AccessKeyID, cfg.S3.SecretAccessKey, cfg.S3.UsePathStyle)
+	default:
+		return nil, fmt.Errorf("unknown backend %q (want fake | local | azure | s3)", backend)
+	}
+}
+
+// setupService is the legacy 2-return signature kept for the older
+// subcommands (sync, import, worker, validate-raw). New subcommands
+// (reprocess, validate-typed) call setupComponents directly.
+func setupService(ctx context.Context) (*sync.Service, *ent.Client, error) {
+	c, err := setupComponents(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return c.svc, c.db, nil
+}

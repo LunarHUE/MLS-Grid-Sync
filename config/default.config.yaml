@@ -1,0 +1,53 @@
+log_level: "info"
+
+database:
+  # The default connection string for local development
+  dsn: "host=host.docker.internal port=5432 user=postgres dbname=mls_sync password=postgres sslmode=disable"
+  password: ""
+
+mls:
+  # Override this locally in config.yaml or use an env var (e.g., MLS_SYNC_MLS_TOKEN)
+  token: ""
+  # The OriginatingSystemName required by your MLS vendor
+  originating_system: "actris"
+  v2_url: "https://api.mlsgrid.com/v2"
+  # Attachment worker media-download rate cap (requests/sec). Separate from
+  # the OData API limiter (1 RPS, hardcoded in mls/client.go).
+  media_download_rps: 1.0
+
+profiling:
+  # Localhost-bound pprof endpoint for the throughput investigation
+  # runbook (docs/profiling.md). Default off; never enable in production.
+  enabled: false
+  port: 6060
+
+storage:
+  # Attachment backend. Phase 1 wires fake and local; azure and s3
+  # fail loudly with "not yet available (Phase 3)" until those impls
+  # land. Switch the backend via MLS_SYNC_STORAGE_BACKEND or config.yaml.
+  backend: "fake"
+  # Optional prefix prepended to every object key — per-deploy namespace.
+  # Empty preserves today's keys (regression-safe for the existing
+  # 586k job backlog). Applied at processing time, not enqueue time.
+  key_prefix: ""
+  local:
+    # LocalStorer writes under this root; never a production path.
+    root_dir: "/tmp/drain-test"
+    # Hard 5 GiB ceiling — runaway-test safety bound, not an operating
+    # point. Upload returns ErrLocalStorerFull at/over this.
+    cap_bytes: 5368709120
+  azure:
+    # Test path: Azurite emulator. Prod path leaves connection_string
+    # empty and uses account_url with DefaultAzureCredential.
+    connection_string: ""
+    account_url: ""
+    container: "media"
+  s3:
+    # MinIO sets endpoint; real AWS leaves it empty. Static creds here
+    # are TEST shapes only — prod relies on the SDK default chain.
+    endpoint: ""
+    bucket: "media"
+    region: "us-east-1"
+    access_key_id: ""
+    secret_access_key: ""
+    use_path_style: false

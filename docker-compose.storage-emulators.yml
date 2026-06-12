@@ -1,0 +1,38 @@
+# Storage emulators for the Phase 4 three-backend drain matrix.
+# Tests use testcontainers exclusively (see storage/azure_test.go and
+# storage/s3_test.go); this file is for the human-driven drain runs.
+#
+# Usage:
+#   docker compose -f docker-compose.storage-emulators.yml up -d
+#   # in config.yaml set storage.backend to "azure" or "s3" and point
+#   # the connection_string / endpoint at the host ports below.
+#   docker compose -f docker-compose.storage-emulators.yml down
+#
+# EMULATOR DIVERGENCE: see storage/azure_test.go for the
+# --skipApiVersionCheck rationale and the standing note that
+# real-cloud validation must still happen against actual Azure / AWS.
+
+services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: drain-matrix-azurite
+    command: ["azurite-blob", "--blobHost", "0.0.0.0", "--skipApiVersionCheck"]
+    ports:
+      # Connection string for the drain run:
+      #   DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;
+      #   AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;
+      #   BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;
+      - "10000:10000"
+
+  minio:
+    image: minio/minio:latest
+    container_name: drain-matrix-minio
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      # S3 API: storage.s3.endpoint = http://127.0.0.1:9000
+      - "9000:9000"
+      # Web console (for visual verification during a drain).
+      - "9001:9001"
