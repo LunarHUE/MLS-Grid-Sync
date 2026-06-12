@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 
+	"entgo.io/contrib/entgql"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
@@ -124,6 +125,31 @@ func newLookupPaginateArgs(rv map[string]any) *lookupPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &LookupOrder{Field: &LookupOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithLookupOrder(order))
+			}
+		case *LookupOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithLookupOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*LookupWhereInput); ok {
+		args.opts = append(args.opts, WithLookupFilter(v.Filter))
 	}
 	return args
 }
@@ -283,6 +309,31 @@ func newMediaPaginateArgs(rv map[string]any) *mediaPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &MediaOrder{Field: &MediaOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithMediaOrder(order))
+			}
+		case *MediaOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithMediaOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*MediaWhereInput); ok {
+		args.opts = append(args.opts, WithMediaFilter(v.Filter))
 	}
 	return args
 }
@@ -462,6 +513,31 @@ func newMediaVersionPaginateArgs(rv map[string]any) *mediaversionPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &MediaVersionOrder{Field: &MediaVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithMediaVersionOrder(order))
+			}
+		case *MediaVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithMediaVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*MediaVersionWhereInput); ok {
+		args.opts = append(args.opts, WithMediaVersionFilter(v.Filter))
 	}
 	return args
 }
@@ -691,6 +767,31 @@ func newMemberPaginateArgs(rv map[string]any) *memberPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &MemberOrder{Field: &MemberOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithMemberOrder(order))
+			}
+		case *MemberOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithMemberOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*MemberWhereInput); ok {
+		args.opts = append(args.opts, WithMemberFilter(v.Filter))
 	}
 	return args
 }
@@ -946,6 +1047,31 @@ func newMemberVersionPaginateArgs(rv map[string]any) *memberversionPaginateArgs 
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &MemberVersionOrder{Field: &MemberVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithMemberVersionOrder(order))
+			}
+		case *MemberVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithMemberVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*MemberVersionWhereInput); ok {
+		args.opts = append(args.opts, WithMemberVersionFilter(v.Filter))
+	}
 	return args
 }
 
@@ -1188,6 +1314,31 @@ func newOfficePaginateArgs(rv map[string]any) *officePaginateArgs {
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &OfficeOrder{Field: &OfficeOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithOfficeOrder(order))
+			}
+		case *OfficeOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithOfficeOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*OfficeWhereInput); ok {
+		args.opts = append(args.opts, WithOfficeFilter(v.Filter))
+	}
 	return args
 }
 
@@ -1427,6 +1578,31 @@ func newOfficeVersionPaginateArgs(rv map[string]any) *officeversionPaginateArgs 
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &OfficeVersionOrder{Field: &OfficeVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithOfficeVersionOrder(order))
+			}
+		case *OfficeVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithOfficeVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*OfficeVersionWhereInput); ok {
+		args.opts = append(args.opts, WithOfficeVersionFilter(v.Filter))
+	}
 	return args
 }
 
@@ -1580,6 +1756,31 @@ func newOpenHousePaginateArgs(rv map[string]any) *openhousePaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &OpenHouseOrder{Field: &OpenHouseOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithOpenHouseOrder(order))
+			}
+		case *OpenHouseOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithOpenHouseOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*OpenHouseWhereInput); ok {
+		args.opts = append(args.opts, WithOpenHouseFilter(v.Filter))
 	}
 	return args
 }
@@ -1739,6 +1940,31 @@ func newOpenHouseVersionPaginateArgs(rv map[string]any) *openhouseversionPaginat
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &OpenHouseVersionOrder{Field: &OpenHouseVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithOpenHouseVersionOrder(order))
+			}
+		case *OpenHouseVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithOpenHouseVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*OpenHouseVersionWhereInput); ok {
+		args.opts = append(args.opts, WithOpenHouseVersionFilter(v.Filter))
 	}
 	return args
 }
@@ -2478,6 +2704,31 @@ func newPropertyPaginateArgs(rv map[string]any) *propertyPaginateArgs {
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &PropertyOrder{Field: &PropertyOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithPropertyOrder(order))
+			}
+		case *PropertyOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithPropertyOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*PropertyWhereInput); ok {
+		args.opts = append(args.opts, WithPropertyFilter(v.Filter))
+	}
 	return args
 }
 
@@ -2616,6 +2867,31 @@ func newPropertyRoomPaginateArgs(rv map[string]any) *propertyroomPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &PropertyRoomOrder{Field: &PropertyRoomOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithPropertyRoomOrder(order))
+			}
+		case *PropertyRoomOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithPropertyRoomOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*PropertyRoomWhereInput); ok {
+		args.opts = append(args.opts, WithPropertyRoomFilter(v.Filter))
 	}
 	return args
 }
@@ -2761,6 +3037,31 @@ func newPropertyRoomVersionPaginateArgs(rv map[string]any) *propertyroomversionP
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &PropertyRoomVersionOrder{Field: &PropertyRoomVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithPropertyRoomVersionOrder(order))
+			}
+		case *PropertyRoomVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithPropertyRoomVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*PropertyRoomVersionWhereInput); ok {
+		args.opts = append(args.opts, WithPropertyRoomVersionFilter(v.Filter))
+	}
 	return args
 }
 
@@ -2894,6 +3195,31 @@ func newPropertyUnitTypePaginateArgs(rv map[string]any) *propertyunittypePaginat
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &PropertyUnitTypeOrder{Field: &PropertyUnitTypeOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithPropertyUnitTypeOrder(order))
+			}
+		case *PropertyUnitTypeOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithPropertyUnitTypeOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*PropertyUnitTypeWhereInput); ok {
+		args.opts = append(args.opts, WithPropertyUnitTypeFilter(v.Filter))
 	}
 	return args
 }
@@ -3033,6 +3359,31 @@ func newPropertyUnitTypeVersionPaginateArgs(rv map[string]any) *propertyunittype
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &PropertyUnitTypeVersionOrder{Field: &PropertyUnitTypeVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithPropertyUnitTypeVersionOrder(order))
+			}
+		case *PropertyUnitTypeVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithPropertyUnitTypeVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*PropertyUnitTypeVersionWhereInput); ok {
+		args.opts = append(args.opts, WithPropertyUnitTypeVersionFilter(v.Filter))
 	}
 	return args
 }
@@ -3758,6 +4109,31 @@ func newPropertyVersionPaginateArgs(rv map[string]any) *propertyversionPaginateA
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
+	if v, ok := rv[orderByField]; ok {
+		switch v := v.(type) {
+		case map[string]any:
+			var (
+				err1, err2 error
+				order      = &PropertyVersionOrder{Field: &PropertyVersionOrderField{}, Direction: entgql.OrderDirectionAsc}
+			)
+			if d, ok := v[directionField]; ok {
+				err1 = order.Direction.UnmarshalGQL(d)
+			}
+			if f, ok := v[fieldField]; ok {
+				err2 = order.Field.UnmarshalGQL(f)
+			}
+			if err1 == nil && err2 == nil {
+				args.opts = append(args.opts, WithPropertyVersionOrder(order))
+			}
+		case *PropertyVersionOrder:
+			if v != nil {
+				args.opts = append(args.opts, WithPropertyVersionOrder(v))
+			}
+		}
+	}
+	if v, ok := rv[whereField].(*PropertyVersionWhereInput); ok {
+		args.opts = append(args.opts, WithPropertyVersionFilter(v.Filter))
+	}
 	return args
 }
 
@@ -3831,6 +4207,9 @@ func newSourceSystemPaginateArgs(rv map[string]any) *sourcesystemPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*SourceSystemWhereInput); ok {
+		args.opts = append(args.opts, WithSourceSystemFilter(v.Filter))
 	}
 	return args
 }

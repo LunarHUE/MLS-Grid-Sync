@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
+	"github.com/google/uuid"
 )
 
 // Attachment is the model entity for the Attachment schema.

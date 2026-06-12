@@ -5,6 +5,9 @@ package ent
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
+	"strconv"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
@@ -318,6 +321,53 @@ func (_m *LookupQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// LookupOrderFieldSourceModifiedAt orders Lookup by source_modified_at.
+	LookupOrderFieldSourceModifiedAt = &LookupOrderField{
+		Value: func(_m *Lookup) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: lookup.FieldSourceModifiedAt,
+		toTerm: lookup.BySourceModifiedAt,
+		toCursor: func(_m *Lookup) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f LookupOrderField) String() string {
+	var str string
+	switch f.column {
+	case LookupOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f LookupOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *LookupOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("LookupOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *LookupOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid LookupOrderField", str)
+	}
+	return nil
+}
+
 // LookupOrderField defines the ordering field of Lookup.
 type LookupOrderField struct {
 	// Value extracts the ordering value from the given Lookup.
@@ -565,6 +615,53 @@ func (_m *MediaQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// MediaOrderFieldSourceModifiedAt orders Media by source_modified_at.
+	MediaOrderFieldSourceModifiedAt = &MediaOrderField{
+		Value: func(_m *Media) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: media.FieldSourceModifiedAt,
+		toTerm: media.BySourceModifiedAt,
+		toCursor: func(_m *Media) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f MediaOrderField) String() string {
+	var str string
+	switch f.column {
+	case MediaOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f MediaOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *MediaOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("MediaOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *MediaOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid MediaOrderField", str)
+	}
+	return nil
 }
 
 // MediaOrderField defines the ordering field of Media.
@@ -816,6 +913,53 @@ func (_m *MediaVersionQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// MediaVersionOrderFieldSourceModifiedAt orders MediaVersion by source_modified_at.
+	MediaVersionOrderFieldSourceModifiedAt = &MediaVersionOrderField{
+		Value: func(_m *MediaVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: mediaversion.FieldSourceModifiedAt,
+		toTerm: mediaversion.BySourceModifiedAt,
+		toCursor: func(_m *MediaVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f MediaVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case MediaVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f MediaVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *MediaVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("MediaVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *MediaVersionOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid MediaVersionOrderField", str)
+	}
+	return nil
+}
+
 // MediaVersionOrderField defines the ordering field of MediaVersion.
 type MediaVersionOrderField struct {
 	// Value extracts the ordering value from the given MediaVersion.
@@ -1063,6 +1207,53 @@ func (_m *MemberQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// MemberOrderFieldSourceModifiedAt orders Member by source_modified_at.
+	MemberOrderFieldSourceModifiedAt = &MemberOrderField{
+		Value: func(_m *Member) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: member.FieldSourceModifiedAt,
+		toTerm: member.BySourceModifiedAt,
+		toCursor: func(_m *Member) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f MemberOrderField) String() string {
+	var str string
+	switch f.column {
+	case MemberOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f MemberOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *MemberOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("MemberOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *MemberOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid MemberOrderField", str)
+	}
+	return nil
 }
 
 // MemberOrderField defines the ordering field of Member.
@@ -1314,6 +1505,53 @@ func (_m *MemberVersionQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// MemberVersionOrderFieldSourceModifiedAt orders MemberVersion by source_modified_at.
+	MemberVersionOrderFieldSourceModifiedAt = &MemberVersionOrderField{
+		Value: func(_m *MemberVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: memberversion.FieldSourceModifiedAt,
+		toTerm: memberversion.BySourceModifiedAt,
+		toCursor: func(_m *MemberVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f MemberVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case MemberVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f MemberVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *MemberVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("MemberVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *MemberVersionOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid MemberVersionOrderField", str)
+	}
+	return nil
+}
+
 // MemberVersionOrderField defines the ordering field of MemberVersion.
 type MemberVersionOrderField struct {
 	// Value extracts the ordering value from the given MemberVersion.
@@ -1561,6 +1799,53 @@ func (_m *OfficeQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// OfficeOrderFieldSourceModifiedAt orders Office by source_modified_at.
+	OfficeOrderFieldSourceModifiedAt = &OfficeOrderField{
+		Value: func(_m *Office) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: office.FieldSourceModifiedAt,
+		toTerm: office.BySourceModifiedAt,
+		toCursor: func(_m *Office) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f OfficeOrderField) String() string {
+	var str string
+	switch f.column {
+	case OfficeOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f OfficeOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *OfficeOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("OfficeOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *OfficeOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid OfficeOrderField", str)
+	}
+	return nil
 }
 
 // OfficeOrderField defines the ordering field of Office.
@@ -1812,6 +2097,53 @@ func (_m *OfficeVersionQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// OfficeVersionOrderFieldSourceModifiedAt orders OfficeVersion by source_modified_at.
+	OfficeVersionOrderFieldSourceModifiedAt = &OfficeVersionOrderField{
+		Value: func(_m *OfficeVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: officeversion.FieldSourceModifiedAt,
+		toTerm: officeversion.BySourceModifiedAt,
+		toCursor: func(_m *OfficeVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f OfficeVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case OfficeVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f OfficeVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *OfficeVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("OfficeVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *OfficeVersionOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid OfficeVersionOrderField", str)
+	}
+	return nil
+}
+
 // OfficeVersionOrderField defines the ordering field of OfficeVersion.
 type OfficeVersionOrderField struct {
 	// Value extracts the ordering value from the given OfficeVersion.
@@ -2059,6 +2391,53 @@ func (_m *OpenHouseQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// OpenHouseOrderFieldSourceModifiedAt orders OpenHouse by source_modified_at.
+	OpenHouseOrderFieldSourceModifiedAt = &OpenHouseOrderField{
+		Value: func(_m *OpenHouse) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: openhouse.FieldSourceModifiedAt,
+		toTerm: openhouse.BySourceModifiedAt,
+		toCursor: func(_m *OpenHouse) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f OpenHouseOrderField) String() string {
+	var str string
+	switch f.column {
+	case OpenHouseOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f OpenHouseOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *OpenHouseOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("OpenHouseOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *OpenHouseOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid OpenHouseOrderField", str)
+	}
+	return nil
 }
 
 // OpenHouseOrderField defines the ordering field of OpenHouse.
@@ -2310,6 +2689,53 @@ func (_m *OpenHouseVersionQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// OpenHouseVersionOrderFieldSourceModifiedAt orders OpenHouseVersion by source_modified_at.
+	OpenHouseVersionOrderFieldSourceModifiedAt = &OpenHouseVersionOrderField{
+		Value: func(_m *OpenHouseVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: openhouseversion.FieldSourceModifiedAt,
+		toTerm: openhouseversion.BySourceModifiedAt,
+		toCursor: func(_m *OpenHouseVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f OpenHouseVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case OpenHouseVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f OpenHouseVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *OpenHouseVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("OpenHouseVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *OpenHouseVersionOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid OpenHouseVersionOrderField", str)
+	}
+	return nil
+}
+
 // OpenHouseVersionOrderField defines the ordering field of OpenHouseVersion.
 type OpenHouseVersionOrderField struct {
 	// Value extracts the ordering value from the given OpenHouseVersion.
@@ -2557,6 +2983,71 @@ func (_m *PropertyQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// PropertyOrderFieldSourceModifiedAt orders Property by source_modified_at.
+	PropertyOrderFieldSourceModifiedAt = &PropertyOrderField{
+		Value: func(_m *Property) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: property.FieldSourceModifiedAt,
+		toTerm: property.BySourceModifiedAt,
+		toCursor: func(_m *Property) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+	// PropertyOrderFieldCity orders Property by city.
+	PropertyOrderFieldCity = &PropertyOrderField{
+		Value: func(_m *Property) (ent.Value, error) {
+			return _m.City, nil
+		},
+		column: property.FieldCity,
+		toTerm: property.ByCity,
+		toCursor: func(_m *Property) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.City,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f PropertyOrderField) String() string {
+	var str string
+	switch f.column {
+	case PropertyOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	case PropertyOrderFieldCity.column:
+		str = "CITY"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f PropertyOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *PropertyOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("PropertyOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *PropertyOrderFieldSourceModifiedAt
+	case "CITY":
+		*f = *PropertyOrderFieldCity
+	default:
+		return fmt.Errorf("%s is not a valid PropertyOrderField", str)
+	}
+	return nil
 }
 
 // PropertyOrderField defines the ordering field of Property.
@@ -2808,6 +3299,53 @@ func (_m *PropertyRoomQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// PropertyRoomOrderFieldSourceModifiedAt orders PropertyRoom by source_modified_at.
+	PropertyRoomOrderFieldSourceModifiedAt = &PropertyRoomOrderField{
+		Value: func(_m *PropertyRoom) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: propertyroom.FieldSourceModifiedAt,
+		toTerm: propertyroom.BySourceModifiedAt,
+		toCursor: func(_m *PropertyRoom) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f PropertyRoomOrderField) String() string {
+	var str string
+	switch f.column {
+	case PropertyRoomOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f PropertyRoomOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *PropertyRoomOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("PropertyRoomOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *PropertyRoomOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid PropertyRoomOrderField", str)
+	}
+	return nil
+}
+
 // PropertyRoomOrderField defines the ordering field of PropertyRoom.
 type PropertyRoomOrderField struct {
 	// Value extracts the ordering value from the given PropertyRoom.
@@ -3055,6 +3593,53 @@ func (_m *PropertyRoomVersionQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// PropertyRoomVersionOrderFieldSourceModifiedAt orders PropertyRoomVersion by source_modified_at.
+	PropertyRoomVersionOrderFieldSourceModifiedAt = &PropertyRoomVersionOrderField{
+		Value: func(_m *PropertyRoomVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: propertyroomversion.FieldSourceModifiedAt,
+		toTerm: propertyroomversion.BySourceModifiedAt,
+		toCursor: func(_m *PropertyRoomVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f PropertyRoomVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case PropertyRoomVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f PropertyRoomVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *PropertyRoomVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("PropertyRoomVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *PropertyRoomVersionOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid PropertyRoomVersionOrderField", str)
+	}
+	return nil
 }
 
 // PropertyRoomVersionOrderField defines the ordering field of PropertyRoomVersion.
@@ -3306,6 +3891,53 @@ func (_m *PropertyUnitTypeQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// PropertyUnitTypeOrderFieldSourceModifiedAt orders PropertyUnitType by source_modified_at.
+	PropertyUnitTypeOrderFieldSourceModifiedAt = &PropertyUnitTypeOrderField{
+		Value: func(_m *PropertyUnitType) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: propertyunittype.FieldSourceModifiedAt,
+		toTerm: propertyunittype.BySourceModifiedAt,
+		toCursor: func(_m *PropertyUnitType) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f PropertyUnitTypeOrderField) String() string {
+	var str string
+	switch f.column {
+	case PropertyUnitTypeOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f PropertyUnitTypeOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *PropertyUnitTypeOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("PropertyUnitTypeOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *PropertyUnitTypeOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid PropertyUnitTypeOrderField", str)
+	}
+	return nil
+}
+
 // PropertyUnitTypeOrderField defines the ordering field of PropertyUnitType.
 type PropertyUnitTypeOrderField struct {
 	// Value extracts the ordering value from the given PropertyUnitType.
@@ -3555,6 +4187,53 @@ func (_m *PropertyUnitTypeVersionQuery) Paginate(
 	return conn, nil
 }
 
+var (
+	// PropertyUnitTypeVersionOrderFieldSourceModifiedAt orders PropertyUnitTypeVersion by source_modified_at.
+	PropertyUnitTypeVersionOrderFieldSourceModifiedAt = &PropertyUnitTypeVersionOrderField{
+		Value: func(_m *PropertyUnitTypeVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: propertyunittypeversion.FieldSourceModifiedAt,
+		toTerm: propertyunittypeversion.BySourceModifiedAt,
+		toCursor: func(_m *PropertyUnitTypeVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f PropertyUnitTypeVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case PropertyUnitTypeVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f PropertyUnitTypeVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *PropertyUnitTypeVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("PropertyUnitTypeVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *PropertyUnitTypeVersionOrderFieldSourceModifiedAt
+	default:
+		return fmt.Errorf("%s is not a valid PropertyUnitTypeVersionOrderField", str)
+	}
+	return nil
+}
+
 // PropertyUnitTypeVersionOrderField defines the ordering field of PropertyUnitTypeVersion.
 type PropertyUnitTypeVersionOrderField struct {
 	// Value extracts the ordering value from the given PropertyUnitTypeVersion.
@@ -3802,6 +4481,71 @@ func (_m *PropertyVersionQuery) Paginate(
 	}
 	conn.build(nodes, pager, after, first, before, last)
 	return conn, nil
+}
+
+var (
+	// PropertyVersionOrderFieldSourceModifiedAt orders PropertyVersion by source_modified_at.
+	PropertyVersionOrderFieldSourceModifiedAt = &PropertyVersionOrderField{
+		Value: func(_m *PropertyVersion) (ent.Value, error) {
+			return _m.SourceModifiedAt, nil
+		},
+		column: propertyversion.FieldSourceModifiedAt,
+		toTerm: propertyversion.BySourceModifiedAt,
+		toCursor: func(_m *PropertyVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.SourceModifiedAt,
+			}
+		},
+	}
+	// PropertyVersionOrderFieldCity orders PropertyVersion by city.
+	PropertyVersionOrderFieldCity = &PropertyVersionOrderField{
+		Value: func(_m *PropertyVersion) (ent.Value, error) {
+			return _m.City, nil
+		},
+		column: propertyversion.FieldCity,
+		toTerm: propertyversion.ByCity,
+		toCursor: func(_m *PropertyVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.City,
+			}
+		},
+	}
+)
+
+// String implement fmt.Stringer interface.
+func (f PropertyVersionOrderField) String() string {
+	var str string
+	switch f.column {
+	case PropertyVersionOrderFieldSourceModifiedAt.column:
+		str = "SOURCE_MODIFIED_AT"
+	case PropertyVersionOrderFieldCity.column:
+		str = "CITY"
+	}
+	return str
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (f PropertyVersionOrderField) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(f.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (f *PropertyVersionOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("PropertyVersionOrderField %T must be a string", v)
+	}
+	switch str {
+	case "SOURCE_MODIFIED_AT":
+		*f = *PropertyVersionOrderFieldSourceModifiedAt
+	case "CITY":
+		*f = *PropertyVersionOrderFieldCity
+	default:
+		return fmt.Errorf("%s is not a valid PropertyVersionOrderField", str)
+	}
+	return nil
 }
 
 // PropertyVersionOrderField defines the ordering field of PropertyVersion.

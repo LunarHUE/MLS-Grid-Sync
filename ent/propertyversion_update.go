@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/shopspring/decimal"
 )
 

@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion"
+	"github.com/google/uuid"
 )
 
 // MediaVersionCreate is the builder for creating a MediaVersion entity.

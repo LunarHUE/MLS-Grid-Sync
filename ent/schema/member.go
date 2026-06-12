@@ -78,7 +78,8 @@ func (Member) Fields() []ent.Field {
 			StorageKey("member_key").
 			Comment("PK = MemberKey (canonical identifier from MLS Grid)"),
 		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable(),
+			Optional().Nillable().
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 	}
 }
 

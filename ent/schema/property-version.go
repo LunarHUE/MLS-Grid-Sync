@@ -38,10 +38,12 @@ func (PropertyVersion) Fields() []ent.Field {
 		// schemas for all 7 version tables, which is noisy. Integrity is
 		// maintained at write time (versions written in same tx as sync_event).
 		// Add FK constraints via Atlas migration hooks if desired.
-		field.UUID("sync_event_id", uuid.UUID{}),
+		field.UUID("sync_event_id", uuid.UUID{}).
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 		field.UUID("raw_output_id", uuid.UUID{}).
 			Optional().Nillable().
-			Comment("Nullable — manual fixes may not derive from a raw_output row"),
+			Comment("Nullable — manual fixes may not derive from a raw_output row").
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 	}
 }
 

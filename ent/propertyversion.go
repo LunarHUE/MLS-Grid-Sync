@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
 	"github.com/shopspring/decimal"
 )
 

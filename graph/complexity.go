@@ -3,6 +3,7 @@ package graph
 import (
 	"entgo.io/contrib/entgql"
 
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/graph/model"
 )
 
@@ -63,34 +64,66 @@ func listComplexity(childComplexity int) int {
 func complexityRoot() ComplexityRoot {
 	var root ComplexityRoot
 
-	conn := func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int) int {
+	// Each connection field now carries entity-specific orderBy/where args, so
+	// the closures can no longer share a single signature. orderBy/where don't
+	// affect the row budget (the page size already bounds it), so they're
+	// ignored via `_`.
+	root.Query.Lookups = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.LookupOrder, _ *ent.LookupWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.MediaSlice = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.MediaOrder, _ *ent.MediaWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.MediaVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.MediaVersionOrder, _ *ent.MediaVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.Members = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.MemberOrder, _ *ent.MemberWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.MemberVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.MemberVersionOrder, _ *ent.MemberVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.Offices = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.OfficeOrder, _ *ent.OfficeWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.OfficeVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.OfficeVersionOrder, _ *ent.OfficeVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.OpenHouses = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.OpenHouseOrder, _ *ent.OpenHouseWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.OpenHouseVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.OpenHouseVersionOrder, _ *ent.OpenHouseVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.Properties = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.PropertyRooms = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyRoomOrder, _ *ent.PropertyRoomWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.PropertyRoomVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyRoomVersionOrder, _ *ent.PropertyRoomVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.PropertyUnitTypes = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyUnitTypeOrder, _ *ent.PropertyUnitTypeWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.PropertyUnitTypeVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyUnitTypeVersionOrder, _ *ent.PropertyUnitTypeVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.PropertyVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyVersionOrder, _ *ent.PropertyVersionWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.SourceSystems = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.SourceSystemWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
 
-	root.Query.Lookups = conn
-	root.Query.MediaSlice = conn
-	root.Query.MediaVersions = conn
-	root.Query.Members = conn
-	root.Query.MemberVersions = conn
-	root.Query.Offices = conn
-	root.Query.OfficeVersions = conn
-	root.Query.OpenHouses = conn
-	root.Query.OpenHouseVersions = conn
-	root.Query.Properties = conn
-	root.Query.PropertyRooms = conn
-	root.Query.PropertyRoomVersions = conn
-	root.Query.PropertyUnitTypes = conn
-	root.Query.PropertyUnitTypeVersions = conn
-	root.Query.PropertyVersions = conn
-	root.Query.SourceSystems = conn
-
-	root.Query.PropertiesNear = func(childComplexity int, _ model.GeoPoint, _ float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int) int {
+	root.Query.PropertiesNear = func(childComplexity int, _ model.GeoPoint, _ float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
-	root.Query.PropertiesInBBox = func(childComplexity int, _ model.GeoPoint, _ model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int) int {
+	root.Query.PropertiesInBBox = func(childComplexity int, _ model.GeoPoint, _ model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
-	root.Query.PropertiesInPolygon = func(childComplexity int, _ []*model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int) int {
+	root.Query.PropertiesInPolygon = func(childComplexity int, _ []*model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
 

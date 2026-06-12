@@ -3,6 +3,7 @@ package schema
 import (
 	"time"
 
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
@@ -43,7 +44,8 @@ type MLSMetadataMixin struct{ mixin.Schema }
 func (MLSMetadataMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.Time("source_modified_at").
-			Comment("Upstream ModificationTimestamp — canonical ordering"),
+			Comment("Upstream ModificationTimestamp — canonical ordering").
+			Annotations(entgql.OrderField("SOURCE_MODIFIED_AT")),
 		field.String("originating_system_name").
 			Optional().
 			Nillable(),
@@ -111,5 +113,6 @@ func textArray(name string) ent.Field {
 		SchemaType(map[string]string{
 			dialect.Postgres: "text[]",
 		}).
-		Optional()
+		Optional().
+		Annotations(entgql.Skip(entgql.SkipWhereInput))
 }

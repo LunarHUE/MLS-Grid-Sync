@@ -26,7 +26,7 @@ func validatePoint(name string, p model.GeoPoint) error {
 	return nil
 }
 
-func (r *queryResolver) PropertiesNear(ctx context.Context, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+func (r *queryResolver) PropertiesNear(ctx context.Context, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
 	if err := validatePoint("center", center); err != nil {
 		return nil, err
@@ -36,10 +36,12 @@ func (r *queryResolver) PropertiesNear(ctx context.Context, center model.GeoPoin
 	}
 	return r.client.Property.Query().
 		Where(property.MlgCanView(true), geo.WithinRadius(center.Latitude, center.Longitude, radiusMeters)).
-		Paginate(ctx, after, first, before, last)
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyOrder(orderBy),
+			ent.WithPropertyFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
 	if err := validatePoint("southWest", southWest); err != nil {
 		return nil, err
@@ -55,7 +57,9 @@ func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.Ge
 	}
 	return r.client.Property.Query().
 		Where(property.MlgCanView(true), geo.InBBox(southWest.Latitude, southWest.Longitude, northEast.Latitude, northEast.Longitude)).
-		Paginate(ctx, after, first, before, last)
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyOrder(orderBy),
+			ent.WithPropertyFilter(where.Filter))
 }
 
 // maxPolygonVertices caps propertiesInPolygon input. Map-drawing tools
@@ -63,7 +67,7 @@ func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.Ge
 // or an attempt to make the server chew on a degenerate geometry.
 const maxPolygonVertices = 1024
 
-func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
 	if len(vertices) < 3 {
 		return nil, fmt.Errorf("polygon needs at least 3 vertices, got %d", len(vertices))
@@ -80,5 +84,7 @@ func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*mod
 	}
 	return r.client.Property.Query().
 		Where(property.MlgCanView(true), geo.InPolygon(geo.PolygonWKT(latLngs))).
-		Paginate(ctx, after, first, before, last)
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyOrder(orderBy),
+			ent.WithPropertyFilter(where.Filter))
 }

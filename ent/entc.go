@@ -17,6 +17,7 @@ func main() {
 		entgql.WithSchemaGenerator(),
 		entgql.WithSchemaPath("../graph/ent.graphql"),
 		entgql.WithConfigPath("../gqlgen.yml"),
+		entgql.WithWhereInputs(true),
 		// By default, entgql forces you to have mutations.
 		// Since your DB is read-only, we skip mutation generation.
 		// entgql.WithMutations(), <- Do not include this

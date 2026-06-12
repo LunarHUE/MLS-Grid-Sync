@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // OfficeVersionUpdate is the builder for updating OfficeVersion entities.

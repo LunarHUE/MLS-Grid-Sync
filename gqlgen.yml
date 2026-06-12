@@ -19,12 +19,19 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.ID
       - github.com/99designs/gqlgen/graphql.String
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int32
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int16
   UUID:
     model:
       - github.com/99designs/gqlgen/graphql.String
   Decimal:
     model:
       - github.com/99designs/gqlgen/graphql.String
+      - github.com/LunarHUE/MLS-Grid-Sync/graph/scalar.Decimal
   StringArray:
     model:
       - github.com/99designs/gqlgen/graphql.Any

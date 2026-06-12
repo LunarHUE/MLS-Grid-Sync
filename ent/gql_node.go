@@ -8,7 +8,6 @@ import (
 
 	"entgo.io/contrib/entgql"
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/hashicorp/go-multierror"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion"
@@ -25,6 +24,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittypeversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Noder wraps the basic Node method.

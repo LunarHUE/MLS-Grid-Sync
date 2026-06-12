@@ -76,7 +76,8 @@ func (Office) Fields() []ent.Field {
 			StorageKey("office_key").
 			Comment("PK = OfficeKey (canonical identifier from MLS Grid)"),
 		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable(),
+			Optional().Nillable().
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 	}
 }
 

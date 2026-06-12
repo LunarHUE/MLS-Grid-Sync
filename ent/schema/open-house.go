@@ -53,7 +53,8 @@ func (OpenHouse) Fields() []ent.Field {
 			StorageKey("open_house_key").
 			Comment("RESO OpenHouseKey"),
 		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable(),
+			Optional().Nillable().
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 		field.String("parent_listing_key").
 			Optional().Nillable().
 			Comment("Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives."),

@@ -10,10 +10,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroom"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // PropertyRoom is the model entity for the PropertyRoom schema.
