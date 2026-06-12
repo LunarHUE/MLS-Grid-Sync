@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 )
 
 func odata(t *testing.T, records []any, nextLink string) []byte {

@@ -10,11 +10,11 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	entmedia "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/mediaversion"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/version"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	entmedia "github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
 // MediaProcessor handles the Media resource. Media is polymorphic

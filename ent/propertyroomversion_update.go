@@ -14,8 +14,8 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyroomversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroomversion"
 )
 
 // PropertyRoomVersionUpdate is the builder for updating PropertyRoomVersion entities.

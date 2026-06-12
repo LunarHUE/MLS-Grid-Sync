@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/openhouse"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/property"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyroom"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittype"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouse"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroom"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittype"
 	"github.com/shopspring/decimal"
 )
 

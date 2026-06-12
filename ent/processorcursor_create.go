@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/processorcursor"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
 )
 
 // ProcessorCursorCreate is the builder for creating a ProcessorCursor entity.

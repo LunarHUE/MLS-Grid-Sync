@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 )
 
 // TestAllValidatedResources_FKOrder pins the canonical FK-dependency

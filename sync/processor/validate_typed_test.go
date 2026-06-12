@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/property"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 )
 
 // TestValidateTyped_CleanReturnsNoMismatches: a single Property processed

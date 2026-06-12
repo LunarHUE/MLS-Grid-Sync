@@ -16,10 +16,10 @@ import (
 	"github.com/google/uuid"
 	entdialectsql "entgo.io/ent/dialect/sql"
 	"github.com/lunarhue/libs-go/log"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachment"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachmentjob"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 	"golang.org/x/sync/errgroup"
 )
 

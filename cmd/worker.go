@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/time/rate"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync"
 )
 
 // Worker subcommand flags. Both default to "unbounded" — the existing

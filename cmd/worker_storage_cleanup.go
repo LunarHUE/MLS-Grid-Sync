@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/config"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
+	"github.com/LunarHUE/MLS-Grid-Sync/config"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 )
 
 var (

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 )
 
 func odataPayload(t *testing.T, records ...map[string]any) []byte {

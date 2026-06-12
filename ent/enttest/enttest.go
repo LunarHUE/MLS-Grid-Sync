@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	// required by schema hooks.
-	_ "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/runtime"
+	_ "github.com/LunarHUE/MLS-Grid-Sync/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/migrate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/migrate"
 )
 
 type (

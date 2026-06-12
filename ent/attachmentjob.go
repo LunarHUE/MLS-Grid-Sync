@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachment"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachmentjob"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
 )
 
 // AttachmentJob is the model entity for the AttachmentJob schema.

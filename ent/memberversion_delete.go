@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/memberversion"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/memberversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 )
 
 // MemberVersionDelete is the builder for deleting a MemberVersion entity.

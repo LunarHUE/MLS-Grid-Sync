@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 )
 
 // The AttachmentFunc type is an adapter to allow the use of ordinary

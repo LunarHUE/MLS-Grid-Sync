@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync/processor"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 )
 
 var validateTypedCmd = &cobra.Command{

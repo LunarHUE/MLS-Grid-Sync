@@ -9,12 +9,12 @@ import (
 	"github.com/lunarhue/libs-go/log"
 	"github.com/spf13/cobra"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/processorcursor"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	pkgsync "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/version"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
 var (

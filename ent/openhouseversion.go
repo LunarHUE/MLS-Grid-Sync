@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/openhouseversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouseversion"
 )
 
 // OpenHouseVersion is the model entity for the OpenHouseVersion schema.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/sourcesystem"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
 )
 
 // SourceSystem is the model entity for the SourceSystem schema.

@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/member"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
 )
 
 // MemberCreate is the builder for creating a Member entity.

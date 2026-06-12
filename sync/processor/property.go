@@ -12,13 +12,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/lunarhue/libs-go/log"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachmentjob"
-	entmedia "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/property"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyversion"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/version"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	entmedia "github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
 // PropertyProcessor handles the Property resource: parse the raw_output

@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyroomversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroomversion"
 )
 
 // PropertyRoomVersion is the model entity for the PropertyRoomVersion schema.

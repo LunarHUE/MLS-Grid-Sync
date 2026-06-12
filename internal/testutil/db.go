@@ -13,7 +13,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 )
 
 // NewTestDB spins up a PostgreSQL 15 container, auto-migrates the schema, and

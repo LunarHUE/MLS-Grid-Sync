@@ -145,7 +145,7 @@ type MediaEdge {
 """
 MediaResourceType is enum for the field resource_type
 """
-enum MediaResourceType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media.ResourceType") {
+enum MediaResourceType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/media.ResourceType") {
   property
   member
   office
@@ -204,7 +204,7 @@ type MediaVersion implements Node {
 """
 MediaVersionChangeType is enum for the field change_type
 """
-enum MediaVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/mediaversion.ChangeType") {
+enum MediaVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion.ChangeType") {
   insert
   update
   delete
@@ -242,7 +242,7 @@ type MediaVersionEdge {
 """
 MediaVersionResourceType is enum for the field resource_type
 """
-enum MediaVersionResourceType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/mediaversion.ResourceType") {
+enum MediaVersionResourceType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion.ResourceType") {
   property
   member
   office
@@ -392,7 +392,7 @@ type MemberVersion implements Node {
 """
 MemberVersionChangeType is enum for the field change_type
 """
-enum MemberVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/memberversion.ChangeType") {
+enum MemberVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/memberversion.ChangeType") {
   insert
   update
   delete
@@ -431,7 +431,7 @@ type MemberVersionEdge {
 An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
 """
-interface Node @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent.Noder") {
+interface Node @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent.Noder") {
   """
   The id of the object.
   """
@@ -578,7 +578,7 @@ type OfficeVersion implements Node {
 """
 OfficeVersionChangeType is enum for the field change_type
 """
-enum OfficeVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/officeversion.ChangeType") {
+enum OfficeVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion.ChangeType") {
   insert
   update
   delete
@@ -725,7 +725,7 @@ type OpenHouseVersion implements Node {
 """
 OpenHouseVersionChangeType is enum for the field change_type
 """
-enum OpenHouseVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/openhouseversion.ChangeType") {
+enum OpenHouseVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/openhouseversion.ChangeType") {
   insert
   update
   delete
@@ -1080,7 +1080,7 @@ type PropertyRoomVersion implements Node {
 """
 PropertyRoomVersionChangeType is enum for the field change_type
 """
-enum PropertyRoomVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyroomversion.ChangeType") {
+enum PropertyRoomVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroomversion.ChangeType") {
   insert
   update
   delete
@@ -1219,7 +1219,7 @@ type PropertyUnitTypeVersion implements Node {
 """
 PropertyUnitTypeVersionChangeType is enum for the field change_type
 """
-enum PropertyUnitTypeVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittypeversion.ChangeType") {
+enum PropertyUnitTypeVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittypeversion.ChangeType") {
   insert
   update
   delete
@@ -1411,7 +1411,7 @@ type PropertyVersion implements Node {
 """
 PropertyVersionChangeType is enum for the field change_type
 """
-enum PropertyVersionChangeType @goModel(model: "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyversion.ChangeType") {
+enum PropertyVersionChangeType @goModel(model: "github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion.ChangeType") {
   insert
   update
   delete

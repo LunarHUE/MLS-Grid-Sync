@@ -8,10 +8,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/lunarhue/libs-go/log"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/version"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
 // RunInitial wraps a single resource's initial-import lifecycle: create

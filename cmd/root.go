@@ -15,12 +15,12 @@ import (
 	"github.com/lunarhue/libs-go/log"
 	"github.com/spf13/cobra"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/config"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync/processor"
+	"github.com/LunarHUE/MLS-Grid-Sync/config"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 )
 
 var appConfig *config.Config

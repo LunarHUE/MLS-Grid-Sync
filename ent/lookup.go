@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/lookup"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
 )
 
 // Lookup is the model entity for the Lookup schema.

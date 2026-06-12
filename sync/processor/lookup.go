@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/lookup"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 )
 
 // LookupProcessor handles the Lookup resource — MLS Grid's enumeration

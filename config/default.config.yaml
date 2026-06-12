@@ -21,6 +21,11 @@ profiling:
   enabled: false
   port: 6060
 
+server:
+  # Listen address for the `serve` subcommand (GraphQL API). Override
+  # via MLS_SYNC_SERVER_ADDR or the --addr flag.
+  addr: ":8080"
+
 storage:
   # Attachment backend. Phase 1 wires fake and local; azure and s3
   # fail loudly with "not yet available (Phase 3)" until those impls

@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 )
 
 // TestResourceNames_RoundTrip is the load-bearing test for the four-domain

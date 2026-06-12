@@ -3,8 +3,8 @@ package sync
 import (
 	"fmt"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 )
 
 // MLSToDBResource maps an MLS Grid API resource name (e.g. "OpenHouse") to

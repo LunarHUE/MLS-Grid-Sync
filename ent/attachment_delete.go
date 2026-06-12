@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachment"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 )
 
 // AttachmentDelete is the builder for deleting a Attachment entity.

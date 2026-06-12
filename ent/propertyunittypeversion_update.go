@@ -13,8 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittypeversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittypeversion"
 )
 
 // PropertyUnitTypeVersionUpdate is the builder for updating PropertyUnitTypeVersion entities.

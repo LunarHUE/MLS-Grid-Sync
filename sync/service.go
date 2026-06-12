@@ -7,11 +7,11 @@ import (
 
 	"github.com/lunarhue/libs-go/log"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 )
 
 // DefaultStaleRunningThreshold is the wall-clock age past which a

@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/officeversion"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 )
 
 // OfficeVersionQuery is the builder for querying OfficeVersion entities.
