@@ -14,7 +14,7 @@ go build -o mls-cli .
 
 | Command | Purpose |
 |---------|---------|
-| `serve` | Serve the GraphQL API over HTTP (playground at `/`, API at `/query`, health at `/healthz`) |
+| `serve` | Serve the GraphQL API over HTTP (playground at `/`, API at `/query`, health at `/healthz`) — see [docs/graphql-api.md](docs/graphql-api.md) |
 | `init` | Full initial corpus import across all resources in FK-dependency order |
 | `import <Resource>` | Initial bulk import of one resource (e.g. `import Property`) |
 | `sync` | Continuous delta sync daemon |
@@ -115,9 +115,14 @@ go test ./sync/... -v
 
 ### Test infrastructure
 
-**`internal/testutil/db.go`** — `NewTestDB(t)` starts a throwaway
-`postgres:15-alpine` container, runs `ent` schema migrations, and returns an
-`*ent.Client`. The container is terminated automatically via `t.Cleanup`.
+**`internal/testutil/db.go`** — one shared `postgres:15-alpine` container
+per test process (started on first use, reaped by Testcontainers' ryuk at
+process exit). The ent schema is migrated once into a `mls_template`
+database; each `NewTestDB(t)` call clones it via
+`CREATE DATABASE … TEMPLATE` (~100ms), so every test gets an isolated,
+fully-migrated database and `t.Parallel()` is safe. `NewTestDBWithSQL(t)`
+additionally returns the raw `*sql.DB` for code that needs it (e.g. the
+processor's advisory-lock helper).
 
 **`internal/testutil/server.go`** — `NewTestServer(t)` wraps `NewTestDB` and
 starts an `httptest.Server` with the full GraphQL handler attached. Returns
@@ -146,28 +151,21 @@ testutil.GQL(t, srv, `query($id: ID!) { node(id: $id) { id } }`,
     map[string]any{"id": "abc"}, &result)
 ```
 
-### GraphQL resolver tests (`graph/resolver_test.go`)
+### GraphQL test suite (`graph/*_test.go`)
 
-Each test gets its own isolated database container.
+Each test gets its own isolated database (cloned from the migrated
+template). The suite is split by concern:
 
-| Test | What it covers |
+| File | What it covers |
 |------|---------------|
-| `TestQueryLookups_Empty` | Empty connection returns `totalCount: 0` |
-| `TestQueryLookups_WithData` | Records inserted via ent show up in the API |
-| `TestQueryLookups_Pagination` | `first`/`after` cursor pagination works |
-| `TestQueryNode_Lookup` | Global `node(id:)` resolves a `Lookup` by ID |
-| `TestQueryMembers_Empty` | Empty members connection |
-| `TestQueryMembers_WithData` | Member records visible via GraphQL |
-| `TestQueryMembers_Pagination` | Cursor pagination for members |
-| `TestQueryNode_Member` | Global `node(id:)` resolves a `Member` |
-| `TestQueryNode_NotFound` | Unknown ID returns `null` (not an error) |
-| `TestQueryProperties_Empty` | Empty properties connection |
-| `TestQueryProperties_WithData` | Property records visible via GraphQL |
-| `TestQueryNode_Property` | Global `node(id:)` resolves a `Property` |
-| `TestQueryOffices_Empty` | Empty offices connection |
-| `TestQueryOpenHouses_Empty` | Empty open houses connection |
-| `TestQuerySourceSystems_Empty` | Empty source systems connection |
-| `TestIntrospection` | Schema contains expected type names |
+| `resolver_test.go` | Lookup/Member/Property lists, forward pagination, `node()` basics, the full soft-key matrix (orphan/tombstoned/visible × 8 Property refs + `Member.office`), introspection |
+| `lists_test.go` | Data-bearing coverage for every remaining root list, incl. all 7 `*Versions` audit lists |
+| `node_test.go` | `node()` for every remaining type, `nodes(ids:)` ordering + null-on-miss, probe-order collision precedence, introspected field descriptions |
+| `visibility_test.go` | Entity lists + `node()` hide `mlg_can_view=false` rows; version lists include them by design; SourceSystem has no flag |
+| `pagination_test.go` | Backward (`last`/`before`) paging, `first: 0`, overfetch, invalid cursor and `first`+`last` errors |
+| `wire_format_test.go` | JSON wire shapes of Decimal/UUID/StringArray/Map/Time/int16 fields, null handling, Property↔PropertyVersion parity |
+| `edges_test.go` | Polymorphic `Property.media`, parent/child ent edges, Office self-reference, and the pinned edge-visibility gap |
+| `seed_test.go` | Shared seed helpers (required-field cheat sheet per entity/version type) |
 
 ### Node resolution
 
@@ -175,7 +173,9 @@ Entity IDs are plain strings sourced from MLS Grid (e.g. `"ABC123"`). They
 carry no type prefix, so the `node(id:)` resolver probes each entity table in
 order until it finds a match. This is correct for a read-heavy API where relay
 re-fetching is infrequent; a production optimisation would be to encode the
-type in the ID.
+type in the ID. Visibility semantics (tombstoned rows hidden from lists and
+`node()`, audit lists unfiltered) are documented in
+[docs/graphql-api.md](docs/graphql-api.md).
 
 ### Adding a new test
 

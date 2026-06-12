@@ -10,9 +10,14 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
 	entmedia "github.com/LunarHUE/MLS-Grid-Sync/ent/media"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/office"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouse"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroom"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittype"
 )
 
 type Resolver struct{ client *ent.Client }
@@ -115,6 +120,13 @@ func (r *queryResolver) Node(ctx context.Context, id string) (ent.Noder, error) 
 	for _, table := range entityTables {
 		noder, err := r.client.Noder(ctx, id, ent.WithFixedNodeType(table))
 		if err == nil {
+			visible, err := r.nodeVisible(ctx, noder)
+			if err != nil {
+				return nil, err
+			}
+			if !visible {
+				return nil, nil
+			}
 			return noder, nil
 		}
 		if !ent.IsNotFound(err) {
@@ -122,6 +134,36 @@ func (r *queryResolver) Node(ctx context.Context, id string) (ent.Noder, error) 
 		}
 	}
 	return nil, nil
+}
+
+// nodeVisible reports whether a noder is consumer-visible, matching the
+// mlg_can_view filter the list resolvers and soft-key resolvers apply.
+// It re-queries by ID rather than reading the struct field: the Noder
+// fetch uses gqlgen field collection, so MlgCanView is only populated
+// when the client happened to request it. Version types and SourceSystem
+// are always visible: versions are audit history (a tombstoned delete
+// version IS the record), and SourceSystem carries no visibility flag.
+func (r *queryResolver) nodeVisible(ctx context.Context, n ent.Noder) (bool, error) {
+	switch v := n.(type) {
+	case *ent.Lookup:
+		return r.client.Lookup.Query().Where(lookup.ID(v.ID), lookup.MlgCanView(true)).Exist(ctx)
+	case *ent.Media:
+		return r.client.Media.Query().Where(entmedia.ID(v.ID), entmedia.MlgCanView(true)).Exist(ctx)
+	case *ent.Member:
+		return r.client.Member.Query().Where(member.ID(v.ID), member.MlgCanView(true)).Exist(ctx)
+	case *ent.Office:
+		return r.client.Office.Query().Where(office.ID(v.ID), office.MlgCanView(true)).Exist(ctx)
+	case *ent.OpenHouse:
+		return r.client.OpenHouse.Query().Where(openhouse.ID(v.ID), openhouse.MlgCanView(true)).Exist(ctx)
+	case *ent.Property:
+		return r.client.Property.Query().Where(property.ID(v.ID), property.MlgCanView(true)).Exist(ctx)
+	case *ent.PropertyRoom:
+		return r.client.PropertyRoom.Query().Where(propertyroom.ID(v.ID), propertyroom.MlgCanView(true)).Exist(ctx)
+	case *ent.PropertyUnitType:
+		return r.client.PropertyUnitType.Query().Where(propertyunittype.ID(v.ID), propertyunittype.MlgCanView(true)).Exist(ctx)
+	default:
+		return true, nil
+	}
 }
 
 func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, error) {
@@ -137,11 +179,11 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 }
 
 func (r *queryResolver) Lookups(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.LookupConnection, error) {
-	return r.client.Lookup.Query().Paginate(ctx, after, first, before, last)
+	return r.client.Lookup.Query().Where(lookup.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) MediaSlice(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaConnection, error) {
-	return r.client.Media.Query().Paginate(ctx, after, first, before, last)
+	return r.client.Media.Query().Where(entmedia.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) MediaVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaVersionConnection, error) {
@@ -149,7 +191,7 @@ func (r *queryResolver) MediaVersions(ctx context.Context, after *entgql.Cursor[
 }
 
 func (r *queryResolver) Members(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberConnection, error) {
-	return r.client.Member.Query().Paginate(ctx, after, first, before, last)
+	return r.client.Member.Query().Where(member.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) MemberVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberVersionConnection, error) {
@@ -157,7 +199,7 @@ func (r *queryResolver) MemberVersions(ctx context.Context, after *entgql.Cursor
 }
 
 func (r *queryResolver) Offices(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeConnection, error) {
-	return r.client.Office.Query().Paginate(ctx, after, first, before, last)
+	return r.client.Office.Query().Where(office.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) OfficeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeVersionConnection, error) {
@@ -165,7 +207,7 @@ func (r *queryResolver) OfficeVersions(ctx context.Context, after *entgql.Cursor
 }
 
 func (r *queryResolver) OpenHouses(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseConnection, error) {
-	return r.client.OpenHouse.Query().Paginate(ctx, after, first, before, last)
+	return r.client.OpenHouse.Query().Where(openhouse.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseVersionConnection, error) {
@@ -173,11 +215,11 @@ func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cur
 }
 
 func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
-	return r.client.Property.Query().Paginate(ctx, after, first, before, last)
+	return r.client.Property.Query().Where(property.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyRooms(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomConnection, error) {
-	return r.client.PropertyRoom.Query().Paginate(ctx, after, first, before, last)
+	return r.client.PropertyRoom.Query().Where(propertyroom.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyRoomVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomVersionConnection, error) {
@@ -185,7 +227,7 @@ func (r *queryResolver) PropertyRoomVersions(ctx context.Context, after *entgql.
 }
 
 func (r *queryResolver) PropertyUnitTypes(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeConnection, error) {
-	return r.client.PropertyUnitType.Query().Paginate(ctx, after, first, before, last)
+	return r.client.PropertyUnitType.Query().Where(propertyunittype.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyUnitTypeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeVersionConnection, error) {

@@ -21,29 +21,64 @@ extend type Property {
   """
   media: [Media!]!
 
+  # Agent and office references on a Property are SOFT KEYS — the underlying
+  # *_key columns are not constrained by a DB foreign key, because real MLS
+  # feeds routinely reference agents and offices that are absent from the feed
+  # (retired, transferred, out of subscription). A non-null *Key with a null
+  # resolved entity is a valid state: "outside this feed." Consumers see the
+  # string key field regardless. All eight resolvers apply mlg_can_view=true
+  # so tombstoned rows resolve null. (Each field carries its own docstring
+  # below because SDL attaches a description only to the field that
+  # immediately follows it.)
+
   """
-  Agent and office references on a Property are SOFT KEYS — the underlying
-  *_key columns are not constrained by a DB foreign key, because real MLS
-  feeds routinely reference agents and offices that are absent from the feed
-  (retired, transferred, out of subscription). A non-null *Key with a null
-  resolved entity is a valid state: "outside this feed." Consumers see the
-  string key field regardless. All eight resolvers apply mlg_can_view=true
-  so tombstoned rows resolve null.
+  Listing agent via soft key listAgentKey (no DB FK). Null when the agent is
+  outside this feed or tombstoned (mlg_can_view=false); listAgentKey is
+  served regardless.
   """
   listAgent: Member
+  """
+  Co-listing agent via soft key coListAgentKey (no DB FK). Null when outside
+  this feed or tombstoned; coListAgentKey is served regardless.
+  """
   coListAgent: Member
+  """
+  Buyer's agent via soft key buyerAgentKey (no DB FK). Null when outside
+  this feed or tombstoned; buyerAgentKey is served regardless.
+  """
   buyerAgent: Member
+  """
+  Co-buyer's agent via soft key coBuyerAgentKey (no DB FK). Null when
+  outside this feed or tombstoned; coBuyerAgentKey is served regardless.
+  """
   coBuyerAgent: Member
+  """
+  Listing office via soft key listOfficeKey (no DB FK). Null when outside
+  this feed or tombstoned; listOfficeKey is served regardless.
+  """
   listOffice: Office
+  """
+  Co-listing office via soft key coListOfficeKey (no DB FK). Null when
+  outside this feed or tombstoned; coListOfficeKey is served regardless.
+  """
   coListOffice: Office
+  """
+  Buyer's office via soft key buyerOfficeKey (no DB FK). Null when outside
+  this feed or tombstoned; buyerOfficeKey is served regardless.
+  """
   buyerOffice: Office
+  """
+  Co-buyer's office via soft key coBuyerOfficeKey (no DB FK). Null when
+  outside this feed or tombstoned; coBuyerOfficeKey is served regardless.
+  """
   coBuyerOffice: Office
 }
 
 extend type Member {
   """
-  Soft-key reference via office_key (no DB FK). See Property soft-key note.
-  Filtered to mlg_can_view=true.
+  Member's office via soft key officeKey (no DB FK). Null when the office is
+  outside this feed or tombstoned (mlg_can_view=false); officeKey is served
+  regardless. See the Property soft-key notes.
   """
   office: Office
 }
