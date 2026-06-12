@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:15-alpine
+    # Multi-arch PostGIS on the same alpine/musl base as the previous
+    # postgres:15-alpine — the existing volume keeps working; the geo
+    # migration (CREATE EXTENSION postgis + geom column) runs from the app.
+    image: imresamu/postgis:15-3.5-alpine
     container_name: mls_sync_db
     restart: unless-stopped
     environment:

@@ -74,6 +74,59 @@ extend type Property {
   coBuyerOffice: Office
 }
 
+"""
+A WGS84 coordinate pair for geo-search inputs.
+"""
+input GeoPoint {
+  latitude: Float!
+  longitude: Float!
+}
+
+extend type Query {
+  """
+  Properties within radiusMeters of center, measured on the WGS84
+  spheroid (true meters). Only mlg_can_view=true rows with coordinates
+  match; results are ID-ordered (not distance-ordered).
+  """
+  propertiesNear(
+    center: GeoPoint!
+    radiusMeters: Float!
+    after: Cursor
+    first: Int
+    before: Cursor
+    last: Int
+  ): PropertyConnection!
+
+  """
+  Properties inside the lat/lng bounding box (a map viewport), boundary
+  inclusive. southWest must be south and west of northEast; boxes
+  crossing the antimeridian are not supported. Only mlg_can_view=true
+  rows with coordinates match.
+  """
+  propertiesInBBox(
+    southWest: GeoPoint!
+    northEast: GeoPoint!
+    after: Cursor
+    first: Int
+    before: Cursor
+    last: Int
+  ): PropertyConnection!
+
+  """
+  Properties inside a polygon drawn on a map — at least 3 vertices, any
+  number supported, boundary inclusive. The ring closes automatically
+  (the first vertex need not be repeated). Edges are straight lines in
+  lat/lng space. Only mlg_can_view=true rows with coordinates match.
+  """
+  propertiesInPolygon(
+    vertices: [GeoPoint!]!
+    after: Cursor
+    first: Int
+    before: Cursor
+    last: Int
+  ): PropertyConnection!
+}
+
 extend type Member {
   """
   Member's office via soft key officeKey (no DB FK). Null when the office is
