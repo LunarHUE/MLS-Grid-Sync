@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
-	"github.com/LunarHUE/MLS-Grid-Sync/graph"
+	"github.com/LunarHUE/MLS-Grid-Sync/server"
 )
 
 var serveAddr string
@@ -47,24 +47,15 @@ var serveCmd = &cobra.Command{
 
 		// Own mux, never http.DefaultServeMux — root.go's pprof import
 		// registers /debug/pprof/ there, which must not face the network.
-		mux := http.NewServeMux()
-		mux.Handle("/query", graph.NewHandler(db))
-		mux.Handle("/", graph.NewPlaygroundHandler("/query"))
-		mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-			pingCtx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-			defer cancel()
-			if err := sqlDB.PingContext(pingCtx); err != nil {
-				http.Error(w, "database unreachable", http.StatusServiceUnavailable)
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintln(w, "ok")
+		handler := server.NewMux(db, sqlDB.PingContext, server.Options{
+			APIKey:         appConfig.Server.APIKey,
+			AllowedOrigins: server.SplitOrigins(appConfig.Server.CORSAllowedOrigins),
 		})
 
 		ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
 
-		srv := &http.Server{Addr: addr, Handler: mux}
+		srv := &http.Server{Addr: addr, Handler: handler}
 		errCh := make(chan error, 1)
 		go func() {
 			log.Infof("serve: GraphQL playground on http://%s/ (API at /query)", addr)

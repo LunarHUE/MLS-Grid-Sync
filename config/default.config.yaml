@@ -25,6 +25,14 @@ server:
   # Listen address for the `serve` subcommand (GraphQL API). Override
   # via MLS_SYNC_SERVER_ADDR or the --addr flag.
   addr: ":8080"
+  # Optional API key for /query. Empty disables auth. Clients send
+  # X-API-Key: <key> or Authorization: Bearer <key>. /healthz and the
+  # playground HTML stay open; playground queries need the key via the
+  # headers tab. Override: MLS_SYNC_SERVER_API_KEY.
+  api_key: ""
+  # Comma-separated CORS allowlist; "*" allows any origin. Override:
+  # MLS_SYNC_SERVER_CORS_ALLOWED_ORIGINS.
+  cors_allowed_origins: "*"
 
 storage:
   # Attachment backend. Phase 1 wires fake and local; azure and s3

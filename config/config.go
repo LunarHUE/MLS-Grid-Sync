@@ -85,7 +85,9 @@ type S3StorageConfig struct {
 // `serve` subcommand. Addr is a net/http listen address (":8080",
 // "127.0.0.1:9000"); override via MLS_SYNC_SERVER_ADDR or --addr.
 type ServerConfig struct {
-	Addr string `mapstructure:"addr" yaml:"addr"`
+	Addr               string `mapstructure:"addr" yaml:"addr"`
+	APIKey             string `mapstructure:"api_key" yaml:"api_key"`
+	CORSAllowedOrigins string `mapstructure:"cors_allowed_origins" yaml:"cors_allowed_origins"`
 }
 
 type Config struct {

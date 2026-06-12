@@ -23,7 +23,10 @@ import (
 type Resolver struct{ client *ent.Client }
 
 func NewSchema(client *ent.Client) graphql.ExecutableSchema {
-	return NewExecutableSchema(Config{Resolvers: &Resolver{client: client}})
+	return NewExecutableSchema(Config{
+		Resolvers:  &Resolver{client: client},
+		Complexity: complexityRoot(),
+	})
 }
 
 // --- type aliases for sub-resolvers ---
@@ -179,66 +182,82 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 }
 
 func (r *queryResolver) Lookups(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.LookupConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.Lookup.Query().Where(lookup.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) MediaSlice(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.Media.Query().Where(entmedia.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) MediaVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.MediaVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) Members(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.Member.Query().Where(member.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) MemberVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.MemberVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) Offices(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.Office.Query().Where(office.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) OfficeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.OfficeVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) OpenHouses(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.OpenHouse.Query().Where(openhouse.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.OpenHouseVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.Property.Query().Where(property.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyRooms(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.PropertyRoom.Query().Where(propertyroom.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyRoomVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.PropertyRoomVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyUnitTypes(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.PropertyUnitType.Query().Where(propertyunittype.MlgCanView(true)).Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyUnitTypeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.PropertyUnitTypeVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) PropertyVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyVersionConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.PropertyVersion.Query().Paginate(ctx, after, first, before, last)
 }
 
 func (r *queryResolver) SourceSystems(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.SourceSystemConnection, error) {
+	first, last = clampPage(first, last)
 	return r.client.SourceSystem.Query().Paginate(ctx, after, first, before, last)
 }
 

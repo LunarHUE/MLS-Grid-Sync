@@ -27,6 +27,7 @@ func validatePoint(name string, p model.GeoPoint) error {
 }
 
 func (r *queryResolver) PropertiesNear(ctx context.Context, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+	first, last = clampPage(first, last)
 	if err := validatePoint("center", center); err != nil {
 		return nil, err
 	}
@@ -39,6 +40,7 @@ func (r *queryResolver) PropertiesNear(ctx context.Context, center model.GeoPoin
 }
 
 func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+	first, last = clampPage(first, last)
 	if err := validatePoint("southWest", southWest); err != nil {
 		return nil, err
 	}
@@ -62,6 +64,7 @@ func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.Ge
 const maxPolygonVertices = 1024
 
 func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+	first, last = clampPage(first, last)
 	if len(vertices) < 3 {
 		return nil, fmt.Errorf("polygon needs at least 3 vertices, got %d", len(vertices))
 	}
