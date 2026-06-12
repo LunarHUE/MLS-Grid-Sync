@@ -272,10 +272,10 @@ antimeridian aren't supported.
 }
 ```
 
-**`propertiesInPolygon(vertices)`** — a shape drawn on a map: at least 3
-vertices, any number supported, boundary inclusive. The ring closes
-automatically (repeating the first vertex also works). Edges are
-straight lines in lat/lng space.
+**`propertiesInPolygon(vertices)`** — a shape drawn on a map: between 3
+and 1024 vertices, boundary inclusive. The ring closes automatically
+(repeating the first vertex also works). Edges are straight lines in
+lat/lng space.
 
 ```graphql
 {
@@ -293,7 +293,7 @@ straight lines in lat/lng space.
 ```
 
 Validation errors (radius ≤ 0, coordinates out of range, inverted bbox,
-< 3 vertices) come back as GraphQL errors.
+fewer than 3 or more than 1024 vertices) come back as GraphQL errors.
 
 **Infrastructure note:** these queries require a PostGIS-enabled
 Postgres (the compose file and tests use `imresamu/postgis:15-3.5-alpine`).

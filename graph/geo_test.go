@@ -1,6 +1,7 @@
 package graph_test
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -218,6 +219,38 @@ func TestPropertiesInPolygon_TooFewVertices(t *testing.T) {
 
 	errs := testutil.GQLExpectError(t, srv, polygonQuery, map[string]any{
 		"vertices": []any{pt(dtLat, dtLng), pt(dtLat+0.01, dtLng)},
+	})
+	require.NotEmpty(t, errs)
+}
+
+func TestPropertiesInPolygon_VertexCap(t *testing.T) {
+	t.Parallel()
+	srv, client := testutil.NewTestServer(t)
+	seedPropertyAt(t, client, "geo-cap-inside", dtLat, dtLng, true)
+
+	// circleVertices approximates a circle of the given radius (in
+	// degrees) around downtown with n vertices.
+	circleVertices := func(n int, radiusDeg float64) []any {
+		out := make([]any, n)
+		for i := range n {
+			angle := 2 * math.Pi * float64(i) / float64(n)
+			out[i] = pt(dtLat+radiusDeg*math.Sin(angle), dtLng+radiusDeg*math.Cos(angle))
+		}
+		return out
+	}
+
+	// Exactly at the cap: accepted, and the point inside matches.
+	var data struct {
+		PropertiesInPolygon geoConn `json:"propertiesInPolygon"`
+	}
+	testutil.GQL(t, srv, polygonQuery, map[string]any{
+		"vertices": circleVertices(1024, 0.01),
+	}, &data)
+	assert.Equal(t, 1, data.PropertiesInPolygon.TotalCount)
+
+	// One past the cap: rejected.
+	errs := testutil.GQLExpectError(t, srv, polygonQuery, map[string]any{
+		"vertices": circleVertices(1025, 0.01),
 	})
 	require.NotEmpty(t, errs)
 }
