@@ -8,7 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/shopspring/decimal"
 )
 

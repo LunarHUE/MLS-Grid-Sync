@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/sourcesystem"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
 )
 
 // SourceSystemUpdate is the builder for updating SourceSystem entities.

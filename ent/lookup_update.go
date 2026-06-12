@@ -12,8 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/lookup"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 )
 
 // LookupUpdate is the builder for updating Lookup entities.

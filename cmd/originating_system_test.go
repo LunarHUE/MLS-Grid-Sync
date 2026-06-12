@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/config"
+	"github.com/LunarHUE/MLS-Grid-Sync/config"
 )
 
 // withTestHooks resets the package-level injection points and restores

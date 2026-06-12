@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync"
 )
 
 // stubWorker drives runWorkerLoop with scripted RunResults so the

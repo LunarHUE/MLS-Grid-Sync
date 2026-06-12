@@ -10,12 +10,12 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/property"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittype"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittypeversion"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/version"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittype"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittypeversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
 // PropertyUnitTypeProcessor — same parking semantics as OpenHouseProcessor.

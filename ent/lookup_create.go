@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/lookup"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
 )
 
 // LookupCreate is the builder for creating a Lookup entity.

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/config"
+	"github.com/LunarHUE/MLS-Grid-Sync/config"
 )
 
 // pickFreePort returns a port the OS just confirmed was free. Tests

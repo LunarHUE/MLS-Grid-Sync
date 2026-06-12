@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/memberversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/memberversion"
 )
 
 // MemberVersion is the model entity for the MemberVersion schema.

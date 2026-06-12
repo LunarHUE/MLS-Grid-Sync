@@ -81,12 +81,20 @@ type S3StorageConfig struct {
 	UsePathStyle    bool   `mapstructure:"use_path_style" yaml:"use_path_style"`
 }
 
+// ServerConfig configures the GraphQL HTTP server started by the
+// `serve` subcommand. Addr is a net/http listen address (":8080",
+// "127.0.0.1:9000"); override via MLS_SYNC_SERVER_ADDR or --addr.
+type ServerConfig struct {
+	Addr string `mapstructure:"addr" yaml:"addr"`
+}
+
 type Config struct {
 	LogLevel  string          `mapstructure:"log_level" yaml:"log_level"`
 	Database  DatabaseConfig  `mapstructure:"database" yaml:"database"`
 	MLS       MLSConfig       `mapstructure:"mls" yaml:"mls"`
 	Profiling ProfilingConfig `mapstructure:"profiling" yaml:"profiling"`
 	Storage   StorageConfig   `mapstructure:"storage" yaml:"storage"`
+	Server    ServerConfig    `mapstructure:"server" yaml:"server"`
 }
 
 func Load() (*Config, error) {

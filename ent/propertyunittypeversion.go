@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyunittypeversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittypeversion"
 )
 
 // PropertyUnitTypeVersion is the model entity for the PropertyUnitTypeVersion schema.

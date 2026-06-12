@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/sourcesystem"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
 )
 
 // SyncEvent is the model entity for the SyncEvent schema.

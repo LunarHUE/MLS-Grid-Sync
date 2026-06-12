@@ -9,10 +9,10 @@ import (
 	"github.com/lib/pq"
 	"github.com/shopspring/decimal"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	entmedia "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/member"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/office"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	entmedia "github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/office"
 )
 
 type Resolver struct{ client *ent.Client }

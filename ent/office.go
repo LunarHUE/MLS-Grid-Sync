@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/office"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/office"
 )
 
 // Office is the model entity for the Office schema.

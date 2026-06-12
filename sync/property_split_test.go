@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachmentjob"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/internal/testutil"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
-	pkgsync "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
+	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
 )
 
 // recordingProcessor lets a test assert the exact sequence of RunPass

@@ -9,9 +9,9 @@ import (
 	"github.com/lunarhue/libs-go/log"
 	"github.com/spf13/cobra"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	pkgsync "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync/processor"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 )
 
 const skipFlag = "skip"

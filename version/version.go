@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/lunarhue/libs-go/log"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/git"
+	"github.com/LunarHUE/MLS-Grid-Sync/git"
 )
 
 // Version is set at build time via -X ldflags.

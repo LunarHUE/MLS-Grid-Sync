@@ -10,13 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachmentjob"
-	entmedia "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/internal/testutil"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
-	pkgsync "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	entmedia "github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
+	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
 )
 
 // seedMedia creates the parent Media row the AttachmentJob.media FK points

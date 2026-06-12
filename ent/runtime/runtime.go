@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/runtime.go
+// The schema-stitching logic is generated in github.com/LunarHUE/MLS-Grid-Sync/ent/runtime.go
 
 const (
 	Version = "v0.14.6"                                         // Version of ent codegen.

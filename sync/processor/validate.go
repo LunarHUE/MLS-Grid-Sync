@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 )
 
 // ValidateReport summarizes the results of streaming every raw_output row for

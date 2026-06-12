@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachment"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/attachmentjob"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
 )
 
 // MediaCreate is the builder for creating a Media entity.

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/config"
+	"github.com/LunarHUE/MLS-Grid-Sync/config"
 )
 
 // withCleanupFlags is a helper that resets and restores the package-

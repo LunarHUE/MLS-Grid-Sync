@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 )
 
 var systemsCmd = &cobra.Command{

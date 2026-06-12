@@ -12,7 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
 	"github.com/shopspring/decimal"
 )
 

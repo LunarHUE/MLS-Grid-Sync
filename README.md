@@ -1,7 +1,95 @@
-# mls-grid-sync
+# MLS-Grid-Sync
 
-Syncs MLS Grid data into a local PostgreSQL database and exposes it via a
-GraphQL API.
+Syncs [MLS Grid](https://www.mlsgrid.com/) data into a PostgreSQL database and
+exposes it via a GraphQL API.
+
+Module path: `github.com/LunarHUE/MLS-Grid-Sync`. The binary is a single
+Cobra CLI (`mls-cli`).
+
+## Commands
+
+```bash
+go build -o mls-cli .
+```
+
+| Command | Purpose |
+|---------|---------|
+| `serve` | Serve the GraphQL API over HTTP (playground at `/`, API at `/query`, health at `/healthz`) |
+| `init` | Full initial corpus import across all resources in FK-dependency order |
+| `import <Resource>` | Initial bulk import of one resource (e.g. `import Property`) |
+| `sync` | Continuous delta sync daemon |
+| `worker` | Background attachment uploader |
+| `worker-storage-cleanup` | Delete attachment objects from the storage backend |
+| `reprocess` | Replay `raw_output` through the processor |
+| `systems` | Probe MLS Grid for available originating systems |
+| `validate-raw` / `validate-typed` | Mapping-coverage / drift validation |
+
+## Configuration
+
+Defaults live in `config/default.config.yaml` (embedded in the binary).
+Override with a gitignored `config.yaml` in the working directory, or with
+environment variables prefixed `MLS_SYNC_` (nested keys joined with `_`):
+
+| Variable | Meaning |
+|----------|---------|
+| `MLS_SYNC_DATABASE_DSN` | PostgreSQL DSN |
+| `MLS_SYNC_MLS_TOKEN` | MLS Grid API token (required by sync/import/worker; not by `serve`) |
+| `MLS_SYNC_MLS_ORIGINATING_SYSTEM` | Originating system name (e.g. `actris`) |
+| `MLS_SYNC_SERVER_ADDR` | Listen address for `serve` (default `:8080`) |
+| `MLS_SYNC_STORAGE_BACKEND` | `fake` \| `local` \| `azure` \| `s3` |
+| `MLS_SYNC_LOG_LEVEL` | Log level (default `info`) |
+
+Azure/S3 credentials follow the respective SDK default chains; see
+`config/default.config.yaml` for the full key list.
+
+## Docker
+
+The published image runs the CLI with `serve` as the default command:
+
+```bash
+docker pull ghcr.io/lunarhue/mls-grid-sync:latest
+
+# GraphQL API
+docker run -p 8080:8080 \
+  -e MLS_SYNC_DATABASE_DSN="host=... user=... dbname=mls_sync ..." \
+  ghcr.io/lunarhue/mls-grid-sync:latest
+
+# Any other subcommand
+docker run ghcr.io/lunarhue/mls-grid-sync:latest sync
+```
+
+Build locally (needs a GitHub token with read access to the private
+`github.com/lunarhue/libs-go` module, passed as a BuildKit secret):
+
+```bash
+DOCKER_BUILDKIT=1 docker build --secret id=gh_token,env=GH_TOKEN -t mls-grid-sync:dev .
+```
+
+## CI/CD
+
+`.github/workflows/ci.yml`:
+
+- **Pull requests** — `go build`, `go vet`, `go test ./...` (Testcontainers
+  against real Postgres).
+- **Push to `main`** — tests, then build & push
+  `ghcr.io/lunarhue/mls-grid-sync` tagged `latest` + `sha-<short>`.
+- **Tags `v*`** — additionally tagged `<version>` and `<major>.<minor>`.
+
+Required repository secret: `GH_PRIVATE_REPO_TOKEN` — a PAT with read access
+to `lunarhue/libs-go` (used by `go mod download` on the runner and inside the
+Docker build via a BuildKit secret). GHCR pushes use the built-in
+`GITHUB_TOKEN`.
+
+## Local development
+
+```bash
+docker compose up -d        # Postgres 15 on :5432
+go build ./... && go vet ./...
+go run . serve              # GraphQL playground on http://localhost:8080/
+```
+
+A Nix flake (`flake.nix`) provides the dev shell; the devcontainer sets it up
+automatically via direnv.
 
 ## Testing
 

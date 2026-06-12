@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/propertyversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
 )
 
 // PropertyVersionQuery is the builder for querying PropertyVersion entities.

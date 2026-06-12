@@ -1,4 +1,4 @@
-module github.com/lunarhue/website-highpointe/packages/mls-grid-sync
+module github.com/LunarHUE/MLS-Grid-Sync
 
 go 1.26.1
 

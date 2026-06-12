@@ -6,7 +6,7 @@ exec:
   package: graph
 
 autobind:
-  - github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent
+  - github.com/LunarHUE/MLS-Grid-Sync/ent
 
 models:
   ID:
@@ -24,7 +24,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Any
   Node:
     model:
-      - github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent.Noder
+      - github.com/LunarHUE/MLS-Grid-Sync/ent.Noder
   # Property.listAgent / listOffice (and the 6 sibling co-list/buyer/co-buyer
   # roles, plus Member.office) are declared in graph/extensions.graphql now —
   # they are no longer ent edges, so entgql doesn't emit them and there's no

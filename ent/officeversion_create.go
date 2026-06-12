@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/officeversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion"
 )
 
 // OfficeVersionCreate is the builder for creating a OfficeVersion entity.

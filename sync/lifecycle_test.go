@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/syncevent"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/internal/testutil"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/storage"
-	pkgsync "github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
+	"github.com/LunarHUE/MLS-Grid-Sync/storage"
+	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
 )
 
 // seedEvent inserts a single sync_event for the given resource with the

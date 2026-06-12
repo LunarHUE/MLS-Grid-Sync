@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lunarhue/libs-go/log"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/rawoutput"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/mls"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/sync/processor"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 )
 
 // SyncResource runs a delta sync (ModificationTimestamp ge lastModified)

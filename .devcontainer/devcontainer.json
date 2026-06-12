@@ -46,9 +46,9 @@
     }
   },
 
-  "forwardPorts": [3001],
+  "forwardPorts": [8080],
   "portsAttributes": {
-    "3001": { "label": "ricci-web", "onAutoForward": "notify" }
+    "8080": { "label": "graphql-api", "onAutoForward": "notify" }
   },
 
   "remoteUser": "root"

@@ -9,7 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 )
 
 // NewHandler returns an HTTP handler for the GraphQL API.

@@ -20,8 +20,8 @@
             bash-completion
             nix-bash-completions
             claude-code
-            nodejs_22
-            pnpm
+            go
+            gopls
             docker
             gcc
             postgresql
@@ -33,7 +33,7 @@
 
           # Keep shellHook minimal — don't set PS1 here, don't source completion here
           shellHook = ''
-            echo "Nix devShell ready. Tools: node $(node --version 2>/dev/null), pnpm $(pnpm --version 2>/dev/null)"
+            echo "Nix devShell ready. Tools: $(go version 2>/dev/null)"
           '';
         };
       });

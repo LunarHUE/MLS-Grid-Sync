@@ -13,8 +13,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/openhouseversion"
-	"github.com/lunarhue/website-highpointe/packages/mls-grid-sync/ent/predicate"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouseversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 )
 
 // OpenHouseVersionUpdate is the builder for updating OpenHouseVersion entities.
