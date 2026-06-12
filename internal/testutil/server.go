@@ -60,6 +60,30 @@ func GQL(t *testing.T, srv *httptest.Server, query string, variables map[string]
 	}
 }
 
+// GQLExpectError posts a GraphQL query expected to FAIL and returns the
+// GraphQL errors. It fails the test on transport problems or if the
+// response carries no errors. Counterpart to GQL for negative cases
+// (invalid cursors, malformed args) where GQL's no-errors assertion
+// can't be used.
+func GQLExpectError(t *testing.T, srv *httptest.Server, query string, variables map[string]any) []map[string]any {
+	t.Helper()
+
+	body, err := json.Marshal(gqlRequest{Query: query, Variables: variables})
+	require.NoError(t, err)
+
+	resp, err := http.Post(srv.URL, "application/json", bytes.NewReader(body))
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	raw, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	var gqlResp gqlResponse
+	require.NoError(t, json.Unmarshal(raw, &gqlResp))
+	require.NotEmpty(t, gqlResp.Errors, "expected graphql errors, got none: %s", raw)
+	return gqlResp.Errors
+}
+
 // GQLCtx is like GQL but uses a provided context for the HTTP request.
 func GQLCtx(t *testing.T, ctx context.Context, srv *httptest.Server, query string, variables map[string]any, out any) {
 	t.Helper()
