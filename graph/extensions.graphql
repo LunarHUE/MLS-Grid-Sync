@@ -113,9 +113,9 @@ extend type Query {
   ): PropertyConnection!
 
   """
-  Properties inside a polygon drawn on a map — at least 3 vertices, any
-  number supported, boundary inclusive. The ring closes automatically
-  (the first vertex need not be repeated). Edges are straight lines in
+  Properties inside a polygon drawn on a map — between 3 and 1024
+  vertices, boundary inclusive. The ring closes automatically (the
+  first vertex need not be repeated). Edges are straight lines in
   lat/lng space. Only mlg_can_view=true rows with coordinates match.
   """
   propertiesInPolygon(

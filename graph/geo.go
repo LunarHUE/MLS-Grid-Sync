@@ -56,9 +56,17 @@ func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.Ge
 		Paginate(ctx, after, first, before, last)
 }
 
+// maxPolygonVertices caps propertiesInPolygon input. Map-drawing tools
+// produce dozens of vertices; anything past this is either a client bug
+// or an attempt to make the server chew on a degenerate geometry.
+const maxPolygonVertices = 1024
+
 func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
 	if len(vertices) < 3 {
 		return nil, fmt.Errorf("polygon needs at least 3 vertices, got %d", len(vertices))
+	}
+	if len(vertices) > maxPolygonVertices {
+		return nil, fmt.Errorf("polygon supports at most %d vertices, got %d", maxPolygonVertices, len(vertices))
 	}
 	latLngs := make([][2]float64, len(vertices))
 	for i, v := range vertices {
