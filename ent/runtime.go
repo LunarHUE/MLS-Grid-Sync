@@ -5,7 +5,6 @@ package ent
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
@@ -28,6 +27,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/schema"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code

@@ -37,7 +37,8 @@ func (Property) Fields() []ent.Field {
 			Comment("Natural PK: the RESO ListingKey"),
 		field.UUID("current_version_id", uuid.UUID{}).
 			Optional().Nillable().
-			Comment("Points at the latest property_version row"),
+			Comment("Points at the latest property_version row").
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 	}
 }
 

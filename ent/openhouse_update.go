@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouse"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/google/uuid"
 )
 
 // OpenHouseUpdate is the builder for updating OpenHouse entities.

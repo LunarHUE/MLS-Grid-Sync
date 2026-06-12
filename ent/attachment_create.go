@@ -10,10 +10,10 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/google/uuid"
 )
 
 // AttachmentCreate is the builder for creating a Attachment entity.

@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
+	"github.com/google/uuid"
 )
 
 // ProcessorCursor is the model entity for the ProcessorCursor schema.

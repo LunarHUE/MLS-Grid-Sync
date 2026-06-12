@@ -64,9 +64,11 @@ func (Media) Fields() []ent.Field {
 			Comment("RESO MediaKey"),
 		field.UUID("attachment_id", uuid.UUID{}).
 			Optional().Nillable().
-			Comment("Set when the binary has been downloaded into attachment"),
+			Comment("Set when the binary has been downloaded into attachment").
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable(),
+			Optional().Nillable().
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 	}
 }
 

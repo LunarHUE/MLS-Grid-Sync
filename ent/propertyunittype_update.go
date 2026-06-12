@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittype"
+	"github.com/google/uuid"
 )
 
 // PropertyUnitTypeUpdate is the builder for updating PropertyUnitType entities.

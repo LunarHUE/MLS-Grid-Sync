@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion"
+	"github.com/google/uuid"
 )
 
 // OfficeVersion is the model entity for the OfficeVersion schema.

@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/google/uuid"
 )
 
 // Media is the model entity for the Media schema.

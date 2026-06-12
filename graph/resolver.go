@@ -7,7 +7,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/shopspring/decimal"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
@@ -76,22 +75,6 @@ func uuidPtr(u *uuid.UUID) *string {
 }
 
 func uuidStr(u uuid.UUID) string { return u.String() }
-
-func decimalPtr(d *decimal.Decimal) *string {
-	if d == nil {
-		return nil
-	}
-	s := d.String()
-	return &s
-}
-
-func int16Ptr(v *int16) *int {
-	if v == nil {
-		return nil
-	}
-	i := int(*v)
-	return &i
-}
 
 func stringArray(arr pq.StringArray) any {
 	if arr == nil {
@@ -181,93 +164,144 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 	return noders, nil
 }
 
-func (r *queryResolver) Lookups(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.LookupConnection, error) {
+func (r *queryResolver) Lookups(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.LookupOrder, where *ent.LookupWhereInput) (*ent.LookupConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.Lookup.Query().Where(lookup.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.Lookup.Query().
+		Where(lookup.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithLookupOrder(orderBy),
+			ent.WithLookupFilter(where.Filter))
 }
 
-func (r *queryResolver) MediaSlice(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaConnection, error) {
+func (r *queryResolver) MediaSlice(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.MediaOrder, where *ent.MediaWhereInput) (*ent.MediaConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.Media.Query().Where(entmedia.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.Media.Query().
+		Where(entmedia.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithMediaOrder(orderBy),
+			ent.WithMediaFilter(where.Filter))
 }
 
-func (r *queryResolver) MediaVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MediaVersionConnection, error) {
+func (r *queryResolver) MediaVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.MediaVersionOrder, where *ent.MediaVersionWhereInput) (*ent.MediaVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.MediaVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.MediaVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithMediaVersionOrder(orderBy),
+			ent.WithMediaVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) Members(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberConnection, error) {
+func (r *queryResolver) Members(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.MemberOrder, where *ent.MemberWhereInput) (*ent.MemberConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.Member.Query().Where(member.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.Member.Query().
+		Where(member.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithMemberOrder(orderBy),
+			ent.WithMemberFilter(where.Filter))
 }
 
-func (r *queryResolver) MemberVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.MemberVersionConnection, error) {
+func (r *queryResolver) MemberVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.MemberVersionOrder, where *ent.MemberVersionWhereInput) (*ent.MemberVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.MemberVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.MemberVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithMemberVersionOrder(orderBy),
+			ent.WithMemberVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) Offices(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeConnection, error) {
+func (r *queryResolver) Offices(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.OfficeOrder, where *ent.OfficeWhereInput) (*ent.OfficeConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.Office.Query().Where(office.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.Office.Query().
+		Where(office.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithOfficeOrder(orderBy),
+			ent.WithOfficeFilter(where.Filter))
 }
 
-func (r *queryResolver) OfficeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OfficeVersionConnection, error) {
+func (r *queryResolver) OfficeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.OfficeVersionOrder, where *ent.OfficeVersionWhereInput) (*ent.OfficeVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.OfficeVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.OfficeVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithOfficeVersionOrder(orderBy),
+			ent.WithOfficeVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) OpenHouses(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseConnection, error) {
+func (r *queryResolver) OpenHouses(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.OpenHouseOrder, where *ent.OpenHouseWhereInput) (*ent.OpenHouseConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.OpenHouse.Query().Where(openhouse.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.OpenHouse.Query().
+		Where(openhouse.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithOpenHouseOrder(orderBy),
+			ent.WithOpenHouseFilter(where.Filter))
 }
 
-func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.OpenHouseVersionConnection, error) {
+func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.OpenHouseVersionOrder, where *ent.OpenHouseVersionWhereInput) (*ent.OpenHouseVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.OpenHouseVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.OpenHouseVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithOpenHouseVersionOrder(orderBy),
+			ent.WithOpenHouseVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyConnection, error) {
+func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.Property.Query().Where(property.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.Property.Query().
+		Where(property.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyOrder(orderBy),
+			ent.WithPropertyFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertyRooms(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomConnection, error) {
+func (r *queryResolver) PropertyRooms(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyRoomOrder, where *ent.PropertyRoomWhereInput) (*ent.PropertyRoomConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.PropertyRoom.Query().Where(propertyroom.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.PropertyRoom.Query().
+		Where(propertyroom.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyRoomOrder(orderBy),
+			ent.WithPropertyRoomFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertyRoomVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyRoomVersionConnection, error) {
+func (r *queryResolver) PropertyRoomVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyRoomVersionOrder, where *ent.PropertyRoomVersionWhereInput) (*ent.PropertyRoomVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.PropertyRoomVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.PropertyRoomVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyRoomVersionOrder(orderBy),
+			ent.WithPropertyRoomVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertyUnitTypes(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeConnection, error) {
+func (r *queryResolver) PropertyUnitTypes(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyUnitTypeOrder, where *ent.PropertyUnitTypeWhereInput) (*ent.PropertyUnitTypeConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.PropertyUnitType.Query().Where(propertyunittype.MlgCanView(true)).Paginate(ctx, after, first, before, last)
+	return r.client.PropertyUnitType.Query().
+		Where(propertyunittype.MlgCanView(true)).
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyUnitTypeOrder(orderBy),
+			ent.WithPropertyUnitTypeFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertyUnitTypeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyUnitTypeVersionConnection, error) {
+func (r *queryResolver) PropertyUnitTypeVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyUnitTypeVersionOrder, where *ent.PropertyUnitTypeVersionWhereInput) (*ent.PropertyUnitTypeVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.PropertyUnitTypeVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.PropertyUnitTypeVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyUnitTypeVersionOrder(orderBy),
+			ent.WithPropertyUnitTypeVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertyVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.PropertyVersionConnection, error) {
+func (r *queryResolver) PropertyVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyVersionOrder, where *ent.PropertyVersionWhereInput) (*ent.PropertyVersionConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.PropertyVersion.Query().Paginate(ctx, after, first, before, last)
+	return r.client.PropertyVersion.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyVersionOrder(orderBy),
+			ent.WithPropertyVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) SourceSystems(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int) (*ent.SourceSystemConnection, error) {
+func (r *queryResolver) SourceSystems(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, where *ent.SourceSystemWhereInput) (*ent.SourceSystemConnection, error) {
 	first, last = clampPage(first, last)
-	return r.client.SourceSystem.Query().Paginate(ctx, after, first, before, last)
+	return r.client.SourceSystem.Query().
+		Paginate(ctx, after, first, before, last,
+			ent.WithSourceSystemFilter(where.Filter))
 }
 
 // ============================================================
 // MediaResolver — type conversions for fields gqlgen can't autobind
 // ============================================================
-
-func (r *mediaResolver) Order(ctx context.Context, obj *ent.Media) (*int, error) {
-	return int16Ptr(obj.Order), nil
-}
 
 func (r *mediaResolver) AttachmentID(ctx context.Context, obj *ent.Media) (*string, error) {
 	return uuidPtr(obj.AttachmentID), nil
@@ -280,10 +314,6 @@ func (r *mediaResolver) CurrentVersionID(ctx context.Context, obj *ent.Media) (*
 // ============================================================
 // MediaVersionResolver
 // ============================================================
-
-func (r *mediaVersionResolver) Order(ctx context.Context, obj *ent.MediaVersion) (*int, error) {
-	return int16Ptr(obj.Order), nil
-}
 
 func (r *mediaVersionResolver) SyncEventID(ctx context.Context, obj *ent.MediaVersion) (string, error) {
 	return uuidStr(obj.SyncEventID), nil
@@ -354,75 +384,14 @@ func (r *openHouseVersionResolver) RawOutputID(ctx context.Context, obj *ent.Ope
 }
 
 // ============================================================
-// PropertyResolver — Decimal, int16, StringArray, UUID conversions
+// PropertyResolver — StringArray + UUID conversions
+//
+// Decimal and int16 fields are autobound by gqlgen (graph/scalar.Decimal and
+// the Int/Int16 model binding in gqlgen.yml), so they no longer need manual
+// conversion resolvers. StringArray (pq.StringArray → []string) and UUID
+// (uuid.UUID → string) still do.
 // ============================================================
 
-func (r *propertyResolver) ListPrice(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.ListPrice), nil
-}
-func (r *propertyResolver) OriginalListPrice(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.OriginalListPrice), nil
-}
-func (r *propertyResolver) PreviousListPrice(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.PreviousListPrice), nil
-}
-func (r *propertyResolver) TaxAnnualAmount(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.TaxAnnualAmount), nil
-}
-func (r *propertyResolver) TaxYear(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.TaxYear), nil
-}
-func (r *propertyResolver) BedroomsTotal(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.BedroomsTotal), nil
-}
-func (r *propertyResolver) BathroomsTotalInteger(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.BathroomsTotalInteger), nil
-}
-func (r *propertyResolver) BathroomsFull(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.BathroomsFull), nil
-}
-func (r *propertyResolver) BathroomsHalf(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.BathroomsHalf), nil
-}
-func (r *propertyResolver) MainLevelBedrooms(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.MainLevelBedrooms), nil
-}
-func (r *propertyResolver) LivingArea(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.LivingArea), nil
-}
-func (r *propertyResolver) BuildingAreaTotal(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.BuildingAreaTotal), nil
-}
-func (r *propertyResolver) LotSizeAcres(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.LotSizeAcres), nil
-}
-func (r *propertyResolver) LotSizeSquareFeet(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.LotSizeSquareFeet), nil
-}
-func (r *propertyResolver) StoriesTotal(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.StoriesTotal), nil
-}
-func (r *propertyResolver) YearBuilt(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.YearBuilt), nil
-}
-func (r *propertyResolver) GarageSpaces(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.GarageSpaces), nil
-}
-func (r *propertyResolver) CoveredSpaces(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.CoveredSpaces), nil
-}
-func (r *propertyResolver) ParkingTotal(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.ParkingTotal), nil
-}
-func (r *propertyResolver) FireplacesTotal(ctx context.Context, obj *ent.Property) (*int, error) {
-	return int16Ptr(obj.FireplacesTotal), nil
-}
-func (r *propertyResolver) Latitude(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.Latitude), nil
-}
-func (r *propertyResolver) Longitude(ctx context.Context, obj *ent.Property) (*string, error) {
-	return decimalPtr(obj.Longitude), nil
-}
 func (r *propertyResolver) Appliances(ctx context.Context, obj *ent.Property) (any, error) {
 	return stringArray(obj.Appliances), nil
 }
@@ -648,10 +617,6 @@ func (r *propertyRoomVersionResolver) RawOutputID(ctx context.Context, obj *ent.
 // PropertyUnitTypeResolver
 // ============================================================
 
-func (r *propertyUnitTypeResolver) UnitTypeBedsTotal(ctx context.Context, obj *ent.PropertyUnitType) (*int, error) {
-	return int16Ptr(obj.UnitTypeBedsTotal), nil
-}
-
 func (r *propertyUnitTypeResolver) CurrentVersionID(ctx context.Context, obj *ent.PropertyUnitType) (*string, error) {
 	return uuidPtr(obj.CurrentVersionID), nil
 }
@@ -659,10 +624,6 @@ func (r *propertyUnitTypeResolver) CurrentVersionID(ctx context.Context, obj *en
 // ============================================================
 // PropertyUnitTypeVersionResolver
 // ============================================================
-
-func (r *propertyUnitTypeVersionResolver) UnitTypeBedsTotal(ctx context.Context, obj *ent.PropertyUnitTypeVersion) (*int, error) {
-	return int16Ptr(obj.UnitTypeBedsTotal), nil
-}
 
 func (r *propertyUnitTypeVersionResolver) SyncEventID(ctx context.Context, obj *ent.PropertyUnitTypeVersion) (string, error) {
 	return uuidStr(obj.SyncEventID), nil
@@ -673,75 +634,10 @@ func (r *propertyUnitTypeVersionResolver) RawOutputID(ctx context.Context, obj *
 }
 
 // ============================================================
-// PropertyVersionResolver — same conversions as PropertyResolver plus version fields
+// PropertyVersionResolver — StringArray + UUID conversions
+// (Decimal/int16 fields are autobound, same as PropertyResolver above.)
 // ============================================================
 
-func (r *propertyVersionResolver) ListPrice(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.ListPrice), nil
-}
-func (r *propertyVersionResolver) OriginalListPrice(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.OriginalListPrice), nil
-}
-func (r *propertyVersionResolver) PreviousListPrice(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.PreviousListPrice), nil
-}
-func (r *propertyVersionResolver) TaxAnnualAmount(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.TaxAnnualAmount), nil
-}
-func (r *propertyVersionResolver) TaxYear(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.TaxYear), nil
-}
-func (r *propertyVersionResolver) BedroomsTotal(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.BedroomsTotal), nil
-}
-func (r *propertyVersionResolver) BathroomsTotalInteger(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.BathroomsTotalInteger), nil
-}
-func (r *propertyVersionResolver) BathroomsFull(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.BathroomsFull), nil
-}
-func (r *propertyVersionResolver) BathroomsHalf(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.BathroomsHalf), nil
-}
-func (r *propertyVersionResolver) MainLevelBedrooms(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.MainLevelBedrooms), nil
-}
-func (r *propertyVersionResolver) LivingArea(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.LivingArea), nil
-}
-func (r *propertyVersionResolver) BuildingAreaTotal(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.BuildingAreaTotal), nil
-}
-func (r *propertyVersionResolver) LotSizeAcres(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.LotSizeAcres), nil
-}
-func (r *propertyVersionResolver) LotSizeSquareFeet(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.LotSizeSquareFeet), nil
-}
-func (r *propertyVersionResolver) StoriesTotal(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.StoriesTotal), nil
-}
-func (r *propertyVersionResolver) YearBuilt(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.YearBuilt), nil
-}
-func (r *propertyVersionResolver) GarageSpaces(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.GarageSpaces), nil
-}
-func (r *propertyVersionResolver) CoveredSpaces(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.CoveredSpaces), nil
-}
-func (r *propertyVersionResolver) ParkingTotal(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.ParkingTotal), nil
-}
-func (r *propertyVersionResolver) FireplacesTotal(ctx context.Context, obj *ent.PropertyVersion) (*int, error) {
-	return int16Ptr(obj.FireplacesTotal), nil
-}
-func (r *propertyVersionResolver) Latitude(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.Latitude), nil
-}
-func (r *propertyVersionResolver) Longitude(ctx context.Context, obj *ent.PropertyVersion) (*string, error) {
-	return decimalPtr(obj.Longitude), nil
-}
 func (r *propertyVersionResolver) Appliances(ctx context.Context, obj *ent.PropertyVersion) (any, error) {
 	return stringArray(obj.Appliances), nil
 }

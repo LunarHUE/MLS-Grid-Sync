@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
@@ -98,7 +99,8 @@ func (PropertyDataMixin) Fields() []ent.Field {
 		field.String("street_dir_suffix").Optional().Nillable(),
 		field.String("unit_number").Optional().Nillable(),
 		field.String("unparsed_address").Optional().Nillable(),
-		field.String("city").Optional().Nillable(),
+		field.String("city").Optional().Nillable().
+			Annotations(entgql.OrderField("CITY")),
 		field.String("state_or_province").Optional().Nillable(),
 		field.String("postal_code").Optional().Nillable(),
 		field.String("postal_code_plus4").Optional().Nillable(),

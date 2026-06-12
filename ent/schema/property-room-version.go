@@ -32,8 +32,10 @@ func (PropertyRoomVersion) Mixin() []ent.Mixin {
 func (PropertyRoomVersion) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("room_key"),
-		field.UUID("sync_event_id", uuid.UUID{}),
-		field.UUID("raw_output_id", uuid.UUID{}).Optional().Nillable(),
+		field.UUID("sync_event_id", uuid.UUID{}).
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		field.UUID("raw_output_id", uuid.UUID{}).Optional().Nillable().
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
 	}
 }
 

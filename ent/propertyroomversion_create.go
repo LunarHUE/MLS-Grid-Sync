@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroomversion"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroomversion"
 )
 
 // PropertyRoomVersionCreate is the builder for creating a PropertyRoomVersion entity.

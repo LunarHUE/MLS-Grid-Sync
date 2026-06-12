@@ -9,8 +9,8 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/migrate"
+	"github.com/google/uuid"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/google/uuid"
 )
 
 // SourceSystemCreate is the builder for creating a SourceSystem entity.

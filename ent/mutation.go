@@ -11,8 +11,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
@@ -35,6 +33,8 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/sourcesystem"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/shopspring/decimal"
 )
 

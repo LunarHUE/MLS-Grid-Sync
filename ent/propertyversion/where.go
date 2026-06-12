@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/shopspring/decimal"
 )
 

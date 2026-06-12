@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittype"
+	"github.com/google/uuid"
 )
 
 // PropertyUnitType is the model entity for the PropertyUnitType schema.

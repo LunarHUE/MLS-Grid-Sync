@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/memberversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // MemberVersionUpdate is the builder for updating MemberVersion entities.
