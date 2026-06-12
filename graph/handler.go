@@ -35,6 +35,7 @@ func NewHandler(client *ent.Client) http.Handler {
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.GET{})
 	srv.Use(extension.Introspection{})
+	srv.Use(extension.FixedComplexityLimit(MaxComplexity))
 	srv.Use(guardedTransactioner{entgql.Transactioner{TxOpener: client}})
 	return srv
 }
