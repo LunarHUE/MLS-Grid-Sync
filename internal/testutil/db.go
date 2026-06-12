@@ -18,6 +18,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/geo"
 )
 
 // One PostgreSQL container is shared by every test in the process; each
@@ -45,7 +46,10 @@ var (
 func initPostgres() {
 	ctx := context.Background()
 
-	ctr, err := postgres.Run(ctx, "postgres:15-alpine",
+	// imresamu/postgis: multi-arch (amd64+arm64) PostGIS build on the
+	// same alpine/musl base as the postgres:15-alpine it replaced —
+	// required by the geo-search queries (geo.Migrate).
+	ctr, err := postgres.Run(ctx, "imresamu/postgis:15-3.5-alpine",
 		postgres.WithDatabase("postgres"),
 		postgres.WithUsername("postgres"),
 		postgres.WithPassword("postgres"),
@@ -95,6 +99,12 @@ func initPostgres() {
 	client := ent.NewClient(ent.Driver(entsql.OpenDB(dialect.Postgres, tmplDB)))
 	if err := client.Schema.Create(ctx); err != nil {
 		pgErr = fmt.Errorf("migrate template schema: %w", err)
+		return
+	}
+	// PostGIS column + indexes live in the template too, so every
+	// cloned test database inherits them.
+	if err := geo.Migrate(ctx, tmplDB); err != nil {
+		pgErr = fmt.Errorf("postgis template migration: %w", err)
 		return
 	}
 	// Close every connection to the template: CREATE DATABASE ...

@@ -80,7 +80,7 @@ No secrets to configure: GHCR pushes use the workflow's built-in
 ## Local development
 
 ```bash
-docker compose up -d        # Postgres 15 on :5432
+docker compose up -d        # Postgres 15 + PostGIS on :5432
 go build ./... && go vet ./...
 go run . serve              # GraphQL playground on http://localhost:8080/
 ```
@@ -92,8 +92,9 @@ automatically via direnv.
 
 ### Prerequisites
 
-Tests spin up real PostgreSQL 15 containers via [Testcontainers](https://testcontainers.com/).
-Docker must be running.
+Tests spin up a real PostgreSQL 15 + PostGIS container
+(`imresamu/postgis:15-3.5-alpine`, multi-arch) via
+[Testcontainers](https://testcontainers.com/). Docker must be running.
 
 ### Run all tests
 
@@ -165,6 +166,8 @@ template). The suite is split by concern:
 | `pagination_test.go` | Backward (`last`/`before`) paging, `first: 0`, overfetch, invalid cursor and `first`+`last` errors |
 | `wire_format_test.go` | JSON wire shapes of Decimal/UUID/StringArray/Map/Time/int16 fields, null handling, Property↔PropertyVersion parity |
 | `edges_test.go` | Polymorphic `Property.media`, parent/child ent edges, Office self-reference, and the pinned edge-visibility gap |
+| `geo_test.go` | PostGIS geo search: radius (true meters), bbox, N-vertex polygons (open + closed rings), validation errors, visibility/no-coords exclusion |
+| `protocol_test.go` | HTTP wire contract: status codes (200/400/422), error envelope shapes, GET transport, operationName, transactioner panic guard |
 | `seed_test.go` | Shared seed helpers (required-field cheat sheet per entity/version type) |
 
 ### Node resolution

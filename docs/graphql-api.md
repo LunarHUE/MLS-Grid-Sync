@@ -21,6 +21,67 @@ or `--addr`.
 licensed dataset — deploy it behind your own gateway/auth layer; do not
 expose it directly to the public internet.
 
+## Making requests
+
+The endpoint speaks standard GraphQL-over-HTTP. **POST** is the normal
+transport:
+
+```bash
+curl -s -X POST localhost:8080/query \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": "query Homes($n: Int) { properties(first: $n) { totalCount } }",
+    "variables": { "n": 5 },
+    "operationName": "Homes"
+  }'
+```
+
+The request body has three fields: `query` (required — the GraphQL
+document), `variables` (optional JSON object bound to `$`-prefixed
+variables), and `operationName` (required only when the document
+contains more than one named operation).
+
+**GET** also works, with the document in the query string — handy for
+quick checks and cacheable reads:
+
+```bash
+curl -s --get localhost:8080/query \
+  --data-urlencode 'query={ properties(first: 1) { totalCount } }'
+```
+
+Every response is a JSON envelope with up to two keys:
+
+```json
+{ "data": { ... }, "errors": [ { "message": "...", "path": [...], "locations": [...] } ] }
+```
+
+### HTTP status codes
+
+The status code tells you *which stage* failed (all verified against the
+running server and pinned by `graph/protocol_test.go`):
+
+| Status | Meaning | `errors[].extensions.code` |
+|--------|---------|----------------------------|
+| `200` | Executed. **This includes resolver failures** — always check `errors`, not just the status. | — |
+| `400` | Request body was not decodable JSON. | — |
+| `422` | Body was fine but the GraphQL document wasn't: syntax errors or queries that don't match the schema (unknown fields, wrong arg types). | `GRAPHQL_PARSE_FAILED` / `GRAPHQL_VALIDATION_FAILED` |
+
+A `200` with `errors` set and `data: null` (or a null field inside
+`data`) is the GraphQL way of reporting runtime failures — e.g. geo
+input validation:
+
+```json
+{"errors":[{"message":"center.latitude 99 out of range [-90, 90]","path":["propertiesNear"]}],"data":null}
+```
+
+### Execution model
+
+Each operation executes inside a single read-only database transaction
+(entgql's Transactioner), so every field in one request sees a
+consistent snapshot. gqlgen also performs **field collection**: only the
+columns your query selects are fetched from Postgres, so narrow queries
+are genuinely cheaper — ask for what you need.
+
 ## Root queries
 
 Every entity exposes a Relay connection list; entities with version
@@ -30,10 +91,71 @@ history also expose an audit list:
 |---|---|
 | `lookups`, `mediaSlice`¹, `members`, `offices`, `openHouses`, `properties`, `propertyRooms`, `propertyUnitTypes`, `sourceSystems` | `mediaVersions`, `memberVersions`, `officeVersions`, `openHouseVersions`, `propertyVersions`, `propertyRoomVersions`, `propertyUnitTypeVersions` |
 
-Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch.
+Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, and three
+**geo-search** queries over properties: `propertiesNear`,
+`propertiesInBBox`, `propertiesInPolygon` (see [Geo search](#geo-search)).
 
 ¹ The Media list is named `mediaSlice` because `Property.media` already
 exists as a field name.
+
+Every list takes the same four pagination arguments (`first`/`after`,
+`last`/`before`) and nothing else — see [Limitations](#limitations).
+
+## Entity types
+
+Field names follow the [RESO Data Dictionary](https://www.reso.org/data-dictionary/)
+(camelCased), so RESO documentation doubles as field documentation.
+Non-standard, MLS-specific fields land in `Property.extendedFields`
+(a JSON object).
+
+| Type | What it is | Fields to know |
+|------|-----------|----------------|
+| `Property` | A listing — the big one (~150 fields) | `listPrice`, `standardStatus`, address block (`unparsedAddress`, `city`, `postalCode`, …), `latitude`/`longitude`, soft keys (`listAgentKey`→`listAgent`, …), `media`, `rooms`, `unitTypes`, `openHouses`, `extendedFields`, `currentVersionID` |
+| `Member` | An agent | `memberFirstName`/`memberLastName`, `memberMlsID`, `officeKey`→`office` |
+| `Office` | A brokerage office | `officeName`, `mainOfficeKey`→`mainOffice`, `branches` |
+| `Media` | A photo/attachment | `mediaURL`, `resourceType` (`property`/`member`/`office`), `resourceRecordKey` (which record it belongs to), `order` |
+| `OpenHouse` | A scheduled open house | `listingKey`, `openHouseStartTime`/`EndTime`, `openHouseStatus`, `property` |
+| `PropertyRoom` | A room detail row for a listing | `listingKey`, `roomType`, dimensions, `property` |
+| `PropertyUnitType` | A unit-mix row (multi-family listings) | `listingKey`, `unitTypeBedsTotal`, `property` |
+| `Lookup` | Enumeration metadata from the feed | `lookupName` (the enum), `lookupValue` (one allowed value) |
+| `SourceSystem` | A feed/MLS the data came from | `sourceSystemName` |
+
+Each of the first seven also has a `<Type>Version` audit twin — see
+[Version history](#version-history-audit-trail).
+
+All entity types implement `Node` (fetchable by `node(id:)`) and carry
+the sync metadata trio: `sourceModifiedAt` (upstream timestamp),
+`mlgCanView` (visibility flag), `modifiedAt`/`createdAt` (local sync
+timestamps).
+
+## Version history (audit trail)
+
+Every change the sync pipeline applies writes an immutable row to the
+matching `*Version` table — the `*Versions` root queries expose that
+history. A version row carries:
+
+| Field | Meaning |
+|-------|---------|
+| `changeType` | `insert`, `update`, or `delete` |
+| `validFrom` | When this version became the current state |
+| `changedFields` | JSON object of the fields that differ from the prior version |
+| `sourceModifiedAt` | The upstream MLS timestamp that produced it |
+| `processorVersion` | Which parser version wrote it (for replay/repro) |
+| `syncEventID` | UUID of the ingestion event — correlate rows written by the same sync run |
+| `listingKey` / `memberKey` / … | The entity it describes |
+
+Version rows are identified by UUIDv7 (time-ordered), so a version
+list paginated in ID order is approximately chronological.
+
+Recipes:
+- **Latest version of a listing**: `Property.currentVersionID` → `node(id:)`
+  with `... on PropertyVersion`.
+- **Deletion history**: tombstoned entities disappear from entity lists,
+  but their `changeType: delete` version rows remain in `propertyVersions`
+  (see [Visibility semantics](#visibility-semantics)).
+- **History of one listing**: there is no server-side `listingKey` filter
+  yet — paginate `propertyVersions` and filter client-side, or query the
+  database directly for heavy audit work.
 
 ## Scalar wire formats
 
@@ -112,9 +234,90 @@ entity is `null` when the target is absent from the feed ("orphan") **or**
 tombstoned. So `listAgentKey: "ABC" , listAgent: null` is a normal,
 expected state.
 
+## Geo search
+
+Three property queries filter by location, backed by PostGIS (a
+`geography(Point,4326)` column generated from each property's
+`latitude`/`longitude`, GIST-indexed). All take a `GeoPoint` input
+(`{ latitude: Float!, longitude: Float! }`, WGS84), return a standard
+`PropertyConnection`, apply the usual visibility filter, and skip
+properties without coordinates. Results are ID-ordered, not
+distance-ordered.
+
+**`propertiesNear(center, radiusMeters)`** — everything within a true
+spheroid distance of a point:
+
+```graphql
+{
+  propertiesNear(center: { latitude: 30.2672, longitude: -97.7431 },
+                 radiusMeters: 5000, first: 25) {
+    totalCount
+    edges { node { id unparsedAddress listPrice latitude longitude } }
+  }
+}
+```
+
+**`propertiesInBBox(southWest, northEast)`** — a map viewport.
+`southWest` must be south and west of `northEast`; boxes crossing the
+antimeridian aren't supported.
+
+```graphql
+{
+  propertiesInBBox(southWest: { latitude: 30.25, longitude: -97.76 },
+                   northEast: { latitude: 30.29, longitude: -97.72 },
+                   first: 25) {
+    totalCount
+    edges { node { id latitude longitude } }
+  }
+}
+```
+
+**`propertiesInPolygon(vertices)`** — a shape drawn on a map: at least 3
+vertices, any number supported, boundary inclusive. The ring closes
+automatically (repeating the first vertex also works). Edges are
+straight lines in lat/lng space.
+
+```graphql
+{
+  propertiesInPolygon(vertices: [
+    { latitude: 30.257, longitude: -97.750 },
+    { latitude: 30.257, longitude: -97.736 },
+    { latitude: 30.279, longitude: -97.729 },
+    { latitude: 30.287, longitude: -97.743 },
+    { latitude: 30.279, longitude: -97.757 }
+  ], first: 25) {
+    totalCount
+    edges { node { id unparsedAddress } }
+  }
+}
+```
+
+Validation errors (radius ≤ 0, coordinates out of range, inverted bbox,
+< 3 vertices) come back as GraphQL errors.
+
+**Infrastructure note:** these queries require a PostGIS-enabled
+Postgres (the compose file and tests use `imresamu/postgis:15-3.5-alpine`).
+The extension, generated `geom` column, and GIST indexes are applied by
+the migration-owning commands (`sync`, `init`, `worker`, …) — run one of
+them once before `serve` against a fresh or pre-PostGIS database.
+
 ## Pagination
 
-Standard Relay cursors on every connection:
+Every list is a Relay *connection* with the same anatomy:
+
+```text
+properties(first: 25, after: "<cursor>")   ← page size + position
+└── PropertyConnection
+    ├── totalCount        Int      total matching rows (after visibility/geo filters)
+    ├── pageInfo
+    │   ├── hasNextPage     Boolean   more rows after this page?
+    │   ├── hasPreviousPage Boolean   more rows before it?
+    │   ├── startCursor     Cursor    cursor of the first edge
+    │   └── endCursor       Cursor    cursor of the last edge
+    └── edges []
+        ├── cursor         Cursor    position of this row (use as after/before)
+        └── node           Property  the actual record
+```
 
 ```graphql
 {
@@ -126,11 +329,31 @@ Standard Relay cursors on every connection:
 }
 ```
 
+Rules:
 - Forward: `first` + `after`; backward: `last` + `before`.
-- Cursors are opaque strings — never construct or parse them.
-- `totalCount` is the filtered total (visible rows only).
+- Cursors are opaque strings — never construct or parse them; they come
+  from `edges[].cursor` / `pageInfo`.
+- `totalCount` is the filtered total (visible rows only), constant
+  across pages of the same query.
+- `first: 0` is legal — returns no edges but still reports `totalCount`
+  (cheap count query).
 - Supplying both `first` and `last`, or a malformed cursor, returns a
   GraphQL error.
+- Rows are ID-ordered; new rows arriving mid-pagination won't shift
+  pages you've already read (cursors are positional on ID, not offsets).
+
+**Walking all pages** — loop until `hasNextPage` is false:
+
+```bash
+CURSOR=null
+while :; do
+  RESP=$(curl -s -X POST localhost:8080/query -H 'Content-Type: application/json' \
+    -d "{\"query\":\"query(\$c: Cursor){ properties(first: 500, after: \$c){ pageInfo{ hasNextPage endCursor } edges{ node{ id } } } }\",\"variables\":{\"c\":$CURSOR}}")
+  echo "$RESP" | jq -r '.data.properties.edges[].node.id'
+  [ "$(echo "$RESP" | jq '.data.properties.pageInfo.hasNextPage')" = "true" ] || break
+  CURSOR=$(echo "$RESP" | jq '.data.properties.pageInfo.endCursor')
+done
+```
 
 Fetch a page, then follow `pageInfo.endCursor`:
 
@@ -144,10 +367,11 @@ curl -s -X POST localhost:8080/query -H 'Content-Type: application/json' \
 
 ## Limitations
 
-- **No filtering** — there are no `where` arguments. Pagination is the
-  only navigation; filter client-side or query the database directly.
+- **No general filtering** — the geo-search queries are the only
+  server-side filters; there are no `where` arguments on the lists.
+  Filter client-side or query the database directly.
 - **No ordering** — results come back in primary-key (ID) order; there is
-  no `orderBy`.
+  no `orderBy` (geo results are not distance-sorted).
 - **No mutations or subscriptions.**
 - `nodes(ids:)` resolves each ID independently (N probes); prefer the
   list queries for bulk reads.
@@ -173,6 +397,38 @@ Audit history for a listing key:
 }
 ```
 
-The schema itself is fully introspectable — open the Playground at `/`
-for autocomplete and per-field documentation (the soft-key and media
-fields carry inline descriptions).
+## Exploring the schema
+
+The schema is fully introspectable:
+
+- **Playground** — open `/` in a browser for an interactive editor with
+  autocomplete, inline docs (the soft-key, media, and geo fields carry
+  descriptions), and a schema browser.
+- **Introspection queries** — standard `__schema`/`__type` queries work:
+
+  ```bash
+  curl -s -X POST localhost:8080/query -H 'Content-Type: application/json' \
+    -d '{"query":"{ __type(name: \"Property\") { fields { name type { name kind } description } } }"}'
+  ```
+
+- **Codegen** — point any GraphQL client generator (`graphql-codegen`,
+  Apollo, gql.tada, …) at the endpoint to get typed clients; everything
+  they need is served via introspection.
+
+## Performance notes
+
+- **Select only the fields you need.** gqlgen field collection turns the
+  selection set into the SQL column list — `{ id listPrice }` reads two
+  columns, not 150.
+- **Each request runs in one read-only transaction** — multiple root
+  fields in one query see a consistent snapshot, at the cost of holding
+  the transaction for the whole request. Prefer several small queries
+  over one giant multi-root query.
+- **`node(id:)` probes up to 16 tables** to type a bare MLS key (one
+  indexed primary-key lookup each, plus a visibility check). Fine for
+  point lookups; for bulk reads use the list queries instead of many
+  `node` calls — `nodes(ids:)` is just a loop over `node`.
+- **Geo queries are GIST-indexed** (geography index for radius, geometry
+  expression index for bbox/polygon) and stay fast at full-table scale.
+- **`totalCount` runs a COUNT per request.** If you don't need it, omit
+  it and the count query is skipped.

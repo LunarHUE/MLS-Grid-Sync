@@ -5,6 +5,12 @@ exec:
   filename: graph/generated.go
   package: graph
 
+# Where gqlgen puts models for schema types with no ent binding
+# (currently just the GeoPoint input used by the geo-search queries).
+model:
+  filename: graph/model/models_gen.go
+  package: model
+
 autobind:
   - github.com/LunarHUE/MLS-Grid-Sync/ent
 

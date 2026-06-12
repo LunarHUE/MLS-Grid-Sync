@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
@@ -39,6 +40,17 @@ func seedProperty(t *testing.T, client *ent.Client, id string, visible bool) {
 		SetID(id).
 		SetSourceModifiedAt(time.Now()).
 		SetMlgCanView(visible).
+		SaveX(context.Background())
+}
+
+func seedPropertyAt(t *testing.T, client *ent.Client, id string, lat, lng float64, visible bool) {
+	t.Helper()
+	client.Property.Create().
+		SetID(id).
+		SetSourceModifiedAt(time.Now()).
+		SetMlgCanView(visible).
+		SetLatitude(decimal.NewFromFloat(lat)).
+		SetLongitude(decimal.NewFromFloat(lng)).
 		SaveX(context.Background())
 }
 
