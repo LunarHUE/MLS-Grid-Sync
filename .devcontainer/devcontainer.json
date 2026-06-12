@@ -1,0 +1,55 @@
+{
+  "name": "MLS-Grid-Sync — Nix Dev Environment",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "false"
+    }
+  },
+  "mounts": [
+    "source=abstract-nix-store,target=/nix,type=volume"
+  ],
+  "containerEnv": {
+    "NIX_CONFIG": "experimental-features = nix-command flakes"
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        },
+        "go.goroot": "",
+        "go.alternateTools": {
+          "go": "/nix/var/nix/profiles/default/bin/go",
+          "gopls": "/nix/var/nix/profiles/default/bin/gopls"
+        }
+      },
+      "extensions": [
+        "golang.go",
+        "jnoortheen.nix-ide",
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "hashicorp.terraform",
+        "DrBlury.protobuf-vsc"
+      ]
+    }
+  },
+
+  "forwardPorts": [3001],
+  "portsAttributes": {
+    "3001": { "label": "ricci-web", "onAutoForward": "notify" }
+  },
+
+  "remoteUser": "root"
+}
