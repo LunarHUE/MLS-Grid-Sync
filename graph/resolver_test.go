@@ -16,6 +16,7 @@ import (
 // ---- tests ----
 
 func TestQueryLookups_Empty(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -28,6 +29,7 @@ func TestQueryLookups_Empty(t *testing.T) {
 }
 
 func TestQueryLookups_WithData(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -72,6 +74,7 @@ func TestQueryLookups_WithData(t *testing.T) {
 }
 
 func TestQueryLookups_Pagination(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -134,6 +137,7 @@ func TestQueryLookups_Pagination(t *testing.T) {
 }
 
 func TestQueryNode_Lookup(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -168,6 +172,7 @@ func TestQueryNode_Lookup(t *testing.T) {
 }
 
 func TestQueryMembers_Empty(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -180,6 +185,7 @@ func TestQueryMembers_Empty(t *testing.T) {
 }
 
 func TestQueryMembers_WithData(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -225,6 +231,7 @@ func TestQueryMembers_WithData(t *testing.T) {
 }
 
 func TestQueryMembers_Pagination(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -278,6 +285,7 @@ func TestQueryMembers_Pagination(t *testing.T) {
 }
 
 func TestQueryNode_Member(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -308,6 +316,7 @@ func TestQueryNode_Member(t *testing.T) {
 }
 
 func TestQueryNode_NotFound(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -323,6 +332,7 @@ func TestQueryNode_NotFound(t *testing.T) {
 }
 
 func TestQueryProperties_Empty(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -335,6 +345,7 @@ func TestQueryProperties_Empty(t *testing.T) {
 }
 
 func TestQueryProperties_WithData(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -378,6 +389,7 @@ func TestQueryProperties_WithData(t *testing.T) {
 }
 
 func TestQueryNode_Property(t *testing.T) {
+	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	ctx := context.Background()
 
@@ -408,6 +420,7 @@ func TestQueryNode_Property(t *testing.T) {
 }
 
 func TestQueryOffices_Empty(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -420,6 +433,7 @@ func TestQueryOffices_Empty(t *testing.T) {
 }
 
 func TestQueryOpenHouses_Empty(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -432,6 +446,7 @@ func TestQueryOpenHouses_Empty(t *testing.T) {
 }
 
 func TestQuerySourceSystems_Empty(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {
@@ -460,6 +475,7 @@ type softKeyResolverCase struct {
 }
 
 func TestPropertySoftKeyResolvers(t *testing.T) {
+	t.Parallel()
 	cases := []softKeyResolverCase{
 		{"listAgent", "listAgentKey", func(c *ent.PropertyCreate, k string) { c.SetListAgentKey(k) }, "Member"},
 		{"coListAgent", "coListAgentKey", func(c *ent.PropertyCreate, k string) { c.SetCoListAgentKey(k) }, "Member"},
@@ -591,6 +607,7 @@ func queryPropertyResolverField(t *testing.T, srv *httptest.Server, listingKey, 
 
 // TestMemberSoftKeyOffice covers Member.office with the same three states.
 func TestMemberSoftKeyOffice(t *testing.T) {
+	t.Parallel()
 	type state struct {
 		name           string
 		officeMlgCanView *bool // nil = no Office row seeded; true/false = seeded with this visibility
@@ -654,6 +671,7 @@ func TestMemberSoftKeyOffice(t *testing.T) {
 func boolPtr(b bool) *bool { return &b }
 
 func TestIntrospection(t *testing.T) {
+	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
 	var data struct {

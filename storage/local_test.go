@@ -24,6 +24,7 @@ func newTestLocal(t *testing.T, cap int64) *LocalStorer {
 }
 
 func TestLocalStorer_Conformance(t *testing.T) {
+	t.Parallel()
 	testStorerConformance(t, func(t *testing.T) conformanceFixture {
 		s := newTestLocal(t, oneGiB)
 		return conformanceFixture{
@@ -54,6 +55,7 @@ func TestLocalStorer_Conformance(t *testing.T) {
 }
 
 func TestLocalStorer_CapEnforcedAtBoundary(t *testing.T) {
+	t.Parallel()
 	const cap = 100
 	s := newTestLocal(t, cap)
 
@@ -69,6 +71,7 @@ func TestLocalStorer_CapEnforcedAtBoundary(t *testing.T) {
 }
 
 func TestLocalStorer_CapEnforcedOnOversize(t *testing.T) {
+	t.Parallel()
 	// A single upload larger than the cap must be rejected, and the
 	// budget must roll back so subsequent small uploads still work.
 	const cap = 10
@@ -85,6 +88,7 @@ func TestLocalStorer_CapEnforcedOnOversize(t *testing.T) {
 }
 
 func TestLocalStorer_PathTraversalRejected(t *testing.T) {
+	t.Parallel()
 	s := newTestLocal(t, oneGiB)
 	cases := []string{
 		"../escape",
@@ -100,6 +104,7 @@ func TestLocalStorer_PathTraversalRejected(t *testing.T) {
 }
 
 func TestLocalStorer_AtomicWriteNoHalfFile(t *testing.T) {
+	t.Parallel()
 	// Mid-stream error: io.Copy returns the failingReader's error after
 	// some bytes have been written to the temp file. The final path must
 	// not exist; the temp file must be cleaned up.
@@ -135,6 +140,7 @@ func TestLocalStorer_AtomicWriteNoHalfFile(t *testing.T) {
 }
 
 func TestLocalStorer_CleanupPrefixScopeExact(t *testing.T) {
+	t.Parallel()
 	s := newTestLocal(t, oneGiB)
 	ctx := context.Background()
 	mustUpload := func(key string) {
@@ -160,6 +166,7 @@ func TestLocalStorer_CleanupPrefixScopeExact(t *testing.T) {
 }
 
 func TestLocalStorer_RestartRecountsUsed(t *testing.T) {
+	t.Parallel()
 	// A restart against a partially-filled rootDir must NOT
 	// double-budget existing files (otherwise the cap drifts).
 	root := t.TempDir()

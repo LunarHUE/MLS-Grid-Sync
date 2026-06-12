@@ -16,28 +16,30 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GOPRIVATE: github.com/lunarhue/*
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: true
+      # Same toolchain as local dev: the flake's `ci` shell shares its
+      # package list with the default devShell (see flake.nix).
+      - uses: DeterminateSystems/nix-installer-action@v16
 
-      - name: Configure access to private Go modules
-        run: |
-          git config --global url."https://x-access-token:${{ secrets.GH_PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}
+          restore-keys: go-${{ runner.os }}-
 
       - name: Build
-        run: go build ./...
+        run: nix develop .#ci --command go build ./...
 
       - name: Vet
-        run: go vet ./...
+        run: nix develop .#ci --command go vet ./...
 
       - name: Test
-        run: go test ./...
+        run: nix develop .#ci --command go test ./...
 
   docker:
     needs: test
@@ -75,5 +77,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          secrets: |
-            gh_token=${{ secrets.GH_PRIVATE_REPO_TOKEN }}
