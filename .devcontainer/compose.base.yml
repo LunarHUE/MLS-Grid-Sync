@@ -1,0 +1,23 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - lunarhue-containers-nix-store:/nix
+      - lunarhue-containers-cache:/root/.cache/devcontainer
+      - ${HOME}/.config/gh:/root/.config/gh:ro
+      - ..:/workspace:cached
+
+    environment:
+      NIX_CONFIG: experimental-features = nix-command flakes
+
+    command: sleep infinity
+
+volumes:
+  lunarhue-containers-nix-store:
+    name: lunarhue-containers-nix-store
+
+  lunarhue-containers-cache:
+    name: lunarhue-containers-cache
