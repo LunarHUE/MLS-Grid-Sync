@@ -15,7 +15,6 @@ append_once() {
 }
 
 append_once "$HOME/.bashrc" "export PS1='\\[\\e[1;32m\\]\\u@${PROJECT_NAME}\\[\\e[0m\\]:\\[\\e[1;34m\\]\\w\\[\\e[0m\\]\\$ '"
-append_once "$HOME/.bashrc" 'export DIRENV_LOG_FORMAT=""'
 append_once "$HOME/.bashrc" 'eval "$(direnv hook bash)"'
 append_once "$HOME/.bashrc" 'export DEVCONTAINER_CACHE="$HOME/.cache/devcontainer"'
 
@@ -33,6 +32,14 @@ fi
 if [ -f "$WORKSPACE_DIR/.envrc" ]; then
   direnv allow "$WORKSPACE_DIR" \
     || echo "warning: 'direnv allow' failed; env will load once the flake is fixed" >&2
+fi
+
+# Single-user Nix store is root-owned from the image build; hand it to the dev user.
+# Runs against the mounted /nix volume, so it fixes the persistent volume too.
+if [ ! -w /nix/var/nix/db/big-lock ]; then
+  echo "Claiming /nix for $(id -un)..."
+  sudo chown -R "$(id -u):$(id -g)" /nix \
+    || echo "warning: could not chown /nix; nix will fail until this is fixed" >&2
 fi
 
 git config --global --get-all safe.directory | grep -qxF "$WORKSPACE_DIR" \
