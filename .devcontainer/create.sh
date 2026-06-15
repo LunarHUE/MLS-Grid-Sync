@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_NAME="$(basename "$WORKSPACE_DIR")"
 
 append_once() {
@@ -19,14 +19,21 @@ append_once "$HOME/.bashrc" 'export DIRENV_LOG_FORMAT=""'
 append_once "$HOME/.bashrc" 'eval "$(direnv hook bash)"'
 append_once "$HOME/.bashrc" 'export DEVCONTAINER_CACHE="$HOME/.cache/devcontainer"'
 
+# Configure nix (Enable flake and Nix-Command)
 mkdir -p "$HOME/.config/nix"
 append_once "$HOME/.config/nix/nix.conf" "experimental-features = nix-command flakes"
 append_once "$HOME/.config/nix/nix.conf" "warn-dirty = false"
 
 mkdir -p "$HOME/.cache/devcontainer"
 
-[ -f "$WORKSPACE_DIR/.envrc" ] || echo 'use flake' > "$WORKSPACE_DIR/.envrc"
-direnv allow "$WORKSPACE_DIR"
+if [ ! -f "$WORKSPACE_DIR/.envrc" ]; then
+  echo 'use flake' > "$WORKSPACE_DIR/.envrc" \
+    || echo "warning: could not write $WORKSPACE_DIR/.envrc; skipping direnv setup" >&2
+fi
+if [ -f "$WORKSPACE_DIR/.envrc" ]; then
+  direnv allow "$WORKSPACE_DIR" \
+    || echo "warning: 'direnv allow' failed; env will load once the flake is fixed" >&2
+fi
 
 git config --global --get-all safe.directory | grep -qxF "$WORKSPACE_DIR" \
   || git config --global --add safe.directory "$WORKSPACE_DIR"
