@@ -1,22 +1,37 @@
 {
   "name": "${localWorkspaceFolderBasename} — Nix Dev Environment",
+  "build": {
+    "context": ".",
+    "dockerfile": "Dockerfile"
+  },
 
-  "dockerComposeFile": [
-    "compose.base.yml",
-    "compose.project.yml"
-  ],
-
-  "service": "dev",
   "workspaceFolder": "/workspace",
-
-  "remoteEnv": {
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  
+  "mounts": [
+    "source=lunarhue-containers-nix-store,target=/nix,type=volume",
+    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,readonly"
+  ],
+  
+  "containerEnv": { // Environment variables to set inside the container
+    "NIX_CONFIG": "experimental-features = nix-command flakes"
+  },
+  "remoteEnv": { // Environment variables to set in the VS Code Remote environment
     "GH_TOKEN": "${localEnv:GH_TOKEN}",
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
   },
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "false"
+    }
+  },
 
-  "postCreateCommand": "bash .devcontainer/scripts/create.sh",
-  "postStartCommand": "bash .devcontainer/scripts/start.sh",
-
+  "postCreateCommand": "bash .devcontainer/create.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  
   "customizations": {
     "vscode": {
       "extensions": [
@@ -25,6 +40,6 @@
       ]
     }
   },
-
-  "remoteUser": "root"
+  
+  "remoteUser": "vscode"
 }
