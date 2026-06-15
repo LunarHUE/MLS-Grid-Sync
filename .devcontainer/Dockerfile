@@ -23,7 +23,8 @@ ENV LC_ALL=en_US.UTF-8
 # Single-user Nix install as root — no daemon needed.
 RUN curl --proto '=https' --tlsv1.2 -sSf -L \
     https://install.determinate.systems/nix | sh -s -- install linux \
-    --no-confirm --init none --extra-conf "filter-syscalls = false"
+    --no-confirm --init none --extra-conf "filter-syscalls = false" \
+&& sed -i '/install\.determinate\.systems/d' /etc/nix/nix.conf
 
 ENV PATH="/nix/var/nix/profiles/default/bin:/root/.nix-profile/bin:${PATH}"
 ENV NIX_CONFIG="experimental-features = nix-command flakes"
