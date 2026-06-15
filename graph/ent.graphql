@@ -212,10 +212,6 @@ input LookupWhereInput {
   standardLookupValueEqualFold: String
   standardLookupValueContainsFold: String
 }
-"""
-The builtin Map type
-"""
-scalar Map
 type Media implements Node {
   """
   RESO MediaKey
@@ -4374,6 +4370,7 @@ Properties by which Property connections can be ordered.
 """
 enum PropertyOrderField {
   SOURCE_MODIFIED_AT
+  LIST_PRICE
   CITY
 }
 type PropertyRoom implements Node {
@@ -5580,6 +5577,7 @@ Properties by which PropertyVersion connections can be ordered.
 """
 enum PropertyVersionOrderField {
   SOURCE_MODIFIED_AT
+  LIST_PRICE
   CITY
 }
 """
@@ -9002,7 +9000,3 @@ input SourceSystemWhereInput {
   sourceSystemNameEqualFold: String
   sourceSystemNameContainsFold: String
 }
-"""
-The builtin Time type
-"""
-scalar Time

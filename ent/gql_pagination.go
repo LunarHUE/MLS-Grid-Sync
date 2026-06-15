@@ -3000,6 +3000,20 @@ var (
 			}
 		},
 	}
+	// PropertyOrderFieldListPrice orders Property by list_price.
+	PropertyOrderFieldListPrice = &PropertyOrderField{
+		Value: func(_m *Property) (ent.Value, error) {
+			return _m.ListPrice, nil
+		},
+		column: property.FieldListPrice,
+		toTerm: property.ByListPrice,
+		toCursor: func(_m *Property) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.ListPrice,
+			}
+		},
+	}
 	// PropertyOrderFieldCity orders Property by city.
 	PropertyOrderFieldCity = &PropertyOrderField{
 		Value: func(_m *Property) (ent.Value, error) {
@@ -3022,6 +3036,8 @@ func (f PropertyOrderField) String() string {
 	switch f.column {
 	case PropertyOrderFieldSourceModifiedAt.column:
 		str = "SOURCE_MODIFIED_AT"
+	case PropertyOrderFieldListPrice.column:
+		str = "LIST_PRICE"
 	case PropertyOrderFieldCity.column:
 		str = "CITY"
 	}
@@ -3042,6 +3058,8 @@ func (f *PropertyOrderField) UnmarshalGQL(v interface{}) error {
 	switch str {
 	case "SOURCE_MODIFIED_AT":
 		*f = *PropertyOrderFieldSourceModifiedAt
+	case "LIST_PRICE":
+		*f = *PropertyOrderFieldListPrice
 	case "CITY":
 		*f = *PropertyOrderFieldCity
 	default:
@@ -4498,6 +4516,20 @@ var (
 			}
 		},
 	}
+	// PropertyVersionOrderFieldListPrice orders PropertyVersion by list_price.
+	PropertyVersionOrderFieldListPrice = &PropertyVersionOrderField{
+		Value: func(_m *PropertyVersion) (ent.Value, error) {
+			return _m.ListPrice, nil
+		},
+		column: propertyversion.FieldListPrice,
+		toTerm: propertyversion.ByListPrice,
+		toCursor: func(_m *PropertyVersion) Cursor {
+			return Cursor{
+				ID:    _m.ID,
+				Value: _m.ListPrice,
+			}
+		},
+	}
 	// PropertyVersionOrderFieldCity orders PropertyVersion by city.
 	PropertyVersionOrderFieldCity = &PropertyVersionOrderField{
 		Value: func(_m *PropertyVersion) (ent.Value, error) {
@@ -4520,6 +4552,8 @@ func (f PropertyVersionOrderField) String() string {
 	switch f.column {
 	case PropertyVersionOrderFieldSourceModifiedAt.column:
 		str = "SOURCE_MODIFIED_AT"
+	case PropertyVersionOrderFieldListPrice.column:
+		str = "LIST_PRICE"
 	case PropertyVersionOrderFieldCity.column:
 		str = "CITY"
 	}
@@ -4540,6 +4574,8 @@ func (f *PropertyVersionOrderField) UnmarshalGQL(v interface{}) error {
 	switch str {
 	case "SOURCE_MODIFIED_AT":
 		*f = *PropertyVersionOrderFieldSourceModifiedAt
+	case "LIST_PRICE":
+		*f = *PropertyVersionOrderFieldListPrice
 	case "CITY":
 		*f = *PropertyVersionOrderFieldCity
 	default:

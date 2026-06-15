@@ -1,10 +1,11 @@
 scalar UUID
 scalar Decimal
 scalar StringArray
-# Time and Map used to be declared here as a hand-maintained fallback, because
-# older entgql regens dropped them when no top-level type referenced them. With
-# Phase 3 where-inputs (WithWhereInputs) every entity exposes time/Map
-# predicates, so entgql now emits `scalar Time` and `scalar Map` into
-# ent.graphql itself. Declaring them here too would redeclare the type, so they
-# were removed — ent.graphql now owns them. UUID/Decimal/StringArray are still
-# entgql.Skip-ed from where-inputs and never emitted by entgql, so they stay.
+# Time and Map are hand-maintained here as a fallback. Although Phase 3
+# where-inputs (WithWhereInputs) make every entity expose time/Map predicates,
+# the entgql version pinned in go.mod does NOT emit `scalar Time` / `scalar Map`
+# into ent.graphql — so without these declarations gqlgen fails with
+# "Undefined type Time/Map". UUID/Decimal/StringArray are entgql.Skip-ed from
+# where-inputs and likewise never emitted, so they stay here too.
+scalar Time
+scalar Map
