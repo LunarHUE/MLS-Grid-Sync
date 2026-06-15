@@ -1,4 +1,0 @@
-{
-  "unwantedRecommendations": ["microsoft.ms-edgedevtools"],
-  "recommendations": ["golang.go", "esbenp.prettier-vscode"]
-}

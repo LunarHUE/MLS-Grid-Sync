@@ -5,5 +5,7 @@
       "path": "/bin/bash"
     }
   },
-  "go.goroot": ""
+  "go.goroot": "",
+  "dev.containers.copyGitConfig": false,
+  "dev.containers.gitCredentialHelperConfigLocation": "global"
 }
