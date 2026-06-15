@@ -44,8 +44,15 @@
     "vscode": {
       "extensions": [
         "mkhl.direnv",
-        "jnoortheen.nix-ide"
-      ]
+        "jnoortheen.nix-ide",
+        "golang.go"
+      ],
+      "settings": {
+        "direnv.restart.automatic": true,
+        "go.useLanguageServer": true,
+        "go.toolsManagement.checkForUpdates": "off",
+        "go.toolsManagement.autoUpdate": false
+      }
     }
   },
   
