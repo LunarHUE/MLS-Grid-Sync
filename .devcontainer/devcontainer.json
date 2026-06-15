@@ -7,20 +7,16 @@
 
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
-  
+
   "mounts": [
     "source=lunarhue-containers-nix-store,target=/nix,type=volume",
     "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,readonly"
   ],
-  
-  "containerEnv": { // Environment variables to set inside the container
+
+  "containerEnv": {
     "NIX_CONFIG": "experimental-features = nix-command flakes"
   },
-  "remoteEnv": { // Environment variables to set in the VS Code Remote environment
-    "GH_TOKEN": "${localEnv:GH_TOKEN}",
-    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
-  },
-  
+
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "username": "vscode",
@@ -39,7 +35,7 @@
 
   "postCreateCommand": "bash .devcontainer/create.sh",
   "postStartCommand": "bash .devcontainer/start.sh",
-  
+
   "customizations": {
     "vscode": {
       "extensions": [
@@ -55,6 +51,6 @@
       }
     }
   },
-  
+
   "remoteUser": "vscode"
 }
