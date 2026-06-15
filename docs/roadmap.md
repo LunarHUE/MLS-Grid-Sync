@@ -6,7 +6,7 @@ Status legend: ⬜ pending · 🔶 in progress · ✅ done
 |---|-------|--------|
 | 1 | API protection: CORS, optional API key, page-size cap, complexity limit | ✅ |
 | 2 | Multi-arch Docker image (amd64 + arm64) | ✅ |
-| 3 | GraphQL filtering (`where`) + ordering (`orderBy`) via entgql | 🔶 |
+| 3 | GraphQL filtering (`where`) + ordering (`orderBy`) via entgql | ✅ |
 | 4 | Edge-visibility fix via ent interceptors | ⬜ |
 | 5 | `propertiesNearest` with `distanceMeters` (nearest-first) | ⬜ |
 | 6 | Observability: `/metrics`, request logging, `syncStatus` query | ⬜ |

@@ -39,7 +39,8 @@ func (PropertyDataMixin) Fields() []ent.Field {
 		// --- Pricing & tax ---
 		field.Other("list_price", decimal.Decimal{}).
 			Optional().Nillable().
-			SchemaType(map[string]string{dialect.Postgres: "numeric(13,2)"}),
+			SchemaType(map[string]string{dialect.Postgres: "numeric(13,2)"}).
+			Annotations(entgql.OrderField("LIST_PRICE")),
 		field.Other("original_list_price", decimal.Decimal{}).
 			Optional().Nillable().
 			SchemaType(map[string]string{dialect.Postgres: "numeric(13,2)"}),
