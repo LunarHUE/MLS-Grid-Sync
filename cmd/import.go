@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lunarhue/libs-go/log"
-
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
 	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
 	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 	"github.com/spf13/cobra"
@@ -21,6 +21,10 @@ var importCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 		resourceName := args[0]
+
+		// Live pull/enqueue bars (TTY) or clean %/ETA lines (piped) for the import.
+		progress.Begin(progress.ParseMode(appConfig.Progress))
+		defer progress.End()
 
 		dbResource, err := pkgsync.MLSToDBResource(resourceName)
 		if err != nil {
@@ -42,7 +46,7 @@ var importCmd = &cobra.Command{
 
 		// Sweep stale running events from prior runs — Phase 4 §8.
 		if _, err := svc.SweepStaleRunningEvents(ctx, pkgsync.DefaultStaleRunningThreshold); err != nil {
-			log.Errorf("startup sweep failed: %v", err)
+			applog.Errorf("startup sweep failed: %v", err)
 		}
 
 		srcSystemID, err := ensureSourceSystem(ctx, db)
@@ -50,7 +54,7 @@ var importCmd = &cobra.Command{
 			return err
 		}
 
-		log.Infof("Starting INITIAL import for %s...", resourceName)
+		applog.Infof("Starting INITIAL import for %s...", resourceName)
 		return svc.RunInitial(ctx, srcSystemID, appConfig.MLS.V2URL, appConfig.MLS.OriginatingSystem, dbResource)
 	},
 }
@@ -61,7 +65,7 @@ var importCmd = &cobra.Command{
 func ensureSourceSystem(ctx context.Context, db *ent.Client) (string, error) {
 	src, err := db.SourceSystem.Query().First(ctx)
 	if ent.IsNotFound(err) {
-		log.Info("Source system 'mlsgrid' not found. Creating it...")
+		applog.Infof("Source system 'mlsgrid' not found. Creating it...")
 		src, err = db.SourceSystem.Create().
 			SetID("mlsgrid").
 			SetSourceSystemName("MLSGrid").

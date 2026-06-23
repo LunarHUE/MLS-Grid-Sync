@@ -14,6 +14,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
 	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
@@ -276,11 +277,25 @@ func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Res
 	// shared libs-go log buffer. The finalize pass logs normally.
 	if finalize {
 		if cursor.LastRawOutputID != nil {
-			log.Infof("processor[%s]: starting pass from cursor %s", resource, *cursor.LastRawOutputID)
+			applog.Infof("processor[%s]: starting pass from cursor %s", resource, *cursor.LastRawOutputID)
 		} else {
-			log.Infof("processor[%s]: starting pass from beginning", resource)
+			applog.Infof("processor[%s]: starting pass from beginning", resource)
 		}
 	}
+
+	// Process lane: count the rows this pass will type so the bar shows how much
+	// is left. Best-effort — a count error just leaves the lane untouched (it's
+	// display only, never a reason to fail the pass). In the default
+	// fetch-then-process path this count is exact and the bar fills 0→100% for
+	// the resource; in the pipelined path each wake's pass shows its own slice.
+	lane := progress.Process()
+	laneActive := false
+	if pending, cerr := p.countPending(ctx, resource, cursor.LastRawOutputID); cerr == nil && pending > 0 {
+		lane.Start(string(resource), pending)
+		laneActive = true
+		defer lane.Done()
+	}
+	batchBaseline := 0
 
 	for {
 		batch, err := p.fetchBatch(ctx, resource, cursor.LastRawOutputID)
@@ -311,16 +326,26 @@ func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Res
 			}
 		}
 
-		// One progress line per drained batch — the cadence matches
-		// DefaultBatchSize so an operator sees a heartbeat every few seconds.
-		// Critically this fires DURING the drain (not only when it empties), so
-		// a streaming consumer that never catches up to the producer — heavy
-		// resources like Property drain slower than pages arrive — still shows
-		// steady progress instead of going silent. applog shares the producer's
-		// log lock so the concurrent fetch/process logging is race-free.
-		applog.Infof("processor[%s]: %d processed (%s), cursor %s",
+		// Advance the Process bar by what this batch typed. The bar is the
+		// operator-facing heartbeat now; the per-batch line is DEBUG.
+		if laneActive {
+			lane.Add(stats.Processed - batchBaseline)
+			batchBaseline = stats.Processed
+		}
+		applog.Debugf("processor[%s]: %d processed (%s), cursor %s",
 			resource, stats.Processed, stats.summary(), *cursor.LastRawOutputID)
 	}
+}
+
+// countPending returns how many raw_output rows this resource still has to
+// process strictly after the cursor — the Process lane's denominator. It
+// mirrors fetchBatch's filter so it counts exactly the rows the pass will read.
+func (p *Processor) countPending(ctx context.Context, resource rawoutput.Resource, after *uuid.UUID) (int, error) {
+	q := p.client.RawOutput.Query().Where(rawoutput.ResourceEQ(resource))
+	if after != nil {
+		q = q.Where(rawoutput.IDGT(*after))
+	}
+	return q.Count(ctx)
 }
 
 // logPassComplete emits the end-of-pass INFO line. Splits into a quiet form
@@ -328,12 +353,12 @@ func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Res
 // stats+rate form otherwise.
 func (p *Processor) logPassComplete(stats *PassStats) {
 	if stats.Processed == 0 {
-		log.Infof("processor[%s]: pass complete — nothing to process", stats.Resource)
+		applog.Infof("processor[%s]: pass complete — nothing to process", stats.Resource)
 		return
 	}
 	elapsed := time.Since(stats.StartedAt)
 	rate := float64(stats.Processed) / elapsed.Seconds()
-	log.Infof("processor[%s]: pass complete — %d records in %s (%.1f/s): %s",
+	applog.Infof("processor[%s]: pass complete — %d records in %s (%.1f/s): %s",
 		stats.Resource, stats.Processed, elapsed.Round(time.Second), rate, stats.summary())
 }
 

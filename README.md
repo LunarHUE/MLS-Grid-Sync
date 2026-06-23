@@ -37,10 +37,39 @@ environment variables prefixed `MLS_SYNC_` (nested keys joined with `_`):
 | `MLS_SYNC_MLS_ORIGINATING_SYSTEM` | Originating system name (e.g. `actris`) |
 | `MLS_SYNC_SERVER_ADDR` | Listen address for `serve` (default `:8080`) |
 | `MLS_SYNC_STORAGE_BACKEND` | `fake` \| `local` \| `azure` \| `s3` |
-| `MLS_SYNC_LOG_LEVEL` | Log level (default `info`) |
+| `MLS_SYNC_LOG_LEVEL` | Log level (default `info`); `debug` restores the per-page/per-chunk fetch lines |
+| `MLS_SYNC_PROGRESS` | Import progress display: `auto` (default), `never`, or `always` |
 
 Azure/S3 credentials follow the respective SDK default chains; see
 `config/default.config.yaml` for the full key list.
+
+### Import progress
+
+`init` and `import` render progress through `internal/progress` (built on
+[`mpb`](https://github.com/vbauerster/mpb)) as **two persistent bars, one per
+worker goroutine**: **Fetch** (the producer / network) and **Process** (the
+consumer / DB typing). Both bars are always on screen — a worker with no current
+work stays visible, full, labeled **`idle`** — so you can see which of the two is
+the bottleneck. They run concurrently in the pipelined path and one-at-a-time in
+the default concurrent-fetch-then-process path.
+
+```
+# interactive terminal:
+Fetch    Property  ▕████████████████████▏ 100%  589k/589k  idle
+Process  property  ▕██████████░░░░░░░░░░▏  52%  306k/589k  15.5k/s  ETA 18s
+```
+
+- **Fetch** learns its denominator from a one-shot OData `$count`
+  (`@odata.count`) on the first page; **Process** counts the pending
+  `raw_output` rows for the resource — so both percentages/ETAs are real, not a
+  running tally. (Media enqueue borrows the Process lane, relabeled.)
+- **Piped / redirected / CI** — no bars (mpb would refresh-spam); throttled plain
+  log lines instead, e.g. `Process property: 306,000/589,081 (52%) — 15.5k/s,
+  ETA 18s`. Ordinary log lines print cleanly above the bars.
+- Force a mode with `MLS_SYNC_PROGRESS=never|always` (default `auto`).
+- The high-volume per-page (`Fetching … page N`, `fetch timing:`), per-batch
+  (`processor[x]: N processed`), and per-chunk (`enqueue: X/Y processed`) lines
+  are now `debug` level — set `MLS_SYNC_LOG_LEVEL=debug` to see them.
 
 ## Docker
 

@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lunarhue/libs-go/log"
 	"github.com/spf13/cobra"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
 	pkgsync "github.com/LunarHUE/MLS-Grid-Sync/sync"
 	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 )
@@ -39,6 +40,12 @@ clean resources.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
+		// Open the progress session for the whole import so the pull/enqueue
+		// bars render (TTY) or emit clean %/ETA lines (piped). End erases any
+		// residual bar region.
+		progress.Begin(progress.ParseMode(appConfig.Progress))
+		defer progress.End()
+
 		if _, err := resolveOriginatingSystem(cmd, appConfig); err != nil {
 			return err
 		}
@@ -63,11 +70,11 @@ clean resources.`,
 		}
 		svc.WithInitPipeline(pipeline)
 		if pipeline {
-			log.Infof("init: pipelined fetch‖process enabled")
+			applog.Infof("init: pipelined fetch‖process enabled")
 		}
 
 		if _, err := svc.SweepStaleRunningEvents(ctx, pkgsync.DefaultStaleRunningThreshold); err != nil {
-			log.Errorf("startup sweep failed: %v", err)
+			applog.Errorf("startup sweep failed: %v", err)
 		}
 
 		srcSystemID, err := ensureSourceSystem(ctx, db)
@@ -75,7 +82,7 @@ clean resources.`,
 			return err
 		}
 
-		log.Infof("Starting full INIT import (originating_system=%s)...", appConfig.MLS.OriginatingSystem)
+		applog.Infof("Starting full INIT import (originating_system=%s)...", appConfig.MLS.OriginatingSystem)
 		return runInit(ctx, svc, srcSystemID, appConfig.MLS.V2URL, appConfig.MLS.OriginatingSystem, processor.FetchableResources, skipSet)
 	},
 }
@@ -90,14 +97,14 @@ type initialRunner interface {
 func runInit(ctx context.Context, r initialRunner, srcSystemID, v2URL, originatingSystem string, order []rawoutput.Resource, skip map[rawoutput.Resource]bool) error {
 	for _, resource := range order {
 		if skip[resource] {
-			log.Infof("init: skipping %s (--skip)", resource)
+			applog.Infof("init: skipping %s (--skip)", resource)
 			continue
 		}
 		apiName, err := pkgsync.DBToMLSResource(resource)
 		if err != nil {
 			return fmt.Errorf("init: %w", err)
 		}
-		log.Infof("init: starting %s", apiName)
+		applog.Infof("init: starting %s", apiName)
 		if err := r.RunInitial(ctx, srcSystemID, v2URL, originatingSystem, resource); err != nil {
 			return fmt.Errorf("%s — completed resources are safe to re-run; fix and run `mls-grid-sync init` again (or `--skip` to bypass): %w", formatInitHalt(apiName, resource, err), err)
 		}

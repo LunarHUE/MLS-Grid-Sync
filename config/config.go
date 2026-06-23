@@ -128,7 +128,12 @@ type ServerConfig struct {
 }
 
 type Config struct {
-	LogLevel  string          `mapstructure:"log_level" yaml:"log_level"`
+	LogLevel string `mapstructure:"log_level" yaml:"log_level"`
+	// Progress selects how init/import render pull/type/enqueue progress:
+	// "auto" (default — live bars on an interactive terminal, plain %/ETA log
+	// lines when piped/redirected), "never" (always plain lines), or "always"
+	// (force bars). Override: MLS_SYNC_PROGRESS.
+	Progress  string          `mapstructure:"progress" yaml:"progress"`
 	Database  DatabaseConfig  `mapstructure:"database" yaml:"database"`
 	MLS       MLSConfig       `mapstructure:"mls" yaml:"mls"`
 	Profiling ProfilingConfig `mapstructure:"profiling" yaml:"profiling"`

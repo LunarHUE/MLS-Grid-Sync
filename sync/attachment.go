@@ -19,6 +19,8 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
 	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 	"github.com/google/uuid"
 	"github.com/lunarhue/libs-go/log"
@@ -69,7 +71,7 @@ const enqueueChunkSize = 1000
 func (s *Service) EnqueueAttachmentJobs(ctx context.Context, syncEventID uuid.UUID, records []json.RawMessage) error {
 	total := len(records)
 	if total >= enqueueProgressEvery {
-		log.Infof("enqueue: starting pass over %d media records", total)
+		applog.Infof("enqueue: starting pass over %d media records", total)
 	}
 	start := time.Now()
 
@@ -102,6 +104,13 @@ func (s *Service) EnqueueAttachmentJobs(ctx context.Context, syncEventID uuid.UU
 			latest[mediaKey] = incoming
 		}
 	}
+
+	// Enqueue is consumer-side work that runs after a resource's typing pass, so
+	// it borrows the Process lane (relabeled). The distinct-media count is known
+	// up front, so it renders a real %/ETA bar or throttled line.
+	proc := progress.Process()
+	proc.Start("enqueue media", len(order))
+	defer proc.Done()
 
 	var enqueued, skipped, processed int
 	for chunk := range slices.Chunk(order, enqueueChunkSize) {
@@ -136,19 +145,20 @@ func (s *Service) EnqueueAttachmentJobs(ctx context.Context, syncEventID uuid.UU
 		}
 
 		processed += len(chunk)
-		if total >= enqueueProgressEvery {
-			log.Infof("enqueue: %d/%d processed (%d enqueued, %d skipped)",
-				processed, len(order), enqueued, skipped)
-		}
+		proc.Add(len(chunk))
+		// Per-chunk line is DEBUG now (the bar/heartbeat shows progress).
+		log.Debugf("enqueue: %d/%d processed (%d enqueued, %d skipped)",
+			processed, len(order), enqueued, skipped)
 	}
+	proc.Done()
 
 	if total >= enqueueProgressEvery {
 		elapsed := time.Since(start)
 		rate := float64(total) / elapsed.Seconds()
-		log.Infof("enqueue: pass complete — %d records (%d distinct media) in %s (%.1f/s): %d enqueued, %d skipped",
+		applog.Infof("enqueue: pass complete — %d records (%d distinct media) in %s (%.1f/s): %d enqueued, %d skipped",
 			total, len(order), elapsed.Round(time.Second), rate, enqueued, skipped)
 	} else if enqueued+skipped > 0 {
-		log.Infof("media jobs: %d enqueued, %d skipped (already current)", enqueued, skipped)
+		applog.Infof("media jobs: %d enqueued, %d skipped (already current)", enqueued, skipped)
 	}
 	return nil
 }

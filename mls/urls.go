@@ -12,6 +12,13 @@ import (
 // Grid API rejects the request with a 400 before it ever reaches OData.
 const orderByAsc = "&$orderby=ModificationTimestamp%20asc"
 
+// countTrue asks OData to include the total matching-record count (@odata.count)
+// in the response. Appended to the initial/delta page URLs so the pull progress
+// bar learns its denominator up front (and on every page — the server computes
+// it from $filter, independent of paging), with no extra round trip. $skip pages
+// inherit it from the base URL.
+const countTrue = "&$count=true"
+
 // PageSize is the OData $top applied to every paginated fetch. It doubles as
 // the stride for $skip offset paging (SkipURL) and the end-of-data signal for
 // the concurrent fetcher: a page returning fewer than PageSize records is the
@@ -22,7 +29,7 @@ const PageSize = 1000
 // Property gets $expand=Media,Rooms,UnitTypes. All resources get $top=PageSize.
 func InitialURL(v2url, originatingSystem, resource string) string {
 	filter := fmt.Sprintf("OriginatingSystemName eq '%s'", originatingSystem)
-	u := fmt.Sprintf("%s/%s?$filter=%s&$top=%d%s", v2url, resource, url.QueryEscape(filter), PageSize, orderByAsc)
+	u := fmt.Sprintf("%s/%s?$filter=%s&$top=%d%s%s", v2url, resource, url.QueryEscape(filter), PageSize, orderByAsc, countTrue)
 	if resource == ResourceProperty {
 		u += "&$expand=Media,Rooms,UnitTypes"
 	}
@@ -62,7 +69,7 @@ func DeltaURL(v2url, originatingSystem, resource string, since time.Time) string
 		originatingSystem,
 		since.UTC().Format("2006-01-02T15:04:05.000Z"),
 	)
-	u := fmt.Sprintf("%s/%s?$filter=%s&$top=%d%s", v2url, resource, url.QueryEscape(filter), PageSize, orderByAsc)
+	u := fmt.Sprintf("%s/%s?$filter=%s&$top=%d%s%s", v2url, resource, url.QueryEscape(filter), PageSize, orderByAsc, countTrue)
 	if resource == ResourceProperty {
 		u += "&$expand=Media,Rooms,UnitTypes"
 	}
