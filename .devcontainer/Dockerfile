@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     direnv \
     git \
     git-lfs \
-    gh \
     gnupg \
     locales \
     openssh-client \
