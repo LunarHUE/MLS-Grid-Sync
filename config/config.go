@@ -26,6 +26,21 @@ type MLSConfig struct {
 	// imposes separate caps. Conservative default of 1 RPS — tune against
 	// the data license agreement.
 	MediaDownloadRPS float64 `mapstructure:"media_download_rps" yaml:"media_download_rps"`
+	// APIRPS bounds the OData API request rate (the page-fetch limiter in
+	// mls/client.go). Separate cap from MediaDownloadRPS. Conservative
+	// default of 1 RPS; a non-positive value falls back to 1. Tune against
+	// the data license agreement.
+	APIRPS float64 `mapstructure:"api_rps" yaml:"api_rps"`
+	// FetchConcurrency sets how many OData pages `init` fetches in parallel
+	// via $skip offset paging (verified supported against the live feed).
+	// MLS Grid's per-page response latency (server-side $expand assembly) is
+	// the init bottleneck while the client sits idle; fetching pages
+	// concurrently overlaps those waits. Effective parallelism is still
+	// capped by APIRPS (the limiter throttles request starts), so raise both
+	// together. <=1 disables it and restores sequential nextLink paging.
+	// Init-only — delta stays sequential because a key can recur across delta
+	// pages and must project in raw order. Default 4.
+	FetchConcurrency int `mapstructure:"fetch_concurrency" yaml:"fetch_concurrency"`
 }
 
 // ProfilingConfig gates the in-process pprof endpoint used by the

@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
@@ -30,6 +33,21 @@ func (s *Service) SyncResource(ctx context.Context, syncEventID uuid.UUID, v2url
 // next delta starts from the import boundary.
 func (s *Service) InitialSync(ctx context.Context, syncEventID uuid.UUID, v2url, originatingSystem, resourceName string) (time.Time, error) {
 	firstURL := mls.InitialURL(v2url, originatingSystem, resourceName)
+	// Concurrent skip-paged fetch overlaps MLS Grid's per-page server latency,
+	// the init bottleneck. It fills raw_output fully and THEN projects (no
+	// pipelining): concurrent saves commit out of UUIDv7 order, so the
+	// cursor-driven consumer could advance past a not-yet-committed lower id
+	// and skip it. Fill-then-process sidesteps that — the processor's single
+	// ordered pass starts only once every page has landed. Safe for init
+	// because each listing_key appears exactly once in a full snapshot, so
+	// cross-page projection order is immaterial.
+	if s.fetchConcurrency > 1 {
+		hwm, media, err := s.paginateConcurrentInit(ctx, syncEventID, resourceName, firstURL, s.fetchConcurrency)
+		if err != nil {
+			return time.Time{}, err
+		}
+		return s.processAndEnqueueAfterFetch(ctx, syncEventID, resourceName, hwm, media)
+	}
 	if s.pipelineInit {
 		return s.fetchProcessAndEnqueuePipelined(ctx, syncEventID, resourceName, firstURL)
 	}
@@ -54,6 +72,15 @@ func (s *Service) fetchProcessAndEnqueue(ctx context.Context, syncEventID uuid.U
 	if err != nil {
 		return time.Time{}, err
 	}
+	return s.processAndEnqueueAfterFetch(ctx, syncEventID, resourceName, hwm, mediaForEnqueue)
+}
+
+// processAndEnqueueAfterFetch is the shared tail of every fetch-then-process
+// path (sequential and concurrent): run the typed processor over the resource
+// + children, then enqueue attachment jobs for any media accumulated during
+// the fetch. Enqueue must follow the processor pass because attachment_job
+// FKs to the media rows it types (see fetchProcessAndEnqueue's doc).
+func (s *Service) processAndEnqueueAfterFetch(ctx context.Context, syncEventID uuid.UUID, resourceName string, hwm time.Time, mediaForEnqueue []json.RawMessage) (time.Time, error) {
 	if err := s.runProcessor(ctx, resourceName); err != nil {
 		return time.Time{}, err
 	}
@@ -245,4 +272,88 @@ func (s *Service) paginate(ctx context.Context, syncEventID uuid.UUID, resourceN
 	// get tripped, these counts let you see which resource ate the budget.
 	applog.Infof("fetched %d pages for %s", pageCount-1, resourceName)
 	return maxHWM, mediaForEnqueue, nil
+}
+
+// paginateConcurrentInit walks every page from baseURL into raw_output using
+// $skip offset paging with `workers` requests in flight, overlapping MLS
+// Grid's per-page server latency (the init bottleneck). The shared rate
+// limiter in mls.Client still throttles request STARTS to api_rps, so this
+// trades serial-latency-bound throughput (~1 page / server-latency) for
+// rate-bound throughput (~api_rps pages/sec).
+//
+// End detection: pages are pulled by a monotonic counter (skip = idx*PageSize),
+// and the first page returning fewer than PageSize records marks the end — its
+// index becomes the boundary past which workers stop pulling. A handful of
+// speculative requests beyond the boundary may fire before workers observe it
+// (bounded by `workers`); each returns an empty page and is discarded. Pages
+// are saved as they arrive, so raw_output ids land out of natural-key order —
+// safe because the caller (InitialSync) projects only AFTER this returns, and
+// in a full snapshot each key appears once. NOT for delta (see InitialSync).
+func (s *Service) paginateConcurrentInit(ctx context.Context, syncEventID uuid.UUID, resourceName, baseURL string, workers int) (time.Time, []json.RawMessage, error) {
+	var (
+		nextIdx  atomic.Int64 // next page index to fetch
+		boundary atomic.Int64 // first short/empty page index — the end marker
+		saved    atomic.Int64 // pages that carried data and committed
+		mu       sync.Mutex   // guards maxHWM + media accumulation
+		maxHWM   time.Time
+		media    []json.RawMessage
+	)
+	boundary.Store(math.MaxInt64)
+
+	g, gctx := errgroup.WithContext(ctx)
+	for range workers {
+		g.Go(func() error {
+			for {
+				idx := nextIdx.Add(1) - 1
+				if idx >= boundary.Load() {
+					return nil // a prior page already marked the end of data
+				}
+				url := mls.SkipURL(baseURL, int(idx)*mls.PageSize)
+				// applog (shared lock) because passes/other workers log concurrently.
+				applog.Infof("Fetching %s page %d (skip %d)...", resourceName, idx+1, idx*int64(mls.PageSize))
+
+				odata, err := s.mlsClient.FetchPage(gctx, url)
+				if err != nil {
+					return fmt.Errorf("page %d fetch: %w", idx+1, err)
+				}
+
+				n := len(odata.Value)
+				if n < mls.PageSize {
+					atomicMinInt64(&boundary, idx) // last page (partial or empty)
+				}
+				if n > 0 {
+					pageHWM, pageMedia, err := s.saveToRawOutput(gctx, syncEventID, resourceName, odata.Value)
+					if err != nil {
+						return fmt.Errorf("page %d save: %w", idx+1, err)
+					}
+					mu.Lock()
+					if pageHWM.After(maxHWM) {
+						maxHWM = pageHWM
+					}
+					media = append(media, pageMedia...)
+					mu.Unlock()
+					saved.Add(1)
+				}
+				if n < mls.PageSize {
+					return nil // this worker hit the end
+				}
+			}
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return time.Time{}, nil, err
+	}
+
+	applog.Infof("fetched %d pages for %s (skip-paged, %d-way concurrent)", saved.Load(), resourceName, workers)
+	return maxHWM, media, nil
+}
+
+// atomicMinInt64 lowers *a to v if v is smaller, retrying on concurrent writes.
+func atomicMinInt64(a *atomic.Int64, v int64) {
+	for {
+		cur := a.Load()
+		if v >= cur || a.CompareAndSwap(cur, v) {
+			return
+		}
+	}
 }

@@ -48,6 +48,14 @@ type Service struct {
 	// typed processor (producer/consumer) instead of fetch-then-process. Delta
 	// syncs are unaffected. Toggled by cmd/init's --no-pipeline / config.
 	pipelineInit bool
+
+	// fetchConcurrency > 1 makes InitialSync fetch pages in parallel via $skip
+	// offset paging, overlapping MLS Grid's per-page server latency. <=1 keeps
+	// the sequential nextLink path (pipelined or not). Set from mls.fetch_concurrency.
+	// Init-only; delta fetches stay sequential (a key may recur across delta
+	// pages and must project in raw order, which concurrent out-of-order saves
+	// would break). See InitialSync.
+	fetchConcurrency int
 }
 
 // NewService constructs a Service. processor may be nil when no post-sync
@@ -71,6 +79,15 @@ func NewService(mlsClient mls.PageFetcher, dbClient *ent.Client, sqlDB *sql.DB, 
 // Default (zero value) is false; cmd/init sets it from config/--no-pipeline.
 func (s *Service) WithInitPipeline(b bool) *Service {
 	s.pipelineInit = b
+	return s
+}
+
+// WithFetchConcurrency sets how many pages InitialSync fetches in parallel via
+// $skip offset paging. <=1 disables it (sequential nextLink paging). Returns s
+// for chaining. Default (zero value) is sequential; cmd/root sets it from
+// mls.fetch_concurrency.
+func (s *Service) WithFetchConcurrency(n int) *Service {
+	s.fetchConcurrency = n
 	return s
 }
 

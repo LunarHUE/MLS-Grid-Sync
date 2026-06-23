@@ -210,5 +210,50 @@ func TestEnqueueAttachmentJobs_HiddenSkipped(t *testing.T) {
 	assert.Equal(t, 0, countJobsForKey(t, client, ctx, "M-hidden"))
 }
 
+// TestEnqueueAttachmentJobs_BulkEnqueuesDistinctKeys: the batched path enqueues
+// one job for each distinct visible media key in a single call.
+func TestEnqueueAttachmentJobs_BulkEnqueuesDistinctKeys(t *testing.T) {
+	client, sqlDB := testutil.NewTestDBWithSQL(t)
+	ctx := context.Background()
+	syncEventID := newSyncEvent(t, client, ctx, syncevent.ResourceMedia)
+	ts := time.Now().UTC().Truncate(time.Second)
+
+	svc := pkgsync.NewService(nil, client, sqlDB, &storage.FakeStorer{}, nil)
+	for _, k := range []string{"M-1", "M-2", "M-3"} {
+		seedMedia(t, client, ctx, k, ts)
+	}
+	require.NoError(t, svc.EnqueueAttachmentJobs(ctx, syncEventID, []json.RawMessage{
+		mediaRecord(t, "M-1", ts, true),
+		mediaRecord(t, "M-2", ts, true),
+		mediaRecord(t, "M-3", ts, true),
+	}))
+	for _, k := range []string{"M-1", "M-2", "M-3"} {
+		assert.Equal(t, 1, countJobsForKey(t, client, ctx, k), "one job enqueued for %s", k)
+	}
+}
+
+// TestEnqueueAttachmentJobs_DedupsRevisionsWithinBatch: the same media key
+// appearing multiple times in one batch collapses to a single job at the latest
+// revision (the per-record path could enqueue several; one download is correct).
+func TestEnqueueAttachmentJobs_DedupsRevisionsWithinBatch(t *testing.T) {
+	client, sqlDB := testutil.NewTestDBWithSQL(t)
+	ctx := context.Background()
+	syncEventID := newSyncEvent(t, client, ctx, syncevent.ResourceMedia)
+	t0 := time.Now().UTC().Truncate(time.Second).Add(-time.Hour)
+	t1 := t0.Add(30 * time.Minute)
+
+	svc := pkgsync.NewService(nil, client, sqlDB, &storage.FakeStorer{}, nil)
+	seedMedia(t, client, ctx, "M-1", t0)
+	require.NoError(t, svc.EnqueueAttachmentJobs(ctx, syncEventID, []json.RawMessage{
+		mediaRecord(t, "M-1", t0, true),
+		mediaRecord(t, "M-1", t1, true), // newer revision, same key, same batch
+	}))
+
+	assert.Equal(t, 1, countJobsForKey(t, client, ctx, "M-1"), "one job per media key per batch")
+	job := client.AttachmentJob.Query().Where(attachmentjob.MediaKey("M-1")).OnlyX(ctx)
+	require.NotNil(t, job.MediaModifiedAt)
+	assert.True(t, job.MediaModifiedAt.Equal(t1), "the job carries the newest revision in the batch")
+}
+
 // keep uuid imported (used by other tests in this package).
 var _ = uuid.New
