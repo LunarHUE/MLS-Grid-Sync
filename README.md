@@ -166,7 +166,7 @@ template). The suite is split by concern:
 | `pagination_test.go` | Backward (`last`/`before`) paging, `first: 0`, overfetch, invalid cursor and `first`+`last` errors |
 | `wire_format_test.go` | JSON wire shapes of Decimal/UUID/StringArray/Map/Time/int16 fields, null handling, Property↔PropertyVersion parity |
 | `edges_test.go` | Polymorphic `Property.media`, parent/child ent edges, Office self-reference, and the pinned edge-visibility gap |
-| `geo_test.go` | PostGIS geo search: radius (true meters), bbox, N-vertex polygons (open + closed rings), validation errors, visibility/no-coords exclusion |
+| `geo_test.go` | PostGIS geo search: radius (true meters), bbox, N-vertex polygons (open + closed rings), discontiguous multipolygons, validation errors, visibility/no-coords exclusion |
 | `protocol_test.go` | HTTP wire contract: status codes (200/400/422), error envelope shapes, GET transport, operationName, transactioner panic guard |
 | `seed_test.go` | Shared seed helpers (required-field cheat sheet per entity/version type) |
 
