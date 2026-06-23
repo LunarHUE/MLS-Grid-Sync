@@ -36,65 +36,134 @@ func (p *PropertyUnitTypeProcessor) Process(ctx context.Context, tx *ent.Tx, raw
 	// to align with the stale-skip comparison value (below).
 	fields.SourceModifiedAt = raw.SourceModifiedAt
 
-	current, err := tx.PropertyUnitType.Query().Where(propertyunittype.IDEQ(fields.UnitTypeKey)).Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
-		return OutcomeUnknown, fmt.Errorf("lookup property_unit_type: %w", err)
+	entityExists, currentMlgCanView, currentParentListingKey, err := p.lookupEntity(ctx, tx, fields.UnitTypeKey)
+	if err != nil {
+		return OutcomeUnknown, err
 	}
-	entityExists := err == nil
 
 	var currentVersion *ent.PropertyUnitTypeVersion
 	if entityExists {
-		currentVersion, err = tx.PropertyUnitTypeVersion.Query().
-			Where(
-				propertyunittypeversion.UnitTypeKey(fields.UnitTypeKey),
-				propertyunittypeversion.ValidToIsNil(),
-			).
-			Only(ctx)
-		if err != nil && !ent.IsNotFound(err) {
-			return OutcomeUnknown, fmt.Errorf("lookup current version: %w", err)
-		}
-		if ent.IsNotFound(err) {
-			currentVersion = nil
+		currentVersion, err = p.lookupCurrentVersion(ctx, tx, fields.UnitTypeKey)
+		if err != nil {
+			return OutcomeUnknown, err
 		}
 	}
 
 	now := time.Now().UTC()
-
-	if currentVersion != nil && !raw.SourceModifiedAt.After(currentVersion.SourceModifiedAt) {
-		return OutcomeSkipStale, nil
+	plan := decidePropertyUnitType(fields, entityExists, currentMlgCanView, currentVersion, raw)
+	if plan.action == actSkip {
+		return plan.outcome, nil
 	}
-
-	parentExists, err := tx.Property.Query().Where(property.IDEQ(fields.ListingKey)).Exist(ctx)
+	parentFK, err := p.resolveParentFK(ctx, tx, fields.ListingKey)
 	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("check parent property: %w", err)
+		return OutcomeUnknown, err
 	}
-	var parentFK *string
-	if parentExists {
-		k := fields.ListingKey
-		parentFK = &k
+	if err := p.applyPlan(ctx, tx, fields, raw, currentVersion, plan, parentFK, currentParentListingKey, now); err != nil {
+		return OutcomeUnknown, err
 	}
+	return plan.outcome, nil
+}
 
-	// Dead-but-defensive (audit 2026-06-11): expanded
-	// property_unit_types payloads carry no per-child MlgCanView
-	// (0% of 1.5k rows). Protection for hidden listings is the
-	// parent-visibility resolver filter, not per-child tombstones.
-	// Cross-ref: sync/raw.go splitExpandedChildren header doc.
-	if !fields.MlgCanView {
-		if current != nil && !current.MlgCanView {
-			return OutcomeSkipTombstoned, nil
+func (p *PropertyUnitTypeProcessor) lookupEntity(ctx context.Context, tx *ent.Tx, key string) (exists, mlgCanView bool, parentListingKey *string, err error) {
+	var rows []struct {
+		MlgCanView       bool    `json:"mlg_can_view"`
+		ParentListingKey *string `json:"parent_listing_key"`
+	}
+	if err := tx.PropertyUnitType.Query().
+		Where(propertyunittype.IDEQ(key)).
+		Select(propertyunittype.FieldMlgCanView, propertyunittype.FieldParentListingKey).
+		Scan(ctx, &rows); err != nil {
+		return false, false, nil, fmt.Errorf("lookup property_unit_type: %w", err)
+	}
+	if len(rows) == 0 {
+		return false, false, nil, nil
+	}
+	return true, rows[0].MlgCanView, rows[0].ParentListingKey, nil
+}
+
+func (p *PropertyUnitTypeProcessor) lookupCurrentVersion(ctx context.Context, tx *ent.Tx, key string) (*ent.PropertyUnitTypeVersion, error) {
+	v, err := tx.PropertyUnitTypeVersion.Query().
+		Where(propertyunittypeversion.UnitTypeKey(key), propertyunittypeversion.ValidToIsNil()).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, current, currentVersion, parentFK, now)
+		return nil, fmt.Errorf("lookup current version: %w", err)
 	}
+	return v, nil
+}
 
+func (p *PropertyUnitTypeProcessor) resolveParentFK(ctx context.Context, tx *ent.Tx, listingKey string) (*string, error) {
+	exists, err := tx.Property.Query().Where(property.IDEQ(listingKey)).Exist(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("check parent property: %w", err)
+	}
+	if exists {
+		k := listingKey
+		return &k, nil
+	}
+	return nil, nil
+}
+
+type propertyUnitTypePlan struct {
+	action         propertyAction
+	outcome        Outcome
+	changeType     propertyunittypeversion.ChangeType
+	diff           map[string]any
+	closeVersionID *string
+}
+
+// decidePropertyUnitType is the pure decision shared by Process and ProcessChunk.
+func decidePropertyUnitType(f *PropertyUnitTypeFields, entityExists, currentMlgCanView bool, currentVersion *ent.PropertyUnitTypeVersion, raw *ent.RawOutput) propertyUnitTypePlan {
+	if currentVersion != nil && !raw.SourceModifiedAt.After(currentVersion.SourceModifiedAt) {
+		return propertyUnitTypePlan{action: actSkip, outcome: OutcomeSkipStale}
+	}
+	if !f.MlgCanView {
+		if entityExists && !currentMlgCanView {
+			return propertyUnitTypePlan{action: actSkip, outcome: OutcomeSkipTombstoned}
+		}
+		plan := propertyUnitTypePlan{outcome: OutcomeDelete, changeType: propertyunittypeversion.ChangeTypeDelete}
+		if currentVersion != nil {
+			id := currentVersion.ID
+			plan.closeVersionID = &id
+		}
+		if entityExists {
+			plan.action = actDeleteExisting
+		} else {
+			plan.action = actDeleteFirstSighting
+		}
+		return plan
+	}
 	if !entityExists {
-		return OutcomeInsert, p.applyInsert(ctx, tx, fields, raw, parentFK, now)
+		return propertyUnitTypePlan{action: actInsert, outcome: OutcomeInsert, changeType: propertyunittypeversion.ChangeTypeInsert}
 	}
-
-	diff := diffPropertyUnitTypeFields(currentVersion, fields)
+	diff := diffPropertyUnitTypeFields(currentVersion, f)
 	if len(diff) == 0 {
-		return OutcomeSkipNoDiff, nil
+		return propertyUnitTypePlan{action: actSkip, outcome: OutcomeSkipNoDiff}
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, current, currentVersion, parentFK, diff, now)
+	plan := propertyUnitTypePlan{action: actUpdate, outcome: OutcomeUpdate, changeType: propertyunittypeversion.ChangeTypeUpdate, diff: diff}
+	if currentVersion != nil {
+		id := currentVersion.ID
+		plan.closeVersionID = &id
+	}
+	return plan
+}
+
+func (p *PropertyUnitTypeProcessor) applyPlan(ctx context.Context, tx *ent.Tx, f *PropertyUnitTypeFields, raw *ent.RawOutput, currentVersion *ent.PropertyUnitTypeVersion, plan propertyUnitTypePlan, parentFK, currentParentListingKey *string, now time.Time) error {
+	switch plan.action {
+	case actSkip:
+		return nil
+	case actInsert:
+		return p.applyInsert(ctx, tx, f, raw, parentFK, now)
+	case actUpdate:
+		return p.applyUpdate(ctx, tx, f, raw, currentVersion, parentFK, currentParentListingKey, plan.diff, now)
+	case actDeleteExisting:
+		return p.applyDelete(ctx, tx, f, raw, currentVersion, parentFK, true, now)
+	case actDeleteFirstSighting:
+		return p.applyDelete(ctx, tx, f, raw, currentVersion, parentFK, false, now)
+	}
+	return nil
 }
 
 func (p *PropertyUnitTypeProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *PropertyUnitTypeFields, raw *ent.RawOutput, parentFK *string, now time.Time) error {
@@ -122,7 +191,7 @@ func (p *PropertyUnitTypeProcessor) applyInsert(ctx context.Context, tx *ent.Tx,
 	return nil
 }
 
-func (p *PropertyUnitTypeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *PropertyUnitTypeFields, raw *ent.RawOutput, current *ent.PropertyUnitType, currentVersion *ent.PropertyUnitTypeVersion, parentFK *string, diff map[string]any, now time.Time) error {
+func (p *PropertyUnitTypeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *PropertyUnitTypeFields, raw *ent.RawOutput, currentVersion *ent.PropertyUnitTypeVersion, parentFK, currentParentListingKey *string, diff map[string]any, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.PropertyUnitTypeVersion.UpdateOneID(currentVersion.ID).SetValidTo(now).Save(ctx); err != nil {
 			return fmt.Errorf("close current version: %w", err)
@@ -142,8 +211,8 @@ func (p *PropertyUnitTypeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx,
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	u := tx.PropertyUnitType.UpdateOneID(current.ID).SetCurrentVersionID(verID)
-	if parentFK != nil && current.ParentListingKey == nil {
+	u := tx.PropertyUnitType.UpdateOneID(f.UnitTypeKey).SetCurrentVersionID(verID)
+	if parentFK != nil && currentParentListingKey == nil {
 		u.SetParentListingKey(*parentFK)
 	}
 	applyToPropertyUnitTypeUpdate(u, f)
@@ -153,7 +222,7 @@ func (p *PropertyUnitTypeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx,
 	return nil
 }
 
-func (p *PropertyUnitTypeProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *PropertyUnitTypeFields, raw *ent.RawOutput, current *ent.PropertyUnitType, currentVersion *ent.PropertyUnitTypeVersion, parentFK *string, now time.Time) error {
+func (p *PropertyUnitTypeProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *PropertyUnitTypeFields, raw *ent.RawOutput, currentVersion *ent.PropertyUnitTypeVersion, parentFK *string, entityExists bool, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.PropertyUnitTypeVersion.UpdateOneID(currentVersion.ID).SetValidTo(now).Save(ctx); err != nil {
 			return fmt.Errorf("close current version: %w", err)
@@ -173,7 +242,7 @@ func (p *PropertyUnitTypeProcessor) applyDelete(ctx context.Context, tx *ent.Tx,
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	if current == nil {
+	if !entityExists {
 		c := tx.PropertyUnitType.Create().
 			SetID(f.UnitTypeKey).
 			SetCurrentVersionID(verID).
@@ -185,7 +254,7 @@ func (p *PropertyUnitTypeProcessor) applyDelete(ctx context.Context, tx *ent.Tx,
 		return nil
 	}
 
-	u := tx.PropertyUnitType.UpdateOneID(current.ID).SetCurrentVersionID(verID).SetMlgCanView(false)
+	u := tx.PropertyUnitType.UpdateOneID(f.UnitTypeKey).SetCurrentVersionID(verID).SetMlgCanView(false)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("tombstone entity: %w", err)
 	}

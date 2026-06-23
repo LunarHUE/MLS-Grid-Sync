@@ -34,80 +34,142 @@ func (p *OpenHouseProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.R
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	// Narrow lookup: the control flow needs existence + mlg_can_view
-	// (tombstone-skip) and parent_listing_key (the FK-promotion guard in
-	// applyUpdate). The diff target is the version row, so the rest of the
-	// entity row is not read here. (perf: see docs/profiling.md)
-	var entityRows []struct {
-		MlgCanView       bool    `json:"mlg_can_view"`
-		ParentListingKey *string `json:"parent_listing_key"`
-	}
-	if err := tx.OpenHouse.Query().
-		Where(openhouse.IDEQ(fields.OpenHouseKey)).
-		Select(openhouse.FieldMlgCanView, openhouse.FieldParentListingKey).
-		Scan(ctx, &entityRows); err != nil {
-		return OutcomeUnknown, fmt.Errorf("lookup open_house: %w", err)
-	}
-	entityExists := len(entityRows) > 0
-	var currentMlgCanView bool
-	var currentParentListingKey *string
-	if entityExists {
-		currentMlgCanView = entityRows[0].MlgCanView
-		currentParentListingKey = entityRows[0].ParentListingKey
+	entityExists, currentMlgCanView, currentParentListingKey, err := p.lookupEntity(ctx, tx, fields.OpenHouseKey)
+	if err != nil {
+		return OutcomeUnknown, err
 	}
 
 	var currentVersion *ent.OpenHouseVersion
 	if entityExists {
-		currentVersion, err = tx.OpenHouseVersion.Query().
-			Where(
-				openhouseversion.OpenHouseKey(fields.OpenHouseKey),
-				openhouseversion.ValidToIsNil(),
-			).
-			Only(ctx)
-		if err != nil && !ent.IsNotFound(err) {
-			return OutcomeUnknown, fmt.Errorf("lookup current version: %w", err)
-		}
-		if ent.IsNotFound(err) {
-			currentVersion = nil
+		currentVersion, err = p.lookupCurrentVersion(ctx, tx, fields.OpenHouseKey)
+		if err != nil {
+			return OutcomeUnknown, err
 		}
 	}
 
 	now := time.Now().UTC()
-
-	if currentVersion != nil && !raw.SourceModifiedAt.After(currentVersion.SourceModifiedAt) {
-		return OutcomeSkipStale, nil
+	plan := decideOpenHouse(fields, entityExists, currentMlgCanView, currentVersion, raw)
+	if plan.action == actSkip {
+		return plan.outcome, nil
 	}
 
-	// Resolve the parking FK: set parent_listing_key only if the parent
-	// Property exists at this moment. Otherwise leave nil and rely on the
-	// re-link step in PropertyProcessor.AfterPass.
-	parentExists, err := tx.Property.Query().Where(property.IDEQ(fields.ListingKey)).Exist(ctx)
+	// Resolve the parking FK only when we're going to write: parent_listing_key
+	// is set only if the parent Property exists now, else left nil for
+	// PropertyProcessor.AfterPass to re-link later.
+	parentFK, err := p.resolveParentFK(ctx, tx, fields.ListingKey)
 	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("check parent property: %w", err)
+		return OutcomeUnknown, err
 	}
-	var parentFK *string
-	if parentExists {
-		k := fields.ListingKey
-		parentFK = &k
+	if err := p.applyPlan(ctx, tx, fields, raw, currentVersion, plan, parentFK, currentParentListingKey, now); err != nil {
+		return OutcomeUnknown, err
 	}
+	return plan.outcome, nil
+}
 
-	if !fields.MlgCanView {
-		// Already-tombstoned skip — see property.go for rationale.
-		if entityExists && !currentMlgCanView {
-			return OutcomeSkipTombstoned, nil
+// lookupEntity reads existence + mlg_can_view (tombstone-skip) + the parking FK
+// (the promotion guard). The diff target is the version row, so the wide entity
+// row is not scanned here.
+func (p *OpenHouseProcessor) lookupEntity(ctx context.Context, tx *ent.Tx, key string) (exists, mlgCanView bool, parentListingKey *string, err error) {
+	var rows []struct {
+		MlgCanView       bool    `json:"mlg_can_view"`
+		ParentListingKey *string `json:"parent_listing_key"`
+	}
+	if err := tx.OpenHouse.Query().
+		Where(openhouse.IDEQ(key)).
+		Select(openhouse.FieldMlgCanView, openhouse.FieldParentListingKey).
+		Scan(ctx, &rows); err != nil {
+		return false, false, nil, fmt.Errorf("lookup open_house: %w", err)
+	}
+	if len(rows) == 0 {
+		return false, false, nil, nil
+	}
+	return true, rows[0].MlgCanView, rows[0].ParentListingKey, nil
+}
+
+func (p *OpenHouseProcessor) lookupCurrentVersion(ctx context.Context, tx *ent.Tx, key string) (*ent.OpenHouseVersion, error) {
+	v, err := tx.OpenHouseVersion.Query().
+		Where(openhouseversion.OpenHouseKey(key), openhouseversion.ValidToIsNil()).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, currentVersion, parentFK, entityExists, now)
+		return nil, fmt.Errorf("lookup current version: %w", err)
 	}
+	return v, nil
+}
 
+func (p *OpenHouseProcessor) resolveParentFK(ctx context.Context, tx *ent.Tx, listingKey string) (*string, error) {
+	exists, err := tx.Property.Query().Where(property.IDEQ(listingKey)).Exist(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("check parent property: %w", err)
+	}
+	if exists {
+		k := listingKey
+		return &k, nil
+	}
+	return nil, nil
+}
+
+// openHousePlan mirrors propertyPlan for OpenHouse (shared action enum).
+type openHousePlan struct {
+	action         propertyAction
+	outcome        Outcome
+	changeType     openhouseversion.ChangeType
+	diff           map[string]any
+	closeVersionID *string
+}
+
+// decideOpenHouse is the pure decision shared by Process and ProcessChunk.
+func decideOpenHouse(f *OpenHouseFields, entityExists, currentMlgCanView bool, currentVersion *ent.OpenHouseVersion, raw *ent.RawOutput) openHousePlan {
+	if currentVersion != nil && !raw.SourceModifiedAt.After(currentVersion.SourceModifiedAt) {
+		return openHousePlan{action: actSkip, outcome: OutcomeSkipStale}
+	}
+	if !f.MlgCanView {
+		if entityExists && !currentMlgCanView {
+			return openHousePlan{action: actSkip, outcome: OutcomeSkipTombstoned}
+		}
+		plan := openHousePlan{outcome: OutcomeDelete, changeType: openhouseversion.ChangeTypeDelete}
+		if currentVersion != nil {
+			id := currentVersion.ID
+			plan.closeVersionID = &id
+		}
+		if entityExists {
+			plan.action = actDeleteExisting
+		} else {
+			plan.action = actDeleteFirstSighting
+		}
+		return plan
+	}
 	if !entityExists {
-		return OutcomeInsert, p.applyInsert(ctx, tx, fields, raw, parentFK, now)
+		return openHousePlan{action: actInsert, outcome: OutcomeInsert, changeType: openhouseversion.ChangeTypeInsert}
 	}
-
-	diff := diffOpenHouseFields(currentVersion, fields)
+	diff := diffOpenHouseFields(currentVersion, f)
 	if len(diff) == 0 {
-		return OutcomeSkipNoDiff, nil
+		return openHousePlan{action: actSkip, outcome: OutcomeSkipNoDiff}
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, currentVersion, parentFK, currentParentListingKey, diff, now)
+	plan := openHousePlan{action: actUpdate, outcome: OutcomeUpdate, changeType: openhouseversion.ChangeTypeUpdate, diff: diff}
+	if currentVersion != nil {
+		id := currentVersion.ID
+		plan.closeVersionID = &id
+	}
+	return plan
+}
+
+func (p *OpenHouseProcessor) applyPlan(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, currentVersion *ent.OpenHouseVersion, plan openHousePlan, parentFK, currentParentListingKey *string, now time.Time) error {
+	switch plan.action {
+	case actSkip:
+		return nil
+	case actInsert:
+		return p.applyInsert(ctx, tx, f, raw, parentFK, now)
+	case actUpdate:
+		return p.applyUpdate(ctx, tx, f, raw, currentVersion, parentFK, currentParentListingKey, plan.diff, now)
+	case actDeleteExisting:
+		return p.applyDelete(ctx, tx, f, raw, currentVersion, parentFK, true, now)
+	case actDeleteFirstSighting:
+		return p.applyDelete(ctx, tx, f, raw, currentVersion, parentFK, false, now)
+	}
+	return nil
 }
 
 func (p *OpenHouseProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, parentFK *string, now time.Time) error {

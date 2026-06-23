@@ -31,66 +31,129 @@ func (p *MediaProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOu
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 	// Timestamp seam (decision 1a): the parser intentionally does NOT
-	// extract SourceModifiedAt from the payload — the splitter
-	// (sync/raw.go) owns timestamp extraction (child's
-	// MediaModificationTimestamp, parent fallback) and stamps
-	// raw_output.source_modified_at. Sourcing the field from raw here
-	// aligns the parsed value with the stale-skip comparison value
-	// (below) by construction — one source of truth.
+	// extract SourceModifiedAt from the payload — the splitter (sync/raw.go)
+	// owns timestamp extraction and stamps raw_output.source_modified_at.
+	// Sourcing it from raw here aligns the parsed value with the stale-skip
+	// comparison value by construction.
 	fields.SourceModifiedAt = raw.SourceModifiedAt
 
-	current, err := tx.Media.Query().Where(entmedia.IDEQ(fields.MediaKey)).Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
-		return OutcomeUnknown, fmt.Errorf("lookup media: %w", err)
+	entityExists, currentMlgCanView, err := p.lookupEntity(ctx, tx, fields.MediaKey)
+	if err != nil {
+		return OutcomeUnknown, err
 	}
-	entityExists := err == nil
 
 	var currentVersion *ent.MediaVersion
 	if entityExists {
-		currentVersion, err = tx.MediaVersion.Query().
-			Where(
-				mediaversion.MediaKey(fields.MediaKey),
-				mediaversion.ValidToIsNil(),
-			).
-			Only(ctx)
-		if err != nil && !ent.IsNotFound(err) {
-			return OutcomeUnknown, fmt.Errorf("lookup current version: %w", err)
-		}
-		if ent.IsNotFound(err) {
-			currentVersion = nil
+		currentVersion, err = p.lookupCurrentVersion(ctx, tx, fields.MediaKey)
+		if err != nil {
+			return OutcomeUnknown, err
 		}
 	}
 
 	now := time.Now().UTC()
+	plan := decideMedia(fields, entityExists, currentMlgCanView, currentVersion, raw)
+	if err := p.applyPlan(ctx, tx, fields, raw, plan, now); err != nil {
+		return OutcomeUnknown, err
+	}
+	return plan.outcome, nil
+}
 
+// lookupEntity reads only existence + mlg_can_view (the tombstone-skip flag);
+// the per-record path previously read the full row only to reach current.ID,
+// which equals the known media_key.
+func (p *MediaProcessor) lookupEntity(ctx context.Context, tx *ent.Tx, mediaKey string) (exists, mlgCanView bool, err error) {
+	var canView []bool
+	if err := tx.Media.Query().
+		Where(entmedia.IDEQ(mediaKey)).
+		Select(entmedia.FieldMlgCanView).
+		Scan(ctx, &canView); err != nil {
+		return false, false, fmt.Errorf("lookup media: %w", err)
+	}
+	return len(canView) > 0, len(canView) > 0 && canView[0], nil
+}
+
+// lookupCurrentVersion returns the open (valid_to IS NULL) version for a
+// media_key, or nil if none.
+func (p *MediaProcessor) lookupCurrentVersion(ctx context.Context, tx *ent.Tx, mediaKey string) (*ent.MediaVersion, error) {
+	v, err := tx.MediaVersion.Query().
+		Where(
+			mediaversion.MediaKey(mediaKey),
+			mediaversion.ValidToIsNil(),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("lookup current version: %w", err)
+	}
+	return v, nil
+}
+
+// mediaPlan mirrors propertyPlan for the Media resource (shared action enum).
+type mediaPlan struct {
+	action         propertyAction
+	outcome        Outcome
+	changeType     mediaversion.ChangeType
+	diff           map[string]any
+	closeVersionID *string
+}
+
+// decideMedia is the pure decision shared by Process (per-record) and
+// ProcessChunk (bulk). The delete branch is dead-but-defensive (expanded media
+// carry no per-child MlgCanView today) but preserved for equivalence.
+func decideMedia(f *MediaFields, entityExists, currentMlgCanView bool, currentVersion *ent.MediaVersion, raw *ent.RawOutput) mediaPlan {
 	if currentVersion != nil && !raw.SourceModifiedAt.After(currentVersion.SourceModifiedAt) {
-		return OutcomeSkipStale, nil
+		return mediaPlan{action: actSkip, outcome: OutcomeSkipStale}
 	}
 
-	// Dead-but-defensive (audit 2026-06-11): expanded-media payloads
-	// carry no per-child MlgCanView field (0% of 586k rows), so this
-	// branch is unreachable from the real feed today. Protection for
-	// hidden listings is the Phase 3 parent-visibility resolver
-	// filter, NOT per-child tombstones. Kept defensive so the logic
-	// wakes up rather than needing rediscovery if MLS Grid ever
-	// starts embedding per-child visibility. Cross-ref: sync/raw.go
-	// splitExpandedChildren header doc, hidden-listing watch item.
-	if !fields.MlgCanView {
-		if current != nil && !current.MlgCanView {
-			return OutcomeSkipTombstoned, nil
+	if !f.MlgCanView {
+		if entityExists && !currentMlgCanView {
+			return mediaPlan{action: actSkip, outcome: OutcomeSkipTombstoned}
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, current, currentVersion, now)
+		plan := mediaPlan{outcome: OutcomeDelete, changeType: mediaversion.ChangeTypeDelete}
+		if currentVersion != nil {
+			id := currentVersion.ID
+			plan.closeVersionID = &id
+		}
+		if entityExists {
+			plan.action = actDeleteExisting
+		} else {
+			plan.action = actDeleteFirstSighting
+		}
+		return plan
 	}
 
 	if !entityExists {
-		return OutcomeInsert, p.applyInsert(ctx, tx, fields, raw, now)
+		return mediaPlan{action: actInsert, outcome: OutcomeInsert, changeType: mediaversion.ChangeTypeInsert}
 	}
 
-	diff := diffMediaFields(currentVersion, fields)
+	diff := diffMediaFields(currentVersion, f)
 	if len(diff) == 0 {
-		return OutcomeSkipNoDiff, nil
+		return mediaPlan{action: actSkip, outcome: OutcomeSkipNoDiff}
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, current, currentVersion, diff, now)
+	plan := mediaPlan{action: actUpdate, outcome: OutcomeUpdate, changeType: mediaversion.ChangeTypeUpdate, diff: diff}
+	if currentVersion != nil {
+		id := currentVersion.ID
+		plan.closeVersionID = &id
+	}
+	return plan
+}
+
+func (p *MediaProcessor) applyPlan(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, plan mediaPlan, now time.Time) error {
+	switch plan.action {
+	case actSkip:
+		return nil
+	case actInsert:
+		return p.applyInsert(ctx, tx, f, raw, now)
+	case actUpdate:
+		return p.applyUpdate(ctx, tx, f, raw, plan.closeVersionID, plan.diff, now)
+	case actDeleteExisting:
+		return p.applyDelete(ctx, tx, f, raw, plan.closeVersionID, true, now)
+	case actDeleteFirstSighting:
+		return p.applyDelete(ctx, tx, f, raw, plan.closeVersionID, false, now)
+	}
+	return nil
 }
 
 func (p *MediaProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, now time.Time) error {
@@ -115,27 +178,12 @@ func (p *MediaProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *MediaFi
 	return nil
 }
 
-func (p *MediaProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, current *ent.Media, currentVersion *ent.MediaVersion, diff map[string]any, now time.Time) error {
-	if currentVersion != nil {
-		if _, err := tx.MediaVersion.UpdateOneID(currentVersion.ID).SetValidTo(now).Save(ctx); err != nil {
-			return fmt.Errorf("close current version: %w", err)
-		}
-	}
-
-	ver, err := newMediaVersionCreate(tx, f, raw, mediaversion.ChangeTypeUpdate, now, diff)
+func (p *MediaProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, closeVersionID *string, diff map[string]any, now time.Time) error {
+	verID, err := p.closeAndInsertVersion(ctx, tx, f, raw, mediaversion.ChangeTypeUpdate, closeVersionID, diff, now)
 	if err != nil {
-		return fmt.Errorf("build version: %w", err)
+		return err
 	}
-	verRow, err := ver.Save(ctx)
-	if err != nil {
-		return fmt.Errorf("save version: %w", err)
-	}
-	verID, err := uuid.Parse(verRow.ID)
-	if err != nil {
-		return fmt.Errorf("version id is not a uuid: %w", err)
-	}
-
-	u := tx.Media.UpdateOneID(current.ID).SetCurrentVersionID(verID)
+	u := tx.Media.UpdateOneID(f.MediaKey).SetCurrentVersionID(verID)
 	applyToMediaUpdate(u, f)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("update entity: %w", err)
@@ -143,27 +191,12 @@ func (p *MediaProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *MediaFi
 	return nil
 }
 
-func (p *MediaProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, current *ent.Media, currentVersion *ent.MediaVersion, now time.Time) error {
-	if currentVersion != nil {
-		if _, err := tx.MediaVersion.UpdateOneID(currentVersion.ID).SetValidTo(now).Save(ctx); err != nil {
-			return fmt.Errorf("close current version: %w", err)
-		}
-	}
-
-	ver, err := newMediaVersionCreate(tx, f, raw, mediaversion.ChangeTypeDelete, now, nil)
+func (p *MediaProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, closeVersionID *string, entityExists bool, now time.Time) error {
+	verID, err := p.closeAndInsertVersion(ctx, tx, f, raw, mediaversion.ChangeTypeDelete, closeVersionID, nil, now)
 	if err != nil {
-		return fmt.Errorf("build delete version: %w", err)
+		return err
 	}
-	verRow, err := ver.Save(ctx)
-	if err != nil {
-		return fmt.Errorf("save delete version: %w", err)
-	}
-	verID, err := uuid.Parse(verRow.ID)
-	if err != nil {
-		return fmt.Errorf("version id is not a uuid: %w", err)
-	}
-
-	if current == nil {
+	if !entityExists {
 		c := tx.Media.Create().SetID(f.MediaKey).SetCurrentVersionID(verID)
 		applyToMediaCreate(c, f)
 		if _, err := c.Save(ctx); err != nil {
@@ -171,12 +204,34 @@ func (p *MediaProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *MediaFi
 		}
 		return nil
 	}
-
-	u := tx.Media.UpdateOneID(current.ID).SetCurrentVersionID(verID).SetMlgCanView(false)
+	u := tx.Media.UpdateOneID(f.MediaKey).SetCurrentVersionID(verID).SetMlgCanView(false)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("tombstone entity: %w", err)
 	}
 	return nil
+}
+
+// closeAndInsertVersion closes the prior open version (by id, when present) and
+// inserts the new version row, returning its parsed UUID for the entity link.
+func (p *MediaProcessor) closeAndInsertVersion(ctx context.Context, tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, ct mediaversion.ChangeType, closeVersionID *string, diff map[string]any, now time.Time) (uuid.UUID, error) {
+	if closeVersionID != nil {
+		if _, err := tx.MediaVersion.UpdateOneID(*closeVersionID).SetValidTo(now).Save(ctx); err != nil {
+			return uuid.Nil, fmt.Errorf("close current version: %w", err)
+		}
+	}
+	ver, err := newMediaVersionCreate(tx, f, raw, ct, now, diff)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("build version: %w", err)
+	}
+	verRow, err := ver.Save(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("save version: %w", err)
+	}
+	verID, err := uuid.Parse(verRow.ID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("version id is not a uuid: %w", err)
+	}
+	return verID, nil
 }
 
 func newMediaVersionCreate(tx *ent.Tx, f *MediaFields, raw *ent.RawOutput, ct mediaversion.ChangeType, now time.Time, diff map[string]any) (*ent.MediaVersionCreate, error) {

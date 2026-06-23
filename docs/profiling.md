@@ -128,6 +128,49 @@ on the production-shaped DB before drawing further conclusions.
   (`fetchProcessAndEnqueuePipelined`) + `processor.RunPassNoFinalize`. Note: this
   overlap is an `init` wall-clock win, not a per-record throughput win — the
   `(X/s)` line still measures the latter.
+- **R4 — bulk projection (chunk as the unit of DB work).** The projector was
+  latency-bound: ~3 dependent round-trips per record (narrow entity SELECT,
+  version INSERT, entity INSERT/UPDATE) run serially on one connection, so even
+  at 0.5 ms RTT it capped at a few hundred/sec. Adding connections doesn't help a
+  single serial consumer. The fix makes the *commit-chunk* the unit: one batched
+  entity read + one open-version read for the whole chunk, decide every record in
+  memory (the shared `decideProperty`), then a handful of bulk statements — close
+  prior versions (one UPDATE), insert new versions (`CreateBulk`, ids pre-assigned
+  client-side as UUIDv7 so the entity upsert references them with no round-trip),
+  upsert entities (`OnConflict(...).UpdateNewValues()`, which ignores `id` +
+  immutable `created_at`), tombstone deletes, cascade attachment cancels. ~300
+  round-trips per 100 records → ~5. Still single-threaded and in raw-sequence
+  order, so the cursor watermark and replayability are unchanged. A processor
+  opts in via the `ChunkProcessor` interface; a bulk error rolls back and the loop
+  replays the chunk one-record-per-tx (existing poison pinpointing). Records whose
+  natural key appears 2+ times in a chunk are peeled to the per-record path (a
+  single bulk insert can't carry two open versions for one key). Applied to
+  **Property and all its derivatives — Media, OpenHouse, PropertyRooms,
+  PropertyUnitTypes** (every versioned resource except the small Lookup), i.e.
+  the entire heavy part of an init. Gated by `processor.bulk` (default true;
+  `reprocess --bulk=false` / `MLS_SYNC_PROCESSOR_BULK`).
+  - **Clear-on-nil parity:** the per-record update clears columns the new record
+    omits (`applyToXUpdate` uses set-or-clear). ent's `UpdateNewValues` only
+    touches columns present in *this chunk's* INSERT, so a field NULL across a
+    whole chunk wouldn't clear. The upsert instead sets every column to its
+    `EXCLUDED` value (`upsertSetExcluded`), so omitted columns resolve to NULL —
+    exact parity — while skipping the PK, immutable `created_at`, Media's
+    `attachment_id` download pointer, and the children's `parent_listing_key`.
+  - **Parking FK (children):** `parent_listing_key` is resolved as
+    `COALESCE(existing, excluded)` in the upsert — keep an already-linked FK,
+    else take the freshly-resolved one — exactly the per-record promote-once /
+    never-clear guard. Parent existence is read once per chunk
+    (`bulkExistingParentKeys`).
+  - Measured `reprocess Property --all` on 29,070 rows, **identical outcomes**
+    both paths: skip-no-diff re-projection **539.6/s → 3676.2/s (~6.8×)**.
+    `reprocess PropertyRooms --all` on 148,865 rows: **bulk 14,934/s (10s)** vs
+    per-record not finishing in 7 min (~30×). The insert path gains most (version
+    + entity INSERTs also collapse into bulk).
+  ent's upsert codegen is enabled in `ent/entc.go` (`gen.FeatureUpsert`).
+  Implemented in `sync/processor/*_bulk.go` + `child_bulk.go` (shared parking
+  helpers) + the `ChunkProcessor` seam in `processor.go`; each resource's
+  per-record/bulk decision is factored into a shared `decideX` so the two paths
+  can't diverge (guarded by per-resource bulk-vs-per-record A/B equivalence tests).
 
 ### Hypothesis to test first
 

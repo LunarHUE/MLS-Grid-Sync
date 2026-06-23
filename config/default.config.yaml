@@ -38,7 +38,8 @@ processor:
 
   # Project each commit-chunk with batched SQL (bulk read current state, then a
   # few bulk INSERT/UPSERT/UPDATE statements) instead of per-record round-trips,
-  # for resources that support it (Property today). Collapses ~300 round-trips
+  # for resources that support it (Property + all its derivatives: Media,
+  # OpenHouse, PropertyRooms, PropertyUnitTypes). Collapses ~300 round-trips
   # per 100 records to ~5. Set false to force the per-record path (kill-switch).
   # Override: MLS_SYNC_PROCESSOR_BULK or `reprocess --bulk=false`.
   bulk: true
