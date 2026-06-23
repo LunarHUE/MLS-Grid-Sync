@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouse"
@@ -20,6 +22,7 @@ type OpenHouseCreate struct {
 	config
 	mutation *OpenHouseMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -336,6 +339,7 @@ func (_c *OpenHouseCreate) createSpec() (*OpenHouse, *sqlgraph.CreateSpec) {
 		_node = &OpenHouse{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(openhouse.Table, sqlgraph.NewFieldSpec(openhouse.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -420,11 +424,683 @@ func (_c *OpenHouseCreate) createSpec() (*OpenHouse, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OpenHouse.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OpenHouseUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *OpenHouseCreate) OnConflict(opts ...sql.ConflictOption) *OpenHouseUpsertOne {
+	_c.conflict = opts
+	return &OpenHouseUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OpenHouse.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *OpenHouseCreate) OnConflictColumns(columns ...string) *OpenHouseUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &OpenHouseUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// OpenHouseUpsertOne is the builder for "upsert"-ing
+	//  one OpenHouse node.
+	OpenHouseUpsertOne struct {
+		create *OpenHouseCreate
+	}
+
+	// OpenHouseUpsert is the "OnConflict" setter.
+	OpenHouseUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *OpenHouseUpsert) SetModifiedAt(v time.Time) *OpenHouseUpsert {
+	u.Set(openhouse.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateModifiedAt() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldModifiedAt)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *OpenHouseUpsert) SetSourceModifiedAt(v time.Time) *OpenHouseUpsert {
+	u.Set(openhouse.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateSourceModifiedAt() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *OpenHouseUpsert) SetOriginatingSystemName(v string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateOriginatingSystemName() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *OpenHouseUpsert) ClearOriginatingSystemName() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *OpenHouseUpsert) SetMlgCanView(v bool) *OpenHouseUpsert {
+	u.Set(openhouse.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateMlgCanView() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *OpenHouseUpsert) SetMlgCanUse(v []string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateMlgCanUse() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *OpenHouseUpsert) ClearMlgCanUse() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldMlgCanUse)
+	return u
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *OpenHouseUpsert) SetListingKey(v string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldListingKey, v)
+	return u
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateListingKey() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldListingKey)
+	return u
+}
+
+// SetListingID sets the "listing_id" field.
+func (u *OpenHouseUpsert) SetListingID(v string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldListingID, v)
+	return u
+}
+
+// UpdateListingID sets the "listing_id" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateListingID() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldListingID)
+	return u
+}
+
+// ClearListingID clears the value of the "listing_id" field.
+func (u *OpenHouseUpsert) ClearListingID() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldListingID)
+	return u
+}
+
+// SetOpenHouseDate sets the "open_house_date" field.
+func (u *OpenHouseUpsert) SetOpenHouseDate(v time.Time) *OpenHouseUpsert {
+	u.Set(openhouse.FieldOpenHouseDate, v)
+	return u
+}
+
+// UpdateOpenHouseDate sets the "open_house_date" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateOpenHouseDate() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldOpenHouseDate)
+	return u
+}
+
+// ClearOpenHouseDate clears the value of the "open_house_date" field.
+func (u *OpenHouseUpsert) ClearOpenHouseDate() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldOpenHouseDate)
+	return u
+}
+
+// SetOpenHouseStartTime sets the "open_house_start_time" field.
+func (u *OpenHouseUpsert) SetOpenHouseStartTime(v time.Time) *OpenHouseUpsert {
+	u.Set(openhouse.FieldOpenHouseStartTime, v)
+	return u
+}
+
+// UpdateOpenHouseStartTime sets the "open_house_start_time" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateOpenHouseStartTime() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldOpenHouseStartTime)
+	return u
+}
+
+// ClearOpenHouseStartTime clears the value of the "open_house_start_time" field.
+func (u *OpenHouseUpsert) ClearOpenHouseStartTime() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldOpenHouseStartTime)
+	return u
+}
+
+// SetOpenHouseEndTime sets the "open_house_end_time" field.
+func (u *OpenHouseUpsert) SetOpenHouseEndTime(v time.Time) *OpenHouseUpsert {
+	u.Set(openhouse.FieldOpenHouseEndTime, v)
+	return u
+}
+
+// UpdateOpenHouseEndTime sets the "open_house_end_time" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateOpenHouseEndTime() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldOpenHouseEndTime)
+	return u
+}
+
+// ClearOpenHouseEndTime clears the value of the "open_house_end_time" field.
+func (u *OpenHouseUpsert) ClearOpenHouseEndTime() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldOpenHouseEndTime)
+	return u
+}
+
+// SetOpenHouseStatus sets the "open_house_status" field.
+func (u *OpenHouseUpsert) SetOpenHouseStatus(v string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldOpenHouseStatus, v)
+	return u
+}
+
+// UpdateOpenHouseStatus sets the "open_house_status" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateOpenHouseStatus() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldOpenHouseStatus)
+	return u
+}
+
+// ClearOpenHouseStatus clears the value of the "open_house_status" field.
+func (u *OpenHouseUpsert) ClearOpenHouseStatus() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldOpenHouseStatus)
+	return u
+}
+
+// SetOpenHouseType sets the "open_house_type" field.
+func (u *OpenHouseUpsert) SetOpenHouseType(v string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldOpenHouseType, v)
+	return u
+}
+
+// UpdateOpenHouseType sets the "open_house_type" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateOpenHouseType() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldOpenHouseType)
+	return u
+}
+
+// ClearOpenHouseType clears the value of the "open_house_type" field.
+func (u *OpenHouseUpsert) ClearOpenHouseType() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldOpenHouseType)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *OpenHouseUpsert) SetExtendedFields(v map[string]interface{}) *OpenHouseUpsert {
+	u.Set(openhouse.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateExtendedFields() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *OpenHouseUpsert) ClearExtendedFields() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldExtendedFields)
+	return u
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *OpenHouseUpsert) SetCurrentVersionID(v uuid.UUID) *OpenHouseUpsert {
+	u.Set(openhouse.FieldCurrentVersionID, v)
+	return u
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateCurrentVersionID() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldCurrentVersionID)
+	return u
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *OpenHouseUpsert) ClearCurrentVersionID() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldCurrentVersionID)
+	return u
+}
+
+// SetParentListingKey sets the "parent_listing_key" field.
+func (u *OpenHouseUpsert) SetParentListingKey(v string) *OpenHouseUpsert {
+	u.Set(openhouse.FieldParentListingKey, v)
+	return u
+}
+
+// UpdateParentListingKey sets the "parent_listing_key" field to the value that was provided on create.
+func (u *OpenHouseUpsert) UpdateParentListingKey() *OpenHouseUpsert {
+	u.SetExcluded(openhouse.FieldParentListingKey)
+	return u
+}
+
+// ClearParentListingKey clears the value of the "parent_listing_key" field.
+func (u *OpenHouseUpsert) ClearParentListingKey() *OpenHouseUpsert {
+	u.SetNull(openhouse.FieldParentListingKey)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.OpenHouse.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(openhouse.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *OpenHouseUpsertOne) UpdateNewValues() *OpenHouseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(openhouse.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(openhouse.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OpenHouse.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *OpenHouseUpsertOne) Ignore() *OpenHouseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OpenHouseUpsertOne) DoNothing() *OpenHouseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OpenHouseCreate.OnConflict
+// documentation for more info.
+func (u *OpenHouseUpsertOne) Update(set func(*OpenHouseUpsert)) *OpenHouseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OpenHouseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *OpenHouseUpsertOne) SetModifiedAt(v time.Time) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateModifiedAt() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *OpenHouseUpsertOne) SetSourceModifiedAt(v time.Time) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateSourceModifiedAt() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *OpenHouseUpsertOne) SetOriginatingSystemName(v string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateOriginatingSystemName() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *OpenHouseUpsertOne) ClearOriginatingSystemName() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *OpenHouseUpsertOne) SetMlgCanView(v bool) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateMlgCanView() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *OpenHouseUpsertOne) SetMlgCanUse(v []string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateMlgCanUse() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *OpenHouseUpsertOne) ClearMlgCanUse() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *OpenHouseUpsertOne) SetListingKey(v string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateListingKey() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetListingID sets the "listing_id" field.
+func (u *OpenHouseUpsertOne) SetListingID(v string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetListingID(v)
+	})
+}
+
+// UpdateListingID sets the "listing_id" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateListingID() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateListingID()
+	})
+}
+
+// ClearListingID clears the value of the "listing_id" field.
+func (u *OpenHouseUpsertOne) ClearListingID() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearListingID()
+	})
+}
+
+// SetOpenHouseDate sets the "open_house_date" field.
+func (u *OpenHouseUpsertOne) SetOpenHouseDate(v time.Time) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseDate(v)
+	})
+}
+
+// UpdateOpenHouseDate sets the "open_house_date" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateOpenHouseDate() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseDate()
+	})
+}
+
+// ClearOpenHouseDate clears the value of the "open_house_date" field.
+func (u *OpenHouseUpsertOne) ClearOpenHouseDate() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseDate()
+	})
+}
+
+// SetOpenHouseStartTime sets the "open_house_start_time" field.
+func (u *OpenHouseUpsertOne) SetOpenHouseStartTime(v time.Time) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseStartTime(v)
+	})
+}
+
+// UpdateOpenHouseStartTime sets the "open_house_start_time" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateOpenHouseStartTime() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseStartTime()
+	})
+}
+
+// ClearOpenHouseStartTime clears the value of the "open_house_start_time" field.
+func (u *OpenHouseUpsertOne) ClearOpenHouseStartTime() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseStartTime()
+	})
+}
+
+// SetOpenHouseEndTime sets the "open_house_end_time" field.
+func (u *OpenHouseUpsertOne) SetOpenHouseEndTime(v time.Time) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseEndTime(v)
+	})
+}
+
+// UpdateOpenHouseEndTime sets the "open_house_end_time" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateOpenHouseEndTime() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseEndTime()
+	})
+}
+
+// ClearOpenHouseEndTime clears the value of the "open_house_end_time" field.
+func (u *OpenHouseUpsertOne) ClearOpenHouseEndTime() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseEndTime()
+	})
+}
+
+// SetOpenHouseStatus sets the "open_house_status" field.
+func (u *OpenHouseUpsertOne) SetOpenHouseStatus(v string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseStatus(v)
+	})
+}
+
+// UpdateOpenHouseStatus sets the "open_house_status" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateOpenHouseStatus() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseStatus()
+	})
+}
+
+// ClearOpenHouseStatus clears the value of the "open_house_status" field.
+func (u *OpenHouseUpsertOne) ClearOpenHouseStatus() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseStatus()
+	})
+}
+
+// SetOpenHouseType sets the "open_house_type" field.
+func (u *OpenHouseUpsertOne) SetOpenHouseType(v string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseType(v)
+	})
+}
+
+// UpdateOpenHouseType sets the "open_house_type" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateOpenHouseType() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseType()
+	})
+}
+
+// ClearOpenHouseType clears the value of the "open_house_type" field.
+func (u *OpenHouseUpsertOne) ClearOpenHouseType() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseType()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *OpenHouseUpsertOne) SetExtendedFields(v map[string]interface{}) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateExtendedFields() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *OpenHouseUpsertOne) ClearExtendedFields() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *OpenHouseUpsertOne) SetCurrentVersionID(v uuid.UUID) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetCurrentVersionID(v)
+	})
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateCurrentVersionID() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateCurrentVersionID()
+	})
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *OpenHouseUpsertOne) ClearCurrentVersionID() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearCurrentVersionID()
+	})
+}
+
+// SetParentListingKey sets the "parent_listing_key" field.
+func (u *OpenHouseUpsertOne) SetParentListingKey(v string) *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetParentListingKey(v)
+	})
+}
+
+// UpdateParentListingKey sets the "parent_listing_key" field to the value that was provided on create.
+func (u *OpenHouseUpsertOne) UpdateParentListingKey() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateParentListingKey()
+	})
+}
+
+// ClearParentListingKey clears the value of the "parent_listing_key" field.
+func (u *OpenHouseUpsertOne) ClearParentListingKey() *OpenHouseUpsertOne {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearParentListingKey()
+	})
+}
+
+// Exec executes the query.
+func (u *OpenHouseUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OpenHouseCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OpenHouseUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *OpenHouseUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: OpenHouseUpsertOne.ID is not supported by MySQL driver. Use OpenHouseUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *OpenHouseUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // OpenHouseCreateBulk is the builder for creating many OpenHouse entities in bulk.
 type OpenHouseCreateBulk struct {
 	config
 	err      error
 	builders []*OpenHouseCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the OpenHouse entities in the database.
@@ -454,6 +1130,7 @@ func (_c *OpenHouseCreateBulk) Save(ctx context.Context) ([]*OpenHouse, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -500,6 +1177,410 @@ func (_c *OpenHouseCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *OpenHouseCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OpenHouse.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OpenHouseUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *OpenHouseCreateBulk) OnConflict(opts ...sql.ConflictOption) *OpenHouseUpsertBulk {
+	_c.conflict = opts
+	return &OpenHouseUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OpenHouse.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *OpenHouseCreateBulk) OnConflictColumns(columns ...string) *OpenHouseUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &OpenHouseUpsertBulk{
+		create: _c,
+	}
+}
+
+// OpenHouseUpsertBulk is the builder for "upsert"-ing
+// a bulk of OpenHouse nodes.
+type OpenHouseUpsertBulk struct {
+	create *OpenHouseCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.OpenHouse.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(openhouse.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *OpenHouseUpsertBulk) UpdateNewValues() *OpenHouseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(openhouse.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(openhouse.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OpenHouse.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *OpenHouseUpsertBulk) Ignore() *OpenHouseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OpenHouseUpsertBulk) DoNothing() *OpenHouseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OpenHouseCreateBulk.OnConflict
+// documentation for more info.
+func (u *OpenHouseUpsertBulk) Update(set func(*OpenHouseUpsert)) *OpenHouseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OpenHouseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *OpenHouseUpsertBulk) SetModifiedAt(v time.Time) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateModifiedAt() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *OpenHouseUpsertBulk) SetSourceModifiedAt(v time.Time) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateSourceModifiedAt() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *OpenHouseUpsertBulk) SetOriginatingSystemName(v string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateOriginatingSystemName() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *OpenHouseUpsertBulk) ClearOriginatingSystemName() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *OpenHouseUpsertBulk) SetMlgCanView(v bool) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateMlgCanView() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *OpenHouseUpsertBulk) SetMlgCanUse(v []string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateMlgCanUse() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *OpenHouseUpsertBulk) ClearMlgCanUse() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *OpenHouseUpsertBulk) SetListingKey(v string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateListingKey() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetListingID sets the "listing_id" field.
+func (u *OpenHouseUpsertBulk) SetListingID(v string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetListingID(v)
+	})
+}
+
+// UpdateListingID sets the "listing_id" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateListingID() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateListingID()
+	})
+}
+
+// ClearListingID clears the value of the "listing_id" field.
+func (u *OpenHouseUpsertBulk) ClearListingID() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearListingID()
+	})
+}
+
+// SetOpenHouseDate sets the "open_house_date" field.
+func (u *OpenHouseUpsertBulk) SetOpenHouseDate(v time.Time) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseDate(v)
+	})
+}
+
+// UpdateOpenHouseDate sets the "open_house_date" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateOpenHouseDate() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseDate()
+	})
+}
+
+// ClearOpenHouseDate clears the value of the "open_house_date" field.
+func (u *OpenHouseUpsertBulk) ClearOpenHouseDate() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseDate()
+	})
+}
+
+// SetOpenHouseStartTime sets the "open_house_start_time" field.
+func (u *OpenHouseUpsertBulk) SetOpenHouseStartTime(v time.Time) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseStartTime(v)
+	})
+}
+
+// UpdateOpenHouseStartTime sets the "open_house_start_time" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateOpenHouseStartTime() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseStartTime()
+	})
+}
+
+// ClearOpenHouseStartTime clears the value of the "open_house_start_time" field.
+func (u *OpenHouseUpsertBulk) ClearOpenHouseStartTime() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseStartTime()
+	})
+}
+
+// SetOpenHouseEndTime sets the "open_house_end_time" field.
+func (u *OpenHouseUpsertBulk) SetOpenHouseEndTime(v time.Time) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseEndTime(v)
+	})
+}
+
+// UpdateOpenHouseEndTime sets the "open_house_end_time" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateOpenHouseEndTime() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseEndTime()
+	})
+}
+
+// ClearOpenHouseEndTime clears the value of the "open_house_end_time" field.
+func (u *OpenHouseUpsertBulk) ClearOpenHouseEndTime() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseEndTime()
+	})
+}
+
+// SetOpenHouseStatus sets the "open_house_status" field.
+func (u *OpenHouseUpsertBulk) SetOpenHouseStatus(v string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseStatus(v)
+	})
+}
+
+// UpdateOpenHouseStatus sets the "open_house_status" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateOpenHouseStatus() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseStatus()
+	})
+}
+
+// ClearOpenHouseStatus clears the value of the "open_house_status" field.
+func (u *OpenHouseUpsertBulk) ClearOpenHouseStatus() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseStatus()
+	})
+}
+
+// SetOpenHouseType sets the "open_house_type" field.
+func (u *OpenHouseUpsertBulk) SetOpenHouseType(v string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetOpenHouseType(v)
+	})
+}
+
+// UpdateOpenHouseType sets the "open_house_type" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateOpenHouseType() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateOpenHouseType()
+	})
+}
+
+// ClearOpenHouseType clears the value of the "open_house_type" field.
+func (u *OpenHouseUpsertBulk) ClearOpenHouseType() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearOpenHouseType()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *OpenHouseUpsertBulk) SetExtendedFields(v map[string]interface{}) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateExtendedFields() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *OpenHouseUpsertBulk) ClearExtendedFields() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *OpenHouseUpsertBulk) SetCurrentVersionID(v uuid.UUID) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetCurrentVersionID(v)
+	})
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateCurrentVersionID() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateCurrentVersionID()
+	})
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *OpenHouseUpsertBulk) ClearCurrentVersionID() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearCurrentVersionID()
+	})
+}
+
+// SetParentListingKey sets the "parent_listing_key" field.
+func (u *OpenHouseUpsertBulk) SetParentListingKey(v string) *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.SetParentListingKey(v)
+	})
+}
+
+// UpdateParentListingKey sets the "parent_listing_key" field to the value that was provided on create.
+func (u *OpenHouseUpsertBulk) UpdateParentListingKey() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.UpdateParentListingKey()
+	})
+}
+
+// ClearParentListingKey clears the value of the "parent_listing_key" field.
+func (u *OpenHouseUpsertBulk) ClearParentListingKey() *OpenHouseUpsertBulk {
+	return u.Update(func(s *OpenHouseUpsert) {
+		s.ClearParentListingKey()
+	})
+}
+
+// Exec executes the query.
+func (u *OpenHouseUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the OpenHouseCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OpenHouseCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OpenHouseUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

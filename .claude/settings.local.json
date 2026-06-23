@@ -3,7 +3,10 @@
     "allow": [
       "Bash(go build *)",
       "Bash(go vet *)",
-      "Bash(go test *)"
+      "Bash(go test *)",
+      "Bash(grep -E '\\\\.go$')",
+      "Bash(go tool *)",
+      "Bash(docker compose *)"
     ]
   }
 }

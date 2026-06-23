@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/lookup"
@@ -18,6 +20,7 @@ type LookupCreate struct {
 	config
 	mutation *LookupMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -220,6 +223,7 @@ func (_c *LookupCreate) createSpec() (*Lookup, *sqlgraph.CreateSpec) {
 		_node = &Lookup{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(lookup.Table, sqlgraph.NewFieldSpec(lookup.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -263,11 +267,397 @@ func (_c *LookupCreate) createSpec() (*Lookup, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Lookup.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.LookupUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *LookupCreate) OnConflict(opts ...sql.ConflictOption) *LookupUpsertOne {
+	_c.conflict = opts
+	return &LookupUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Lookup.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *LookupCreate) OnConflictColumns(columns ...string) *LookupUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &LookupUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// LookupUpsertOne is the builder for "upsert"-ing
+	//  one Lookup node.
+	LookupUpsertOne struct {
+		create *LookupCreate
+	}
+
+	// LookupUpsert is the "OnConflict" setter.
+	LookupUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *LookupUpsert) SetModifiedAt(v time.Time) *LookupUpsert {
+	u.Set(lookup.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateModifiedAt() *LookupUpsert {
+	u.SetExcluded(lookup.FieldModifiedAt)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *LookupUpsert) SetSourceModifiedAt(v time.Time) *LookupUpsert {
+	u.Set(lookup.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateSourceModifiedAt() *LookupUpsert {
+	u.SetExcluded(lookup.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *LookupUpsert) SetOriginatingSystemName(v string) *LookupUpsert {
+	u.Set(lookup.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateOriginatingSystemName() *LookupUpsert {
+	u.SetExcluded(lookup.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *LookupUpsert) ClearOriginatingSystemName() *LookupUpsert {
+	u.SetNull(lookup.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *LookupUpsert) SetMlgCanView(v bool) *LookupUpsert {
+	u.Set(lookup.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateMlgCanView() *LookupUpsert {
+	u.SetExcluded(lookup.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *LookupUpsert) SetMlgCanUse(v []string) *LookupUpsert {
+	u.Set(lookup.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateMlgCanUse() *LookupUpsert {
+	u.SetExcluded(lookup.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *LookupUpsert) ClearMlgCanUse() *LookupUpsert {
+	u.SetNull(lookup.FieldMlgCanUse)
+	return u
+}
+
+// SetLookupName sets the "lookup_name" field.
+func (u *LookupUpsert) SetLookupName(v string) *LookupUpsert {
+	u.Set(lookup.FieldLookupName, v)
+	return u
+}
+
+// UpdateLookupName sets the "lookup_name" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateLookupName() *LookupUpsert {
+	u.SetExcluded(lookup.FieldLookupName)
+	return u
+}
+
+// SetLookupValue sets the "lookup_value" field.
+func (u *LookupUpsert) SetLookupValue(v string) *LookupUpsert {
+	u.Set(lookup.FieldLookupValue, v)
+	return u
+}
+
+// UpdateLookupValue sets the "lookup_value" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateLookupValue() *LookupUpsert {
+	u.SetExcluded(lookup.FieldLookupValue)
+	return u
+}
+
+// SetStandardLookupValue sets the "standard_lookup_value" field.
+func (u *LookupUpsert) SetStandardLookupValue(v string) *LookupUpsert {
+	u.Set(lookup.FieldStandardLookupValue, v)
+	return u
+}
+
+// UpdateStandardLookupValue sets the "standard_lookup_value" field to the value that was provided on create.
+func (u *LookupUpsert) UpdateStandardLookupValue() *LookupUpsert {
+	u.SetExcluded(lookup.FieldStandardLookupValue)
+	return u
+}
+
+// ClearStandardLookupValue clears the value of the "standard_lookup_value" field.
+func (u *LookupUpsert) ClearStandardLookupValue() *LookupUpsert {
+	u.SetNull(lookup.FieldStandardLookupValue)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Lookup.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(lookup.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *LookupUpsertOne) UpdateNewValues() *LookupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(lookup.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(lookup.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Lookup.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *LookupUpsertOne) Ignore() *LookupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *LookupUpsertOne) DoNothing() *LookupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the LookupCreate.OnConflict
+// documentation for more info.
+func (u *LookupUpsertOne) Update(set func(*LookupUpsert)) *LookupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&LookupUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *LookupUpsertOne) SetModifiedAt(v time.Time) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateModifiedAt() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *LookupUpsertOne) SetSourceModifiedAt(v time.Time) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateSourceModifiedAt() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *LookupUpsertOne) SetOriginatingSystemName(v string) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateOriginatingSystemName() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *LookupUpsertOne) ClearOriginatingSystemName() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *LookupUpsertOne) SetMlgCanView(v bool) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateMlgCanView() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *LookupUpsertOne) SetMlgCanUse(v []string) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateMlgCanUse() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *LookupUpsertOne) ClearMlgCanUse() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetLookupName sets the "lookup_name" field.
+func (u *LookupUpsertOne) SetLookupName(v string) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetLookupName(v)
+	})
+}
+
+// UpdateLookupName sets the "lookup_name" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateLookupName() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateLookupName()
+	})
+}
+
+// SetLookupValue sets the "lookup_value" field.
+func (u *LookupUpsertOne) SetLookupValue(v string) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetLookupValue(v)
+	})
+}
+
+// UpdateLookupValue sets the "lookup_value" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateLookupValue() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateLookupValue()
+	})
+}
+
+// SetStandardLookupValue sets the "standard_lookup_value" field.
+func (u *LookupUpsertOne) SetStandardLookupValue(v string) *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetStandardLookupValue(v)
+	})
+}
+
+// UpdateStandardLookupValue sets the "standard_lookup_value" field to the value that was provided on create.
+func (u *LookupUpsertOne) UpdateStandardLookupValue() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateStandardLookupValue()
+	})
+}
+
+// ClearStandardLookupValue clears the value of the "standard_lookup_value" field.
+func (u *LookupUpsertOne) ClearStandardLookupValue() *LookupUpsertOne {
+	return u.Update(func(s *LookupUpsert) {
+		s.ClearStandardLookupValue()
+	})
+}
+
+// Exec executes the query.
+func (u *LookupUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for LookupCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *LookupUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *LookupUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: LookupUpsertOne.ID is not supported by MySQL driver. Use LookupUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *LookupUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // LookupCreateBulk is the builder for creating many Lookup entities in bulk.
 type LookupCreateBulk struct {
 	config
 	err      error
 	builders []*LookupCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Lookup entities in the database.
@@ -297,6 +687,7 @@ func (_c *LookupCreateBulk) Save(ctx context.Context) ([]*Lookup, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -343,6 +734,256 @@ func (_c *LookupCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *LookupCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Lookup.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.LookupUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *LookupCreateBulk) OnConflict(opts ...sql.ConflictOption) *LookupUpsertBulk {
+	_c.conflict = opts
+	return &LookupUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Lookup.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *LookupCreateBulk) OnConflictColumns(columns ...string) *LookupUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &LookupUpsertBulk{
+		create: _c,
+	}
+}
+
+// LookupUpsertBulk is the builder for "upsert"-ing
+// a bulk of Lookup nodes.
+type LookupUpsertBulk struct {
+	create *LookupCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Lookup.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(lookup.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *LookupUpsertBulk) UpdateNewValues() *LookupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(lookup.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(lookup.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Lookup.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *LookupUpsertBulk) Ignore() *LookupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *LookupUpsertBulk) DoNothing() *LookupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the LookupCreateBulk.OnConflict
+// documentation for more info.
+func (u *LookupUpsertBulk) Update(set func(*LookupUpsert)) *LookupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&LookupUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *LookupUpsertBulk) SetModifiedAt(v time.Time) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateModifiedAt() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *LookupUpsertBulk) SetSourceModifiedAt(v time.Time) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateSourceModifiedAt() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *LookupUpsertBulk) SetOriginatingSystemName(v string) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateOriginatingSystemName() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *LookupUpsertBulk) ClearOriginatingSystemName() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *LookupUpsertBulk) SetMlgCanView(v bool) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateMlgCanView() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *LookupUpsertBulk) SetMlgCanUse(v []string) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateMlgCanUse() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *LookupUpsertBulk) ClearMlgCanUse() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetLookupName sets the "lookup_name" field.
+func (u *LookupUpsertBulk) SetLookupName(v string) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetLookupName(v)
+	})
+}
+
+// UpdateLookupName sets the "lookup_name" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateLookupName() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateLookupName()
+	})
+}
+
+// SetLookupValue sets the "lookup_value" field.
+func (u *LookupUpsertBulk) SetLookupValue(v string) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetLookupValue(v)
+	})
+}
+
+// UpdateLookupValue sets the "lookup_value" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateLookupValue() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateLookupValue()
+	})
+}
+
+// SetStandardLookupValue sets the "standard_lookup_value" field.
+func (u *LookupUpsertBulk) SetStandardLookupValue(v string) *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.SetStandardLookupValue(v)
+	})
+}
+
+// UpdateStandardLookupValue sets the "standard_lookup_value" field to the value that was provided on create.
+func (u *LookupUpsertBulk) UpdateStandardLookupValue() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.UpdateStandardLookupValue()
+	})
+}
+
+// ClearStandardLookupValue clears the value of the "standard_lookup_value" field.
+func (u *LookupUpsertBulk) ClearStandardLookupValue() *LookupUpsertBulk {
+	return u.Update(func(s *LookupUpsert) {
+		s.ClearStandardLookupValue()
+	})
+}
+
+// Exec executes the query.
+func (u *LookupUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the LookupCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for LookupCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *LookupUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

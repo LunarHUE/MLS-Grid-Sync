@@ -18,8 +18,10 @@ import (
 )
 
 var (
-	reprocessFromID string
-	reprocessAll    bool
+	reprocessFromID      string
+	reprocessAll         bool
+	reprocessCommitBatch int
+	reprocessBulk        bool
 )
 
 var reprocessCmd = &cobra.Command{
@@ -71,6 +73,20 @@ processor_cursor.processor_version is stamped with the current build.`,
 			return err
 		}
 		defer comps.db.Close()
+
+		// --commit-batch-size overrides the configured commit batch for this
+		// run (0 = keep config). Handy for the throughput A/B in
+		// docs/profiling.md (e.g. compare 1 vs 50 vs 200).
+		if reprocessCommitBatch > 0 {
+			comps.proc.WithCommitBatchSize(reprocessCommitBatch)
+		}
+
+		// --bulk overrides the configured bulk-projection flag for this run
+		// (only when explicitly passed). The throughput A/B in docs/profiling.md
+		// compares --bulk=false (per-record) vs --bulk=true (batched).
+		if cmd.Flags().Changed("bulk") {
+			comps.proc.WithBulk(reprocessBulk)
+		}
 
 		srcSystem, err := comps.db.SourceSystem.Query().First(ctx)
 		if err != nil {
@@ -183,5 +199,9 @@ func resetCursorAndAudit(ctx context.Context, db *ent.Client, dbResource rawoutp
 func init() {
 	reprocessCmd.Flags().StringVar(&reprocessFromID, "from", "", "raw_output_id (uuid) to resume from")
 	reprocessCmd.Flags().BoolVar(&reprocessAll, "all", false, "replay every raw_output row from the beginning")
+	reprocessCmd.Flags().IntVar(&reprocessCommitBatch, "commit-batch-size", 0,
+		"records committed per transaction (0 = use config; 1 = one per tx)")
+	reprocessCmd.Flags().BoolVar(&reprocessBulk, "bulk", true,
+		"bulk-project each chunk (false = per-record path; only applied when explicitly passed)")
 	rootCmd.AddCommand(reprocessCmd)
 }

@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"sort"
@@ -249,15 +248,7 @@ func validateOne(ctx context.Context, client *ent.Client, resource rawoutput.Res
 		}
 		for _, raw := range batch {
 			report.TotalRows++
-			payloadBytes, err := json.Marshal(raw.Payload)
-			if err != nil {
-				report.ParseErrors = append(report.ParseErrors, ParseError{
-					RawOutputID: raw.ID.String(),
-					Err:         fmt.Sprintf("marshal: %v", err),
-				})
-				continue
-			}
-			parsed, err := d.parse(payloadBytes)
+			parsed, err := d.parse(raw.Payload)
 			if err != nil {
 				report.ParseErrors = append(report.ParseErrors, ParseError{
 					RawOutputID: raw.ID.String(),

@@ -31,6 +31,11 @@ func (r *recordingProcessor) RunPass(_ context.Context, resource rawoutput.Resou
 	return r.err
 }
 
+func (r *recordingProcessor) RunPassNoFinalize(_ context.Context, resource rawoutput.Resource) error {
+	r.calls = append(r.calls, resource)
+	return r.err
+}
+
 func propertyRecord(t *testing.T, listingKey string, listingTS time.Time, media []map[string]any, rooms []map[string]any, unitTypes []map[string]any) json.RawMessage {
 	t.Helper()
 	rec := map[string]any{
@@ -115,7 +120,8 @@ func TestPropertyFetch_SplitsChildrenAndStripsParent(t *testing.T) {
 		All(ctx)
 	require.NoError(t, err)
 	require.Len(t, parents, 1)
-	parentPayload := parents[0].Payload
+	var parentPayload map[string]any
+	require.NoError(t, json.Unmarshal(parents[0].Payload, &parentPayload))
 	_, hasMedia := parentPayload["Media"]
 	_, hasRooms := parentPayload["Rooms"]
 	_, hasUnits := parentPayload["UnitTypes"]

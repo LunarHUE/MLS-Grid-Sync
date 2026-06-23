@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion"
@@ -19,6 +21,7 @@ type OfficeVersionCreate struct {
 	config
 	mutation *OfficeVersionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetValidFrom sets the "valid_from" field.
@@ -571,6 +574,7 @@ func (_c *OfficeVersionCreate) createSpec() (*OfficeVersion, *sqlgraph.CreateSpe
 		_node = &OfficeVersion{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(officeversion.Table, sqlgraph.NewFieldSpec(officeversion.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -722,11 +726,1460 @@ func (_c *OfficeVersionCreate) createSpec() (*OfficeVersion, *sqlgraph.CreateSpe
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OfficeVersion.Create().
+//		SetValidFrom(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OfficeVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *OfficeVersionCreate) OnConflict(opts ...sql.ConflictOption) *OfficeVersionUpsertOne {
+	_c.conflict = opts
+	return &OfficeVersionUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OfficeVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *OfficeVersionCreate) OnConflictColumns(columns ...string) *OfficeVersionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &OfficeVersionUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// OfficeVersionUpsertOne is the builder for "upsert"-ing
+	//  one OfficeVersion node.
+	OfficeVersionUpsertOne struct {
+		create *OfficeVersionCreate
+	}
+
+	// OfficeVersionUpsert is the "OnConflict" setter.
+	OfficeVersionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetValidFrom sets the "valid_from" field.
+func (u *OfficeVersionUpsert) SetValidFrom(v time.Time) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldValidFrom, v)
+	return u
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateValidFrom() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldValidFrom)
+	return u
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *OfficeVersionUpsert) SetValidTo(v time.Time) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldValidTo, v)
+	return u
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateValidTo() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldValidTo)
+	return u
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *OfficeVersionUpsert) ClearValidTo() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldValidTo)
+	return u
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *OfficeVersionUpsert) SetChangeType(v officeversion.ChangeType) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldChangeType, v)
+	return u
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateChangeType() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldChangeType)
+	return u
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *OfficeVersionUpsert) SetChangedFields(v map[string]interface{}) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldChangedFields, v)
+	return u
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateChangedFields() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldChangedFields)
+	return u
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *OfficeVersionUpsert) ClearChangedFields() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldChangedFields)
+	return u
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *OfficeVersionUpsert) SetProcessorVersion(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldProcessorVersion, v)
+	return u
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateProcessorVersion() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *OfficeVersionUpsert) SetSourceModifiedAt(v time.Time) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateSourceModifiedAt() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *OfficeVersionUpsert) SetOriginatingSystemName(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOriginatingSystemName() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *OfficeVersionUpsert) ClearOriginatingSystemName() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *OfficeVersionUpsert) SetMlgCanView(v bool) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateMlgCanView() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *OfficeVersionUpsert) SetMlgCanUse(v []string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateMlgCanUse() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *OfficeVersionUpsert) ClearMlgCanUse() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldMlgCanUse)
+	return u
+}
+
+// SetOfficeMlsID sets the "office_mls_id" field.
+func (u *OfficeVersionUpsert) SetOfficeMlsID(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeMlsID, v)
+	return u
+}
+
+// UpdateOfficeMlsID sets the "office_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeMlsID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeMlsID)
+	return u
+}
+
+// ClearOfficeMlsID clears the value of the "office_mls_id" field.
+func (u *OfficeVersionUpsert) ClearOfficeMlsID() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeMlsID)
+	return u
+}
+
+// SetOfficeName sets the "office_name" field.
+func (u *OfficeVersionUpsert) SetOfficeName(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeName, v)
+	return u
+}
+
+// UpdateOfficeName sets the "office_name" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeName() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeName)
+	return u
+}
+
+// ClearOfficeName clears the value of the "office_name" field.
+func (u *OfficeVersionUpsert) ClearOfficeName() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeName)
+	return u
+}
+
+// SetOfficeStatus sets the "office_status" field.
+func (u *OfficeVersionUpsert) SetOfficeStatus(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeStatus, v)
+	return u
+}
+
+// UpdateOfficeStatus sets the "office_status" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeStatus() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeStatus)
+	return u
+}
+
+// ClearOfficeStatus clears the value of the "office_status" field.
+func (u *OfficeVersionUpsert) ClearOfficeStatus() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeStatus)
+	return u
+}
+
+// SetOfficeType sets the "office_type" field.
+func (u *OfficeVersionUpsert) SetOfficeType(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeType, v)
+	return u
+}
+
+// UpdateOfficeType sets the "office_type" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeType() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeType)
+	return u
+}
+
+// ClearOfficeType clears the value of the "office_type" field.
+func (u *OfficeVersionUpsert) ClearOfficeType() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeType)
+	return u
+}
+
+// SetOfficePhone sets the "office_phone" field.
+func (u *OfficeVersionUpsert) SetOfficePhone(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficePhone, v)
+	return u
+}
+
+// UpdateOfficePhone sets the "office_phone" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficePhone() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficePhone)
+	return u
+}
+
+// ClearOfficePhone clears the value of the "office_phone" field.
+func (u *OfficeVersionUpsert) ClearOfficePhone() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficePhone)
+	return u
+}
+
+// SetOfficePhoneExt sets the "office_phone_ext" field.
+func (u *OfficeVersionUpsert) SetOfficePhoneExt(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficePhoneExt, v)
+	return u
+}
+
+// UpdateOfficePhoneExt sets the "office_phone_ext" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficePhoneExt() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficePhoneExt)
+	return u
+}
+
+// ClearOfficePhoneExt clears the value of the "office_phone_ext" field.
+func (u *OfficeVersionUpsert) ClearOfficePhoneExt() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficePhoneExt)
+	return u
+}
+
+// SetOfficeFax sets the "office_fax" field.
+func (u *OfficeVersionUpsert) SetOfficeFax(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeFax, v)
+	return u
+}
+
+// UpdateOfficeFax sets the "office_fax" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeFax() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeFax)
+	return u
+}
+
+// ClearOfficeFax clears the value of the "office_fax" field.
+func (u *OfficeVersionUpsert) ClearOfficeFax() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeFax)
+	return u
+}
+
+// SetOfficeAddress1 sets the "office_address1" field.
+func (u *OfficeVersionUpsert) SetOfficeAddress1(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeAddress1, v)
+	return u
+}
+
+// UpdateOfficeAddress1 sets the "office_address1" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeAddress1() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeAddress1)
+	return u
+}
+
+// ClearOfficeAddress1 clears the value of the "office_address1" field.
+func (u *OfficeVersionUpsert) ClearOfficeAddress1() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeAddress1)
+	return u
+}
+
+// SetOfficeAddress2 sets the "office_address2" field.
+func (u *OfficeVersionUpsert) SetOfficeAddress2(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeAddress2, v)
+	return u
+}
+
+// UpdateOfficeAddress2 sets the "office_address2" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeAddress2() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeAddress2)
+	return u
+}
+
+// ClearOfficeAddress2 clears the value of the "office_address2" field.
+func (u *OfficeVersionUpsert) ClearOfficeAddress2() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeAddress2)
+	return u
+}
+
+// SetOfficeCity sets the "office_city" field.
+func (u *OfficeVersionUpsert) SetOfficeCity(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeCity, v)
+	return u
+}
+
+// UpdateOfficeCity sets the "office_city" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeCity() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeCity)
+	return u
+}
+
+// ClearOfficeCity clears the value of the "office_city" field.
+func (u *OfficeVersionUpsert) ClearOfficeCity() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeCity)
+	return u
+}
+
+// SetOfficeStateOrProvince sets the "office_state_or_province" field.
+func (u *OfficeVersionUpsert) SetOfficeStateOrProvince(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeStateOrProvince, v)
+	return u
+}
+
+// UpdateOfficeStateOrProvince sets the "office_state_or_province" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeStateOrProvince() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeStateOrProvince)
+	return u
+}
+
+// ClearOfficeStateOrProvince clears the value of the "office_state_or_province" field.
+func (u *OfficeVersionUpsert) ClearOfficeStateOrProvince() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeStateOrProvince)
+	return u
+}
+
+// SetOfficePostalCode sets the "office_postal_code" field.
+func (u *OfficeVersionUpsert) SetOfficePostalCode(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficePostalCode, v)
+	return u
+}
+
+// UpdateOfficePostalCode sets the "office_postal_code" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficePostalCode() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficePostalCode)
+	return u
+}
+
+// ClearOfficePostalCode clears the value of the "office_postal_code" field.
+func (u *OfficeVersionUpsert) ClearOfficePostalCode() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficePostalCode)
+	return u
+}
+
+// SetOfficePostalCodePlus4 sets the "office_postal_code_plus4" field.
+func (u *OfficeVersionUpsert) SetOfficePostalCodePlus4(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficePostalCodePlus4, v)
+	return u
+}
+
+// UpdateOfficePostalCodePlus4 sets the "office_postal_code_plus4" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficePostalCodePlus4() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficePostalCodePlus4)
+	return u
+}
+
+// ClearOfficePostalCodePlus4 clears the value of the "office_postal_code_plus4" field.
+func (u *OfficeVersionUpsert) ClearOfficePostalCodePlus4() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficePostalCodePlus4)
+	return u
+}
+
+// SetOfficeCountyOrParish sets the "office_county_or_parish" field.
+func (u *OfficeVersionUpsert) SetOfficeCountyOrParish(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeCountyOrParish, v)
+	return u
+}
+
+// UpdateOfficeCountyOrParish sets the "office_county_or_parish" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeCountyOrParish() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeCountyOrParish)
+	return u
+}
+
+// ClearOfficeCountyOrParish clears the value of the "office_county_or_parish" field.
+func (u *OfficeVersionUpsert) ClearOfficeCountyOrParish() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeCountyOrParish)
+	return u
+}
+
+// SetOfficeCorporateLicense sets the "office_corporate_license" field.
+func (u *OfficeVersionUpsert) SetOfficeCorporateLicense(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeCorporateLicense, v)
+	return u
+}
+
+// UpdateOfficeCorporateLicense sets the "office_corporate_license" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeCorporateLicense() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeCorporateLicense)
+	return u
+}
+
+// ClearOfficeCorporateLicense clears the value of the "office_corporate_license" field.
+func (u *OfficeVersionUpsert) ClearOfficeCorporateLicense() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeCorporateLicense)
+	return u
+}
+
+// SetOfficeNationalAssociationID sets the "office_national_association_id" field.
+func (u *OfficeVersionUpsert) SetOfficeNationalAssociationID(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeNationalAssociationID, v)
+	return u
+}
+
+// UpdateOfficeNationalAssociationID sets the "office_national_association_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeNationalAssociationID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeNationalAssociationID)
+	return u
+}
+
+// ClearOfficeNationalAssociationID clears the value of the "office_national_association_id" field.
+func (u *OfficeVersionUpsert) ClearOfficeNationalAssociationID() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeNationalAssociationID)
+	return u
+}
+
+// SetMainOfficeKey sets the "main_office_key" field.
+func (u *OfficeVersionUpsert) SetMainOfficeKey(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldMainOfficeKey, v)
+	return u
+}
+
+// UpdateMainOfficeKey sets the "main_office_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateMainOfficeKey() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldMainOfficeKey)
+	return u
+}
+
+// ClearMainOfficeKey clears the value of the "main_office_key" field.
+func (u *OfficeVersionUpsert) ClearMainOfficeKey() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldMainOfficeKey)
+	return u
+}
+
+// SetMainOfficeMlsID sets the "main_office_mls_id" field.
+func (u *OfficeVersionUpsert) SetMainOfficeMlsID(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldMainOfficeMlsID, v)
+	return u
+}
+
+// UpdateMainOfficeMlsID sets the "main_office_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateMainOfficeMlsID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldMainOfficeMlsID)
+	return u
+}
+
+// ClearMainOfficeMlsID clears the value of the "main_office_mls_id" field.
+func (u *OfficeVersionUpsert) ClearMainOfficeMlsID() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldMainOfficeMlsID)
+	return u
+}
+
+// SetOfficeBrokerKey sets the "office_broker_key" field.
+func (u *OfficeVersionUpsert) SetOfficeBrokerKey(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeBrokerKey, v)
+	return u
+}
+
+// UpdateOfficeBrokerKey sets the "office_broker_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeBrokerKey() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeBrokerKey)
+	return u
+}
+
+// ClearOfficeBrokerKey clears the value of the "office_broker_key" field.
+func (u *OfficeVersionUpsert) ClearOfficeBrokerKey() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeBrokerKey)
+	return u
+}
+
+// SetOfficeBrokerMlsID sets the "office_broker_mls_id" field.
+func (u *OfficeVersionUpsert) SetOfficeBrokerMlsID(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeBrokerMlsID, v)
+	return u
+}
+
+// UpdateOfficeBrokerMlsID sets the "office_broker_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeBrokerMlsID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeBrokerMlsID)
+	return u
+}
+
+// ClearOfficeBrokerMlsID clears the value of the "office_broker_mls_id" field.
+func (u *OfficeVersionUpsert) ClearOfficeBrokerMlsID() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeBrokerMlsID)
+	return u
+}
+
+// SetOfficeManagerKey sets the "office_manager_key" field.
+func (u *OfficeVersionUpsert) SetOfficeManagerKey(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeManagerKey, v)
+	return u
+}
+
+// UpdateOfficeManagerKey sets the "office_manager_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeManagerKey() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeManagerKey)
+	return u
+}
+
+// ClearOfficeManagerKey clears the value of the "office_manager_key" field.
+func (u *OfficeVersionUpsert) ClearOfficeManagerKey() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldOfficeManagerKey)
+	return u
+}
+
+// SetIdxOfficeParticipationYn sets the "idx_office_participation_yn" field.
+func (u *OfficeVersionUpsert) SetIdxOfficeParticipationYn(v bool) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldIdxOfficeParticipationYn, v)
+	return u
+}
+
+// UpdateIdxOfficeParticipationYn sets the "idx_office_participation_yn" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateIdxOfficeParticipationYn() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldIdxOfficeParticipationYn)
+	return u
+}
+
+// ClearIdxOfficeParticipationYn clears the value of the "idx_office_participation_yn" field.
+func (u *OfficeVersionUpsert) ClearIdxOfficeParticipationYn() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldIdxOfficeParticipationYn)
+	return u
+}
+
+// SetPhotosChangeTimestamp sets the "photos_change_timestamp" field.
+func (u *OfficeVersionUpsert) SetPhotosChangeTimestamp(v time.Time) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldPhotosChangeTimestamp, v)
+	return u
+}
+
+// UpdatePhotosChangeTimestamp sets the "photos_change_timestamp" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdatePhotosChangeTimestamp() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldPhotosChangeTimestamp)
+	return u
+}
+
+// ClearPhotosChangeTimestamp clears the value of the "photos_change_timestamp" field.
+func (u *OfficeVersionUpsert) ClearPhotosChangeTimestamp() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldPhotosChangeTimestamp)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *OfficeVersionUpsert) SetExtendedFields(v map[string]interface{}) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateExtendedFields() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *OfficeVersionUpsert) ClearExtendedFields() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldExtendedFields)
+	return u
+}
+
+// SetOfficeKey sets the "office_key" field.
+func (u *OfficeVersionUpsert) SetOfficeKey(v string) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldOfficeKey, v)
+	return u
+}
+
+// UpdateOfficeKey sets the "office_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateOfficeKey() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldOfficeKey)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OfficeVersionUpsert) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateSyncEventID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OfficeVersionUpsert) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateRawOutputID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OfficeVersionUpsert) ClearRawOutputID() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldRawOutputID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.OfficeVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(officeversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *OfficeVersionUpsertOne) UpdateNewValues() *OfficeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(officeversion.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OfficeVersion.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *OfficeVersionUpsertOne) Ignore() *OfficeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OfficeVersionUpsertOne) DoNothing() *OfficeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OfficeVersionCreate.OnConflict
+// documentation for more info.
+func (u *OfficeVersionUpsertOne) Update(set func(*OfficeVersionUpsert)) *OfficeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OfficeVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *OfficeVersionUpsertOne) SetValidFrom(v time.Time) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateValidFrom() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *OfficeVersionUpsertOne) SetValidTo(v time.Time) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateValidTo() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *OfficeVersionUpsertOne) ClearValidTo() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *OfficeVersionUpsertOne) SetChangeType(v officeversion.ChangeType) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateChangeType() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *OfficeVersionUpsertOne) SetChangedFields(v map[string]interface{}) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateChangedFields() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *OfficeVersionUpsertOne) ClearChangedFields() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *OfficeVersionUpsertOne) SetProcessorVersion(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateProcessorVersion() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *OfficeVersionUpsertOne) SetSourceModifiedAt(v time.Time) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateSourceModifiedAt() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *OfficeVersionUpsertOne) SetOriginatingSystemName(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOriginatingSystemName() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *OfficeVersionUpsertOne) ClearOriginatingSystemName() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *OfficeVersionUpsertOne) SetMlgCanView(v bool) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateMlgCanView() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *OfficeVersionUpsertOne) SetMlgCanUse(v []string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateMlgCanUse() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *OfficeVersionUpsertOne) ClearMlgCanUse() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetOfficeMlsID sets the "office_mls_id" field.
+func (u *OfficeVersionUpsertOne) SetOfficeMlsID(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeMlsID(v)
+	})
+}
+
+// UpdateOfficeMlsID sets the "office_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeMlsID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeMlsID()
+	})
+}
+
+// ClearOfficeMlsID clears the value of the "office_mls_id" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeMlsID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeMlsID()
+	})
+}
+
+// SetOfficeName sets the "office_name" field.
+func (u *OfficeVersionUpsertOne) SetOfficeName(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeName(v)
+	})
+}
+
+// UpdateOfficeName sets the "office_name" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeName() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeName()
+	})
+}
+
+// ClearOfficeName clears the value of the "office_name" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeName() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeName()
+	})
+}
+
+// SetOfficeStatus sets the "office_status" field.
+func (u *OfficeVersionUpsertOne) SetOfficeStatus(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeStatus(v)
+	})
+}
+
+// UpdateOfficeStatus sets the "office_status" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeStatus() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeStatus()
+	})
+}
+
+// ClearOfficeStatus clears the value of the "office_status" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeStatus() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeStatus()
+	})
+}
+
+// SetOfficeType sets the "office_type" field.
+func (u *OfficeVersionUpsertOne) SetOfficeType(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeType(v)
+	})
+}
+
+// UpdateOfficeType sets the "office_type" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeType() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeType()
+	})
+}
+
+// ClearOfficeType clears the value of the "office_type" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeType() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeType()
+	})
+}
+
+// SetOfficePhone sets the "office_phone" field.
+func (u *OfficeVersionUpsertOne) SetOfficePhone(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePhone(v)
+	})
+}
+
+// UpdateOfficePhone sets the "office_phone" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficePhone() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePhone()
+	})
+}
+
+// ClearOfficePhone clears the value of the "office_phone" field.
+func (u *OfficeVersionUpsertOne) ClearOfficePhone() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePhone()
+	})
+}
+
+// SetOfficePhoneExt sets the "office_phone_ext" field.
+func (u *OfficeVersionUpsertOne) SetOfficePhoneExt(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePhoneExt(v)
+	})
+}
+
+// UpdateOfficePhoneExt sets the "office_phone_ext" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficePhoneExt() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePhoneExt()
+	})
+}
+
+// ClearOfficePhoneExt clears the value of the "office_phone_ext" field.
+func (u *OfficeVersionUpsertOne) ClearOfficePhoneExt() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePhoneExt()
+	})
+}
+
+// SetOfficeFax sets the "office_fax" field.
+func (u *OfficeVersionUpsertOne) SetOfficeFax(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeFax(v)
+	})
+}
+
+// UpdateOfficeFax sets the "office_fax" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeFax() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeFax()
+	})
+}
+
+// ClearOfficeFax clears the value of the "office_fax" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeFax() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeFax()
+	})
+}
+
+// SetOfficeAddress1 sets the "office_address1" field.
+func (u *OfficeVersionUpsertOne) SetOfficeAddress1(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeAddress1(v)
+	})
+}
+
+// UpdateOfficeAddress1 sets the "office_address1" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeAddress1() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeAddress1()
+	})
+}
+
+// ClearOfficeAddress1 clears the value of the "office_address1" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeAddress1() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeAddress1()
+	})
+}
+
+// SetOfficeAddress2 sets the "office_address2" field.
+func (u *OfficeVersionUpsertOne) SetOfficeAddress2(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeAddress2(v)
+	})
+}
+
+// UpdateOfficeAddress2 sets the "office_address2" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeAddress2() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeAddress2()
+	})
+}
+
+// ClearOfficeAddress2 clears the value of the "office_address2" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeAddress2() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeAddress2()
+	})
+}
+
+// SetOfficeCity sets the "office_city" field.
+func (u *OfficeVersionUpsertOne) SetOfficeCity(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeCity(v)
+	})
+}
+
+// UpdateOfficeCity sets the "office_city" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeCity() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeCity()
+	})
+}
+
+// ClearOfficeCity clears the value of the "office_city" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeCity() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeCity()
+	})
+}
+
+// SetOfficeStateOrProvince sets the "office_state_or_province" field.
+func (u *OfficeVersionUpsertOne) SetOfficeStateOrProvince(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeStateOrProvince(v)
+	})
+}
+
+// UpdateOfficeStateOrProvince sets the "office_state_or_province" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeStateOrProvince() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeStateOrProvince()
+	})
+}
+
+// ClearOfficeStateOrProvince clears the value of the "office_state_or_province" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeStateOrProvince() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeStateOrProvince()
+	})
+}
+
+// SetOfficePostalCode sets the "office_postal_code" field.
+func (u *OfficeVersionUpsertOne) SetOfficePostalCode(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePostalCode(v)
+	})
+}
+
+// UpdateOfficePostalCode sets the "office_postal_code" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficePostalCode() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePostalCode()
+	})
+}
+
+// ClearOfficePostalCode clears the value of the "office_postal_code" field.
+func (u *OfficeVersionUpsertOne) ClearOfficePostalCode() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePostalCode()
+	})
+}
+
+// SetOfficePostalCodePlus4 sets the "office_postal_code_plus4" field.
+func (u *OfficeVersionUpsertOne) SetOfficePostalCodePlus4(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePostalCodePlus4(v)
+	})
+}
+
+// UpdateOfficePostalCodePlus4 sets the "office_postal_code_plus4" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficePostalCodePlus4() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePostalCodePlus4()
+	})
+}
+
+// ClearOfficePostalCodePlus4 clears the value of the "office_postal_code_plus4" field.
+func (u *OfficeVersionUpsertOne) ClearOfficePostalCodePlus4() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePostalCodePlus4()
+	})
+}
+
+// SetOfficeCountyOrParish sets the "office_county_or_parish" field.
+func (u *OfficeVersionUpsertOne) SetOfficeCountyOrParish(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeCountyOrParish(v)
+	})
+}
+
+// UpdateOfficeCountyOrParish sets the "office_county_or_parish" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeCountyOrParish() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeCountyOrParish()
+	})
+}
+
+// ClearOfficeCountyOrParish clears the value of the "office_county_or_parish" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeCountyOrParish() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeCountyOrParish()
+	})
+}
+
+// SetOfficeCorporateLicense sets the "office_corporate_license" field.
+func (u *OfficeVersionUpsertOne) SetOfficeCorporateLicense(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeCorporateLicense(v)
+	})
+}
+
+// UpdateOfficeCorporateLicense sets the "office_corporate_license" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeCorporateLicense() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeCorporateLicense()
+	})
+}
+
+// ClearOfficeCorporateLicense clears the value of the "office_corporate_license" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeCorporateLicense() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeCorporateLicense()
+	})
+}
+
+// SetOfficeNationalAssociationID sets the "office_national_association_id" field.
+func (u *OfficeVersionUpsertOne) SetOfficeNationalAssociationID(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeNationalAssociationID(v)
+	})
+}
+
+// UpdateOfficeNationalAssociationID sets the "office_national_association_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeNationalAssociationID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeNationalAssociationID()
+	})
+}
+
+// ClearOfficeNationalAssociationID clears the value of the "office_national_association_id" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeNationalAssociationID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeNationalAssociationID()
+	})
+}
+
+// SetMainOfficeKey sets the "main_office_key" field.
+func (u *OfficeVersionUpsertOne) SetMainOfficeKey(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMainOfficeKey(v)
+	})
+}
+
+// UpdateMainOfficeKey sets the "main_office_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateMainOfficeKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMainOfficeKey()
+	})
+}
+
+// ClearMainOfficeKey clears the value of the "main_office_key" field.
+func (u *OfficeVersionUpsertOne) ClearMainOfficeKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearMainOfficeKey()
+	})
+}
+
+// SetMainOfficeMlsID sets the "main_office_mls_id" field.
+func (u *OfficeVersionUpsertOne) SetMainOfficeMlsID(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMainOfficeMlsID(v)
+	})
+}
+
+// UpdateMainOfficeMlsID sets the "main_office_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateMainOfficeMlsID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMainOfficeMlsID()
+	})
+}
+
+// ClearMainOfficeMlsID clears the value of the "main_office_mls_id" field.
+func (u *OfficeVersionUpsertOne) ClearMainOfficeMlsID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearMainOfficeMlsID()
+	})
+}
+
+// SetOfficeBrokerKey sets the "office_broker_key" field.
+func (u *OfficeVersionUpsertOne) SetOfficeBrokerKey(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeBrokerKey(v)
+	})
+}
+
+// UpdateOfficeBrokerKey sets the "office_broker_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeBrokerKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeBrokerKey()
+	})
+}
+
+// ClearOfficeBrokerKey clears the value of the "office_broker_key" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeBrokerKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeBrokerKey()
+	})
+}
+
+// SetOfficeBrokerMlsID sets the "office_broker_mls_id" field.
+func (u *OfficeVersionUpsertOne) SetOfficeBrokerMlsID(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeBrokerMlsID(v)
+	})
+}
+
+// UpdateOfficeBrokerMlsID sets the "office_broker_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeBrokerMlsID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeBrokerMlsID()
+	})
+}
+
+// ClearOfficeBrokerMlsID clears the value of the "office_broker_mls_id" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeBrokerMlsID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeBrokerMlsID()
+	})
+}
+
+// SetOfficeManagerKey sets the "office_manager_key" field.
+func (u *OfficeVersionUpsertOne) SetOfficeManagerKey(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeManagerKey(v)
+	})
+}
+
+// UpdateOfficeManagerKey sets the "office_manager_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeManagerKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeManagerKey()
+	})
+}
+
+// ClearOfficeManagerKey clears the value of the "office_manager_key" field.
+func (u *OfficeVersionUpsertOne) ClearOfficeManagerKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeManagerKey()
+	})
+}
+
+// SetIdxOfficeParticipationYn sets the "idx_office_participation_yn" field.
+func (u *OfficeVersionUpsertOne) SetIdxOfficeParticipationYn(v bool) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetIdxOfficeParticipationYn(v)
+	})
+}
+
+// UpdateIdxOfficeParticipationYn sets the "idx_office_participation_yn" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateIdxOfficeParticipationYn() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateIdxOfficeParticipationYn()
+	})
+}
+
+// ClearIdxOfficeParticipationYn clears the value of the "idx_office_participation_yn" field.
+func (u *OfficeVersionUpsertOne) ClearIdxOfficeParticipationYn() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearIdxOfficeParticipationYn()
+	})
+}
+
+// SetPhotosChangeTimestamp sets the "photos_change_timestamp" field.
+func (u *OfficeVersionUpsertOne) SetPhotosChangeTimestamp(v time.Time) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetPhotosChangeTimestamp(v)
+	})
+}
+
+// UpdatePhotosChangeTimestamp sets the "photos_change_timestamp" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdatePhotosChangeTimestamp() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdatePhotosChangeTimestamp()
+	})
+}
+
+// ClearPhotosChangeTimestamp clears the value of the "photos_change_timestamp" field.
+func (u *OfficeVersionUpsertOne) ClearPhotosChangeTimestamp() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearPhotosChangeTimestamp()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *OfficeVersionUpsertOne) SetExtendedFields(v map[string]interface{}) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateExtendedFields() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *OfficeVersionUpsertOne) ClearExtendedFields() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetOfficeKey sets the "office_key" field.
+func (u *OfficeVersionUpsertOne) SetOfficeKey(v string) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeKey(v)
+	})
+}
+
+// UpdateOfficeKey sets the "office_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateOfficeKey() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OfficeVersionUpsertOne) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateSyncEventID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OfficeVersionUpsertOne) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateRawOutputID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OfficeVersionUpsertOne) ClearRawOutputID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *OfficeVersionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OfficeVersionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OfficeVersionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *OfficeVersionUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: OfficeVersionUpsertOne.ID is not supported by MySQL driver. Use OfficeVersionUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *OfficeVersionUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // OfficeVersionCreateBulk is the builder for creating many OfficeVersion entities in bulk.
 type OfficeVersionCreateBulk struct {
 	config
 	err      error
 	builders []*OfficeVersionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the OfficeVersion entities in the database.
@@ -756,6 +2209,7 @@ func (_c *OfficeVersionCreateBulk) Save(ctx context.Context) ([]*OfficeVersion, 
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -802,6 +2256,827 @@ func (_c *OfficeVersionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *OfficeVersionCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OfficeVersion.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OfficeVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *OfficeVersionCreateBulk) OnConflict(opts ...sql.ConflictOption) *OfficeVersionUpsertBulk {
+	_c.conflict = opts
+	return &OfficeVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OfficeVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *OfficeVersionCreateBulk) OnConflictColumns(columns ...string) *OfficeVersionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &OfficeVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// OfficeVersionUpsertBulk is the builder for "upsert"-ing
+// a bulk of OfficeVersion nodes.
+type OfficeVersionUpsertBulk struct {
+	create *OfficeVersionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.OfficeVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(officeversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *OfficeVersionUpsertBulk) UpdateNewValues() *OfficeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(officeversion.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OfficeVersion.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *OfficeVersionUpsertBulk) Ignore() *OfficeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OfficeVersionUpsertBulk) DoNothing() *OfficeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OfficeVersionCreateBulk.OnConflict
+// documentation for more info.
+func (u *OfficeVersionUpsertBulk) Update(set func(*OfficeVersionUpsert)) *OfficeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OfficeVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *OfficeVersionUpsertBulk) SetValidFrom(v time.Time) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateValidFrom() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *OfficeVersionUpsertBulk) SetValidTo(v time.Time) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateValidTo() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *OfficeVersionUpsertBulk) ClearValidTo() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *OfficeVersionUpsertBulk) SetChangeType(v officeversion.ChangeType) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateChangeType() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *OfficeVersionUpsertBulk) SetChangedFields(v map[string]interface{}) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateChangedFields() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *OfficeVersionUpsertBulk) ClearChangedFields() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *OfficeVersionUpsertBulk) SetProcessorVersion(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateProcessorVersion() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *OfficeVersionUpsertBulk) SetSourceModifiedAt(v time.Time) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateSourceModifiedAt() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *OfficeVersionUpsertBulk) SetOriginatingSystemName(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOriginatingSystemName() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *OfficeVersionUpsertBulk) ClearOriginatingSystemName() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *OfficeVersionUpsertBulk) SetMlgCanView(v bool) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateMlgCanView() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *OfficeVersionUpsertBulk) SetMlgCanUse(v []string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateMlgCanUse() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *OfficeVersionUpsertBulk) ClearMlgCanUse() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetOfficeMlsID sets the "office_mls_id" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeMlsID(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeMlsID(v)
+	})
+}
+
+// UpdateOfficeMlsID sets the "office_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeMlsID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeMlsID()
+	})
+}
+
+// ClearOfficeMlsID clears the value of the "office_mls_id" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeMlsID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeMlsID()
+	})
+}
+
+// SetOfficeName sets the "office_name" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeName(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeName(v)
+	})
+}
+
+// UpdateOfficeName sets the "office_name" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeName() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeName()
+	})
+}
+
+// ClearOfficeName clears the value of the "office_name" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeName() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeName()
+	})
+}
+
+// SetOfficeStatus sets the "office_status" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeStatus(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeStatus(v)
+	})
+}
+
+// UpdateOfficeStatus sets the "office_status" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeStatus() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeStatus()
+	})
+}
+
+// ClearOfficeStatus clears the value of the "office_status" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeStatus() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeStatus()
+	})
+}
+
+// SetOfficeType sets the "office_type" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeType(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeType(v)
+	})
+}
+
+// UpdateOfficeType sets the "office_type" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeType() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeType()
+	})
+}
+
+// ClearOfficeType clears the value of the "office_type" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeType() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeType()
+	})
+}
+
+// SetOfficePhone sets the "office_phone" field.
+func (u *OfficeVersionUpsertBulk) SetOfficePhone(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePhone(v)
+	})
+}
+
+// UpdateOfficePhone sets the "office_phone" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficePhone() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePhone()
+	})
+}
+
+// ClearOfficePhone clears the value of the "office_phone" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficePhone() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePhone()
+	})
+}
+
+// SetOfficePhoneExt sets the "office_phone_ext" field.
+func (u *OfficeVersionUpsertBulk) SetOfficePhoneExt(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePhoneExt(v)
+	})
+}
+
+// UpdateOfficePhoneExt sets the "office_phone_ext" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficePhoneExt() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePhoneExt()
+	})
+}
+
+// ClearOfficePhoneExt clears the value of the "office_phone_ext" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficePhoneExt() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePhoneExt()
+	})
+}
+
+// SetOfficeFax sets the "office_fax" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeFax(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeFax(v)
+	})
+}
+
+// UpdateOfficeFax sets the "office_fax" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeFax() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeFax()
+	})
+}
+
+// ClearOfficeFax clears the value of the "office_fax" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeFax() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeFax()
+	})
+}
+
+// SetOfficeAddress1 sets the "office_address1" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeAddress1(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeAddress1(v)
+	})
+}
+
+// UpdateOfficeAddress1 sets the "office_address1" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeAddress1() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeAddress1()
+	})
+}
+
+// ClearOfficeAddress1 clears the value of the "office_address1" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeAddress1() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeAddress1()
+	})
+}
+
+// SetOfficeAddress2 sets the "office_address2" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeAddress2(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeAddress2(v)
+	})
+}
+
+// UpdateOfficeAddress2 sets the "office_address2" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeAddress2() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeAddress2()
+	})
+}
+
+// ClearOfficeAddress2 clears the value of the "office_address2" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeAddress2() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeAddress2()
+	})
+}
+
+// SetOfficeCity sets the "office_city" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeCity(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeCity(v)
+	})
+}
+
+// UpdateOfficeCity sets the "office_city" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeCity() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeCity()
+	})
+}
+
+// ClearOfficeCity clears the value of the "office_city" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeCity() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeCity()
+	})
+}
+
+// SetOfficeStateOrProvince sets the "office_state_or_province" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeStateOrProvince(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeStateOrProvince(v)
+	})
+}
+
+// UpdateOfficeStateOrProvince sets the "office_state_or_province" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeStateOrProvince() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeStateOrProvince()
+	})
+}
+
+// ClearOfficeStateOrProvince clears the value of the "office_state_or_province" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeStateOrProvince() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeStateOrProvince()
+	})
+}
+
+// SetOfficePostalCode sets the "office_postal_code" field.
+func (u *OfficeVersionUpsertBulk) SetOfficePostalCode(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePostalCode(v)
+	})
+}
+
+// UpdateOfficePostalCode sets the "office_postal_code" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficePostalCode() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePostalCode()
+	})
+}
+
+// ClearOfficePostalCode clears the value of the "office_postal_code" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficePostalCode() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePostalCode()
+	})
+}
+
+// SetOfficePostalCodePlus4 sets the "office_postal_code_plus4" field.
+func (u *OfficeVersionUpsertBulk) SetOfficePostalCodePlus4(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficePostalCodePlus4(v)
+	})
+}
+
+// UpdateOfficePostalCodePlus4 sets the "office_postal_code_plus4" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficePostalCodePlus4() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficePostalCodePlus4()
+	})
+}
+
+// ClearOfficePostalCodePlus4 clears the value of the "office_postal_code_plus4" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficePostalCodePlus4() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficePostalCodePlus4()
+	})
+}
+
+// SetOfficeCountyOrParish sets the "office_county_or_parish" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeCountyOrParish(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeCountyOrParish(v)
+	})
+}
+
+// UpdateOfficeCountyOrParish sets the "office_county_or_parish" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeCountyOrParish() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeCountyOrParish()
+	})
+}
+
+// ClearOfficeCountyOrParish clears the value of the "office_county_or_parish" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeCountyOrParish() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeCountyOrParish()
+	})
+}
+
+// SetOfficeCorporateLicense sets the "office_corporate_license" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeCorporateLicense(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeCorporateLicense(v)
+	})
+}
+
+// UpdateOfficeCorporateLicense sets the "office_corporate_license" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeCorporateLicense() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeCorporateLicense()
+	})
+}
+
+// ClearOfficeCorporateLicense clears the value of the "office_corporate_license" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeCorporateLicense() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeCorporateLicense()
+	})
+}
+
+// SetOfficeNationalAssociationID sets the "office_national_association_id" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeNationalAssociationID(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeNationalAssociationID(v)
+	})
+}
+
+// UpdateOfficeNationalAssociationID sets the "office_national_association_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeNationalAssociationID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeNationalAssociationID()
+	})
+}
+
+// ClearOfficeNationalAssociationID clears the value of the "office_national_association_id" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeNationalAssociationID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeNationalAssociationID()
+	})
+}
+
+// SetMainOfficeKey sets the "main_office_key" field.
+func (u *OfficeVersionUpsertBulk) SetMainOfficeKey(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMainOfficeKey(v)
+	})
+}
+
+// UpdateMainOfficeKey sets the "main_office_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateMainOfficeKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMainOfficeKey()
+	})
+}
+
+// ClearMainOfficeKey clears the value of the "main_office_key" field.
+func (u *OfficeVersionUpsertBulk) ClearMainOfficeKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearMainOfficeKey()
+	})
+}
+
+// SetMainOfficeMlsID sets the "main_office_mls_id" field.
+func (u *OfficeVersionUpsertBulk) SetMainOfficeMlsID(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetMainOfficeMlsID(v)
+	})
+}
+
+// UpdateMainOfficeMlsID sets the "main_office_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateMainOfficeMlsID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateMainOfficeMlsID()
+	})
+}
+
+// ClearMainOfficeMlsID clears the value of the "main_office_mls_id" field.
+func (u *OfficeVersionUpsertBulk) ClearMainOfficeMlsID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearMainOfficeMlsID()
+	})
+}
+
+// SetOfficeBrokerKey sets the "office_broker_key" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeBrokerKey(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeBrokerKey(v)
+	})
+}
+
+// UpdateOfficeBrokerKey sets the "office_broker_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeBrokerKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeBrokerKey()
+	})
+}
+
+// ClearOfficeBrokerKey clears the value of the "office_broker_key" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeBrokerKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeBrokerKey()
+	})
+}
+
+// SetOfficeBrokerMlsID sets the "office_broker_mls_id" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeBrokerMlsID(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeBrokerMlsID(v)
+	})
+}
+
+// UpdateOfficeBrokerMlsID sets the "office_broker_mls_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeBrokerMlsID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeBrokerMlsID()
+	})
+}
+
+// ClearOfficeBrokerMlsID clears the value of the "office_broker_mls_id" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeBrokerMlsID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeBrokerMlsID()
+	})
+}
+
+// SetOfficeManagerKey sets the "office_manager_key" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeManagerKey(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeManagerKey(v)
+	})
+}
+
+// UpdateOfficeManagerKey sets the "office_manager_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeManagerKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeManagerKey()
+	})
+}
+
+// ClearOfficeManagerKey clears the value of the "office_manager_key" field.
+func (u *OfficeVersionUpsertBulk) ClearOfficeManagerKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearOfficeManagerKey()
+	})
+}
+
+// SetIdxOfficeParticipationYn sets the "idx_office_participation_yn" field.
+func (u *OfficeVersionUpsertBulk) SetIdxOfficeParticipationYn(v bool) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetIdxOfficeParticipationYn(v)
+	})
+}
+
+// UpdateIdxOfficeParticipationYn sets the "idx_office_participation_yn" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateIdxOfficeParticipationYn() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateIdxOfficeParticipationYn()
+	})
+}
+
+// ClearIdxOfficeParticipationYn clears the value of the "idx_office_participation_yn" field.
+func (u *OfficeVersionUpsertBulk) ClearIdxOfficeParticipationYn() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearIdxOfficeParticipationYn()
+	})
+}
+
+// SetPhotosChangeTimestamp sets the "photos_change_timestamp" field.
+func (u *OfficeVersionUpsertBulk) SetPhotosChangeTimestamp(v time.Time) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetPhotosChangeTimestamp(v)
+	})
+}
+
+// UpdatePhotosChangeTimestamp sets the "photos_change_timestamp" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdatePhotosChangeTimestamp() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdatePhotosChangeTimestamp()
+	})
+}
+
+// ClearPhotosChangeTimestamp clears the value of the "photos_change_timestamp" field.
+func (u *OfficeVersionUpsertBulk) ClearPhotosChangeTimestamp() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearPhotosChangeTimestamp()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *OfficeVersionUpsertBulk) SetExtendedFields(v map[string]interface{}) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateExtendedFields() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *OfficeVersionUpsertBulk) ClearExtendedFields() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetOfficeKey sets the "office_key" field.
+func (u *OfficeVersionUpsertBulk) SetOfficeKey(v string) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetOfficeKey(v)
+	})
+}
+
+// UpdateOfficeKey sets the "office_key" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateOfficeKey() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateOfficeKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OfficeVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateSyncEventID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OfficeVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateRawOutputID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OfficeVersionUpsertBulk) ClearRawOutputID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *OfficeVersionUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the OfficeVersionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OfficeVersionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OfficeVersionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

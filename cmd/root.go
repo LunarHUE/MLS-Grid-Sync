@@ -118,7 +118,8 @@ func setupComponents(ctx context.Context) (*components, error) {
 		processor.NewMediaProcessor(),
 		processor.NewPropertyRoomProcessor(),
 		processor.NewPropertyUnitTypeProcessor(),
-	)
+	).WithCommitBatchSize(appConfig.Processor.CommitBatchSize).
+		WithBulk(appConfig.Processor.Bulk)
 
 	storer, err := newStorer(appConfig.Storage)
 	if err != nil {

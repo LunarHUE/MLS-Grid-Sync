@@ -73,6 +73,62 @@ sampling rate down — see `runtime.SetBlockProfileRate` in
 
 ## Throughput investigation runbook
 
+### Implemented remedies (2026-06)
+
+A pass with this runbook (clean `reprocess Property --all` capture) shipped
+three changes. Re-measure on the deployment target before extending further.
+
+- **R0 — kill the double JSON round-trip.** `raw_output.payload` is now stored
+  as `json.RawMessage` (`ent/schema/raw-output.go`), so the processor parses the
+  bytes directly instead of ent decoding JSONB → `map[string]any` and every
+  `Process` re-marshalling it back. Eliminated the per-record `encoding/json.Marshal`
+  and ~halved GC (≈26% → ≈14% of CPU). Guarded by
+  `TestRawOutputPayload_IsRawBytes` + `TestPayload_NotReMarshalled`.
+- **R1 — narrow the entity lookup.** Each processor's current-entity lookup now
+  `Select`s only the columns the control flow needs (`mlg_can_view`, plus
+  `parent_listing_key` for OpenHouse; Lookup uses `Exist`) instead of scanning
+  the full wide row (34 `text[]` arrays + JSONB). The version-row lookup stays
+  full — the reflection diff needs it. Wall-clock ≈ **+23%** on its own.
+- **R2 — batched commits.** The loop commits `commit_batch_size` records per
+  transaction (default 100; `processor.commit_batch_size` /
+  `--commit-batch-size`), writing the cursor once per batch in the same tx (so
+  relaxed durability stays safe). A batch error replays that batch
+  one-record-per-tx so the exact poison record is still named.
+
+Measured on the dev DB (`reprocess Property --all`, all skip-no-diff):
+382/s baseline → ~490/s after R0+R1 → **662/s at batch=50, 673/s at batch=200**
+(diminishing past ~50). A `synchronous_commit=off` A/B moved the rate within
+noise (≈460–490/s at batch=1, on vs off), confirming **round-trips, not
+commit-fsync, dominate** — so the relaxed-durability remedy below was
+deliberately *not* taken; batching addresses the actual bottleneck. Re-measure
+on the production-shaped DB before drawing further conclusions.
+
+- **R3 — pipelined `init` (fetch ‖ process).** R0–R2 tune per-record processing,
+  but for a full `init` the wall-clock is `fetch + process`, and *fetch* (the
+  rate-limited, serial MLS page walk) dominates. `init` now overlaps the two:
+  pagination (producer) writes `raw_output` and wakes a processor consumer that
+  drains it concurrently, collapsing the wall-clock toward `max(fetch, process)`
+  — the processing (and the R0–R2 wins) effectively hide under the network wait.
+  Processing stays single-threaded and in id-order, so the cursor watermark and
+  replayability are unchanged; the producer takes no advisory lock and the
+  consumer takes the per-resource one, so they never contend. Default-on;
+  `init --no-pipeline` (or `processor.init_pipeline: false`) restores the
+  sequential fetch-then-process path. The streaming consumer drains *without*
+  the AfterPass child-relink (which would be quadratic per page); one final pass
+  relinks and logs the per-resource summary. During the drain it emits a
+  `processor[<r>]: N processed ...` heartbeat every batch (DefaultBatchSize
+  rows) — fired mid-drain, not only when the buffer empties, so a heavy resource
+  (e.g. Property, which drains slower than pages arrive and so never catches up
+  to the producer until fetch completes) still shows steady progress instead of
+  going silent. Because the fetch producer and the processor consumer log
+  concurrently, both route their log calls through `internal/applog` (a shared
+  mutex) — `libs-go/log` appends to a process-global buffer without
+  synchronizing that append, so two goroutines logging at once is otherwise a
+  data race (caught by `go test -race`). Implemented in `sync/resource.go`
+  (`fetchProcessAndEnqueuePipelined`) + `processor.RunPassNoFinalize`. Note: this
+  overlap is an `init` wall-clock win, not a per-record throughput win — the
+  `(X/s)` line still measures the latter.
+
 ### Hypothesis to test first
 
 When throughput is flat across resources of very different per-record
@@ -231,11 +287,16 @@ step's job is to confirm the negative.
 
 ## Where the rate metric comes from
 
-`sync/processor/processor.go:251-252` — the `pass complete` log line.
-It's the single number every step of this runbook compares against, so
+`sync/processor/processor.go` `logPassComplete` — the `pass complete` log
+line. It's the single number every step of this runbook compares against, so
 any change that affects its denominator (e.g. retrying records,
 double-counting) would invalidate the A/B. If you change that math,
 update this runbook too.
+
+> **Note on batched commits (R2, below):** the batched path only folds a
+> record into `PassStats` *after* its transaction commits — a rolled-back
+> chunk that re-runs one-record-per-tx in the poison fallback does not
+> double-count. The denominator stays honest.
 
 ---
 

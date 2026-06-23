@@ -81,6 +81,27 @@ type S3StorageConfig struct {
 	UsePathStyle    bool   `mapstructure:"use_path_style" yaml:"use_path_style"`
 }
 
+// ProcessorConfig tunes the raw → typed processor pass. CommitBatchSize is
+// the number of raw_output records committed per transaction (distinct from
+// the fetch batch). Larger batches amortize the per-record COMMIT/fsync and
+// cursor write that otherwise dominate wall-clock on the I/O-bound pass (see
+// docs/profiling.md). On a batch error the loop falls back to one record per
+// transaction so the exact poison record is still pinpointed. <=1 restores the
+// historical one-record-per-tx behavior.
+type ProcessorConfig struct {
+	CommitBatchSize int `mapstructure:"commit_batch_size" yaml:"commit_batch_size"`
+	// InitPipeline overlaps page-fetching with the typed processor during
+	// `init` (producer/consumer) so the two I/O-bound phases run concurrently.
+	// Defaults to true (set in default.config.yaml); `init --no-pipeline`
+	// forces the sequential fetch-then-process path.
+	InitPipeline bool `mapstructure:"init_pipeline" yaml:"init_pipeline"`
+	// Bulk projects a commit-chunk with batched SQL (one bulk read + a handful
+	// of bulk writes) instead of per-record round-trips, for processors that
+	// support it (Property today). Defaults to true; disabling forces the proven
+	// per-record path (the operator kill-switch). See docs/profiling.md R4.
+	Bulk bool `mapstructure:"bulk" yaml:"bulk"`
+}
+
 // ServerConfig configures the GraphQL HTTP server started by the
 // `serve` subcommand. Addr is a net/http listen address (":8080",
 // "127.0.0.1:9000"); override via MLS_SYNC_SERVER_ADDR or --addr.
@@ -97,6 +118,7 @@ type Config struct {
 	Profiling ProfilingConfig `mapstructure:"profiling" yaml:"profiling"`
 	Storage   StorageConfig   `mapstructure:"storage" yaml:"storage"`
 	Server    ServerConfig    `mapstructure:"server" yaml:"server"`
+	Processor ProcessorConfig `mapstructure:"processor" yaml:"processor"`
 }
 
 func Load() (*Config, error) {

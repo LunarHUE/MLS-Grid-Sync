@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
@@ -21,6 +23,7 @@ type PropertyVersionCreate struct {
 	config
 	mutation *PropertyVersionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetValidFrom sets the "valid_from" field.
@@ -1659,6 +1662,7 @@ func (_c *PropertyVersionCreate) createSpec() (*PropertyVersion, *sqlgraph.Creat
 		_node = &PropertyVersion{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(propertyversion.Table, sqlgraph.NewFieldSpec(propertyversion.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -2198,11 +2202,5386 @@ func (_c *PropertyVersionCreate) createSpec() (*PropertyVersion, *sqlgraph.Creat
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PropertyVersion.Create().
+//		SetValidFrom(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PropertyVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PropertyVersionCreate) OnConflict(opts ...sql.ConflictOption) *PropertyVersionUpsertOne {
+	_c.conflict = opts
+	return &PropertyVersionUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PropertyVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PropertyVersionCreate) OnConflictColumns(columns ...string) *PropertyVersionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PropertyVersionUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// PropertyVersionUpsertOne is the builder for "upsert"-ing
+	//  one PropertyVersion node.
+	PropertyVersionUpsertOne struct {
+		create *PropertyVersionCreate
+	}
+
+	// PropertyVersionUpsert is the "OnConflict" setter.
+	PropertyVersionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetValidFrom sets the "valid_from" field.
+func (u *PropertyVersionUpsert) SetValidFrom(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldValidFrom, v)
+	return u
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateValidFrom() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldValidFrom)
+	return u
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *PropertyVersionUpsert) SetValidTo(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldValidTo, v)
+	return u
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateValidTo() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldValidTo)
+	return u
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *PropertyVersionUpsert) ClearValidTo() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldValidTo)
+	return u
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *PropertyVersionUpsert) SetChangeType(v propertyversion.ChangeType) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldChangeType, v)
+	return u
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateChangeType() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldChangeType)
+	return u
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *PropertyVersionUpsert) SetChangedFields(v map[string]interface{}) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldChangedFields, v)
+	return u
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateChangedFields() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldChangedFields)
+	return u
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *PropertyVersionUpsert) ClearChangedFields() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldChangedFields)
+	return u
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *PropertyVersionUpsert) SetProcessorVersion(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldProcessorVersion, v)
+	return u
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateProcessorVersion() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyVersionUpsert) SetSourceModifiedAt(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSourceModifiedAt() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyVersionUpsert) SetOriginatingSystemName(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateOriginatingSystemName() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyVersionUpsert) ClearOriginatingSystemName() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyVersionUpsert) SetMlgCanView(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMlgCanView() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyVersionUpsert) SetMlgCanUse(v []string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMlgCanUse() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyVersionUpsert) ClearMlgCanUse() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMlgCanUse)
+	return u
+}
+
+// SetListingID sets the "listing_id" field.
+func (u *PropertyVersionUpsert) SetListingID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListingID, v)
+	return u
+}
+
+// UpdateListingID sets the "listing_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListingID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListingID)
+	return u
+}
+
+// ClearListingID clears the value of the "listing_id" field.
+func (u *PropertyVersionUpsert) ClearListingID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListingID)
+	return u
+}
+
+// SetParcelNumber sets the "parcel_number" field.
+func (u *PropertyVersionUpsert) SetParcelNumber(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldParcelNumber, v)
+	return u
+}
+
+// UpdateParcelNumber sets the "parcel_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateParcelNumber() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldParcelNumber)
+	return u
+}
+
+// ClearParcelNumber clears the value of the "parcel_number" field.
+func (u *PropertyVersionUpsert) ClearParcelNumber() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldParcelNumber)
+	return u
+}
+
+// SetMlsStatus sets the "mls_status" field.
+func (u *PropertyVersionUpsert) SetMlsStatus(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMlsStatus, v)
+	return u
+}
+
+// UpdateMlsStatus sets the "mls_status" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMlsStatus() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMlsStatus)
+	return u
+}
+
+// ClearMlsStatus clears the value of the "mls_status" field.
+func (u *PropertyVersionUpsert) ClearMlsStatus() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMlsStatus)
+	return u
+}
+
+// SetStandardStatus sets the "standard_status" field.
+func (u *PropertyVersionUpsert) SetStandardStatus(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStandardStatus, v)
+	return u
+}
+
+// UpdateStandardStatus sets the "standard_status" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStandardStatus() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStandardStatus)
+	return u
+}
+
+// ClearStandardStatus clears the value of the "standard_status" field.
+func (u *PropertyVersionUpsert) ClearStandardStatus() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStandardStatus)
+	return u
+}
+
+// SetMajorChangeType sets the "major_change_type" field.
+func (u *PropertyVersionUpsert) SetMajorChangeType(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMajorChangeType, v)
+	return u
+}
+
+// UpdateMajorChangeType sets the "major_change_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMajorChangeType() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMajorChangeType)
+	return u
+}
+
+// ClearMajorChangeType clears the value of the "major_change_type" field.
+func (u *PropertyVersionUpsert) ClearMajorChangeType() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMajorChangeType)
+	return u
+}
+
+// SetMajorChangeTimestamp sets the "major_change_timestamp" field.
+func (u *PropertyVersionUpsert) SetMajorChangeTimestamp(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMajorChangeTimestamp, v)
+	return u
+}
+
+// UpdateMajorChangeTimestamp sets the "major_change_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMajorChangeTimestamp() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMajorChangeTimestamp)
+	return u
+}
+
+// ClearMajorChangeTimestamp clears the value of the "major_change_timestamp" field.
+func (u *PropertyVersionUpsert) ClearMajorChangeTimestamp() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMajorChangeTimestamp)
+	return u
+}
+
+// SetListingContractDate sets the "listing_contract_date" field.
+func (u *PropertyVersionUpsert) SetListingContractDate(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListingContractDate, v)
+	return u
+}
+
+// UpdateListingContractDate sets the "listing_contract_date" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListingContractDate() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListingContractDate)
+	return u
+}
+
+// ClearListingContractDate clears the value of the "listing_contract_date" field.
+func (u *PropertyVersionUpsert) ClearListingContractDate() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListingContractDate)
+	return u
+}
+
+// SetOnMarketTimestamp sets the "on_market_timestamp" field.
+func (u *PropertyVersionUpsert) SetOnMarketTimestamp(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldOnMarketTimestamp, v)
+	return u
+}
+
+// UpdateOnMarketTimestamp sets the "on_market_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateOnMarketTimestamp() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldOnMarketTimestamp)
+	return u
+}
+
+// ClearOnMarketTimestamp clears the value of the "on_market_timestamp" field.
+func (u *PropertyVersionUpsert) ClearOnMarketTimestamp() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldOnMarketTimestamp)
+	return u
+}
+
+// SetOriginalEntryTimestamp sets the "original_entry_timestamp" field.
+func (u *PropertyVersionUpsert) SetOriginalEntryTimestamp(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldOriginalEntryTimestamp, v)
+	return u
+}
+
+// UpdateOriginalEntryTimestamp sets the "original_entry_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateOriginalEntryTimestamp() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldOriginalEntryTimestamp)
+	return u
+}
+
+// ClearOriginalEntryTimestamp clears the value of the "original_entry_timestamp" field.
+func (u *PropertyVersionUpsert) ClearOriginalEntryTimestamp() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldOriginalEntryTimestamp)
+	return u
+}
+
+// SetPhotosChangeTimestamp sets the "photos_change_timestamp" field.
+func (u *PropertyVersionUpsert) SetPhotosChangeTimestamp(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPhotosChangeTimestamp, v)
+	return u
+}
+
+// UpdatePhotosChangeTimestamp sets the "photos_change_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePhotosChangeTimestamp() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPhotosChangeTimestamp)
+	return u
+}
+
+// ClearPhotosChangeTimestamp clears the value of the "photos_change_timestamp" field.
+func (u *PropertyVersionUpsert) ClearPhotosChangeTimestamp() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPhotosChangeTimestamp)
+	return u
+}
+
+// SetAvailabilityDate sets the "availability_date" field.
+func (u *PropertyVersionUpsert) SetAvailabilityDate(v time.Time) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldAvailabilityDate, v)
+	return u
+}
+
+// UpdateAvailabilityDate sets the "availability_date" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateAvailabilityDate() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldAvailabilityDate)
+	return u
+}
+
+// ClearAvailabilityDate clears the value of the "availability_date" field.
+func (u *PropertyVersionUpsert) ClearAvailabilityDate() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldAvailabilityDate)
+	return u
+}
+
+// SetListPrice sets the "list_price" field.
+func (u *PropertyVersionUpsert) SetListPrice(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListPrice, v)
+	return u
+}
+
+// UpdateListPrice sets the "list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListPrice() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListPrice)
+	return u
+}
+
+// ClearListPrice clears the value of the "list_price" field.
+func (u *PropertyVersionUpsert) ClearListPrice() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListPrice)
+	return u
+}
+
+// SetOriginalListPrice sets the "original_list_price" field.
+func (u *PropertyVersionUpsert) SetOriginalListPrice(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldOriginalListPrice, v)
+	return u
+}
+
+// UpdateOriginalListPrice sets the "original_list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateOriginalListPrice() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldOriginalListPrice)
+	return u
+}
+
+// ClearOriginalListPrice clears the value of the "original_list_price" field.
+func (u *PropertyVersionUpsert) ClearOriginalListPrice() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldOriginalListPrice)
+	return u
+}
+
+// SetPreviousListPrice sets the "previous_list_price" field.
+func (u *PropertyVersionUpsert) SetPreviousListPrice(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPreviousListPrice, v)
+	return u
+}
+
+// UpdatePreviousListPrice sets the "previous_list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePreviousListPrice() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPreviousListPrice)
+	return u
+}
+
+// ClearPreviousListPrice clears the value of the "previous_list_price" field.
+func (u *PropertyVersionUpsert) ClearPreviousListPrice() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPreviousListPrice)
+	return u
+}
+
+// SetTaxAnnualAmount sets the "tax_annual_amount" field.
+func (u *PropertyVersionUpsert) SetTaxAnnualAmount(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldTaxAnnualAmount, v)
+	return u
+}
+
+// UpdateTaxAnnualAmount sets the "tax_annual_amount" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateTaxAnnualAmount() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldTaxAnnualAmount)
+	return u
+}
+
+// ClearTaxAnnualAmount clears the value of the "tax_annual_amount" field.
+func (u *PropertyVersionUpsert) ClearTaxAnnualAmount() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldTaxAnnualAmount)
+	return u
+}
+
+// SetTaxAssessedValue sets the "tax_assessed_value" field.
+func (u *PropertyVersionUpsert) SetTaxAssessedValue(v int64) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldTaxAssessedValue, v)
+	return u
+}
+
+// UpdateTaxAssessedValue sets the "tax_assessed_value" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateTaxAssessedValue() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldTaxAssessedValue)
+	return u
+}
+
+// AddTaxAssessedValue adds v to the "tax_assessed_value" field.
+func (u *PropertyVersionUpsert) AddTaxAssessedValue(v int64) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldTaxAssessedValue, v)
+	return u
+}
+
+// ClearTaxAssessedValue clears the value of the "tax_assessed_value" field.
+func (u *PropertyVersionUpsert) ClearTaxAssessedValue() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldTaxAssessedValue)
+	return u
+}
+
+// SetTaxYear sets the "tax_year" field.
+func (u *PropertyVersionUpsert) SetTaxYear(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldTaxYear, v)
+	return u
+}
+
+// UpdateTaxYear sets the "tax_year" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateTaxYear() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldTaxYear)
+	return u
+}
+
+// AddTaxYear adds v to the "tax_year" field.
+func (u *PropertyVersionUpsert) AddTaxYear(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldTaxYear, v)
+	return u
+}
+
+// ClearTaxYear clears the value of the "tax_year" field.
+func (u *PropertyVersionUpsert) ClearTaxYear() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldTaxYear)
+	return u
+}
+
+// SetPropertyType sets the "property_type" field.
+func (u *PropertyVersionUpsert) SetPropertyType(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPropertyType, v)
+	return u
+}
+
+// UpdatePropertyType sets the "property_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePropertyType() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPropertyType)
+	return u
+}
+
+// ClearPropertyType clears the value of the "property_type" field.
+func (u *PropertyVersionUpsert) ClearPropertyType() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPropertyType)
+	return u
+}
+
+// SetPropertySubType sets the "property_sub_type" field.
+func (u *PropertyVersionUpsert) SetPropertySubType(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPropertySubType, v)
+	return u
+}
+
+// UpdatePropertySubType sets the "property_sub_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePropertySubType() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPropertySubType)
+	return u
+}
+
+// ClearPropertySubType clears the value of the "property_sub_type" field.
+func (u *PropertyVersionUpsert) ClearPropertySubType() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPropertySubType)
+	return u
+}
+
+// SetNewConstructionYn sets the "new_construction_yn" field.
+func (u *PropertyVersionUpsert) SetNewConstructionYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldNewConstructionYn, v)
+	return u
+}
+
+// UpdateNewConstructionYn sets the "new_construction_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateNewConstructionYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldNewConstructionYn)
+	return u
+}
+
+// ClearNewConstructionYn clears the value of the "new_construction_yn" field.
+func (u *PropertyVersionUpsert) ClearNewConstructionYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldNewConstructionYn)
+	return u
+}
+
+// SetBedroomsTotal sets the "bedrooms_total" field.
+func (u *PropertyVersionUpsert) SetBedroomsTotal(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBedroomsTotal, v)
+	return u
+}
+
+// UpdateBedroomsTotal sets the "bedrooms_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBedroomsTotal() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBedroomsTotal)
+	return u
+}
+
+// AddBedroomsTotal adds v to the "bedrooms_total" field.
+func (u *PropertyVersionUpsert) AddBedroomsTotal(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldBedroomsTotal, v)
+	return u
+}
+
+// ClearBedroomsTotal clears the value of the "bedrooms_total" field.
+func (u *PropertyVersionUpsert) ClearBedroomsTotal() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBedroomsTotal)
+	return u
+}
+
+// SetBathroomsTotalInteger sets the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsert) SetBathroomsTotalInteger(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBathroomsTotalInteger, v)
+	return u
+}
+
+// UpdateBathroomsTotalInteger sets the "bathrooms_total_integer" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBathroomsTotalInteger() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBathroomsTotalInteger)
+	return u
+}
+
+// AddBathroomsTotalInteger adds v to the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsert) AddBathroomsTotalInteger(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldBathroomsTotalInteger, v)
+	return u
+}
+
+// ClearBathroomsTotalInteger clears the value of the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsert) ClearBathroomsTotalInteger() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBathroomsTotalInteger)
+	return u
+}
+
+// SetBathroomsFull sets the "bathrooms_full" field.
+func (u *PropertyVersionUpsert) SetBathroomsFull(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBathroomsFull, v)
+	return u
+}
+
+// UpdateBathroomsFull sets the "bathrooms_full" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBathroomsFull() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBathroomsFull)
+	return u
+}
+
+// AddBathroomsFull adds v to the "bathrooms_full" field.
+func (u *PropertyVersionUpsert) AddBathroomsFull(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldBathroomsFull, v)
+	return u
+}
+
+// ClearBathroomsFull clears the value of the "bathrooms_full" field.
+func (u *PropertyVersionUpsert) ClearBathroomsFull() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBathroomsFull)
+	return u
+}
+
+// SetBathroomsHalf sets the "bathrooms_half" field.
+func (u *PropertyVersionUpsert) SetBathroomsHalf(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBathroomsHalf, v)
+	return u
+}
+
+// UpdateBathroomsHalf sets the "bathrooms_half" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBathroomsHalf() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBathroomsHalf)
+	return u
+}
+
+// AddBathroomsHalf adds v to the "bathrooms_half" field.
+func (u *PropertyVersionUpsert) AddBathroomsHalf(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldBathroomsHalf, v)
+	return u
+}
+
+// ClearBathroomsHalf clears the value of the "bathrooms_half" field.
+func (u *PropertyVersionUpsert) ClearBathroomsHalf() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBathroomsHalf)
+	return u
+}
+
+// SetMainLevelBedrooms sets the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsert) SetMainLevelBedrooms(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMainLevelBedrooms, v)
+	return u
+}
+
+// UpdateMainLevelBedrooms sets the "main_level_bedrooms" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMainLevelBedrooms() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMainLevelBedrooms)
+	return u
+}
+
+// AddMainLevelBedrooms adds v to the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsert) AddMainLevelBedrooms(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldMainLevelBedrooms, v)
+	return u
+}
+
+// ClearMainLevelBedrooms clears the value of the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsert) ClearMainLevelBedrooms() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMainLevelBedrooms)
+	return u
+}
+
+// SetLivingArea sets the "living_area" field.
+func (u *PropertyVersionUpsert) SetLivingArea(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLivingArea, v)
+	return u
+}
+
+// UpdateLivingArea sets the "living_area" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLivingArea() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLivingArea)
+	return u
+}
+
+// ClearLivingArea clears the value of the "living_area" field.
+func (u *PropertyVersionUpsert) ClearLivingArea() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLivingArea)
+	return u
+}
+
+// SetBuildingAreaTotal sets the "building_area_total" field.
+func (u *PropertyVersionUpsert) SetBuildingAreaTotal(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBuildingAreaTotal, v)
+	return u
+}
+
+// UpdateBuildingAreaTotal sets the "building_area_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBuildingAreaTotal() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBuildingAreaTotal)
+	return u
+}
+
+// ClearBuildingAreaTotal clears the value of the "building_area_total" field.
+func (u *PropertyVersionUpsert) ClearBuildingAreaTotal() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBuildingAreaTotal)
+	return u
+}
+
+// SetLotSizeAcres sets the "lot_size_acres" field.
+func (u *PropertyVersionUpsert) SetLotSizeAcres(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLotSizeAcres, v)
+	return u
+}
+
+// UpdateLotSizeAcres sets the "lot_size_acres" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLotSizeAcres() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLotSizeAcres)
+	return u
+}
+
+// ClearLotSizeAcres clears the value of the "lot_size_acres" field.
+func (u *PropertyVersionUpsert) ClearLotSizeAcres() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLotSizeAcres)
+	return u
+}
+
+// SetLotSizeSquareFeet sets the "lot_size_square_feet" field.
+func (u *PropertyVersionUpsert) SetLotSizeSquareFeet(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLotSizeSquareFeet, v)
+	return u
+}
+
+// UpdateLotSizeSquareFeet sets the "lot_size_square_feet" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLotSizeSquareFeet() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLotSizeSquareFeet)
+	return u
+}
+
+// ClearLotSizeSquareFeet clears the value of the "lot_size_square_feet" field.
+func (u *PropertyVersionUpsert) ClearLotSizeSquareFeet() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLotSizeSquareFeet)
+	return u
+}
+
+// SetStoriesTotal sets the "stories_total" field.
+func (u *PropertyVersionUpsert) SetStoriesTotal(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStoriesTotal, v)
+	return u
+}
+
+// UpdateStoriesTotal sets the "stories_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStoriesTotal() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStoriesTotal)
+	return u
+}
+
+// AddStoriesTotal adds v to the "stories_total" field.
+func (u *PropertyVersionUpsert) AddStoriesTotal(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldStoriesTotal, v)
+	return u
+}
+
+// ClearStoriesTotal clears the value of the "stories_total" field.
+func (u *PropertyVersionUpsert) ClearStoriesTotal() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStoriesTotal)
+	return u
+}
+
+// SetYearBuilt sets the "year_built" field.
+func (u *PropertyVersionUpsert) SetYearBuilt(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldYearBuilt, v)
+	return u
+}
+
+// UpdateYearBuilt sets the "year_built" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateYearBuilt() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldYearBuilt)
+	return u
+}
+
+// AddYearBuilt adds v to the "year_built" field.
+func (u *PropertyVersionUpsert) AddYearBuilt(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldYearBuilt, v)
+	return u
+}
+
+// ClearYearBuilt clears the value of the "year_built" field.
+func (u *PropertyVersionUpsert) ClearYearBuilt() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldYearBuilt)
+	return u
+}
+
+// SetGarageSpaces sets the "garage_spaces" field.
+func (u *PropertyVersionUpsert) SetGarageSpaces(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldGarageSpaces, v)
+	return u
+}
+
+// UpdateGarageSpaces sets the "garage_spaces" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateGarageSpaces() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldGarageSpaces)
+	return u
+}
+
+// ClearGarageSpaces clears the value of the "garage_spaces" field.
+func (u *PropertyVersionUpsert) ClearGarageSpaces() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldGarageSpaces)
+	return u
+}
+
+// SetCoveredSpaces sets the "covered_spaces" field.
+func (u *PropertyVersionUpsert) SetCoveredSpaces(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoveredSpaces, v)
+	return u
+}
+
+// UpdateCoveredSpaces sets the "covered_spaces" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoveredSpaces() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoveredSpaces)
+	return u
+}
+
+// ClearCoveredSpaces clears the value of the "covered_spaces" field.
+func (u *PropertyVersionUpsert) ClearCoveredSpaces() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoveredSpaces)
+	return u
+}
+
+// SetParkingTotal sets the "parking_total" field.
+func (u *PropertyVersionUpsert) SetParkingTotal(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldParkingTotal, v)
+	return u
+}
+
+// UpdateParkingTotal sets the "parking_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateParkingTotal() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldParkingTotal)
+	return u
+}
+
+// ClearParkingTotal clears the value of the "parking_total" field.
+func (u *PropertyVersionUpsert) ClearParkingTotal() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldParkingTotal)
+	return u
+}
+
+// SetFireplacesTotal sets the "fireplaces_total" field.
+func (u *PropertyVersionUpsert) SetFireplacesTotal(v int16) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldFireplacesTotal, v)
+	return u
+}
+
+// UpdateFireplacesTotal sets the "fireplaces_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateFireplacesTotal() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldFireplacesTotal)
+	return u
+}
+
+// AddFireplacesTotal adds v to the "fireplaces_total" field.
+func (u *PropertyVersionUpsert) AddFireplacesTotal(v int16) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldFireplacesTotal, v)
+	return u
+}
+
+// ClearFireplacesTotal clears the value of the "fireplaces_total" field.
+func (u *PropertyVersionUpsert) ClearFireplacesTotal() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldFireplacesTotal)
+	return u
+}
+
+// SetPoolPrivateYn sets the "pool_private_yn" field.
+func (u *PropertyVersionUpsert) SetPoolPrivateYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPoolPrivateYn, v)
+	return u
+}
+
+// UpdatePoolPrivateYn sets the "pool_private_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePoolPrivateYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPoolPrivateYn)
+	return u
+}
+
+// ClearPoolPrivateYn clears the value of the "pool_private_yn" field.
+func (u *PropertyVersionUpsert) ClearPoolPrivateYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPoolPrivateYn)
+	return u
+}
+
+// SetWaterfrontYn sets the "waterfront_yn" field.
+func (u *PropertyVersionUpsert) SetWaterfrontYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldWaterfrontYn, v)
+	return u
+}
+
+// UpdateWaterfrontYn sets the "waterfront_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateWaterfrontYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldWaterfrontYn)
+	return u
+}
+
+// ClearWaterfrontYn clears the value of the "waterfront_yn" field.
+func (u *PropertyVersionUpsert) ClearWaterfrontYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldWaterfrontYn)
+	return u
+}
+
+// SetViewYn sets the "view_yn" field.
+func (u *PropertyVersionUpsert) SetViewYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldViewYn, v)
+	return u
+}
+
+// UpdateViewYn sets the "view_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateViewYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldViewYn)
+	return u
+}
+
+// ClearViewYn clears the value of the "view_yn" field.
+func (u *PropertyVersionUpsert) ClearViewYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldViewYn)
+	return u
+}
+
+// SetHorseYn sets the "horse_yn" field.
+func (u *PropertyVersionUpsert) SetHorseYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldHorseYn, v)
+	return u
+}
+
+// UpdateHorseYn sets the "horse_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateHorseYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldHorseYn)
+	return u
+}
+
+// ClearHorseYn clears the value of the "horse_yn" field.
+func (u *PropertyVersionUpsert) ClearHorseYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldHorseYn)
+	return u
+}
+
+// SetStreetNumber sets the "street_number" field.
+func (u *PropertyVersionUpsert) SetStreetNumber(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStreetNumber, v)
+	return u
+}
+
+// UpdateStreetNumber sets the "street_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStreetNumber() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStreetNumber)
+	return u
+}
+
+// ClearStreetNumber clears the value of the "street_number" field.
+func (u *PropertyVersionUpsert) ClearStreetNumber() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStreetNumber)
+	return u
+}
+
+// SetStreetNumberNumeric sets the "street_number_numeric" field.
+func (u *PropertyVersionUpsert) SetStreetNumberNumeric(v int32) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStreetNumberNumeric, v)
+	return u
+}
+
+// UpdateStreetNumberNumeric sets the "street_number_numeric" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStreetNumberNumeric() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStreetNumberNumeric)
+	return u
+}
+
+// AddStreetNumberNumeric adds v to the "street_number_numeric" field.
+func (u *PropertyVersionUpsert) AddStreetNumberNumeric(v int32) *PropertyVersionUpsert {
+	u.Add(propertyversion.FieldStreetNumberNumeric, v)
+	return u
+}
+
+// ClearStreetNumberNumeric clears the value of the "street_number_numeric" field.
+func (u *PropertyVersionUpsert) ClearStreetNumberNumeric() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStreetNumberNumeric)
+	return u
+}
+
+// SetStreetName sets the "street_name" field.
+func (u *PropertyVersionUpsert) SetStreetName(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStreetName, v)
+	return u
+}
+
+// UpdateStreetName sets the "street_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStreetName() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStreetName)
+	return u
+}
+
+// ClearStreetName clears the value of the "street_name" field.
+func (u *PropertyVersionUpsert) ClearStreetName() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStreetName)
+	return u
+}
+
+// SetStreetSuffix sets the "street_suffix" field.
+func (u *PropertyVersionUpsert) SetStreetSuffix(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStreetSuffix, v)
+	return u
+}
+
+// UpdateStreetSuffix sets the "street_suffix" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStreetSuffix() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStreetSuffix)
+	return u
+}
+
+// ClearStreetSuffix clears the value of the "street_suffix" field.
+func (u *PropertyVersionUpsert) ClearStreetSuffix() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStreetSuffix)
+	return u
+}
+
+// SetStreetDirPrefix sets the "street_dir_prefix" field.
+func (u *PropertyVersionUpsert) SetStreetDirPrefix(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStreetDirPrefix, v)
+	return u
+}
+
+// UpdateStreetDirPrefix sets the "street_dir_prefix" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStreetDirPrefix() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStreetDirPrefix)
+	return u
+}
+
+// ClearStreetDirPrefix clears the value of the "street_dir_prefix" field.
+func (u *PropertyVersionUpsert) ClearStreetDirPrefix() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStreetDirPrefix)
+	return u
+}
+
+// SetStreetDirSuffix sets the "street_dir_suffix" field.
+func (u *PropertyVersionUpsert) SetStreetDirSuffix(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStreetDirSuffix, v)
+	return u
+}
+
+// UpdateStreetDirSuffix sets the "street_dir_suffix" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStreetDirSuffix() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStreetDirSuffix)
+	return u
+}
+
+// ClearStreetDirSuffix clears the value of the "street_dir_suffix" field.
+func (u *PropertyVersionUpsert) ClearStreetDirSuffix() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStreetDirSuffix)
+	return u
+}
+
+// SetUnitNumber sets the "unit_number" field.
+func (u *PropertyVersionUpsert) SetUnitNumber(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldUnitNumber, v)
+	return u
+}
+
+// UpdateUnitNumber sets the "unit_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateUnitNumber() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldUnitNumber)
+	return u
+}
+
+// ClearUnitNumber clears the value of the "unit_number" field.
+func (u *PropertyVersionUpsert) ClearUnitNumber() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldUnitNumber)
+	return u
+}
+
+// SetUnparsedAddress sets the "unparsed_address" field.
+func (u *PropertyVersionUpsert) SetUnparsedAddress(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldUnparsedAddress, v)
+	return u
+}
+
+// UpdateUnparsedAddress sets the "unparsed_address" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateUnparsedAddress() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldUnparsedAddress)
+	return u
+}
+
+// ClearUnparsedAddress clears the value of the "unparsed_address" field.
+func (u *PropertyVersionUpsert) ClearUnparsedAddress() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldUnparsedAddress)
+	return u
+}
+
+// SetCity sets the "city" field.
+func (u *PropertyVersionUpsert) SetCity(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCity, v)
+	return u
+}
+
+// UpdateCity sets the "city" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCity() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCity)
+	return u
+}
+
+// ClearCity clears the value of the "city" field.
+func (u *PropertyVersionUpsert) ClearCity() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCity)
+	return u
+}
+
+// SetStateOrProvince sets the "state_or_province" field.
+func (u *PropertyVersionUpsert) SetStateOrProvince(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldStateOrProvince, v)
+	return u
+}
+
+// UpdateStateOrProvince sets the "state_or_province" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateStateOrProvince() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldStateOrProvince)
+	return u
+}
+
+// ClearStateOrProvince clears the value of the "state_or_province" field.
+func (u *PropertyVersionUpsert) ClearStateOrProvince() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldStateOrProvince)
+	return u
+}
+
+// SetPostalCode sets the "postal_code" field.
+func (u *PropertyVersionUpsert) SetPostalCode(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPostalCode, v)
+	return u
+}
+
+// UpdatePostalCode sets the "postal_code" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePostalCode() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPostalCode)
+	return u
+}
+
+// ClearPostalCode clears the value of the "postal_code" field.
+func (u *PropertyVersionUpsert) ClearPostalCode() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPostalCode)
+	return u
+}
+
+// SetPostalCodePlus4 sets the "postal_code_plus4" field.
+func (u *PropertyVersionUpsert) SetPostalCodePlus4(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPostalCodePlus4, v)
+	return u
+}
+
+// UpdatePostalCodePlus4 sets the "postal_code_plus4" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePostalCodePlus4() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPostalCodePlus4)
+	return u
+}
+
+// ClearPostalCodePlus4 clears the value of the "postal_code_plus4" field.
+func (u *PropertyVersionUpsert) ClearPostalCodePlus4() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPostalCodePlus4)
+	return u
+}
+
+// SetCountry sets the "country" field.
+func (u *PropertyVersionUpsert) SetCountry(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCountry, v)
+	return u
+}
+
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCountry() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCountry)
+	return u
+}
+
+// ClearCountry clears the value of the "country" field.
+func (u *PropertyVersionUpsert) ClearCountry() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCountry)
+	return u
+}
+
+// SetCountyOrParish sets the "county_or_parish" field.
+func (u *PropertyVersionUpsert) SetCountyOrParish(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCountyOrParish, v)
+	return u
+}
+
+// UpdateCountyOrParish sets the "county_or_parish" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCountyOrParish() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCountyOrParish)
+	return u
+}
+
+// ClearCountyOrParish clears the value of the "county_or_parish" field.
+func (u *PropertyVersionUpsert) ClearCountyOrParish() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCountyOrParish)
+	return u
+}
+
+// SetSubdivisionName sets the "subdivision_name" field.
+func (u *PropertyVersionUpsert) SetSubdivisionName(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSubdivisionName, v)
+	return u
+}
+
+// UpdateSubdivisionName sets the "subdivision_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSubdivisionName() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSubdivisionName)
+	return u
+}
+
+// ClearSubdivisionName clears the value of the "subdivision_name" field.
+func (u *PropertyVersionUpsert) ClearSubdivisionName() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSubdivisionName)
+	return u
+}
+
+// SetMlsAreaMajor sets the "mls_area_major" field.
+func (u *PropertyVersionUpsert) SetMlsAreaMajor(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMlsAreaMajor, v)
+	return u
+}
+
+// UpdateMlsAreaMajor sets the "mls_area_major" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMlsAreaMajor() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMlsAreaMajor)
+	return u
+}
+
+// ClearMlsAreaMajor clears the value of the "mls_area_major" field.
+func (u *PropertyVersionUpsert) ClearMlsAreaMajor() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMlsAreaMajor)
+	return u
+}
+
+// SetLatitude sets the "latitude" field.
+func (u *PropertyVersionUpsert) SetLatitude(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLatitude, v)
+	return u
+}
+
+// UpdateLatitude sets the "latitude" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLatitude() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLatitude)
+	return u
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (u *PropertyVersionUpsert) ClearLatitude() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLatitude)
+	return u
+}
+
+// SetLongitude sets the "longitude" field.
+func (u *PropertyVersionUpsert) SetLongitude(v decimal.Decimal) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLongitude, v)
+	return u
+}
+
+// UpdateLongitude sets the "longitude" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLongitude() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLongitude)
+	return u
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (u *PropertyVersionUpsert) ClearLongitude() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLongitude)
+	return u
+}
+
+// SetElementarySchool sets the "elementary_school" field.
+func (u *PropertyVersionUpsert) SetElementarySchool(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldElementarySchool, v)
+	return u
+}
+
+// UpdateElementarySchool sets the "elementary_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateElementarySchool() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldElementarySchool)
+	return u
+}
+
+// ClearElementarySchool clears the value of the "elementary_school" field.
+func (u *PropertyVersionUpsert) ClearElementarySchool() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldElementarySchool)
+	return u
+}
+
+// SetMiddleOrJuniorSchool sets the "middle_or_junior_school" field.
+func (u *PropertyVersionUpsert) SetMiddleOrJuniorSchool(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldMiddleOrJuniorSchool, v)
+	return u
+}
+
+// UpdateMiddleOrJuniorSchool sets the "middle_or_junior_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateMiddleOrJuniorSchool() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldMiddleOrJuniorSchool)
+	return u
+}
+
+// ClearMiddleOrJuniorSchool clears the value of the "middle_or_junior_school" field.
+func (u *PropertyVersionUpsert) ClearMiddleOrJuniorSchool() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldMiddleOrJuniorSchool)
+	return u
+}
+
+// SetHighSchool sets the "high_school" field.
+func (u *PropertyVersionUpsert) SetHighSchool(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldHighSchool, v)
+	return u
+}
+
+// UpdateHighSchool sets the "high_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateHighSchool() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldHighSchool)
+	return u
+}
+
+// ClearHighSchool clears the value of the "high_school" field.
+func (u *PropertyVersionUpsert) ClearHighSchool() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldHighSchool)
+	return u
+}
+
+// SetHighSchoolDistrict sets the "high_school_district" field.
+func (u *PropertyVersionUpsert) SetHighSchoolDistrict(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldHighSchoolDistrict, v)
+	return u
+}
+
+// UpdateHighSchoolDistrict sets the "high_school_district" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateHighSchoolDistrict() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldHighSchoolDistrict)
+	return u
+}
+
+// ClearHighSchoolDistrict clears the value of the "high_school_district" field.
+func (u *PropertyVersionUpsert) ClearHighSchoolDistrict() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldHighSchoolDistrict)
+	return u
+}
+
+// SetListAgentKey sets the "list_agent_key" field.
+func (u *PropertyVersionUpsert) SetListAgentKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListAgentKey, v)
+	return u
+}
+
+// UpdateListAgentKey sets the "list_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListAgentKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListAgentKey)
+	return u
+}
+
+// ClearListAgentKey clears the value of the "list_agent_key" field.
+func (u *PropertyVersionUpsert) ClearListAgentKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListAgentKey)
+	return u
+}
+
+// SetListAgentMlsID sets the "list_agent_mls_id" field.
+func (u *PropertyVersionUpsert) SetListAgentMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListAgentMlsID, v)
+	return u
+}
+
+// UpdateListAgentMlsID sets the "list_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListAgentMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListAgentMlsID)
+	return u
+}
+
+// ClearListAgentMlsID clears the value of the "list_agent_mls_id" field.
+func (u *PropertyVersionUpsert) ClearListAgentMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListAgentMlsID)
+	return u
+}
+
+// SetCoListAgentKey sets the "co_list_agent_key" field.
+func (u *PropertyVersionUpsert) SetCoListAgentKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoListAgentKey, v)
+	return u
+}
+
+// UpdateCoListAgentKey sets the "co_list_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoListAgentKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoListAgentKey)
+	return u
+}
+
+// ClearCoListAgentKey clears the value of the "co_list_agent_key" field.
+func (u *PropertyVersionUpsert) ClearCoListAgentKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoListAgentKey)
+	return u
+}
+
+// SetCoListAgentMlsID sets the "co_list_agent_mls_id" field.
+func (u *PropertyVersionUpsert) SetCoListAgentMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoListAgentMlsID, v)
+	return u
+}
+
+// UpdateCoListAgentMlsID sets the "co_list_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoListAgentMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoListAgentMlsID)
+	return u
+}
+
+// ClearCoListAgentMlsID clears the value of the "co_list_agent_mls_id" field.
+func (u *PropertyVersionUpsert) ClearCoListAgentMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoListAgentMlsID)
+	return u
+}
+
+// SetBuyerAgentKey sets the "buyer_agent_key" field.
+func (u *PropertyVersionUpsert) SetBuyerAgentKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBuyerAgentKey, v)
+	return u
+}
+
+// UpdateBuyerAgentKey sets the "buyer_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBuyerAgentKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBuyerAgentKey)
+	return u
+}
+
+// ClearBuyerAgentKey clears the value of the "buyer_agent_key" field.
+func (u *PropertyVersionUpsert) ClearBuyerAgentKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBuyerAgentKey)
+	return u
+}
+
+// SetBuyerAgentMlsID sets the "buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsert) SetBuyerAgentMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBuyerAgentMlsID, v)
+	return u
+}
+
+// UpdateBuyerAgentMlsID sets the "buyer_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBuyerAgentMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBuyerAgentMlsID)
+	return u
+}
+
+// ClearBuyerAgentMlsID clears the value of the "buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsert) ClearBuyerAgentMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBuyerAgentMlsID)
+	return u
+}
+
+// SetCoBuyerAgentKey sets the "co_buyer_agent_key" field.
+func (u *PropertyVersionUpsert) SetCoBuyerAgentKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoBuyerAgentKey, v)
+	return u
+}
+
+// UpdateCoBuyerAgentKey sets the "co_buyer_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoBuyerAgentKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoBuyerAgentKey)
+	return u
+}
+
+// ClearCoBuyerAgentKey clears the value of the "co_buyer_agent_key" field.
+func (u *PropertyVersionUpsert) ClearCoBuyerAgentKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoBuyerAgentKey)
+	return u
+}
+
+// SetCoBuyerAgentMlsID sets the "co_buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsert) SetCoBuyerAgentMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoBuyerAgentMlsID, v)
+	return u
+}
+
+// UpdateCoBuyerAgentMlsID sets the "co_buyer_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoBuyerAgentMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoBuyerAgentMlsID)
+	return u
+}
+
+// ClearCoBuyerAgentMlsID clears the value of the "co_buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsert) ClearCoBuyerAgentMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoBuyerAgentMlsID)
+	return u
+}
+
+// SetListOfficeKey sets the "list_office_key" field.
+func (u *PropertyVersionUpsert) SetListOfficeKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListOfficeKey, v)
+	return u
+}
+
+// UpdateListOfficeKey sets the "list_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListOfficeKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListOfficeKey)
+	return u
+}
+
+// ClearListOfficeKey clears the value of the "list_office_key" field.
+func (u *PropertyVersionUpsert) ClearListOfficeKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListOfficeKey)
+	return u
+}
+
+// SetListOfficeMlsID sets the "list_office_mls_id" field.
+func (u *PropertyVersionUpsert) SetListOfficeMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListOfficeMlsID, v)
+	return u
+}
+
+// UpdateListOfficeMlsID sets the "list_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListOfficeMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListOfficeMlsID)
+	return u
+}
+
+// ClearListOfficeMlsID clears the value of the "list_office_mls_id" field.
+func (u *PropertyVersionUpsert) ClearListOfficeMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldListOfficeMlsID)
+	return u
+}
+
+// SetCoListOfficeKey sets the "co_list_office_key" field.
+func (u *PropertyVersionUpsert) SetCoListOfficeKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoListOfficeKey, v)
+	return u
+}
+
+// UpdateCoListOfficeKey sets the "co_list_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoListOfficeKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoListOfficeKey)
+	return u
+}
+
+// ClearCoListOfficeKey clears the value of the "co_list_office_key" field.
+func (u *PropertyVersionUpsert) ClearCoListOfficeKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoListOfficeKey)
+	return u
+}
+
+// SetCoListOfficeMlsID sets the "co_list_office_mls_id" field.
+func (u *PropertyVersionUpsert) SetCoListOfficeMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoListOfficeMlsID, v)
+	return u
+}
+
+// UpdateCoListOfficeMlsID sets the "co_list_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoListOfficeMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoListOfficeMlsID)
+	return u
+}
+
+// ClearCoListOfficeMlsID clears the value of the "co_list_office_mls_id" field.
+func (u *PropertyVersionUpsert) ClearCoListOfficeMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoListOfficeMlsID)
+	return u
+}
+
+// SetBuyerOfficeKey sets the "buyer_office_key" field.
+func (u *PropertyVersionUpsert) SetBuyerOfficeKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBuyerOfficeKey, v)
+	return u
+}
+
+// UpdateBuyerOfficeKey sets the "buyer_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBuyerOfficeKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBuyerOfficeKey)
+	return u
+}
+
+// ClearBuyerOfficeKey clears the value of the "buyer_office_key" field.
+func (u *PropertyVersionUpsert) ClearBuyerOfficeKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBuyerOfficeKey)
+	return u
+}
+
+// SetBuyerOfficeMlsID sets the "buyer_office_mls_id" field.
+func (u *PropertyVersionUpsert) SetBuyerOfficeMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldBuyerOfficeMlsID, v)
+	return u
+}
+
+// UpdateBuyerOfficeMlsID sets the "buyer_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateBuyerOfficeMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldBuyerOfficeMlsID)
+	return u
+}
+
+// ClearBuyerOfficeMlsID clears the value of the "buyer_office_mls_id" field.
+func (u *PropertyVersionUpsert) ClearBuyerOfficeMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldBuyerOfficeMlsID)
+	return u
+}
+
+// SetCoBuyerOfficeKey sets the "co_buyer_office_key" field.
+func (u *PropertyVersionUpsert) SetCoBuyerOfficeKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoBuyerOfficeKey, v)
+	return u
+}
+
+// UpdateCoBuyerOfficeKey sets the "co_buyer_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoBuyerOfficeKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoBuyerOfficeKey)
+	return u
+}
+
+// ClearCoBuyerOfficeKey clears the value of the "co_buyer_office_key" field.
+func (u *PropertyVersionUpsert) ClearCoBuyerOfficeKey() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoBuyerOfficeKey)
+	return u
+}
+
+// SetCoBuyerOfficeMlsID sets the "co_buyer_office_mls_id" field.
+func (u *PropertyVersionUpsert) SetCoBuyerOfficeMlsID(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCoBuyerOfficeMlsID, v)
+	return u
+}
+
+// UpdateCoBuyerOfficeMlsID sets the "co_buyer_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCoBuyerOfficeMlsID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCoBuyerOfficeMlsID)
+	return u
+}
+
+// ClearCoBuyerOfficeMlsID clears the value of the "co_buyer_office_mls_id" field.
+func (u *PropertyVersionUpsert) ClearCoBuyerOfficeMlsID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCoBuyerOfficeMlsID)
+	return u
+}
+
+// SetInternetEntireListingDisplayYn sets the "internet_entire_listing_display_yn" field.
+func (u *PropertyVersionUpsert) SetInternetEntireListingDisplayYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldInternetEntireListingDisplayYn, v)
+	return u
+}
+
+// UpdateInternetEntireListingDisplayYn sets the "internet_entire_listing_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateInternetEntireListingDisplayYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldInternetEntireListingDisplayYn)
+	return u
+}
+
+// ClearInternetEntireListingDisplayYn clears the value of the "internet_entire_listing_display_yn" field.
+func (u *PropertyVersionUpsert) ClearInternetEntireListingDisplayYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldInternetEntireListingDisplayYn)
+	return u
+}
+
+// SetInternetAddressDisplayYn sets the "internet_address_display_yn" field.
+func (u *PropertyVersionUpsert) SetInternetAddressDisplayYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldInternetAddressDisplayYn, v)
+	return u
+}
+
+// UpdateInternetAddressDisplayYn sets the "internet_address_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateInternetAddressDisplayYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldInternetAddressDisplayYn)
+	return u
+}
+
+// ClearInternetAddressDisplayYn clears the value of the "internet_address_display_yn" field.
+func (u *PropertyVersionUpsert) ClearInternetAddressDisplayYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldInternetAddressDisplayYn)
+	return u
+}
+
+// SetInternetAutomatedValuationDisplayYn sets the "internet_automated_valuation_display_yn" field.
+func (u *PropertyVersionUpsert) SetInternetAutomatedValuationDisplayYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldInternetAutomatedValuationDisplayYn, v)
+	return u
+}
+
+// UpdateInternetAutomatedValuationDisplayYn sets the "internet_automated_valuation_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateInternetAutomatedValuationDisplayYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldInternetAutomatedValuationDisplayYn)
+	return u
+}
+
+// ClearInternetAutomatedValuationDisplayYn clears the value of the "internet_automated_valuation_display_yn" field.
+func (u *PropertyVersionUpsert) ClearInternetAutomatedValuationDisplayYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldInternetAutomatedValuationDisplayYn)
+	return u
+}
+
+// SetInternetConsumerCommentYn sets the "internet_consumer_comment_yn" field.
+func (u *PropertyVersionUpsert) SetInternetConsumerCommentYn(v bool) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldInternetConsumerCommentYn, v)
+	return u
+}
+
+// UpdateInternetConsumerCommentYn sets the "internet_consumer_comment_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateInternetConsumerCommentYn() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldInternetConsumerCommentYn)
+	return u
+}
+
+// ClearInternetConsumerCommentYn clears the value of the "internet_consumer_comment_yn" field.
+func (u *PropertyVersionUpsert) ClearInternetConsumerCommentYn() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldInternetConsumerCommentYn)
+	return u
+}
+
+// SetAppliances sets the "appliances" field.
+func (u *PropertyVersionUpsert) SetAppliances(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldAppliances, v)
+	return u
+}
+
+// UpdateAppliances sets the "appliances" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateAppliances() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldAppliances)
+	return u
+}
+
+// ClearAppliances clears the value of the "appliances" field.
+func (u *PropertyVersionUpsert) ClearAppliances() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldAppliances)
+	return u
+}
+
+// SetCooling sets the "cooling" field.
+func (u *PropertyVersionUpsert) SetCooling(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCooling, v)
+	return u
+}
+
+// UpdateCooling sets the "cooling" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCooling() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCooling)
+	return u
+}
+
+// ClearCooling clears the value of the "cooling" field.
+func (u *PropertyVersionUpsert) ClearCooling() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCooling)
+	return u
+}
+
+// SetHeating sets the "heating" field.
+func (u *PropertyVersionUpsert) SetHeating(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldHeating, v)
+	return u
+}
+
+// UpdateHeating sets the "heating" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateHeating() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldHeating)
+	return u
+}
+
+// ClearHeating clears the value of the "heating" field.
+func (u *PropertyVersionUpsert) ClearHeating() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldHeating)
+	return u
+}
+
+// SetFlooring sets the "flooring" field.
+func (u *PropertyVersionUpsert) SetFlooring(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldFlooring, v)
+	return u
+}
+
+// UpdateFlooring sets the "flooring" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateFlooring() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldFlooring)
+	return u
+}
+
+// ClearFlooring clears the value of the "flooring" field.
+func (u *PropertyVersionUpsert) ClearFlooring() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldFlooring)
+	return u
+}
+
+// SetRoof sets the "roof" field.
+func (u *PropertyVersionUpsert) SetRoof(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldRoof, v)
+	return u
+}
+
+// UpdateRoof sets the "roof" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateRoof() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldRoof)
+	return u
+}
+
+// ClearRoof clears the value of the "roof" field.
+func (u *PropertyVersionUpsert) ClearRoof() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldRoof)
+	return u
+}
+
+// SetExteriorFeatures sets the "exterior_features" field.
+func (u *PropertyVersionUpsert) SetExteriorFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldExteriorFeatures, v)
+	return u
+}
+
+// UpdateExteriorFeatures sets the "exterior_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateExteriorFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldExteriorFeatures)
+	return u
+}
+
+// ClearExteriorFeatures clears the value of the "exterior_features" field.
+func (u *PropertyVersionUpsert) ClearExteriorFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldExteriorFeatures)
+	return u
+}
+
+// SetInteriorFeatures sets the "interior_features" field.
+func (u *PropertyVersionUpsert) SetInteriorFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldInteriorFeatures, v)
+	return u
+}
+
+// UpdateInteriorFeatures sets the "interior_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateInteriorFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldInteriorFeatures)
+	return u
+}
+
+// ClearInteriorFeatures clears the value of the "interior_features" field.
+func (u *PropertyVersionUpsert) ClearInteriorFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldInteriorFeatures)
+	return u
+}
+
+// SetParkingFeatures sets the "parking_features" field.
+func (u *PropertyVersionUpsert) SetParkingFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldParkingFeatures, v)
+	return u
+}
+
+// UpdateParkingFeatures sets the "parking_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateParkingFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldParkingFeatures)
+	return u
+}
+
+// ClearParkingFeatures clears the value of the "parking_features" field.
+func (u *PropertyVersionUpsert) ClearParkingFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldParkingFeatures)
+	return u
+}
+
+// SetPoolFeatures sets the "pool_features" field.
+func (u *PropertyVersionUpsert) SetPoolFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPoolFeatures, v)
+	return u
+}
+
+// UpdatePoolFeatures sets the "pool_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePoolFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPoolFeatures)
+	return u
+}
+
+// ClearPoolFeatures clears the value of the "pool_features" field.
+func (u *PropertyVersionUpsert) ClearPoolFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPoolFeatures)
+	return u
+}
+
+// SetView sets the "view" field.
+func (u *PropertyVersionUpsert) SetView(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldView, v)
+	return u
+}
+
+// UpdateView sets the "view" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateView() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldView)
+	return u
+}
+
+// ClearView clears the value of the "view" field.
+func (u *PropertyVersionUpsert) ClearView() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldView)
+	return u
+}
+
+// SetWaterfrontFeatures sets the "waterfront_features" field.
+func (u *PropertyVersionUpsert) SetWaterfrontFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldWaterfrontFeatures, v)
+	return u
+}
+
+// UpdateWaterfrontFeatures sets the "waterfront_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateWaterfrontFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldWaterfrontFeatures)
+	return u
+}
+
+// ClearWaterfrontFeatures clears the value of the "waterfront_features" field.
+func (u *PropertyVersionUpsert) ClearWaterfrontFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldWaterfrontFeatures)
+	return u
+}
+
+// SetCommunityFeatures sets the "community_features" field.
+func (u *PropertyVersionUpsert) SetCommunityFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldCommunityFeatures, v)
+	return u
+}
+
+// UpdateCommunityFeatures sets the "community_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateCommunityFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldCommunityFeatures)
+	return u
+}
+
+// ClearCommunityFeatures clears the value of the "community_features" field.
+func (u *PropertyVersionUpsert) ClearCommunityFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldCommunityFeatures)
+	return u
+}
+
+// SetAccessibilityFeatures sets the "accessibility_features" field.
+func (u *PropertyVersionUpsert) SetAccessibilityFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldAccessibilityFeatures, v)
+	return u
+}
+
+// UpdateAccessibilityFeatures sets the "accessibility_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateAccessibilityFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldAccessibilityFeatures)
+	return u
+}
+
+// ClearAccessibilityFeatures clears the value of the "accessibility_features" field.
+func (u *PropertyVersionUpsert) ClearAccessibilityFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldAccessibilityFeatures)
+	return u
+}
+
+// SetUtilities sets the "utilities" field.
+func (u *PropertyVersionUpsert) SetUtilities(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldUtilities, v)
+	return u
+}
+
+// UpdateUtilities sets the "utilities" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateUtilities() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldUtilities)
+	return u
+}
+
+// ClearUtilities clears the value of the "utilities" field.
+func (u *PropertyVersionUpsert) ClearUtilities() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldUtilities)
+	return u
+}
+
+// SetSewer sets the "sewer" field.
+func (u *PropertyVersionUpsert) SetSewer(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSewer, v)
+	return u
+}
+
+// UpdateSewer sets the "sewer" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSewer() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSewer)
+	return u
+}
+
+// ClearSewer clears the value of the "sewer" field.
+func (u *PropertyVersionUpsert) ClearSewer() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSewer)
+	return u
+}
+
+// SetWaterSource sets the "water_source" field.
+func (u *PropertyVersionUpsert) SetWaterSource(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldWaterSource, v)
+	return u
+}
+
+// UpdateWaterSource sets the "water_source" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateWaterSource() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldWaterSource)
+	return u
+}
+
+// ClearWaterSource clears the value of the "water_source" field.
+func (u *PropertyVersionUpsert) ClearWaterSource() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldWaterSource)
+	return u
+}
+
+// SetLotFeatures sets the "lot_features" field.
+func (u *PropertyVersionUpsert) SetLotFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLotFeatures, v)
+	return u
+}
+
+// UpdateLotFeatures sets the "lot_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLotFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLotFeatures)
+	return u
+}
+
+// ClearLotFeatures clears the value of the "lot_features" field.
+func (u *PropertyVersionUpsert) ClearLotFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLotFeatures)
+	return u
+}
+
+// SetPatioAndPorchFeatures sets the "patio_and_porch_features" field.
+func (u *PropertyVersionUpsert) SetPatioAndPorchFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPatioAndPorchFeatures, v)
+	return u
+}
+
+// UpdatePatioAndPorchFeatures sets the "patio_and_porch_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePatioAndPorchFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPatioAndPorchFeatures)
+	return u
+}
+
+// ClearPatioAndPorchFeatures clears the value of the "patio_and_porch_features" field.
+func (u *PropertyVersionUpsert) ClearPatioAndPorchFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPatioAndPorchFeatures)
+	return u
+}
+
+// SetSecurityFeatures sets the "security_features" field.
+func (u *PropertyVersionUpsert) SetSecurityFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSecurityFeatures, v)
+	return u
+}
+
+// UpdateSecurityFeatures sets the "security_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSecurityFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSecurityFeatures)
+	return u
+}
+
+// ClearSecurityFeatures clears the value of the "security_features" field.
+func (u *PropertyVersionUpsert) ClearSecurityFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSecurityFeatures)
+	return u
+}
+
+// SetConstructionMaterials sets the "construction_materials" field.
+func (u *PropertyVersionUpsert) SetConstructionMaterials(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldConstructionMaterials, v)
+	return u
+}
+
+// UpdateConstructionMaterials sets the "construction_materials" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateConstructionMaterials() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldConstructionMaterials)
+	return u
+}
+
+// ClearConstructionMaterials clears the value of the "construction_materials" field.
+func (u *PropertyVersionUpsert) ClearConstructionMaterials() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldConstructionMaterials)
+	return u
+}
+
+// SetFoundationDetails sets the "foundation_details" field.
+func (u *PropertyVersionUpsert) SetFoundationDetails(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldFoundationDetails, v)
+	return u
+}
+
+// UpdateFoundationDetails sets the "foundation_details" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateFoundationDetails() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldFoundationDetails)
+	return u
+}
+
+// ClearFoundationDetails clears the value of the "foundation_details" field.
+func (u *PropertyVersionUpsert) ClearFoundationDetails() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldFoundationDetails)
+	return u
+}
+
+// SetLevels sets the "levels" field.
+func (u *PropertyVersionUpsert) SetLevels(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldLevels, v)
+	return u
+}
+
+// UpdateLevels sets the "levels" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateLevels() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldLevels)
+	return u
+}
+
+// ClearLevels clears the value of the "levels" field.
+func (u *PropertyVersionUpsert) ClearLevels() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldLevels)
+	return u
+}
+
+// SetFireplaceFeatures sets the "fireplace_features" field.
+func (u *PropertyVersionUpsert) SetFireplaceFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldFireplaceFeatures, v)
+	return u
+}
+
+// UpdateFireplaceFeatures sets the "fireplace_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateFireplaceFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldFireplaceFeatures)
+	return u
+}
+
+// ClearFireplaceFeatures clears the value of the "fireplace_features" field.
+func (u *PropertyVersionUpsert) ClearFireplaceFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldFireplaceFeatures)
+	return u
+}
+
+// SetSpaFeatures sets the "spa_features" field.
+func (u *PropertyVersionUpsert) SetSpaFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSpaFeatures, v)
+	return u
+}
+
+// UpdateSpaFeatures sets the "spa_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSpaFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSpaFeatures)
+	return u
+}
+
+// ClearSpaFeatures clears the value of the "spa_features" field.
+func (u *PropertyVersionUpsert) ClearSpaFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSpaFeatures)
+	return u
+}
+
+// SetFencing sets the "fencing" field.
+func (u *PropertyVersionUpsert) SetFencing(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldFencing, v)
+	return u
+}
+
+// UpdateFencing sets the "fencing" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateFencing() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldFencing)
+	return u
+}
+
+// ClearFencing clears the value of the "fencing" field.
+func (u *PropertyVersionUpsert) ClearFencing() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldFencing)
+	return u
+}
+
+// SetHorseAmenities sets the "horse_amenities" field.
+func (u *PropertyVersionUpsert) SetHorseAmenities(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldHorseAmenities, v)
+	return u
+}
+
+// UpdateHorseAmenities sets the "horse_amenities" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateHorseAmenities() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldHorseAmenities)
+	return u
+}
+
+// ClearHorseAmenities clears the value of the "horse_amenities" field.
+func (u *PropertyVersionUpsert) ClearHorseAmenities() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldHorseAmenities)
+	return u
+}
+
+// SetWindowFeatures sets the "window_features" field.
+func (u *PropertyVersionUpsert) SetWindowFeatures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldWindowFeatures, v)
+	return u
+}
+
+// UpdateWindowFeatures sets the "window_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateWindowFeatures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldWindowFeatures)
+	return u
+}
+
+// ClearWindowFeatures clears the value of the "window_features" field.
+func (u *PropertyVersionUpsert) ClearWindowFeatures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldWindowFeatures)
+	return u
+}
+
+// SetPetsAllowed sets the "pets_allowed" field.
+func (u *PropertyVersionUpsert) SetPetsAllowed(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPetsAllowed, v)
+	return u
+}
+
+// UpdatePetsAllowed sets the "pets_allowed" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePetsAllowed() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPetsAllowed)
+	return u
+}
+
+// ClearPetsAllowed clears the value of the "pets_allowed" field.
+func (u *PropertyVersionUpsert) ClearPetsAllowed() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPetsAllowed)
+	return u
+}
+
+// SetDisclosures sets the "disclosures" field.
+func (u *PropertyVersionUpsert) SetDisclosures(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldDisclosures, v)
+	return u
+}
+
+// UpdateDisclosures sets the "disclosures" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateDisclosures() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldDisclosures)
+	return u
+}
+
+// ClearDisclosures clears the value of the "disclosures" field.
+func (u *PropertyVersionUpsert) ClearDisclosures() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldDisclosures)
+	return u
+}
+
+// SetPropertyCondition sets the "property_condition" field.
+func (u *PropertyVersionUpsert) SetPropertyCondition(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPropertyCondition, v)
+	return u
+}
+
+// UpdatePropertyCondition sets the "property_condition" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePropertyCondition() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPropertyCondition)
+	return u
+}
+
+// ClearPropertyCondition clears the value of the "property_condition" field.
+func (u *PropertyVersionUpsert) ClearPropertyCondition() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPropertyCondition)
+	return u
+}
+
+// SetSpecialListingConditions sets the "special_listing_conditions" field.
+func (u *PropertyVersionUpsert) SetSpecialListingConditions(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSpecialListingConditions, v)
+	return u
+}
+
+// UpdateSpecialListingConditions sets the "special_listing_conditions" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSpecialListingConditions() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSpecialListingConditions)
+	return u
+}
+
+// ClearSpecialListingConditions clears the value of the "special_listing_conditions" field.
+func (u *PropertyVersionUpsert) ClearSpecialListingConditions() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSpecialListingConditions)
+	return u
+}
+
+// SetGreenEnergyEfficient sets the "green_energy_efficient" field.
+func (u *PropertyVersionUpsert) SetGreenEnergyEfficient(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldGreenEnergyEfficient, v)
+	return u
+}
+
+// UpdateGreenEnergyEfficient sets the "green_energy_efficient" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateGreenEnergyEfficient() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldGreenEnergyEfficient)
+	return u
+}
+
+// ClearGreenEnergyEfficient clears the value of the "green_energy_efficient" field.
+func (u *PropertyVersionUpsert) ClearGreenEnergyEfficient() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldGreenEnergyEfficient)
+	return u
+}
+
+// SetGreenSustainability sets the "green_sustainability" field.
+func (u *PropertyVersionUpsert) SetGreenSustainability(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldGreenSustainability, v)
+	return u
+}
+
+// UpdateGreenSustainability sets the "green_sustainability" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateGreenSustainability() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldGreenSustainability)
+	return u
+}
+
+// ClearGreenSustainability clears the value of the "green_sustainability" field.
+func (u *PropertyVersionUpsert) ClearGreenSustainability() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldGreenSustainability)
+	return u
+}
+
+// SetSyndicateTo sets the "syndicate_to" field.
+func (u *PropertyVersionUpsert) SetSyndicateTo(v pq.StringArray) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSyndicateTo, v)
+	return u
+}
+
+// UpdateSyndicateTo sets the "syndicate_to" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSyndicateTo() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSyndicateTo)
+	return u
+}
+
+// ClearSyndicateTo clears the value of the "syndicate_to" field.
+func (u *PropertyVersionUpsert) ClearSyndicateTo() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSyndicateTo)
+	return u
+}
+
+// SetPublicRemarks sets the "public_remarks" field.
+func (u *PropertyVersionUpsert) SetPublicRemarks(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldPublicRemarks, v)
+	return u
+}
+
+// UpdatePublicRemarks sets the "public_remarks" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdatePublicRemarks() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldPublicRemarks)
+	return u
+}
+
+// ClearPublicRemarks clears the value of the "public_remarks" field.
+func (u *PropertyVersionUpsert) ClearPublicRemarks() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldPublicRemarks)
+	return u
+}
+
+// SetSyndicationRemarks sets the "syndication_remarks" field.
+func (u *PropertyVersionUpsert) SetSyndicationRemarks(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSyndicationRemarks, v)
+	return u
+}
+
+// UpdateSyndicationRemarks sets the "syndication_remarks" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSyndicationRemarks() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSyndicationRemarks)
+	return u
+}
+
+// ClearSyndicationRemarks clears the value of the "syndication_remarks" field.
+func (u *PropertyVersionUpsert) ClearSyndicationRemarks() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldSyndicationRemarks)
+	return u
+}
+
+// SetDirections sets the "directions" field.
+func (u *PropertyVersionUpsert) SetDirections(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldDirections, v)
+	return u
+}
+
+// UpdateDirections sets the "directions" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateDirections() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldDirections)
+	return u
+}
+
+// ClearDirections clears the value of the "directions" field.
+func (u *PropertyVersionUpsert) ClearDirections() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldDirections)
+	return u
+}
+
+// SetFurnished sets the "furnished" field.
+func (u *PropertyVersionUpsert) SetFurnished(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldFurnished, v)
+	return u
+}
+
+// UpdateFurnished sets the "furnished" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateFurnished() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldFurnished)
+	return u
+}
+
+// ClearFurnished clears the value of the "furnished" field.
+func (u *PropertyVersionUpsert) ClearFurnished() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldFurnished)
+	return u
+}
+
+// SetDirectionFaces sets the "direction_faces" field.
+func (u *PropertyVersionUpsert) SetDirectionFaces(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldDirectionFaces, v)
+	return u
+}
+
+// UpdateDirectionFaces sets the "direction_faces" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateDirectionFaces() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldDirectionFaces)
+	return u
+}
+
+// ClearDirectionFaces clears the value of the "direction_faces" field.
+func (u *PropertyVersionUpsert) ClearDirectionFaces() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldDirectionFaces)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyVersionUpsert) SetExtendedFields(v map[string]interface{}) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateExtendedFields() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyVersionUpsert) ClearExtendedFields() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldExtendedFields)
+	return u
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyVersionUpsert) SetListingKey(v string) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldListingKey, v)
+	return u
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateListingKey() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldListingKey)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyVersionUpsert) SetSyncEventID(v uuid.UUID) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateSyncEventID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyVersionUpsert) SetRawOutputID(v uuid.UUID) *PropertyVersionUpsert {
+	u.Set(propertyversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsert) UpdateRawOutputID() *PropertyVersionUpsert {
+	u.SetExcluded(propertyversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyVersionUpsert) ClearRawOutputID() *PropertyVersionUpsert {
+	u.SetNull(propertyversion.FieldRawOutputID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.PropertyVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(propertyversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PropertyVersionUpsertOne) UpdateNewValues() *PropertyVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(propertyversion.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PropertyVersion.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PropertyVersionUpsertOne) Ignore() *PropertyVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PropertyVersionUpsertOne) DoNothing() *PropertyVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PropertyVersionCreate.OnConflict
+// documentation for more info.
+func (u *PropertyVersionUpsertOne) Update(set func(*PropertyVersionUpsert)) *PropertyVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PropertyVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *PropertyVersionUpsertOne) SetValidFrom(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateValidFrom() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *PropertyVersionUpsertOne) SetValidTo(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateValidTo() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *PropertyVersionUpsertOne) ClearValidTo() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *PropertyVersionUpsertOne) SetChangeType(v propertyversion.ChangeType) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateChangeType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *PropertyVersionUpsertOne) SetChangedFields(v map[string]interface{}) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateChangedFields() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *PropertyVersionUpsertOne) ClearChangedFields() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *PropertyVersionUpsertOne) SetProcessorVersion(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateProcessorVersion() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyVersionUpsertOne) SetSourceModifiedAt(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSourceModifiedAt() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyVersionUpsertOne) SetOriginatingSystemName(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateOriginatingSystemName() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyVersionUpsertOne) ClearOriginatingSystemName() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyVersionUpsertOne) SetMlgCanView(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMlgCanView() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyVersionUpsertOne) SetMlgCanUse(v []string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMlgCanUse() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyVersionUpsertOne) ClearMlgCanUse() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingID sets the "listing_id" field.
+func (u *PropertyVersionUpsertOne) SetListingID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListingID(v)
+	})
+}
+
+// UpdateListingID sets the "listing_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListingID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListingID()
+	})
+}
+
+// ClearListingID clears the value of the "listing_id" field.
+func (u *PropertyVersionUpsertOne) ClearListingID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListingID()
+	})
+}
+
+// SetParcelNumber sets the "parcel_number" field.
+func (u *PropertyVersionUpsertOne) SetParcelNumber(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetParcelNumber(v)
+	})
+}
+
+// UpdateParcelNumber sets the "parcel_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateParcelNumber() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateParcelNumber()
+	})
+}
+
+// ClearParcelNumber clears the value of the "parcel_number" field.
+func (u *PropertyVersionUpsertOne) ClearParcelNumber() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearParcelNumber()
+	})
+}
+
+// SetMlsStatus sets the "mls_status" field.
+func (u *PropertyVersionUpsertOne) SetMlsStatus(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlsStatus(v)
+	})
+}
+
+// UpdateMlsStatus sets the "mls_status" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMlsStatus() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlsStatus()
+	})
+}
+
+// ClearMlsStatus clears the value of the "mls_status" field.
+func (u *PropertyVersionUpsertOne) ClearMlsStatus() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMlsStatus()
+	})
+}
+
+// SetStandardStatus sets the "standard_status" field.
+func (u *PropertyVersionUpsertOne) SetStandardStatus(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStandardStatus(v)
+	})
+}
+
+// UpdateStandardStatus sets the "standard_status" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStandardStatus() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStandardStatus()
+	})
+}
+
+// ClearStandardStatus clears the value of the "standard_status" field.
+func (u *PropertyVersionUpsertOne) ClearStandardStatus() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStandardStatus()
+	})
+}
+
+// SetMajorChangeType sets the "major_change_type" field.
+func (u *PropertyVersionUpsertOne) SetMajorChangeType(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMajorChangeType(v)
+	})
+}
+
+// UpdateMajorChangeType sets the "major_change_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMajorChangeType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMajorChangeType()
+	})
+}
+
+// ClearMajorChangeType clears the value of the "major_change_type" field.
+func (u *PropertyVersionUpsertOne) ClearMajorChangeType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMajorChangeType()
+	})
+}
+
+// SetMajorChangeTimestamp sets the "major_change_timestamp" field.
+func (u *PropertyVersionUpsertOne) SetMajorChangeTimestamp(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMajorChangeTimestamp(v)
+	})
+}
+
+// UpdateMajorChangeTimestamp sets the "major_change_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMajorChangeTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMajorChangeTimestamp()
+	})
+}
+
+// ClearMajorChangeTimestamp clears the value of the "major_change_timestamp" field.
+func (u *PropertyVersionUpsertOne) ClearMajorChangeTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMajorChangeTimestamp()
+	})
+}
+
+// SetListingContractDate sets the "listing_contract_date" field.
+func (u *PropertyVersionUpsertOne) SetListingContractDate(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListingContractDate(v)
+	})
+}
+
+// UpdateListingContractDate sets the "listing_contract_date" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListingContractDate() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListingContractDate()
+	})
+}
+
+// ClearListingContractDate clears the value of the "listing_contract_date" field.
+func (u *PropertyVersionUpsertOne) ClearListingContractDate() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListingContractDate()
+	})
+}
+
+// SetOnMarketTimestamp sets the "on_market_timestamp" field.
+func (u *PropertyVersionUpsertOne) SetOnMarketTimestamp(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOnMarketTimestamp(v)
+	})
+}
+
+// UpdateOnMarketTimestamp sets the "on_market_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateOnMarketTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOnMarketTimestamp()
+	})
+}
+
+// ClearOnMarketTimestamp clears the value of the "on_market_timestamp" field.
+func (u *PropertyVersionUpsertOne) ClearOnMarketTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOnMarketTimestamp()
+	})
+}
+
+// SetOriginalEntryTimestamp sets the "original_entry_timestamp" field.
+func (u *PropertyVersionUpsertOne) SetOriginalEntryTimestamp(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOriginalEntryTimestamp(v)
+	})
+}
+
+// UpdateOriginalEntryTimestamp sets the "original_entry_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateOriginalEntryTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOriginalEntryTimestamp()
+	})
+}
+
+// ClearOriginalEntryTimestamp clears the value of the "original_entry_timestamp" field.
+func (u *PropertyVersionUpsertOne) ClearOriginalEntryTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOriginalEntryTimestamp()
+	})
+}
+
+// SetPhotosChangeTimestamp sets the "photos_change_timestamp" field.
+func (u *PropertyVersionUpsertOne) SetPhotosChangeTimestamp(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPhotosChangeTimestamp(v)
+	})
+}
+
+// UpdatePhotosChangeTimestamp sets the "photos_change_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePhotosChangeTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePhotosChangeTimestamp()
+	})
+}
+
+// ClearPhotosChangeTimestamp clears the value of the "photos_change_timestamp" field.
+func (u *PropertyVersionUpsertOne) ClearPhotosChangeTimestamp() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPhotosChangeTimestamp()
+	})
+}
+
+// SetAvailabilityDate sets the "availability_date" field.
+func (u *PropertyVersionUpsertOne) SetAvailabilityDate(v time.Time) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetAvailabilityDate(v)
+	})
+}
+
+// UpdateAvailabilityDate sets the "availability_date" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateAvailabilityDate() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateAvailabilityDate()
+	})
+}
+
+// ClearAvailabilityDate clears the value of the "availability_date" field.
+func (u *PropertyVersionUpsertOne) ClearAvailabilityDate() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearAvailabilityDate()
+	})
+}
+
+// SetListPrice sets the "list_price" field.
+func (u *PropertyVersionUpsertOne) SetListPrice(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListPrice(v)
+	})
+}
+
+// UpdateListPrice sets the "list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListPrice() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListPrice()
+	})
+}
+
+// ClearListPrice clears the value of the "list_price" field.
+func (u *PropertyVersionUpsertOne) ClearListPrice() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListPrice()
+	})
+}
+
+// SetOriginalListPrice sets the "original_list_price" field.
+func (u *PropertyVersionUpsertOne) SetOriginalListPrice(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOriginalListPrice(v)
+	})
+}
+
+// UpdateOriginalListPrice sets the "original_list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateOriginalListPrice() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOriginalListPrice()
+	})
+}
+
+// ClearOriginalListPrice clears the value of the "original_list_price" field.
+func (u *PropertyVersionUpsertOne) ClearOriginalListPrice() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOriginalListPrice()
+	})
+}
+
+// SetPreviousListPrice sets the "previous_list_price" field.
+func (u *PropertyVersionUpsertOne) SetPreviousListPrice(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPreviousListPrice(v)
+	})
+}
+
+// UpdatePreviousListPrice sets the "previous_list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePreviousListPrice() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePreviousListPrice()
+	})
+}
+
+// ClearPreviousListPrice clears the value of the "previous_list_price" field.
+func (u *PropertyVersionUpsertOne) ClearPreviousListPrice() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPreviousListPrice()
+	})
+}
+
+// SetTaxAnnualAmount sets the "tax_annual_amount" field.
+func (u *PropertyVersionUpsertOne) SetTaxAnnualAmount(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetTaxAnnualAmount(v)
+	})
+}
+
+// UpdateTaxAnnualAmount sets the "tax_annual_amount" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateTaxAnnualAmount() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateTaxAnnualAmount()
+	})
+}
+
+// ClearTaxAnnualAmount clears the value of the "tax_annual_amount" field.
+func (u *PropertyVersionUpsertOne) ClearTaxAnnualAmount() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearTaxAnnualAmount()
+	})
+}
+
+// SetTaxAssessedValue sets the "tax_assessed_value" field.
+func (u *PropertyVersionUpsertOne) SetTaxAssessedValue(v int64) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetTaxAssessedValue(v)
+	})
+}
+
+// AddTaxAssessedValue adds v to the "tax_assessed_value" field.
+func (u *PropertyVersionUpsertOne) AddTaxAssessedValue(v int64) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddTaxAssessedValue(v)
+	})
+}
+
+// UpdateTaxAssessedValue sets the "tax_assessed_value" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateTaxAssessedValue() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateTaxAssessedValue()
+	})
+}
+
+// ClearTaxAssessedValue clears the value of the "tax_assessed_value" field.
+func (u *PropertyVersionUpsertOne) ClearTaxAssessedValue() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearTaxAssessedValue()
+	})
+}
+
+// SetTaxYear sets the "tax_year" field.
+func (u *PropertyVersionUpsertOne) SetTaxYear(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetTaxYear(v)
+	})
+}
+
+// AddTaxYear adds v to the "tax_year" field.
+func (u *PropertyVersionUpsertOne) AddTaxYear(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddTaxYear(v)
+	})
+}
+
+// UpdateTaxYear sets the "tax_year" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateTaxYear() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateTaxYear()
+	})
+}
+
+// ClearTaxYear clears the value of the "tax_year" field.
+func (u *PropertyVersionUpsertOne) ClearTaxYear() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearTaxYear()
+	})
+}
+
+// SetPropertyType sets the "property_type" field.
+func (u *PropertyVersionUpsertOne) SetPropertyType(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPropertyType(v)
+	})
+}
+
+// UpdatePropertyType sets the "property_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePropertyType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePropertyType()
+	})
+}
+
+// ClearPropertyType clears the value of the "property_type" field.
+func (u *PropertyVersionUpsertOne) ClearPropertyType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPropertyType()
+	})
+}
+
+// SetPropertySubType sets the "property_sub_type" field.
+func (u *PropertyVersionUpsertOne) SetPropertySubType(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPropertySubType(v)
+	})
+}
+
+// UpdatePropertySubType sets the "property_sub_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePropertySubType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePropertySubType()
+	})
+}
+
+// ClearPropertySubType clears the value of the "property_sub_type" field.
+func (u *PropertyVersionUpsertOne) ClearPropertySubType() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPropertySubType()
+	})
+}
+
+// SetNewConstructionYn sets the "new_construction_yn" field.
+func (u *PropertyVersionUpsertOne) SetNewConstructionYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetNewConstructionYn(v)
+	})
+}
+
+// UpdateNewConstructionYn sets the "new_construction_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateNewConstructionYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateNewConstructionYn()
+	})
+}
+
+// ClearNewConstructionYn clears the value of the "new_construction_yn" field.
+func (u *PropertyVersionUpsertOne) ClearNewConstructionYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearNewConstructionYn()
+	})
+}
+
+// SetBedroomsTotal sets the "bedrooms_total" field.
+func (u *PropertyVersionUpsertOne) SetBedroomsTotal(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBedroomsTotal(v)
+	})
+}
+
+// AddBedroomsTotal adds v to the "bedrooms_total" field.
+func (u *PropertyVersionUpsertOne) AddBedroomsTotal(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBedroomsTotal(v)
+	})
+}
+
+// UpdateBedroomsTotal sets the "bedrooms_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBedroomsTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBedroomsTotal()
+	})
+}
+
+// ClearBedroomsTotal clears the value of the "bedrooms_total" field.
+func (u *PropertyVersionUpsertOne) ClearBedroomsTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBedroomsTotal()
+	})
+}
+
+// SetBathroomsTotalInteger sets the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsertOne) SetBathroomsTotalInteger(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBathroomsTotalInteger(v)
+	})
+}
+
+// AddBathroomsTotalInteger adds v to the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsertOne) AddBathroomsTotalInteger(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBathroomsTotalInteger(v)
+	})
+}
+
+// UpdateBathroomsTotalInteger sets the "bathrooms_total_integer" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBathroomsTotalInteger() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBathroomsTotalInteger()
+	})
+}
+
+// ClearBathroomsTotalInteger clears the value of the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsertOne) ClearBathroomsTotalInteger() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBathroomsTotalInteger()
+	})
+}
+
+// SetBathroomsFull sets the "bathrooms_full" field.
+func (u *PropertyVersionUpsertOne) SetBathroomsFull(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBathroomsFull(v)
+	})
+}
+
+// AddBathroomsFull adds v to the "bathrooms_full" field.
+func (u *PropertyVersionUpsertOne) AddBathroomsFull(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBathroomsFull(v)
+	})
+}
+
+// UpdateBathroomsFull sets the "bathrooms_full" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBathroomsFull() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBathroomsFull()
+	})
+}
+
+// ClearBathroomsFull clears the value of the "bathrooms_full" field.
+func (u *PropertyVersionUpsertOne) ClearBathroomsFull() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBathroomsFull()
+	})
+}
+
+// SetBathroomsHalf sets the "bathrooms_half" field.
+func (u *PropertyVersionUpsertOne) SetBathroomsHalf(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBathroomsHalf(v)
+	})
+}
+
+// AddBathroomsHalf adds v to the "bathrooms_half" field.
+func (u *PropertyVersionUpsertOne) AddBathroomsHalf(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBathroomsHalf(v)
+	})
+}
+
+// UpdateBathroomsHalf sets the "bathrooms_half" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBathroomsHalf() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBathroomsHalf()
+	})
+}
+
+// ClearBathroomsHalf clears the value of the "bathrooms_half" field.
+func (u *PropertyVersionUpsertOne) ClearBathroomsHalf() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBathroomsHalf()
+	})
+}
+
+// SetMainLevelBedrooms sets the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsertOne) SetMainLevelBedrooms(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMainLevelBedrooms(v)
+	})
+}
+
+// AddMainLevelBedrooms adds v to the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsertOne) AddMainLevelBedrooms(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddMainLevelBedrooms(v)
+	})
+}
+
+// UpdateMainLevelBedrooms sets the "main_level_bedrooms" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMainLevelBedrooms() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMainLevelBedrooms()
+	})
+}
+
+// ClearMainLevelBedrooms clears the value of the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsertOne) ClearMainLevelBedrooms() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMainLevelBedrooms()
+	})
+}
+
+// SetLivingArea sets the "living_area" field.
+func (u *PropertyVersionUpsertOne) SetLivingArea(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLivingArea(v)
+	})
+}
+
+// UpdateLivingArea sets the "living_area" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLivingArea() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLivingArea()
+	})
+}
+
+// ClearLivingArea clears the value of the "living_area" field.
+func (u *PropertyVersionUpsertOne) ClearLivingArea() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLivingArea()
+	})
+}
+
+// SetBuildingAreaTotal sets the "building_area_total" field.
+func (u *PropertyVersionUpsertOne) SetBuildingAreaTotal(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuildingAreaTotal(v)
+	})
+}
+
+// UpdateBuildingAreaTotal sets the "building_area_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBuildingAreaTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuildingAreaTotal()
+	})
+}
+
+// ClearBuildingAreaTotal clears the value of the "building_area_total" field.
+func (u *PropertyVersionUpsertOne) ClearBuildingAreaTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuildingAreaTotal()
+	})
+}
+
+// SetLotSizeAcres sets the "lot_size_acres" field.
+func (u *PropertyVersionUpsertOne) SetLotSizeAcres(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLotSizeAcres(v)
+	})
+}
+
+// UpdateLotSizeAcres sets the "lot_size_acres" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLotSizeAcres() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLotSizeAcres()
+	})
+}
+
+// ClearLotSizeAcres clears the value of the "lot_size_acres" field.
+func (u *PropertyVersionUpsertOne) ClearLotSizeAcres() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLotSizeAcres()
+	})
+}
+
+// SetLotSizeSquareFeet sets the "lot_size_square_feet" field.
+func (u *PropertyVersionUpsertOne) SetLotSizeSquareFeet(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLotSizeSquareFeet(v)
+	})
+}
+
+// UpdateLotSizeSquareFeet sets the "lot_size_square_feet" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLotSizeSquareFeet() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLotSizeSquareFeet()
+	})
+}
+
+// ClearLotSizeSquareFeet clears the value of the "lot_size_square_feet" field.
+func (u *PropertyVersionUpsertOne) ClearLotSizeSquareFeet() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLotSizeSquareFeet()
+	})
+}
+
+// SetStoriesTotal sets the "stories_total" field.
+func (u *PropertyVersionUpsertOne) SetStoriesTotal(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStoriesTotal(v)
+	})
+}
+
+// AddStoriesTotal adds v to the "stories_total" field.
+func (u *PropertyVersionUpsertOne) AddStoriesTotal(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddStoriesTotal(v)
+	})
+}
+
+// UpdateStoriesTotal sets the "stories_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStoriesTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStoriesTotal()
+	})
+}
+
+// ClearStoriesTotal clears the value of the "stories_total" field.
+func (u *PropertyVersionUpsertOne) ClearStoriesTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStoriesTotal()
+	})
+}
+
+// SetYearBuilt sets the "year_built" field.
+func (u *PropertyVersionUpsertOne) SetYearBuilt(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetYearBuilt(v)
+	})
+}
+
+// AddYearBuilt adds v to the "year_built" field.
+func (u *PropertyVersionUpsertOne) AddYearBuilt(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddYearBuilt(v)
+	})
+}
+
+// UpdateYearBuilt sets the "year_built" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateYearBuilt() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateYearBuilt()
+	})
+}
+
+// ClearYearBuilt clears the value of the "year_built" field.
+func (u *PropertyVersionUpsertOne) ClearYearBuilt() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearYearBuilt()
+	})
+}
+
+// SetGarageSpaces sets the "garage_spaces" field.
+func (u *PropertyVersionUpsertOne) SetGarageSpaces(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetGarageSpaces(v)
+	})
+}
+
+// UpdateGarageSpaces sets the "garage_spaces" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateGarageSpaces() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateGarageSpaces()
+	})
+}
+
+// ClearGarageSpaces clears the value of the "garage_spaces" field.
+func (u *PropertyVersionUpsertOne) ClearGarageSpaces() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearGarageSpaces()
+	})
+}
+
+// SetCoveredSpaces sets the "covered_spaces" field.
+func (u *PropertyVersionUpsertOne) SetCoveredSpaces(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoveredSpaces(v)
+	})
+}
+
+// UpdateCoveredSpaces sets the "covered_spaces" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoveredSpaces() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoveredSpaces()
+	})
+}
+
+// ClearCoveredSpaces clears the value of the "covered_spaces" field.
+func (u *PropertyVersionUpsertOne) ClearCoveredSpaces() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoveredSpaces()
+	})
+}
+
+// SetParkingTotal sets the "parking_total" field.
+func (u *PropertyVersionUpsertOne) SetParkingTotal(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetParkingTotal(v)
+	})
+}
+
+// UpdateParkingTotal sets the "parking_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateParkingTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateParkingTotal()
+	})
+}
+
+// ClearParkingTotal clears the value of the "parking_total" field.
+func (u *PropertyVersionUpsertOne) ClearParkingTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearParkingTotal()
+	})
+}
+
+// SetFireplacesTotal sets the "fireplaces_total" field.
+func (u *PropertyVersionUpsertOne) SetFireplacesTotal(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFireplacesTotal(v)
+	})
+}
+
+// AddFireplacesTotal adds v to the "fireplaces_total" field.
+func (u *PropertyVersionUpsertOne) AddFireplacesTotal(v int16) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddFireplacesTotal(v)
+	})
+}
+
+// UpdateFireplacesTotal sets the "fireplaces_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateFireplacesTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFireplacesTotal()
+	})
+}
+
+// ClearFireplacesTotal clears the value of the "fireplaces_total" field.
+func (u *PropertyVersionUpsertOne) ClearFireplacesTotal() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFireplacesTotal()
+	})
+}
+
+// SetPoolPrivateYn sets the "pool_private_yn" field.
+func (u *PropertyVersionUpsertOne) SetPoolPrivateYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPoolPrivateYn(v)
+	})
+}
+
+// UpdatePoolPrivateYn sets the "pool_private_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePoolPrivateYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePoolPrivateYn()
+	})
+}
+
+// ClearPoolPrivateYn clears the value of the "pool_private_yn" field.
+func (u *PropertyVersionUpsertOne) ClearPoolPrivateYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPoolPrivateYn()
+	})
+}
+
+// SetWaterfrontYn sets the "waterfront_yn" field.
+func (u *PropertyVersionUpsertOne) SetWaterfrontYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWaterfrontYn(v)
+	})
+}
+
+// UpdateWaterfrontYn sets the "waterfront_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateWaterfrontYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWaterfrontYn()
+	})
+}
+
+// ClearWaterfrontYn clears the value of the "waterfront_yn" field.
+func (u *PropertyVersionUpsertOne) ClearWaterfrontYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWaterfrontYn()
+	})
+}
+
+// SetViewYn sets the "view_yn" field.
+func (u *PropertyVersionUpsertOne) SetViewYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetViewYn(v)
+	})
+}
+
+// UpdateViewYn sets the "view_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateViewYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateViewYn()
+	})
+}
+
+// ClearViewYn clears the value of the "view_yn" field.
+func (u *PropertyVersionUpsertOne) ClearViewYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearViewYn()
+	})
+}
+
+// SetHorseYn sets the "horse_yn" field.
+func (u *PropertyVersionUpsertOne) SetHorseYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHorseYn(v)
+	})
+}
+
+// UpdateHorseYn sets the "horse_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateHorseYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHorseYn()
+	})
+}
+
+// ClearHorseYn clears the value of the "horse_yn" field.
+func (u *PropertyVersionUpsertOne) ClearHorseYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHorseYn()
+	})
+}
+
+// SetStreetNumber sets the "street_number" field.
+func (u *PropertyVersionUpsertOne) SetStreetNumber(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetNumber(v)
+	})
+}
+
+// UpdateStreetNumber sets the "street_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStreetNumber() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetNumber()
+	})
+}
+
+// ClearStreetNumber clears the value of the "street_number" field.
+func (u *PropertyVersionUpsertOne) ClearStreetNumber() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetNumber()
+	})
+}
+
+// SetStreetNumberNumeric sets the "street_number_numeric" field.
+func (u *PropertyVersionUpsertOne) SetStreetNumberNumeric(v int32) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetNumberNumeric(v)
+	})
+}
+
+// AddStreetNumberNumeric adds v to the "street_number_numeric" field.
+func (u *PropertyVersionUpsertOne) AddStreetNumberNumeric(v int32) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddStreetNumberNumeric(v)
+	})
+}
+
+// UpdateStreetNumberNumeric sets the "street_number_numeric" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStreetNumberNumeric() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetNumberNumeric()
+	})
+}
+
+// ClearStreetNumberNumeric clears the value of the "street_number_numeric" field.
+func (u *PropertyVersionUpsertOne) ClearStreetNumberNumeric() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetNumberNumeric()
+	})
+}
+
+// SetStreetName sets the "street_name" field.
+func (u *PropertyVersionUpsertOne) SetStreetName(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetName(v)
+	})
+}
+
+// UpdateStreetName sets the "street_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStreetName() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetName()
+	})
+}
+
+// ClearStreetName clears the value of the "street_name" field.
+func (u *PropertyVersionUpsertOne) ClearStreetName() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetName()
+	})
+}
+
+// SetStreetSuffix sets the "street_suffix" field.
+func (u *PropertyVersionUpsertOne) SetStreetSuffix(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetSuffix(v)
+	})
+}
+
+// UpdateStreetSuffix sets the "street_suffix" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStreetSuffix() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetSuffix()
+	})
+}
+
+// ClearStreetSuffix clears the value of the "street_suffix" field.
+func (u *PropertyVersionUpsertOne) ClearStreetSuffix() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetSuffix()
+	})
+}
+
+// SetStreetDirPrefix sets the "street_dir_prefix" field.
+func (u *PropertyVersionUpsertOne) SetStreetDirPrefix(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetDirPrefix(v)
+	})
+}
+
+// UpdateStreetDirPrefix sets the "street_dir_prefix" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStreetDirPrefix() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetDirPrefix()
+	})
+}
+
+// ClearStreetDirPrefix clears the value of the "street_dir_prefix" field.
+func (u *PropertyVersionUpsertOne) ClearStreetDirPrefix() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetDirPrefix()
+	})
+}
+
+// SetStreetDirSuffix sets the "street_dir_suffix" field.
+func (u *PropertyVersionUpsertOne) SetStreetDirSuffix(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetDirSuffix(v)
+	})
+}
+
+// UpdateStreetDirSuffix sets the "street_dir_suffix" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStreetDirSuffix() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetDirSuffix()
+	})
+}
+
+// ClearStreetDirSuffix clears the value of the "street_dir_suffix" field.
+func (u *PropertyVersionUpsertOne) ClearStreetDirSuffix() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetDirSuffix()
+	})
+}
+
+// SetUnitNumber sets the "unit_number" field.
+func (u *PropertyVersionUpsertOne) SetUnitNumber(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetUnitNumber(v)
+	})
+}
+
+// UpdateUnitNumber sets the "unit_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateUnitNumber() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateUnitNumber()
+	})
+}
+
+// ClearUnitNumber clears the value of the "unit_number" field.
+func (u *PropertyVersionUpsertOne) ClearUnitNumber() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearUnitNumber()
+	})
+}
+
+// SetUnparsedAddress sets the "unparsed_address" field.
+func (u *PropertyVersionUpsertOne) SetUnparsedAddress(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetUnparsedAddress(v)
+	})
+}
+
+// UpdateUnparsedAddress sets the "unparsed_address" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateUnparsedAddress() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateUnparsedAddress()
+	})
+}
+
+// ClearUnparsedAddress clears the value of the "unparsed_address" field.
+func (u *PropertyVersionUpsertOne) ClearUnparsedAddress() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearUnparsedAddress()
+	})
+}
+
+// SetCity sets the "city" field.
+func (u *PropertyVersionUpsertOne) SetCity(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCity(v)
+	})
+}
+
+// UpdateCity sets the "city" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCity() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCity()
+	})
+}
+
+// ClearCity clears the value of the "city" field.
+func (u *PropertyVersionUpsertOne) ClearCity() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCity()
+	})
+}
+
+// SetStateOrProvince sets the "state_or_province" field.
+func (u *PropertyVersionUpsertOne) SetStateOrProvince(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStateOrProvince(v)
+	})
+}
+
+// UpdateStateOrProvince sets the "state_or_province" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateStateOrProvince() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStateOrProvince()
+	})
+}
+
+// ClearStateOrProvince clears the value of the "state_or_province" field.
+func (u *PropertyVersionUpsertOne) ClearStateOrProvince() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStateOrProvince()
+	})
+}
+
+// SetPostalCode sets the "postal_code" field.
+func (u *PropertyVersionUpsertOne) SetPostalCode(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPostalCode(v)
+	})
+}
+
+// UpdatePostalCode sets the "postal_code" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePostalCode() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePostalCode()
+	})
+}
+
+// ClearPostalCode clears the value of the "postal_code" field.
+func (u *PropertyVersionUpsertOne) ClearPostalCode() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPostalCode()
+	})
+}
+
+// SetPostalCodePlus4 sets the "postal_code_plus4" field.
+func (u *PropertyVersionUpsertOne) SetPostalCodePlus4(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPostalCodePlus4(v)
+	})
+}
+
+// UpdatePostalCodePlus4 sets the "postal_code_plus4" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePostalCodePlus4() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePostalCodePlus4()
+	})
+}
+
+// ClearPostalCodePlus4 clears the value of the "postal_code_plus4" field.
+func (u *PropertyVersionUpsertOne) ClearPostalCodePlus4() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPostalCodePlus4()
+	})
+}
+
+// SetCountry sets the "country" field.
+func (u *PropertyVersionUpsertOne) SetCountry(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCountry(v)
+	})
+}
+
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCountry() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCountry()
+	})
+}
+
+// ClearCountry clears the value of the "country" field.
+func (u *PropertyVersionUpsertOne) ClearCountry() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCountry()
+	})
+}
+
+// SetCountyOrParish sets the "county_or_parish" field.
+func (u *PropertyVersionUpsertOne) SetCountyOrParish(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCountyOrParish(v)
+	})
+}
+
+// UpdateCountyOrParish sets the "county_or_parish" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCountyOrParish() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCountyOrParish()
+	})
+}
+
+// ClearCountyOrParish clears the value of the "county_or_parish" field.
+func (u *PropertyVersionUpsertOne) ClearCountyOrParish() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCountyOrParish()
+	})
+}
+
+// SetSubdivisionName sets the "subdivision_name" field.
+func (u *PropertyVersionUpsertOne) SetSubdivisionName(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSubdivisionName(v)
+	})
+}
+
+// UpdateSubdivisionName sets the "subdivision_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSubdivisionName() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSubdivisionName()
+	})
+}
+
+// ClearSubdivisionName clears the value of the "subdivision_name" field.
+func (u *PropertyVersionUpsertOne) ClearSubdivisionName() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSubdivisionName()
+	})
+}
+
+// SetMlsAreaMajor sets the "mls_area_major" field.
+func (u *PropertyVersionUpsertOne) SetMlsAreaMajor(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlsAreaMajor(v)
+	})
+}
+
+// UpdateMlsAreaMajor sets the "mls_area_major" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMlsAreaMajor() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlsAreaMajor()
+	})
+}
+
+// ClearMlsAreaMajor clears the value of the "mls_area_major" field.
+func (u *PropertyVersionUpsertOne) ClearMlsAreaMajor() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMlsAreaMajor()
+	})
+}
+
+// SetLatitude sets the "latitude" field.
+func (u *PropertyVersionUpsertOne) SetLatitude(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLatitude(v)
+	})
+}
+
+// UpdateLatitude sets the "latitude" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLatitude() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLatitude()
+	})
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (u *PropertyVersionUpsertOne) ClearLatitude() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLatitude()
+	})
+}
+
+// SetLongitude sets the "longitude" field.
+func (u *PropertyVersionUpsertOne) SetLongitude(v decimal.Decimal) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLongitude(v)
+	})
+}
+
+// UpdateLongitude sets the "longitude" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLongitude() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLongitude()
+	})
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (u *PropertyVersionUpsertOne) ClearLongitude() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLongitude()
+	})
+}
+
+// SetElementarySchool sets the "elementary_school" field.
+func (u *PropertyVersionUpsertOne) SetElementarySchool(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetElementarySchool(v)
+	})
+}
+
+// UpdateElementarySchool sets the "elementary_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateElementarySchool() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateElementarySchool()
+	})
+}
+
+// ClearElementarySchool clears the value of the "elementary_school" field.
+func (u *PropertyVersionUpsertOne) ClearElementarySchool() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearElementarySchool()
+	})
+}
+
+// SetMiddleOrJuniorSchool sets the "middle_or_junior_school" field.
+func (u *PropertyVersionUpsertOne) SetMiddleOrJuniorSchool(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMiddleOrJuniorSchool(v)
+	})
+}
+
+// UpdateMiddleOrJuniorSchool sets the "middle_or_junior_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateMiddleOrJuniorSchool() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMiddleOrJuniorSchool()
+	})
+}
+
+// ClearMiddleOrJuniorSchool clears the value of the "middle_or_junior_school" field.
+func (u *PropertyVersionUpsertOne) ClearMiddleOrJuniorSchool() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMiddleOrJuniorSchool()
+	})
+}
+
+// SetHighSchool sets the "high_school" field.
+func (u *PropertyVersionUpsertOne) SetHighSchool(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHighSchool(v)
+	})
+}
+
+// UpdateHighSchool sets the "high_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateHighSchool() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHighSchool()
+	})
+}
+
+// ClearHighSchool clears the value of the "high_school" field.
+func (u *PropertyVersionUpsertOne) ClearHighSchool() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHighSchool()
+	})
+}
+
+// SetHighSchoolDistrict sets the "high_school_district" field.
+func (u *PropertyVersionUpsertOne) SetHighSchoolDistrict(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHighSchoolDistrict(v)
+	})
+}
+
+// UpdateHighSchoolDistrict sets the "high_school_district" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateHighSchoolDistrict() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHighSchoolDistrict()
+	})
+}
+
+// ClearHighSchoolDistrict clears the value of the "high_school_district" field.
+func (u *PropertyVersionUpsertOne) ClearHighSchoolDistrict() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHighSchoolDistrict()
+	})
+}
+
+// SetListAgentKey sets the "list_agent_key" field.
+func (u *PropertyVersionUpsertOne) SetListAgentKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListAgentKey(v)
+	})
+}
+
+// UpdateListAgentKey sets the "list_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListAgentKey()
+	})
+}
+
+// ClearListAgentKey clears the value of the "list_agent_key" field.
+func (u *PropertyVersionUpsertOne) ClearListAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListAgentKey()
+	})
+}
+
+// SetListAgentMlsID sets the "list_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetListAgentMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListAgentMlsID(v)
+	})
+}
+
+// UpdateListAgentMlsID sets the "list_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListAgentMlsID()
+	})
+}
+
+// ClearListAgentMlsID clears the value of the "list_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearListAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListAgentMlsID()
+	})
+}
+
+// SetCoListAgentKey sets the "co_list_agent_key" field.
+func (u *PropertyVersionUpsertOne) SetCoListAgentKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListAgentKey(v)
+	})
+}
+
+// UpdateCoListAgentKey sets the "co_list_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoListAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListAgentKey()
+	})
+}
+
+// ClearCoListAgentKey clears the value of the "co_list_agent_key" field.
+func (u *PropertyVersionUpsertOne) ClearCoListAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListAgentKey()
+	})
+}
+
+// SetCoListAgentMlsID sets the "co_list_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetCoListAgentMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListAgentMlsID(v)
+	})
+}
+
+// UpdateCoListAgentMlsID sets the "co_list_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoListAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListAgentMlsID()
+	})
+}
+
+// ClearCoListAgentMlsID clears the value of the "co_list_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearCoListAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListAgentMlsID()
+	})
+}
+
+// SetBuyerAgentKey sets the "buyer_agent_key" field.
+func (u *PropertyVersionUpsertOne) SetBuyerAgentKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerAgentKey(v)
+	})
+}
+
+// UpdateBuyerAgentKey sets the "buyer_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBuyerAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerAgentKey()
+	})
+}
+
+// ClearBuyerAgentKey clears the value of the "buyer_agent_key" field.
+func (u *PropertyVersionUpsertOne) ClearBuyerAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerAgentKey()
+	})
+}
+
+// SetBuyerAgentMlsID sets the "buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetBuyerAgentMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerAgentMlsID(v)
+	})
+}
+
+// UpdateBuyerAgentMlsID sets the "buyer_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBuyerAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerAgentMlsID()
+	})
+}
+
+// ClearBuyerAgentMlsID clears the value of the "buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearBuyerAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerAgentMlsID()
+	})
+}
+
+// SetCoBuyerAgentKey sets the "co_buyer_agent_key" field.
+func (u *PropertyVersionUpsertOne) SetCoBuyerAgentKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerAgentKey(v)
+	})
+}
+
+// UpdateCoBuyerAgentKey sets the "co_buyer_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoBuyerAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerAgentKey()
+	})
+}
+
+// ClearCoBuyerAgentKey clears the value of the "co_buyer_agent_key" field.
+func (u *PropertyVersionUpsertOne) ClearCoBuyerAgentKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerAgentKey()
+	})
+}
+
+// SetCoBuyerAgentMlsID sets the "co_buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetCoBuyerAgentMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerAgentMlsID(v)
+	})
+}
+
+// UpdateCoBuyerAgentMlsID sets the "co_buyer_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoBuyerAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerAgentMlsID()
+	})
+}
+
+// ClearCoBuyerAgentMlsID clears the value of the "co_buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearCoBuyerAgentMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerAgentMlsID()
+	})
+}
+
+// SetListOfficeKey sets the "list_office_key" field.
+func (u *PropertyVersionUpsertOne) SetListOfficeKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListOfficeKey(v)
+	})
+}
+
+// UpdateListOfficeKey sets the "list_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListOfficeKey()
+	})
+}
+
+// ClearListOfficeKey clears the value of the "list_office_key" field.
+func (u *PropertyVersionUpsertOne) ClearListOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListOfficeKey()
+	})
+}
+
+// SetListOfficeMlsID sets the "list_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetListOfficeMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListOfficeMlsID(v)
+	})
+}
+
+// UpdateListOfficeMlsID sets the "list_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListOfficeMlsID()
+	})
+}
+
+// ClearListOfficeMlsID clears the value of the "list_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearListOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListOfficeMlsID()
+	})
+}
+
+// SetCoListOfficeKey sets the "co_list_office_key" field.
+func (u *PropertyVersionUpsertOne) SetCoListOfficeKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListOfficeKey(v)
+	})
+}
+
+// UpdateCoListOfficeKey sets the "co_list_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoListOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListOfficeKey()
+	})
+}
+
+// ClearCoListOfficeKey clears the value of the "co_list_office_key" field.
+func (u *PropertyVersionUpsertOne) ClearCoListOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListOfficeKey()
+	})
+}
+
+// SetCoListOfficeMlsID sets the "co_list_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetCoListOfficeMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListOfficeMlsID(v)
+	})
+}
+
+// UpdateCoListOfficeMlsID sets the "co_list_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoListOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListOfficeMlsID()
+	})
+}
+
+// ClearCoListOfficeMlsID clears the value of the "co_list_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearCoListOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListOfficeMlsID()
+	})
+}
+
+// SetBuyerOfficeKey sets the "buyer_office_key" field.
+func (u *PropertyVersionUpsertOne) SetBuyerOfficeKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerOfficeKey(v)
+	})
+}
+
+// UpdateBuyerOfficeKey sets the "buyer_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBuyerOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerOfficeKey()
+	})
+}
+
+// ClearBuyerOfficeKey clears the value of the "buyer_office_key" field.
+func (u *PropertyVersionUpsertOne) ClearBuyerOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerOfficeKey()
+	})
+}
+
+// SetBuyerOfficeMlsID sets the "buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetBuyerOfficeMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerOfficeMlsID(v)
+	})
+}
+
+// UpdateBuyerOfficeMlsID sets the "buyer_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateBuyerOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerOfficeMlsID()
+	})
+}
+
+// ClearBuyerOfficeMlsID clears the value of the "buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearBuyerOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerOfficeMlsID()
+	})
+}
+
+// SetCoBuyerOfficeKey sets the "co_buyer_office_key" field.
+func (u *PropertyVersionUpsertOne) SetCoBuyerOfficeKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerOfficeKey(v)
+	})
+}
+
+// UpdateCoBuyerOfficeKey sets the "co_buyer_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoBuyerOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerOfficeKey()
+	})
+}
+
+// ClearCoBuyerOfficeKey clears the value of the "co_buyer_office_key" field.
+func (u *PropertyVersionUpsertOne) ClearCoBuyerOfficeKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerOfficeKey()
+	})
+}
+
+// SetCoBuyerOfficeMlsID sets the "co_buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) SetCoBuyerOfficeMlsID(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerOfficeMlsID(v)
+	})
+}
+
+// UpdateCoBuyerOfficeMlsID sets the "co_buyer_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCoBuyerOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerOfficeMlsID()
+	})
+}
+
+// ClearCoBuyerOfficeMlsID clears the value of the "co_buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertOne) ClearCoBuyerOfficeMlsID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerOfficeMlsID()
+	})
+}
+
+// SetInternetEntireListingDisplayYn sets the "internet_entire_listing_display_yn" field.
+func (u *PropertyVersionUpsertOne) SetInternetEntireListingDisplayYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetEntireListingDisplayYn(v)
+	})
+}
+
+// UpdateInternetEntireListingDisplayYn sets the "internet_entire_listing_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateInternetEntireListingDisplayYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetEntireListingDisplayYn()
+	})
+}
+
+// ClearInternetEntireListingDisplayYn clears the value of the "internet_entire_listing_display_yn" field.
+func (u *PropertyVersionUpsertOne) ClearInternetEntireListingDisplayYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetEntireListingDisplayYn()
+	})
+}
+
+// SetInternetAddressDisplayYn sets the "internet_address_display_yn" field.
+func (u *PropertyVersionUpsertOne) SetInternetAddressDisplayYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetAddressDisplayYn(v)
+	})
+}
+
+// UpdateInternetAddressDisplayYn sets the "internet_address_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateInternetAddressDisplayYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetAddressDisplayYn()
+	})
+}
+
+// ClearInternetAddressDisplayYn clears the value of the "internet_address_display_yn" field.
+func (u *PropertyVersionUpsertOne) ClearInternetAddressDisplayYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetAddressDisplayYn()
+	})
+}
+
+// SetInternetAutomatedValuationDisplayYn sets the "internet_automated_valuation_display_yn" field.
+func (u *PropertyVersionUpsertOne) SetInternetAutomatedValuationDisplayYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetAutomatedValuationDisplayYn(v)
+	})
+}
+
+// UpdateInternetAutomatedValuationDisplayYn sets the "internet_automated_valuation_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateInternetAutomatedValuationDisplayYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetAutomatedValuationDisplayYn()
+	})
+}
+
+// ClearInternetAutomatedValuationDisplayYn clears the value of the "internet_automated_valuation_display_yn" field.
+func (u *PropertyVersionUpsertOne) ClearInternetAutomatedValuationDisplayYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetAutomatedValuationDisplayYn()
+	})
+}
+
+// SetInternetConsumerCommentYn sets the "internet_consumer_comment_yn" field.
+func (u *PropertyVersionUpsertOne) SetInternetConsumerCommentYn(v bool) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetConsumerCommentYn(v)
+	})
+}
+
+// UpdateInternetConsumerCommentYn sets the "internet_consumer_comment_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateInternetConsumerCommentYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetConsumerCommentYn()
+	})
+}
+
+// ClearInternetConsumerCommentYn clears the value of the "internet_consumer_comment_yn" field.
+func (u *PropertyVersionUpsertOne) ClearInternetConsumerCommentYn() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetConsumerCommentYn()
+	})
+}
+
+// SetAppliances sets the "appliances" field.
+func (u *PropertyVersionUpsertOne) SetAppliances(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetAppliances(v)
+	})
+}
+
+// UpdateAppliances sets the "appliances" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateAppliances() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateAppliances()
+	})
+}
+
+// ClearAppliances clears the value of the "appliances" field.
+func (u *PropertyVersionUpsertOne) ClearAppliances() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearAppliances()
+	})
+}
+
+// SetCooling sets the "cooling" field.
+func (u *PropertyVersionUpsertOne) SetCooling(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCooling(v)
+	})
+}
+
+// UpdateCooling sets the "cooling" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCooling() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCooling()
+	})
+}
+
+// ClearCooling clears the value of the "cooling" field.
+func (u *PropertyVersionUpsertOne) ClearCooling() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCooling()
+	})
+}
+
+// SetHeating sets the "heating" field.
+func (u *PropertyVersionUpsertOne) SetHeating(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHeating(v)
+	})
+}
+
+// UpdateHeating sets the "heating" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateHeating() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHeating()
+	})
+}
+
+// ClearHeating clears the value of the "heating" field.
+func (u *PropertyVersionUpsertOne) ClearHeating() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHeating()
+	})
+}
+
+// SetFlooring sets the "flooring" field.
+func (u *PropertyVersionUpsertOne) SetFlooring(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFlooring(v)
+	})
+}
+
+// UpdateFlooring sets the "flooring" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateFlooring() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFlooring()
+	})
+}
+
+// ClearFlooring clears the value of the "flooring" field.
+func (u *PropertyVersionUpsertOne) ClearFlooring() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFlooring()
+	})
+}
+
+// SetRoof sets the "roof" field.
+func (u *PropertyVersionUpsertOne) SetRoof(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetRoof(v)
+	})
+}
+
+// UpdateRoof sets the "roof" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateRoof() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateRoof()
+	})
+}
+
+// ClearRoof clears the value of the "roof" field.
+func (u *PropertyVersionUpsertOne) ClearRoof() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearRoof()
+	})
+}
+
+// SetExteriorFeatures sets the "exterior_features" field.
+func (u *PropertyVersionUpsertOne) SetExteriorFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetExteriorFeatures(v)
+	})
+}
+
+// UpdateExteriorFeatures sets the "exterior_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateExteriorFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateExteriorFeatures()
+	})
+}
+
+// ClearExteriorFeatures clears the value of the "exterior_features" field.
+func (u *PropertyVersionUpsertOne) ClearExteriorFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearExteriorFeatures()
+	})
+}
+
+// SetInteriorFeatures sets the "interior_features" field.
+func (u *PropertyVersionUpsertOne) SetInteriorFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInteriorFeatures(v)
+	})
+}
+
+// UpdateInteriorFeatures sets the "interior_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateInteriorFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInteriorFeatures()
+	})
+}
+
+// ClearInteriorFeatures clears the value of the "interior_features" field.
+func (u *PropertyVersionUpsertOne) ClearInteriorFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInteriorFeatures()
+	})
+}
+
+// SetParkingFeatures sets the "parking_features" field.
+func (u *PropertyVersionUpsertOne) SetParkingFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetParkingFeatures(v)
+	})
+}
+
+// UpdateParkingFeatures sets the "parking_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateParkingFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateParkingFeatures()
+	})
+}
+
+// ClearParkingFeatures clears the value of the "parking_features" field.
+func (u *PropertyVersionUpsertOne) ClearParkingFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearParkingFeatures()
+	})
+}
+
+// SetPoolFeatures sets the "pool_features" field.
+func (u *PropertyVersionUpsertOne) SetPoolFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPoolFeatures(v)
+	})
+}
+
+// UpdatePoolFeatures sets the "pool_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePoolFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePoolFeatures()
+	})
+}
+
+// ClearPoolFeatures clears the value of the "pool_features" field.
+func (u *PropertyVersionUpsertOne) ClearPoolFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPoolFeatures()
+	})
+}
+
+// SetView sets the "view" field.
+func (u *PropertyVersionUpsertOne) SetView(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetView(v)
+	})
+}
+
+// UpdateView sets the "view" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateView() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateView()
+	})
+}
+
+// ClearView clears the value of the "view" field.
+func (u *PropertyVersionUpsertOne) ClearView() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearView()
+	})
+}
+
+// SetWaterfrontFeatures sets the "waterfront_features" field.
+func (u *PropertyVersionUpsertOne) SetWaterfrontFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWaterfrontFeatures(v)
+	})
+}
+
+// UpdateWaterfrontFeatures sets the "waterfront_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateWaterfrontFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWaterfrontFeatures()
+	})
+}
+
+// ClearWaterfrontFeatures clears the value of the "waterfront_features" field.
+func (u *PropertyVersionUpsertOne) ClearWaterfrontFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWaterfrontFeatures()
+	})
+}
+
+// SetCommunityFeatures sets the "community_features" field.
+func (u *PropertyVersionUpsertOne) SetCommunityFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCommunityFeatures(v)
+	})
+}
+
+// UpdateCommunityFeatures sets the "community_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateCommunityFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCommunityFeatures()
+	})
+}
+
+// ClearCommunityFeatures clears the value of the "community_features" field.
+func (u *PropertyVersionUpsertOne) ClearCommunityFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCommunityFeatures()
+	})
+}
+
+// SetAccessibilityFeatures sets the "accessibility_features" field.
+func (u *PropertyVersionUpsertOne) SetAccessibilityFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetAccessibilityFeatures(v)
+	})
+}
+
+// UpdateAccessibilityFeatures sets the "accessibility_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateAccessibilityFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateAccessibilityFeatures()
+	})
+}
+
+// ClearAccessibilityFeatures clears the value of the "accessibility_features" field.
+func (u *PropertyVersionUpsertOne) ClearAccessibilityFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearAccessibilityFeatures()
+	})
+}
+
+// SetUtilities sets the "utilities" field.
+func (u *PropertyVersionUpsertOne) SetUtilities(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetUtilities(v)
+	})
+}
+
+// UpdateUtilities sets the "utilities" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateUtilities() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateUtilities()
+	})
+}
+
+// ClearUtilities clears the value of the "utilities" field.
+func (u *PropertyVersionUpsertOne) ClearUtilities() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearUtilities()
+	})
+}
+
+// SetSewer sets the "sewer" field.
+func (u *PropertyVersionUpsertOne) SetSewer(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSewer(v)
+	})
+}
+
+// UpdateSewer sets the "sewer" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSewer() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSewer()
+	})
+}
+
+// ClearSewer clears the value of the "sewer" field.
+func (u *PropertyVersionUpsertOne) ClearSewer() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSewer()
+	})
+}
+
+// SetWaterSource sets the "water_source" field.
+func (u *PropertyVersionUpsertOne) SetWaterSource(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWaterSource(v)
+	})
+}
+
+// UpdateWaterSource sets the "water_source" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateWaterSource() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWaterSource()
+	})
+}
+
+// ClearWaterSource clears the value of the "water_source" field.
+func (u *PropertyVersionUpsertOne) ClearWaterSource() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWaterSource()
+	})
+}
+
+// SetLotFeatures sets the "lot_features" field.
+func (u *PropertyVersionUpsertOne) SetLotFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLotFeatures(v)
+	})
+}
+
+// UpdateLotFeatures sets the "lot_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLotFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLotFeatures()
+	})
+}
+
+// ClearLotFeatures clears the value of the "lot_features" field.
+func (u *PropertyVersionUpsertOne) ClearLotFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLotFeatures()
+	})
+}
+
+// SetPatioAndPorchFeatures sets the "patio_and_porch_features" field.
+func (u *PropertyVersionUpsertOne) SetPatioAndPorchFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPatioAndPorchFeatures(v)
+	})
+}
+
+// UpdatePatioAndPorchFeatures sets the "patio_and_porch_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePatioAndPorchFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePatioAndPorchFeatures()
+	})
+}
+
+// ClearPatioAndPorchFeatures clears the value of the "patio_and_porch_features" field.
+func (u *PropertyVersionUpsertOne) ClearPatioAndPorchFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPatioAndPorchFeatures()
+	})
+}
+
+// SetSecurityFeatures sets the "security_features" field.
+func (u *PropertyVersionUpsertOne) SetSecurityFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSecurityFeatures(v)
+	})
+}
+
+// UpdateSecurityFeatures sets the "security_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSecurityFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSecurityFeatures()
+	})
+}
+
+// ClearSecurityFeatures clears the value of the "security_features" field.
+func (u *PropertyVersionUpsertOne) ClearSecurityFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSecurityFeatures()
+	})
+}
+
+// SetConstructionMaterials sets the "construction_materials" field.
+func (u *PropertyVersionUpsertOne) SetConstructionMaterials(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetConstructionMaterials(v)
+	})
+}
+
+// UpdateConstructionMaterials sets the "construction_materials" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateConstructionMaterials() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateConstructionMaterials()
+	})
+}
+
+// ClearConstructionMaterials clears the value of the "construction_materials" field.
+func (u *PropertyVersionUpsertOne) ClearConstructionMaterials() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearConstructionMaterials()
+	})
+}
+
+// SetFoundationDetails sets the "foundation_details" field.
+func (u *PropertyVersionUpsertOne) SetFoundationDetails(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFoundationDetails(v)
+	})
+}
+
+// UpdateFoundationDetails sets the "foundation_details" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateFoundationDetails() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFoundationDetails()
+	})
+}
+
+// ClearFoundationDetails clears the value of the "foundation_details" field.
+func (u *PropertyVersionUpsertOne) ClearFoundationDetails() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFoundationDetails()
+	})
+}
+
+// SetLevels sets the "levels" field.
+func (u *PropertyVersionUpsertOne) SetLevels(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLevels(v)
+	})
+}
+
+// UpdateLevels sets the "levels" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateLevels() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLevels()
+	})
+}
+
+// ClearLevels clears the value of the "levels" field.
+func (u *PropertyVersionUpsertOne) ClearLevels() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLevels()
+	})
+}
+
+// SetFireplaceFeatures sets the "fireplace_features" field.
+func (u *PropertyVersionUpsertOne) SetFireplaceFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFireplaceFeatures(v)
+	})
+}
+
+// UpdateFireplaceFeatures sets the "fireplace_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateFireplaceFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFireplaceFeatures()
+	})
+}
+
+// ClearFireplaceFeatures clears the value of the "fireplace_features" field.
+func (u *PropertyVersionUpsertOne) ClearFireplaceFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFireplaceFeatures()
+	})
+}
+
+// SetSpaFeatures sets the "spa_features" field.
+func (u *PropertyVersionUpsertOne) SetSpaFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSpaFeatures(v)
+	})
+}
+
+// UpdateSpaFeatures sets the "spa_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSpaFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSpaFeatures()
+	})
+}
+
+// ClearSpaFeatures clears the value of the "spa_features" field.
+func (u *PropertyVersionUpsertOne) ClearSpaFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSpaFeatures()
+	})
+}
+
+// SetFencing sets the "fencing" field.
+func (u *PropertyVersionUpsertOne) SetFencing(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFencing(v)
+	})
+}
+
+// UpdateFencing sets the "fencing" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateFencing() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFencing()
+	})
+}
+
+// ClearFencing clears the value of the "fencing" field.
+func (u *PropertyVersionUpsertOne) ClearFencing() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFencing()
+	})
+}
+
+// SetHorseAmenities sets the "horse_amenities" field.
+func (u *PropertyVersionUpsertOne) SetHorseAmenities(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHorseAmenities(v)
+	})
+}
+
+// UpdateHorseAmenities sets the "horse_amenities" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateHorseAmenities() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHorseAmenities()
+	})
+}
+
+// ClearHorseAmenities clears the value of the "horse_amenities" field.
+func (u *PropertyVersionUpsertOne) ClearHorseAmenities() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHorseAmenities()
+	})
+}
+
+// SetWindowFeatures sets the "window_features" field.
+func (u *PropertyVersionUpsertOne) SetWindowFeatures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWindowFeatures(v)
+	})
+}
+
+// UpdateWindowFeatures sets the "window_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateWindowFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWindowFeatures()
+	})
+}
+
+// ClearWindowFeatures clears the value of the "window_features" field.
+func (u *PropertyVersionUpsertOne) ClearWindowFeatures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWindowFeatures()
+	})
+}
+
+// SetPetsAllowed sets the "pets_allowed" field.
+func (u *PropertyVersionUpsertOne) SetPetsAllowed(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPetsAllowed(v)
+	})
+}
+
+// UpdatePetsAllowed sets the "pets_allowed" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePetsAllowed() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePetsAllowed()
+	})
+}
+
+// ClearPetsAllowed clears the value of the "pets_allowed" field.
+func (u *PropertyVersionUpsertOne) ClearPetsAllowed() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPetsAllowed()
+	})
+}
+
+// SetDisclosures sets the "disclosures" field.
+func (u *PropertyVersionUpsertOne) SetDisclosures(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetDisclosures(v)
+	})
+}
+
+// UpdateDisclosures sets the "disclosures" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateDisclosures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateDisclosures()
+	})
+}
+
+// ClearDisclosures clears the value of the "disclosures" field.
+func (u *PropertyVersionUpsertOne) ClearDisclosures() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearDisclosures()
+	})
+}
+
+// SetPropertyCondition sets the "property_condition" field.
+func (u *PropertyVersionUpsertOne) SetPropertyCondition(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPropertyCondition(v)
+	})
+}
+
+// UpdatePropertyCondition sets the "property_condition" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePropertyCondition() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePropertyCondition()
+	})
+}
+
+// ClearPropertyCondition clears the value of the "property_condition" field.
+func (u *PropertyVersionUpsertOne) ClearPropertyCondition() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPropertyCondition()
+	})
+}
+
+// SetSpecialListingConditions sets the "special_listing_conditions" field.
+func (u *PropertyVersionUpsertOne) SetSpecialListingConditions(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSpecialListingConditions(v)
+	})
+}
+
+// UpdateSpecialListingConditions sets the "special_listing_conditions" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSpecialListingConditions() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSpecialListingConditions()
+	})
+}
+
+// ClearSpecialListingConditions clears the value of the "special_listing_conditions" field.
+func (u *PropertyVersionUpsertOne) ClearSpecialListingConditions() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSpecialListingConditions()
+	})
+}
+
+// SetGreenEnergyEfficient sets the "green_energy_efficient" field.
+func (u *PropertyVersionUpsertOne) SetGreenEnergyEfficient(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetGreenEnergyEfficient(v)
+	})
+}
+
+// UpdateGreenEnergyEfficient sets the "green_energy_efficient" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateGreenEnergyEfficient() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateGreenEnergyEfficient()
+	})
+}
+
+// ClearGreenEnergyEfficient clears the value of the "green_energy_efficient" field.
+func (u *PropertyVersionUpsertOne) ClearGreenEnergyEfficient() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearGreenEnergyEfficient()
+	})
+}
+
+// SetGreenSustainability sets the "green_sustainability" field.
+func (u *PropertyVersionUpsertOne) SetGreenSustainability(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetGreenSustainability(v)
+	})
+}
+
+// UpdateGreenSustainability sets the "green_sustainability" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateGreenSustainability() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateGreenSustainability()
+	})
+}
+
+// ClearGreenSustainability clears the value of the "green_sustainability" field.
+func (u *PropertyVersionUpsertOne) ClearGreenSustainability() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearGreenSustainability()
+	})
+}
+
+// SetSyndicateTo sets the "syndicate_to" field.
+func (u *PropertyVersionUpsertOne) SetSyndicateTo(v pq.StringArray) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSyndicateTo(v)
+	})
+}
+
+// UpdateSyndicateTo sets the "syndicate_to" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSyndicateTo() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSyndicateTo()
+	})
+}
+
+// ClearSyndicateTo clears the value of the "syndicate_to" field.
+func (u *PropertyVersionUpsertOne) ClearSyndicateTo() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSyndicateTo()
+	})
+}
+
+// SetPublicRemarks sets the "public_remarks" field.
+func (u *PropertyVersionUpsertOne) SetPublicRemarks(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPublicRemarks(v)
+	})
+}
+
+// UpdatePublicRemarks sets the "public_remarks" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdatePublicRemarks() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePublicRemarks()
+	})
+}
+
+// ClearPublicRemarks clears the value of the "public_remarks" field.
+func (u *PropertyVersionUpsertOne) ClearPublicRemarks() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPublicRemarks()
+	})
+}
+
+// SetSyndicationRemarks sets the "syndication_remarks" field.
+func (u *PropertyVersionUpsertOne) SetSyndicationRemarks(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSyndicationRemarks(v)
+	})
+}
+
+// UpdateSyndicationRemarks sets the "syndication_remarks" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSyndicationRemarks() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSyndicationRemarks()
+	})
+}
+
+// ClearSyndicationRemarks clears the value of the "syndication_remarks" field.
+func (u *PropertyVersionUpsertOne) ClearSyndicationRemarks() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSyndicationRemarks()
+	})
+}
+
+// SetDirections sets the "directions" field.
+func (u *PropertyVersionUpsertOne) SetDirections(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetDirections(v)
+	})
+}
+
+// UpdateDirections sets the "directions" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateDirections() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateDirections()
+	})
+}
+
+// ClearDirections clears the value of the "directions" field.
+func (u *PropertyVersionUpsertOne) ClearDirections() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearDirections()
+	})
+}
+
+// SetFurnished sets the "furnished" field.
+func (u *PropertyVersionUpsertOne) SetFurnished(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFurnished(v)
+	})
+}
+
+// UpdateFurnished sets the "furnished" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateFurnished() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFurnished()
+	})
+}
+
+// ClearFurnished clears the value of the "furnished" field.
+func (u *PropertyVersionUpsertOne) ClearFurnished() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFurnished()
+	})
+}
+
+// SetDirectionFaces sets the "direction_faces" field.
+func (u *PropertyVersionUpsertOne) SetDirectionFaces(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetDirectionFaces(v)
+	})
+}
+
+// UpdateDirectionFaces sets the "direction_faces" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateDirectionFaces() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateDirectionFaces()
+	})
+}
+
+// ClearDirectionFaces clears the value of the "direction_faces" field.
+func (u *PropertyVersionUpsertOne) ClearDirectionFaces() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearDirectionFaces()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyVersionUpsertOne) SetExtendedFields(v map[string]interface{}) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateExtendedFields() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyVersionUpsertOne) ClearExtendedFields() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyVersionUpsertOne) SetListingKey(v string) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateListingKey() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyVersionUpsertOne) SetSyncEventID(v uuid.UUID) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateSyncEventID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyVersionUpsertOne) SetRawOutputID(v uuid.UUID) *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertOne) UpdateRawOutputID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyVersionUpsertOne) ClearRawOutputID() *PropertyVersionUpsertOne {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *PropertyVersionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PropertyVersionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PropertyVersionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PropertyVersionUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: PropertyVersionUpsertOne.ID is not supported by MySQL driver. Use PropertyVersionUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PropertyVersionUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PropertyVersionCreateBulk is the builder for creating many PropertyVersion entities in bulk.
 type PropertyVersionCreateBulk struct {
 	config
 	err      error
 	builders []*PropertyVersionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the PropertyVersion entities in the database.
@@ -2232,6 +7611,7 @@ func (_c *PropertyVersionCreateBulk) Save(ctx context.Context) ([]*PropertyVersi
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -2278,6 +7658,2941 @@ func (_c *PropertyVersionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *PropertyVersionCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PropertyVersion.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PropertyVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PropertyVersionCreateBulk) OnConflict(opts ...sql.ConflictOption) *PropertyVersionUpsertBulk {
+	_c.conflict = opts
+	return &PropertyVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PropertyVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PropertyVersionCreateBulk) OnConflictColumns(columns ...string) *PropertyVersionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PropertyVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// PropertyVersionUpsertBulk is the builder for "upsert"-ing
+// a bulk of PropertyVersion nodes.
+type PropertyVersionUpsertBulk struct {
+	create *PropertyVersionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.PropertyVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(propertyversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PropertyVersionUpsertBulk) UpdateNewValues() *PropertyVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(propertyversion.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PropertyVersion.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PropertyVersionUpsertBulk) Ignore() *PropertyVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PropertyVersionUpsertBulk) DoNothing() *PropertyVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PropertyVersionCreateBulk.OnConflict
+// documentation for more info.
+func (u *PropertyVersionUpsertBulk) Update(set func(*PropertyVersionUpsert)) *PropertyVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PropertyVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *PropertyVersionUpsertBulk) SetValidFrom(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateValidFrom() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *PropertyVersionUpsertBulk) SetValidTo(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateValidTo() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *PropertyVersionUpsertBulk) ClearValidTo() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *PropertyVersionUpsertBulk) SetChangeType(v propertyversion.ChangeType) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateChangeType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *PropertyVersionUpsertBulk) SetChangedFields(v map[string]interface{}) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateChangedFields() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *PropertyVersionUpsertBulk) ClearChangedFields() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *PropertyVersionUpsertBulk) SetProcessorVersion(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateProcessorVersion() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyVersionUpsertBulk) SetSourceModifiedAt(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSourceModifiedAt() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyVersionUpsertBulk) SetOriginatingSystemName(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateOriginatingSystemName() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyVersionUpsertBulk) ClearOriginatingSystemName() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyVersionUpsertBulk) SetMlgCanView(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMlgCanView() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyVersionUpsertBulk) SetMlgCanUse(v []string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMlgCanUse() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyVersionUpsertBulk) ClearMlgCanUse() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingID sets the "listing_id" field.
+func (u *PropertyVersionUpsertBulk) SetListingID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListingID(v)
+	})
+}
+
+// UpdateListingID sets the "listing_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListingID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListingID()
+	})
+}
+
+// ClearListingID clears the value of the "listing_id" field.
+func (u *PropertyVersionUpsertBulk) ClearListingID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListingID()
+	})
+}
+
+// SetParcelNumber sets the "parcel_number" field.
+func (u *PropertyVersionUpsertBulk) SetParcelNumber(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetParcelNumber(v)
+	})
+}
+
+// UpdateParcelNumber sets the "parcel_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateParcelNumber() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateParcelNumber()
+	})
+}
+
+// ClearParcelNumber clears the value of the "parcel_number" field.
+func (u *PropertyVersionUpsertBulk) ClearParcelNumber() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearParcelNumber()
+	})
+}
+
+// SetMlsStatus sets the "mls_status" field.
+func (u *PropertyVersionUpsertBulk) SetMlsStatus(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlsStatus(v)
+	})
+}
+
+// UpdateMlsStatus sets the "mls_status" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMlsStatus() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlsStatus()
+	})
+}
+
+// ClearMlsStatus clears the value of the "mls_status" field.
+func (u *PropertyVersionUpsertBulk) ClearMlsStatus() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMlsStatus()
+	})
+}
+
+// SetStandardStatus sets the "standard_status" field.
+func (u *PropertyVersionUpsertBulk) SetStandardStatus(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStandardStatus(v)
+	})
+}
+
+// UpdateStandardStatus sets the "standard_status" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStandardStatus() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStandardStatus()
+	})
+}
+
+// ClearStandardStatus clears the value of the "standard_status" field.
+func (u *PropertyVersionUpsertBulk) ClearStandardStatus() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStandardStatus()
+	})
+}
+
+// SetMajorChangeType sets the "major_change_type" field.
+func (u *PropertyVersionUpsertBulk) SetMajorChangeType(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMajorChangeType(v)
+	})
+}
+
+// UpdateMajorChangeType sets the "major_change_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMajorChangeType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMajorChangeType()
+	})
+}
+
+// ClearMajorChangeType clears the value of the "major_change_type" field.
+func (u *PropertyVersionUpsertBulk) ClearMajorChangeType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMajorChangeType()
+	})
+}
+
+// SetMajorChangeTimestamp sets the "major_change_timestamp" field.
+func (u *PropertyVersionUpsertBulk) SetMajorChangeTimestamp(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMajorChangeTimestamp(v)
+	})
+}
+
+// UpdateMajorChangeTimestamp sets the "major_change_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMajorChangeTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMajorChangeTimestamp()
+	})
+}
+
+// ClearMajorChangeTimestamp clears the value of the "major_change_timestamp" field.
+func (u *PropertyVersionUpsertBulk) ClearMajorChangeTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMajorChangeTimestamp()
+	})
+}
+
+// SetListingContractDate sets the "listing_contract_date" field.
+func (u *PropertyVersionUpsertBulk) SetListingContractDate(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListingContractDate(v)
+	})
+}
+
+// UpdateListingContractDate sets the "listing_contract_date" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListingContractDate() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListingContractDate()
+	})
+}
+
+// ClearListingContractDate clears the value of the "listing_contract_date" field.
+func (u *PropertyVersionUpsertBulk) ClearListingContractDate() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListingContractDate()
+	})
+}
+
+// SetOnMarketTimestamp sets the "on_market_timestamp" field.
+func (u *PropertyVersionUpsertBulk) SetOnMarketTimestamp(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOnMarketTimestamp(v)
+	})
+}
+
+// UpdateOnMarketTimestamp sets the "on_market_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateOnMarketTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOnMarketTimestamp()
+	})
+}
+
+// ClearOnMarketTimestamp clears the value of the "on_market_timestamp" field.
+func (u *PropertyVersionUpsertBulk) ClearOnMarketTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOnMarketTimestamp()
+	})
+}
+
+// SetOriginalEntryTimestamp sets the "original_entry_timestamp" field.
+func (u *PropertyVersionUpsertBulk) SetOriginalEntryTimestamp(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOriginalEntryTimestamp(v)
+	})
+}
+
+// UpdateOriginalEntryTimestamp sets the "original_entry_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateOriginalEntryTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOriginalEntryTimestamp()
+	})
+}
+
+// ClearOriginalEntryTimestamp clears the value of the "original_entry_timestamp" field.
+func (u *PropertyVersionUpsertBulk) ClearOriginalEntryTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOriginalEntryTimestamp()
+	})
+}
+
+// SetPhotosChangeTimestamp sets the "photos_change_timestamp" field.
+func (u *PropertyVersionUpsertBulk) SetPhotosChangeTimestamp(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPhotosChangeTimestamp(v)
+	})
+}
+
+// UpdatePhotosChangeTimestamp sets the "photos_change_timestamp" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePhotosChangeTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePhotosChangeTimestamp()
+	})
+}
+
+// ClearPhotosChangeTimestamp clears the value of the "photos_change_timestamp" field.
+func (u *PropertyVersionUpsertBulk) ClearPhotosChangeTimestamp() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPhotosChangeTimestamp()
+	})
+}
+
+// SetAvailabilityDate sets the "availability_date" field.
+func (u *PropertyVersionUpsertBulk) SetAvailabilityDate(v time.Time) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetAvailabilityDate(v)
+	})
+}
+
+// UpdateAvailabilityDate sets the "availability_date" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateAvailabilityDate() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateAvailabilityDate()
+	})
+}
+
+// ClearAvailabilityDate clears the value of the "availability_date" field.
+func (u *PropertyVersionUpsertBulk) ClearAvailabilityDate() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearAvailabilityDate()
+	})
+}
+
+// SetListPrice sets the "list_price" field.
+func (u *PropertyVersionUpsertBulk) SetListPrice(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListPrice(v)
+	})
+}
+
+// UpdateListPrice sets the "list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListPrice() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListPrice()
+	})
+}
+
+// ClearListPrice clears the value of the "list_price" field.
+func (u *PropertyVersionUpsertBulk) ClearListPrice() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListPrice()
+	})
+}
+
+// SetOriginalListPrice sets the "original_list_price" field.
+func (u *PropertyVersionUpsertBulk) SetOriginalListPrice(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetOriginalListPrice(v)
+	})
+}
+
+// UpdateOriginalListPrice sets the "original_list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateOriginalListPrice() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateOriginalListPrice()
+	})
+}
+
+// ClearOriginalListPrice clears the value of the "original_list_price" field.
+func (u *PropertyVersionUpsertBulk) ClearOriginalListPrice() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearOriginalListPrice()
+	})
+}
+
+// SetPreviousListPrice sets the "previous_list_price" field.
+func (u *PropertyVersionUpsertBulk) SetPreviousListPrice(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPreviousListPrice(v)
+	})
+}
+
+// UpdatePreviousListPrice sets the "previous_list_price" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePreviousListPrice() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePreviousListPrice()
+	})
+}
+
+// ClearPreviousListPrice clears the value of the "previous_list_price" field.
+func (u *PropertyVersionUpsertBulk) ClearPreviousListPrice() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPreviousListPrice()
+	})
+}
+
+// SetTaxAnnualAmount sets the "tax_annual_amount" field.
+func (u *PropertyVersionUpsertBulk) SetTaxAnnualAmount(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetTaxAnnualAmount(v)
+	})
+}
+
+// UpdateTaxAnnualAmount sets the "tax_annual_amount" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateTaxAnnualAmount() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateTaxAnnualAmount()
+	})
+}
+
+// ClearTaxAnnualAmount clears the value of the "tax_annual_amount" field.
+func (u *PropertyVersionUpsertBulk) ClearTaxAnnualAmount() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearTaxAnnualAmount()
+	})
+}
+
+// SetTaxAssessedValue sets the "tax_assessed_value" field.
+func (u *PropertyVersionUpsertBulk) SetTaxAssessedValue(v int64) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetTaxAssessedValue(v)
+	})
+}
+
+// AddTaxAssessedValue adds v to the "tax_assessed_value" field.
+func (u *PropertyVersionUpsertBulk) AddTaxAssessedValue(v int64) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddTaxAssessedValue(v)
+	})
+}
+
+// UpdateTaxAssessedValue sets the "tax_assessed_value" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateTaxAssessedValue() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateTaxAssessedValue()
+	})
+}
+
+// ClearTaxAssessedValue clears the value of the "tax_assessed_value" field.
+func (u *PropertyVersionUpsertBulk) ClearTaxAssessedValue() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearTaxAssessedValue()
+	})
+}
+
+// SetTaxYear sets the "tax_year" field.
+func (u *PropertyVersionUpsertBulk) SetTaxYear(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetTaxYear(v)
+	})
+}
+
+// AddTaxYear adds v to the "tax_year" field.
+func (u *PropertyVersionUpsertBulk) AddTaxYear(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddTaxYear(v)
+	})
+}
+
+// UpdateTaxYear sets the "tax_year" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateTaxYear() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateTaxYear()
+	})
+}
+
+// ClearTaxYear clears the value of the "tax_year" field.
+func (u *PropertyVersionUpsertBulk) ClearTaxYear() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearTaxYear()
+	})
+}
+
+// SetPropertyType sets the "property_type" field.
+func (u *PropertyVersionUpsertBulk) SetPropertyType(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPropertyType(v)
+	})
+}
+
+// UpdatePropertyType sets the "property_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePropertyType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePropertyType()
+	})
+}
+
+// ClearPropertyType clears the value of the "property_type" field.
+func (u *PropertyVersionUpsertBulk) ClearPropertyType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPropertyType()
+	})
+}
+
+// SetPropertySubType sets the "property_sub_type" field.
+func (u *PropertyVersionUpsertBulk) SetPropertySubType(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPropertySubType(v)
+	})
+}
+
+// UpdatePropertySubType sets the "property_sub_type" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePropertySubType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePropertySubType()
+	})
+}
+
+// ClearPropertySubType clears the value of the "property_sub_type" field.
+func (u *PropertyVersionUpsertBulk) ClearPropertySubType() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPropertySubType()
+	})
+}
+
+// SetNewConstructionYn sets the "new_construction_yn" field.
+func (u *PropertyVersionUpsertBulk) SetNewConstructionYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetNewConstructionYn(v)
+	})
+}
+
+// UpdateNewConstructionYn sets the "new_construction_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateNewConstructionYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateNewConstructionYn()
+	})
+}
+
+// ClearNewConstructionYn clears the value of the "new_construction_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearNewConstructionYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearNewConstructionYn()
+	})
+}
+
+// SetBedroomsTotal sets the "bedrooms_total" field.
+func (u *PropertyVersionUpsertBulk) SetBedroomsTotal(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBedroomsTotal(v)
+	})
+}
+
+// AddBedroomsTotal adds v to the "bedrooms_total" field.
+func (u *PropertyVersionUpsertBulk) AddBedroomsTotal(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBedroomsTotal(v)
+	})
+}
+
+// UpdateBedroomsTotal sets the "bedrooms_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBedroomsTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBedroomsTotal()
+	})
+}
+
+// ClearBedroomsTotal clears the value of the "bedrooms_total" field.
+func (u *PropertyVersionUpsertBulk) ClearBedroomsTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBedroomsTotal()
+	})
+}
+
+// SetBathroomsTotalInteger sets the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsertBulk) SetBathroomsTotalInteger(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBathroomsTotalInteger(v)
+	})
+}
+
+// AddBathroomsTotalInteger adds v to the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsertBulk) AddBathroomsTotalInteger(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBathroomsTotalInteger(v)
+	})
+}
+
+// UpdateBathroomsTotalInteger sets the "bathrooms_total_integer" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBathroomsTotalInteger() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBathroomsTotalInteger()
+	})
+}
+
+// ClearBathroomsTotalInteger clears the value of the "bathrooms_total_integer" field.
+func (u *PropertyVersionUpsertBulk) ClearBathroomsTotalInteger() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBathroomsTotalInteger()
+	})
+}
+
+// SetBathroomsFull sets the "bathrooms_full" field.
+func (u *PropertyVersionUpsertBulk) SetBathroomsFull(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBathroomsFull(v)
+	})
+}
+
+// AddBathroomsFull adds v to the "bathrooms_full" field.
+func (u *PropertyVersionUpsertBulk) AddBathroomsFull(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBathroomsFull(v)
+	})
+}
+
+// UpdateBathroomsFull sets the "bathrooms_full" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBathroomsFull() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBathroomsFull()
+	})
+}
+
+// ClearBathroomsFull clears the value of the "bathrooms_full" field.
+func (u *PropertyVersionUpsertBulk) ClearBathroomsFull() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBathroomsFull()
+	})
+}
+
+// SetBathroomsHalf sets the "bathrooms_half" field.
+func (u *PropertyVersionUpsertBulk) SetBathroomsHalf(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBathroomsHalf(v)
+	})
+}
+
+// AddBathroomsHalf adds v to the "bathrooms_half" field.
+func (u *PropertyVersionUpsertBulk) AddBathroomsHalf(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddBathroomsHalf(v)
+	})
+}
+
+// UpdateBathroomsHalf sets the "bathrooms_half" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBathroomsHalf() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBathroomsHalf()
+	})
+}
+
+// ClearBathroomsHalf clears the value of the "bathrooms_half" field.
+func (u *PropertyVersionUpsertBulk) ClearBathroomsHalf() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBathroomsHalf()
+	})
+}
+
+// SetMainLevelBedrooms sets the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsertBulk) SetMainLevelBedrooms(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMainLevelBedrooms(v)
+	})
+}
+
+// AddMainLevelBedrooms adds v to the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsertBulk) AddMainLevelBedrooms(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddMainLevelBedrooms(v)
+	})
+}
+
+// UpdateMainLevelBedrooms sets the "main_level_bedrooms" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMainLevelBedrooms() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMainLevelBedrooms()
+	})
+}
+
+// ClearMainLevelBedrooms clears the value of the "main_level_bedrooms" field.
+func (u *PropertyVersionUpsertBulk) ClearMainLevelBedrooms() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMainLevelBedrooms()
+	})
+}
+
+// SetLivingArea sets the "living_area" field.
+func (u *PropertyVersionUpsertBulk) SetLivingArea(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLivingArea(v)
+	})
+}
+
+// UpdateLivingArea sets the "living_area" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLivingArea() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLivingArea()
+	})
+}
+
+// ClearLivingArea clears the value of the "living_area" field.
+func (u *PropertyVersionUpsertBulk) ClearLivingArea() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLivingArea()
+	})
+}
+
+// SetBuildingAreaTotal sets the "building_area_total" field.
+func (u *PropertyVersionUpsertBulk) SetBuildingAreaTotal(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuildingAreaTotal(v)
+	})
+}
+
+// UpdateBuildingAreaTotal sets the "building_area_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBuildingAreaTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuildingAreaTotal()
+	})
+}
+
+// ClearBuildingAreaTotal clears the value of the "building_area_total" field.
+func (u *PropertyVersionUpsertBulk) ClearBuildingAreaTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuildingAreaTotal()
+	})
+}
+
+// SetLotSizeAcres sets the "lot_size_acres" field.
+func (u *PropertyVersionUpsertBulk) SetLotSizeAcres(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLotSizeAcres(v)
+	})
+}
+
+// UpdateLotSizeAcres sets the "lot_size_acres" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLotSizeAcres() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLotSizeAcres()
+	})
+}
+
+// ClearLotSizeAcres clears the value of the "lot_size_acres" field.
+func (u *PropertyVersionUpsertBulk) ClearLotSizeAcres() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLotSizeAcres()
+	})
+}
+
+// SetLotSizeSquareFeet sets the "lot_size_square_feet" field.
+func (u *PropertyVersionUpsertBulk) SetLotSizeSquareFeet(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLotSizeSquareFeet(v)
+	})
+}
+
+// UpdateLotSizeSquareFeet sets the "lot_size_square_feet" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLotSizeSquareFeet() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLotSizeSquareFeet()
+	})
+}
+
+// ClearLotSizeSquareFeet clears the value of the "lot_size_square_feet" field.
+func (u *PropertyVersionUpsertBulk) ClearLotSizeSquareFeet() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLotSizeSquareFeet()
+	})
+}
+
+// SetStoriesTotal sets the "stories_total" field.
+func (u *PropertyVersionUpsertBulk) SetStoriesTotal(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStoriesTotal(v)
+	})
+}
+
+// AddStoriesTotal adds v to the "stories_total" field.
+func (u *PropertyVersionUpsertBulk) AddStoriesTotal(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddStoriesTotal(v)
+	})
+}
+
+// UpdateStoriesTotal sets the "stories_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStoriesTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStoriesTotal()
+	})
+}
+
+// ClearStoriesTotal clears the value of the "stories_total" field.
+func (u *PropertyVersionUpsertBulk) ClearStoriesTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStoriesTotal()
+	})
+}
+
+// SetYearBuilt sets the "year_built" field.
+func (u *PropertyVersionUpsertBulk) SetYearBuilt(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetYearBuilt(v)
+	})
+}
+
+// AddYearBuilt adds v to the "year_built" field.
+func (u *PropertyVersionUpsertBulk) AddYearBuilt(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddYearBuilt(v)
+	})
+}
+
+// UpdateYearBuilt sets the "year_built" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateYearBuilt() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateYearBuilt()
+	})
+}
+
+// ClearYearBuilt clears the value of the "year_built" field.
+func (u *PropertyVersionUpsertBulk) ClearYearBuilt() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearYearBuilt()
+	})
+}
+
+// SetGarageSpaces sets the "garage_spaces" field.
+func (u *PropertyVersionUpsertBulk) SetGarageSpaces(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetGarageSpaces(v)
+	})
+}
+
+// UpdateGarageSpaces sets the "garage_spaces" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateGarageSpaces() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateGarageSpaces()
+	})
+}
+
+// ClearGarageSpaces clears the value of the "garage_spaces" field.
+func (u *PropertyVersionUpsertBulk) ClearGarageSpaces() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearGarageSpaces()
+	})
+}
+
+// SetCoveredSpaces sets the "covered_spaces" field.
+func (u *PropertyVersionUpsertBulk) SetCoveredSpaces(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoveredSpaces(v)
+	})
+}
+
+// UpdateCoveredSpaces sets the "covered_spaces" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoveredSpaces() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoveredSpaces()
+	})
+}
+
+// ClearCoveredSpaces clears the value of the "covered_spaces" field.
+func (u *PropertyVersionUpsertBulk) ClearCoveredSpaces() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoveredSpaces()
+	})
+}
+
+// SetParkingTotal sets the "parking_total" field.
+func (u *PropertyVersionUpsertBulk) SetParkingTotal(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetParkingTotal(v)
+	})
+}
+
+// UpdateParkingTotal sets the "parking_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateParkingTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateParkingTotal()
+	})
+}
+
+// ClearParkingTotal clears the value of the "parking_total" field.
+func (u *PropertyVersionUpsertBulk) ClearParkingTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearParkingTotal()
+	})
+}
+
+// SetFireplacesTotal sets the "fireplaces_total" field.
+func (u *PropertyVersionUpsertBulk) SetFireplacesTotal(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFireplacesTotal(v)
+	})
+}
+
+// AddFireplacesTotal adds v to the "fireplaces_total" field.
+func (u *PropertyVersionUpsertBulk) AddFireplacesTotal(v int16) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddFireplacesTotal(v)
+	})
+}
+
+// UpdateFireplacesTotal sets the "fireplaces_total" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateFireplacesTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFireplacesTotal()
+	})
+}
+
+// ClearFireplacesTotal clears the value of the "fireplaces_total" field.
+func (u *PropertyVersionUpsertBulk) ClearFireplacesTotal() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFireplacesTotal()
+	})
+}
+
+// SetPoolPrivateYn sets the "pool_private_yn" field.
+func (u *PropertyVersionUpsertBulk) SetPoolPrivateYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPoolPrivateYn(v)
+	})
+}
+
+// UpdatePoolPrivateYn sets the "pool_private_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePoolPrivateYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePoolPrivateYn()
+	})
+}
+
+// ClearPoolPrivateYn clears the value of the "pool_private_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearPoolPrivateYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPoolPrivateYn()
+	})
+}
+
+// SetWaterfrontYn sets the "waterfront_yn" field.
+func (u *PropertyVersionUpsertBulk) SetWaterfrontYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWaterfrontYn(v)
+	})
+}
+
+// UpdateWaterfrontYn sets the "waterfront_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateWaterfrontYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWaterfrontYn()
+	})
+}
+
+// ClearWaterfrontYn clears the value of the "waterfront_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearWaterfrontYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWaterfrontYn()
+	})
+}
+
+// SetViewYn sets the "view_yn" field.
+func (u *PropertyVersionUpsertBulk) SetViewYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetViewYn(v)
+	})
+}
+
+// UpdateViewYn sets the "view_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateViewYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateViewYn()
+	})
+}
+
+// ClearViewYn clears the value of the "view_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearViewYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearViewYn()
+	})
+}
+
+// SetHorseYn sets the "horse_yn" field.
+func (u *PropertyVersionUpsertBulk) SetHorseYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHorseYn(v)
+	})
+}
+
+// UpdateHorseYn sets the "horse_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateHorseYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHorseYn()
+	})
+}
+
+// ClearHorseYn clears the value of the "horse_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearHorseYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHorseYn()
+	})
+}
+
+// SetStreetNumber sets the "street_number" field.
+func (u *PropertyVersionUpsertBulk) SetStreetNumber(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetNumber(v)
+	})
+}
+
+// UpdateStreetNumber sets the "street_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStreetNumber() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetNumber()
+	})
+}
+
+// ClearStreetNumber clears the value of the "street_number" field.
+func (u *PropertyVersionUpsertBulk) ClearStreetNumber() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetNumber()
+	})
+}
+
+// SetStreetNumberNumeric sets the "street_number_numeric" field.
+func (u *PropertyVersionUpsertBulk) SetStreetNumberNumeric(v int32) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetNumberNumeric(v)
+	})
+}
+
+// AddStreetNumberNumeric adds v to the "street_number_numeric" field.
+func (u *PropertyVersionUpsertBulk) AddStreetNumberNumeric(v int32) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.AddStreetNumberNumeric(v)
+	})
+}
+
+// UpdateStreetNumberNumeric sets the "street_number_numeric" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStreetNumberNumeric() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetNumberNumeric()
+	})
+}
+
+// ClearStreetNumberNumeric clears the value of the "street_number_numeric" field.
+func (u *PropertyVersionUpsertBulk) ClearStreetNumberNumeric() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetNumberNumeric()
+	})
+}
+
+// SetStreetName sets the "street_name" field.
+func (u *PropertyVersionUpsertBulk) SetStreetName(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetName(v)
+	})
+}
+
+// UpdateStreetName sets the "street_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStreetName() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetName()
+	})
+}
+
+// ClearStreetName clears the value of the "street_name" field.
+func (u *PropertyVersionUpsertBulk) ClearStreetName() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetName()
+	})
+}
+
+// SetStreetSuffix sets the "street_suffix" field.
+func (u *PropertyVersionUpsertBulk) SetStreetSuffix(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetSuffix(v)
+	})
+}
+
+// UpdateStreetSuffix sets the "street_suffix" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStreetSuffix() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetSuffix()
+	})
+}
+
+// ClearStreetSuffix clears the value of the "street_suffix" field.
+func (u *PropertyVersionUpsertBulk) ClearStreetSuffix() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetSuffix()
+	})
+}
+
+// SetStreetDirPrefix sets the "street_dir_prefix" field.
+func (u *PropertyVersionUpsertBulk) SetStreetDirPrefix(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetDirPrefix(v)
+	})
+}
+
+// UpdateStreetDirPrefix sets the "street_dir_prefix" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStreetDirPrefix() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetDirPrefix()
+	})
+}
+
+// ClearStreetDirPrefix clears the value of the "street_dir_prefix" field.
+func (u *PropertyVersionUpsertBulk) ClearStreetDirPrefix() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetDirPrefix()
+	})
+}
+
+// SetStreetDirSuffix sets the "street_dir_suffix" field.
+func (u *PropertyVersionUpsertBulk) SetStreetDirSuffix(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStreetDirSuffix(v)
+	})
+}
+
+// UpdateStreetDirSuffix sets the "street_dir_suffix" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStreetDirSuffix() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStreetDirSuffix()
+	})
+}
+
+// ClearStreetDirSuffix clears the value of the "street_dir_suffix" field.
+func (u *PropertyVersionUpsertBulk) ClearStreetDirSuffix() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStreetDirSuffix()
+	})
+}
+
+// SetUnitNumber sets the "unit_number" field.
+func (u *PropertyVersionUpsertBulk) SetUnitNumber(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetUnitNumber(v)
+	})
+}
+
+// UpdateUnitNumber sets the "unit_number" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateUnitNumber() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateUnitNumber()
+	})
+}
+
+// ClearUnitNumber clears the value of the "unit_number" field.
+func (u *PropertyVersionUpsertBulk) ClearUnitNumber() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearUnitNumber()
+	})
+}
+
+// SetUnparsedAddress sets the "unparsed_address" field.
+func (u *PropertyVersionUpsertBulk) SetUnparsedAddress(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetUnparsedAddress(v)
+	})
+}
+
+// UpdateUnparsedAddress sets the "unparsed_address" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateUnparsedAddress() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateUnparsedAddress()
+	})
+}
+
+// ClearUnparsedAddress clears the value of the "unparsed_address" field.
+func (u *PropertyVersionUpsertBulk) ClearUnparsedAddress() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearUnparsedAddress()
+	})
+}
+
+// SetCity sets the "city" field.
+func (u *PropertyVersionUpsertBulk) SetCity(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCity(v)
+	})
+}
+
+// UpdateCity sets the "city" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCity() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCity()
+	})
+}
+
+// ClearCity clears the value of the "city" field.
+func (u *PropertyVersionUpsertBulk) ClearCity() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCity()
+	})
+}
+
+// SetStateOrProvince sets the "state_or_province" field.
+func (u *PropertyVersionUpsertBulk) SetStateOrProvince(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetStateOrProvince(v)
+	})
+}
+
+// UpdateStateOrProvince sets the "state_or_province" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateStateOrProvince() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateStateOrProvince()
+	})
+}
+
+// ClearStateOrProvince clears the value of the "state_or_province" field.
+func (u *PropertyVersionUpsertBulk) ClearStateOrProvince() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearStateOrProvince()
+	})
+}
+
+// SetPostalCode sets the "postal_code" field.
+func (u *PropertyVersionUpsertBulk) SetPostalCode(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPostalCode(v)
+	})
+}
+
+// UpdatePostalCode sets the "postal_code" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePostalCode() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePostalCode()
+	})
+}
+
+// ClearPostalCode clears the value of the "postal_code" field.
+func (u *PropertyVersionUpsertBulk) ClearPostalCode() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPostalCode()
+	})
+}
+
+// SetPostalCodePlus4 sets the "postal_code_plus4" field.
+func (u *PropertyVersionUpsertBulk) SetPostalCodePlus4(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPostalCodePlus4(v)
+	})
+}
+
+// UpdatePostalCodePlus4 sets the "postal_code_plus4" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePostalCodePlus4() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePostalCodePlus4()
+	})
+}
+
+// ClearPostalCodePlus4 clears the value of the "postal_code_plus4" field.
+func (u *PropertyVersionUpsertBulk) ClearPostalCodePlus4() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPostalCodePlus4()
+	})
+}
+
+// SetCountry sets the "country" field.
+func (u *PropertyVersionUpsertBulk) SetCountry(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCountry(v)
+	})
+}
+
+// UpdateCountry sets the "country" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCountry() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCountry()
+	})
+}
+
+// ClearCountry clears the value of the "country" field.
+func (u *PropertyVersionUpsertBulk) ClearCountry() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCountry()
+	})
+}
+
+// SetCountyOrParish sets the "county_or_parish" field.
+func (u *PropertyVersionUpsertBulk) SetCountyOrParish(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCountyOrParish(v)
+	})
+}
+
+// UpdateCountyOrParish sets the "county_or_parish" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCountyOrParish() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCountyOrParish()
+	})
+}
+
+// ClearCountyOrParish clears the value of the "county_or_parish" field.
+func (u *PropertyVersionUpsertBulk) ClearCountyOrParish() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCountyOrParish()
+	})
+}
+
+// SetSubdivisionName sets the "subdivision_name" field.
+func (u *PropertyVersionUpsertBulk) SetSubdivisionName(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSubdivisionName(v)
+	})
+}
+
+// UpdateSubdivisionName sets the "subdivision_name" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSubdivisionName() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSubdivisionName()
+	})
+}
+
+// ClearSubdivisionName clears the value of the "subdivision_name" field.
+func (u *PropertyVersionUpsertBulk) ClearSubdivisionName() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSubdivisionName()
+	})
+}
+
+// SetMlsAreaMajor sets the "mls_area_major" field.
+func (u *PropertyVersionUpsertBulk) SetMlsAreaMajor(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMlsAreaMajor(v)
+	})
+}
+
+// UpdateMlsAreaMajor sets the "mls_area_major" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMlsAreaMajor() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMlsAreaMajor()
+	})
+}
+
+// ClearMlsAreaMajor clears the value of the "mls_area_major" field.
+func (u *PropertyVersionUpsertBulk) ClearMlsAreaMajor() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMlsAreaMajor()
+	})
+}
+
+// SetLatitude sets the "latitude" field.
+func (u *PropertyVersionUpsertBulk) SetLatitude(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLatitude(v)
+	})
+}
+
+// UpdateLatitude sets the "latitude" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLatitude() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLatitude()
+	})
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (u *PropertyVersionUpsertBulk) ClearLatitude() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLatitude()
+	})
+}
+
+// SetLongitude sets the "longitude" field.
+func (u *PropertyVersionUpsertBulk) SetLongitude(v decimal.Decimal) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLongitude(v)
+	})
+}
+
+// UpdateLongitude sets the "longitude" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLongitude() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLongitude()
+	})
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (u *PropertyVersionUpsertBulk) ClearLongitude() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLongitude()
+	})
+}
+
+// SetElementarySchool sets the "elementary_school" field.
+func (u *PropertyVersionUpsertBulk) SetElementarySchool(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetElementarySchool(v)
+	})
+}
+
+// UpdateElementarySchool sets the "elementary_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateElementarySchool() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateElementarySchool()
+	})
+}
+
+// ClearElementarySchool clears the value of the "elementary_school" field.
+func (u *PropertyVersionUpsertBulk) ClearElementarySchool() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearElementarySchool()
+	})
+}
+
+// SetMiddleOrJuniorSchool sets the "middle_or_junior_school" field.
+func (u *PropertyVersionUpsertBulk) SetMiddleOrJuniorSchool(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetMiddleOrJuniorSchool(v)
+	})
+}
+
+// UpdateMiddleOrJuniorSchool sets the "middle_or_junior_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateMiddleOrJuniorSchool() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateMiddleOrJuniorSchool()
+	})
+}
+
+// ClearMiddleOrJuniorSchool clears the value of the "middle_or_junior_school" field.
+func (u *PropertyVersionUpsertBulk) ClearMiddleOrJuniorSchool() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearMiddleOrJuniorSchool()
+	})
+}
+
+// SetHighSchool sets the "high_school" field.
+func (u *PropertyVersionUpsertBulk) SetHighSchool(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHighSchool(v)
+	})
+}
+
+// UpdateHighSchool sets the "high_school" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateHighSchool() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHighSchool()
+	})
+}
+
+// ClearHighSchool clears the value of the "high_school" field.
+func (u *PropertyVersionUpsertBulk) ClearHighSchool() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHighSchool()
+	})
+}
+
+// SetHighSchoolDistrict sets the "high_school_district" field.
+func (u *PropertyVersionUpsertBulk) SetHighSchoolDistrict(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHighSchoolDistrict(v)
+	})
+}
+
+// UpdateHighSchoolDistrict sets the "high_school_district" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateHighSchoolDistrict() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHighSchoolDistrict()
+	})
+}
+
+// ClearHighSchoolDistrict clears the value of the "high_school_district" field.
+func (u *PropertyVersionUpsertBulk) ClearHighSchoolDistrict() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHighSchoolDistrict()
+	})
+}
+
+// SetListAgentKey sets the "list_agent_key" field.
+func (u *PropertyVersionUpsertBulk) SetListAgentKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListAgentKey(v)
+	})
+}
+
+// UpdateListAgentKey sets the "list_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListAgentKey()
+	})
+}
+
+// ClearListAgentKey clears the value of the "list_agent_key" field.
+func (u *PropertyVersionUpsertBulk) ClearListAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListAgentKey()
+	})
+}
+
+// SetListAgentMlsID sets the "list_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetListAgentMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListAgentMlsID(v)
+	})
+}
+
+// UpdateListAgentMlsID sets the "list_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListAgentMlsID()
+	})
+}
+
+// ClearListAgentMlsID clears the value of the "list_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearListAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListAgentMlsID()
+	})
+}
+
+// SetCoListAgentKey sets the "co_list_agent_key" field.
+func (u *PropertyVersionUpsertBulk) SetCoListAgentKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListAgentKey(v)
+	})
+}
+
+// UpdateCoListAgentKey sets the "co_list_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoListAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListAgentKey()
+	})
+}
+
+// ClearCoListAgentKey clears the value of the "co_list_agent_key" field.
+func (u *PropertyVersionUpsertBulk) ClearCoListAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListAgentKey()
+	})
+}
+
+// SetCoListAgentMlsID sets the "co_list_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetCoListAgentMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListAgentMlsID(v)
+	})
+}
+
+// UpdateCoListAgentMlsID sets the "co_list_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoListAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListAgentMlsID()
+	})
+}
+
+// ClearCoListAgentMlsID clears the value of the "co_list_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearCoListAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListAgentMlsID()
+	})
+}
+
+// SetBuyerAgentKey sets the "buyer_agent_key" field.
+func (u *PropertyVersionUpsertBulk) SetBuyerAgentKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerAgentKey(v)
+	})
+}
+
+// UpdateBuyerAgentKey sets the "buyer_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBuyerAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerAgentKey()
+	})
+}
+
+// ClearBuyerAgentKey clears the value of the "buyer_agent_key" field.
+func (u *PropertyVersionUpsertBulk) ClearBuyerAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerAgentKey()
+	})
+}
+
+// SetBuyerAgentMlsID sets the "buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetBuyerAgentMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerAgentMlsID(v)
+	})
+}
+
+// UpdateBuyerAgentMlsID sets the "buyer_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBuyerAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerAgentMlsID()
+	})
+}
+
+// ClearBuyerAgentMlsID clears the value of the "buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearBuyerAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerAgentMlsID()
+	})
+}
+
+// SetCoBuyerAgentKey sets the "co_buyer_agent_key" field.
+func (u *PropertyVersionUpsertBulk) SetCoBuyerAgentKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerAgentKey(v)
+	})
+}
+
+// UpdateCoBuyerAgentKey sets the "co_buyer_agent_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoBuyerAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerAgentKey()
+	})
+}
+
+// ClearCoBuyerAgentKey clears the value of the "co_buyer_agent_key" field.
+func (u *PropertyVersionUpsertBulk) ClearCoBuyerAgentKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerAgentKey()
+	})
+}
+
+// SetCoBuyerAgentMlsID sets the "co_buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetCoBuyerAgentMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerAgentMlsID(v)
+	})
+}
+
+// UpdateCoBuyerAgentMlsID sets the "co_buyer_agent_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoBuyerAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerAgentMlsID()
+	})
+}
+
+// ClearCoBuyerAgentMlsID clears the value of the "co_buyer_agent_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearCoBuyerAgentMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerAgentMlsID()
+	})
+}
+
+// SetListOfficeKey sets the "list_office_key" field.
+func (u *PropertyVersionUpsertBulk) SetListOfficeKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListOfficeKey(v)
+	})
+}
+
+// UpdateListOfficeKey sets the "list_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListOfficeKey()
+	})
+}
+
+// ClearListOfficeKey clears the value of the "list_office_key" field.
+func (u *PropertyVersionUpsertBulk) ClearListOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListOfficeKey()
+	})
+}
+
+// SetListOfficeMlsID sets the "list_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetListOfficeMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListOfficeMlsID(v)
+	})
+}
+
+// UpdateListOfficeMlsID sets the "list_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListOfficeMlsID()
+	})
+}
+
+// ClearListOfficeMlsID clears the value of the "list_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearListOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearListOfficeMlsID()
+	})
+}
+
+// SetCoListOfficeKey sets the "co_list_office_key" field.
+func (u *PropertyVersionUpsertBulk) SetCoListOfficeKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListOfficeKey(v)
+	})
+}
+
+// UpdateCoListOfficeKey sets the "co_list_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoListOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListOfficeKey()
+	})
+}
+
+// ClearCoListOfficeKey clears the value of the "co_list_office_key" field.
+func (u *PropertyVersionUpsertBulk) ClearCoListOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListOfficeKey()
+	})
+}
+
+// SetCoListOfficeMlsID sets the "co_list_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetCoListOfficeMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoListOfficeMlsID(v)
+	})
+}
+
+// UpdateCoListOfficeMlsID sets the "co_list_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoListOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoListOfficeMlsID()
+	})
+}
+
+// ClearCoListOfficeMlsID clears the value of the "co_list_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearCoListOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoListOfficeMlsID()
+	})
+}
+
+// SetBuyerOfficeKey sets the "buyer_office_key" field.
+func (u *PropertyVersionUpsertBulk) SetBuyerOfficeKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerOfficeKey(v)
+	})
+}
+
+// UpdateBuyerOfficeKey sets the "buyer_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBuyerOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerOfficeKey()
+	})
+}
+
+// ClearBuyerOfficeKey clears the value of the "buyer_office_key" field.
+func (u *PropertyVersionUpsertBulk) ClearBuyerOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerOfficeKey()
+	})
+}
+
+// SetBuyerOfficeMlsID sets the "buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetBuyerOfficeMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetBuyerOfficeMlsID(v)
+	})
+}
+
+// UpdateBuyerOfficeMlsID sets the "buyer_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateBuyerOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateBuyerOfficeMlsID()
+	})
+}
+
+// ClearBuyerOfficeMlsID clears the value of the "buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearBuyerOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearBuyerOfficeMlsID()
+	})
+}
+
+// SetCoBuyerOfficeKey sets the "co_buyer_office_key" field.
+func (u *PropertyVersionUpsertBulk) SetCoBuyerOfficeKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerOfficeKey(v)
+	})
+}
+
+// UpdateCoBuyerOfficeKey sets the "co_buyer_office_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoBuyerOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerOfficeKey()
+	})
+}
+
+// ClearCoBuyerOfficeKey clears the value of the "co_buyer_office_key" field.
+func (u *PropertyVersionUpsertBulk) ClearCoBuyerOfficeKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerOfficeKey()
+	})
+}
+
+// SetCoBuyerOfficeMlsID sets the "co_buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) SetCoBuyerOfficeMlsID(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCoBuyerOfficeMlsID(v)
+	})
+}
+
+// UpdateCoBuyerOfficeMlsID sets the "co_buyer_office_mls_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCoBuyerOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCoBuyerOfficeMlsID()
+	})
+}
+
+// ClearCoBuyerOfficeMlsID clears the value of the "co_buyer_office_mls_id" field.
+func (u *PropertyVersionUpsertBulk) ClearCoBuyerOfficeMlsID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCoBuyerOfficeMlsID()
+	})
+}
+
+// SetInternetEntireListingDisplayYn sets the "internet_entire_listing_display_yn" field.
+func (u *PropertyVersionUpsertBulk) SetInternetEntireListingDisplayYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetEntireListingDisplayYn(v)
+	})
+}
+
+// UpdateInternetEntireListingDisplayYn sets the "internet_entire_listing_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateInternetEntireListingDisplayYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetEntireListingDisplayYn()
+	})
+}
+
+// ClearInternetEntireListingDisplayYn clears the value of the "internet_entire_listing_display_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearInternetEntireListingDisplayYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetEntireListingDisplayYn()
+	})
+}
+
+// SetInternetAddressDisplayYn sets the "internet_address_display_yn" field.
+func (u *PropertyVersionUpsertBulk) SetInternetAddressDisplayYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetAddressDisplayYn(v)
+	})
+}
+
+// UpdateInternetAddressDisplayYn sets the "internet_address_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateInternetAddressDisplayYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetAddressDisplayYn()
+	})
+}
+
+// ClearInternetAddressDisplayYn clears the value of the "internet_address_display_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearInternetAddressDisplayYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetAddressDisplayYn()
+	})
+}
+
+// SetInternetAutomatedValuationDisplayYn sets the "internet_automated_valuation_display_yn" field.
+func (u *PropertyVersionUpsertBulk) SetInternetAutomatedValuationDisplayYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetAutomatedValuationDisplayYn(v)
+	})
+}
+
+// UpdateInternetAutomatedValuationDisplayYn sets the "internet_automated_valuation_display_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateInternetAutomatedValuationDisplayYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetAutomatedValuationDisplayYn()
+	})
+}
+
+// ClearInternetAutomatedValuationDisplayYn clears the value of the "internet_automated_valuation_display_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearInternetAutomatedValuationDisplayYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetAutomatedValuationDisplayYn()
+	})
+}
+
+// SetInternetConsumerCommentYn sets the "internet_consumer_comment_yn" field.
+func (u *PropertyVersionUpsertBulk) SetInternetConsumerCommentYn(v bool) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInternetConsumerCommentYn(v)
+	})
+}
+
+// UpdateInternetConsumerCommentYn sets the "internet_consumer_comment_yn" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateInternetConsumerCommentYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInternetConsumerCommentYn()
+	})
+}
+
+// ClearInternetConsumerCommentYn clears the value of the "internet_consumer_comment_yn" field.
+func (u *PropertyVersionUpsertBulk) ClearInternetConsumerCommentYn() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInternetConsumerCommentYn()
+	})
+}
+
+// SetAppliances sets the "appliances" field.
+func (u *PropertyVersionUpsertBulk) SetAppliances(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetAppliances(v)
+	})
+}
+
+// UpdateAppliances sets the "appliances" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateAppliances() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateAppliances()
+	})
+}
+
+// ClearAppliances clears the value of the "appliances" field.
+func (u *PropertyVersionUpsertBulk) ClearAppliances() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearAppliances()
+	})
+}
+
+// SetCooling sets the "cooling" field.
+func (u *PropertyVersionUpsertBulk) SetCooling(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCooling(v)
+	})
+}
+
+// UpdateCooling sets the "cooling" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCooling() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCooling()
+	})
+}
+
+// ClearCooling clears the value of the "cooling" field.
+func (u *PropertyVersionUpsertBulk) ClearCooling() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCooling()
+	})
+}
+
+// SetHeating sets the "heating" field.
+func (u *PropertyVersionUpsertBulk) SetHeating(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHeating(v)
+	})
+}
+
+// UpdateHeating sets the "heating" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateHeating() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHeating()
+	})
+}
+
+// ClearHeating clears the value of the "heating" field.
+func (u *PropertyVersionUpsertBulk) ClearHeating() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHeating()
+	})
+}
+
+// SetFlooring sets the "flooring" field.
+func (u *PropertyVersionUpsertBulk) SetFlooring(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFlooring(v)
+	})
+}
+
+// UpdateFlooring sets the "flooring" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateFlooring() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFlooring()
+	})
+}
+
+// ClearFlooring clears the value of the "flooring" field.
+func (u *PropertyVersionUpsertBulk) ClearFlooring() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFlooring()
+	})
+}
+
+// SetRoof sets the "roof" field.
+func (u *PropertyVersionUpsertBulk) SetRoof(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetRoof(v)
+	})
+}
+
+// UpdateRoof sets the "roof" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateRoof() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateRoof()
+	})
+}
+
+// ClearRoof clears the value of the "roof" field.
+func (u *PropertyVersionUpsertBulk) ClearRoof() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearRoof()
+	})
+}
+
+// SetExteriorFeatures sets the "exterior_features" field.
+func (u *PropertyVersionUpsertBulk) SetExteriorFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetExteriorFeatures(v)
+	})
+}
+
+// UpdateExteriorFeatures sets the "exterior_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateExteriorFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateExteriorFeatures()
+	})
+}
+
+// ClearExteriorFeatures clears the value of the "exterior_features" field.
+func (u *PropertyVersionUpsertBulk) ClearExteriorFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearExteriorFeatures()
+	})
+}
+
+// SetInteriorFeatures sets the "interior_features" field.
+func (u *PropertyVersionUpsertBulk) SetInteriorFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetInteriorFeatures(v)
+	})
+}
+
+// UpdateInteriorFeatures sets the "interior_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateInteriorFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateInteriorFeatures()
+	})
+}
+
+// ClearInteriorFeatures clears the value of the "interior_features" field.
+func (u *PropertyVersionUpsertBulk) ClearInteriorFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearInteriorFeatures()
+	})
+}
+
+// SetParkingFeatures sets the "parking_features" field.
+func (u *PropertyVersionUpsertBulk) SetParkingFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetParkingFeatures(v)
+	})
+}
+
+// UpdateParkingFeatures sets the "parking_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateParkingFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateParkingFeatures()
+	})
+}
+
+// ClearParkingFeatures clears the value of the "parking_features" field.
+func (u *PropertyVersionUpsertBulk) ClearParkingFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearParkingFeatures()
+	})
+}
+
+// SetPoolFeatures sets the "pool_features" field.
+func (u *PropertyVersionUpsertBulk) SetPoolFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPoolFeatures(v)
+	})
+}
+
+// UpdatePoolFeatures sets the "pool_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePoolFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePoolFeatures()
+	})
+}
+
+// ClearPoolFeatures clears the value of the "pool_features" field.
+func (u *PropertyVersionUpsertBulk) ClearPoolFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPoolFeatures()
+	})
+}
+
+// SetView sets the "view" field.
+func (u *PropertyVersionUpsertBulk) SetView(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetView(v)
+	})
+}
+
+// UpdateView sets the "view" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateView() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateView()
+	})
+}
+
+// ClearView clears the value of the "view" field.
+func (u *PropertyVersionUpsertBulk) ClearView() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearView()
+	})
+}
+
+// SetWaterfrontFeatures sets the "waterfront_features" field.
+func (u *PropertyVersionUpsertBulk) SetWaterfrontFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWaterfrontFeatures(v)
+	})
+}
+
+// UpdateWaterfrontFeatures sets the "waterfront_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateWaterfrontFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWaterfrontFeatures()
+	})
+}
+
+// ClearWaterfrontFeatures clears the value of the "waterfront_features" field.
+func (u *PropertyVersionUpsertBulk) ClearWaterfrontFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWaterfrontFeatures()
+	})
+}
+
+// SetCommunityFeatures sets the "community_features" field.
+func (u *PropertyVersionUpsertBulk) SetCommunityFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetCommunityFeatures(v)
+	})
+}
+
+// UpdateCommunityFeatures sets the "community_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateCommunityFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateCommunityFeatures()
+	})
+}
+
+// ClearCommunityFeatures clears the value of the "community_features" field.
+func (u *PropertyVersionUpsertBulk) ClearCommunityFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearCommunityFeatures()
+	})
+}
+
+// SetAccessibilityFeatures sets the "accessibility_features" field.
+func (u *PropertyVersionUpsertBulk) SetAccessibilityFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetAccessibilityFeatures(v)
+	})
+}
+
+// UpdateAccessibilityFeatures sets the "accessibility_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateAccessibilityFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateAccessibilityFeatures()
+	})
+}
+
+// ClearAccessibilityFeatures clears the value of the "accessibility_features" field.
+func (u *PropertyVersionUpsertBulk) ClearAccessibilityFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearAccessibilityFeatures()
+	})
+}
+
+// SetUtilities sets the "utilities" field.
+func (u *PropertyVersionUpsertBulk) SetUtilities(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetUtilities(v)
+	})
+}
+
+// UpdateUtilities sets the "utilities" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateUtilities() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateUtilities()
+	})
+}
+
+// ClearUtilities clears the value of the "utilities" field.
+func (u *PropertyVersionUpsertBulk) ClearUtilities() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearUtilities()
+	})
+}
+
+// SetSewer sets the "sewer" field.
+func (u *PropertyVersionUpsertBulk) SetSewer(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSewer(v)
+	})
+}
+
+// UpdateSewer sets the "sewer" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSewer() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSewer()
+	})
+}
+
+// ClearSewer clears the value of the "sewer" field.
+func (u *PropertyVersionUpsertBulk) ClearSewer() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSewer()
+	})
+}
+
+// SetWaterSource sets the "water_source" field.
+func (u *PropertyVersionUpsertBulk) SetWaterSource(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWaterSource(v)
+	})
+}
+
+// UpdateWaterSource sets the "water_source" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateWaterSource() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWaterSource()
+	})
+}
+
+// ClearWaterSource clears the value of the "water_source" field.
+func (u *PropertyVersionUpsertBulk) ClearWaterSource() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWaterSource()
+	})
+}
+
+// SetLotFeatures sets the "lot_features" field.
+func (u *PropertyVersionUpsertBulk) SetLotFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLotFeatures(v)
+	})
+}
+
+// UpdateLotFeatures sets the "lot_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLotFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLotFeatures()
+	})
+}
+
+// ClearLotFeatures clears the value of the "lot_features" field.
+func (u *PropertyVersionUpsertBulk) ClearLotFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLotFeatures()
+	})
+}
+
+// SetPatioAndPorchFeatures sets the "patio_and_porch_features" field.
+func (u *PropertyVersionUpsertBulk) SetPatioAndPorchFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPatioAndPorchFeatures(v)
+	})
+}
+
+// UpdatePatioAndPorchFeatures sets the "patio_and_porch_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePatioAndPorchFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePatioAndPorchFeatures()
+	})
+}
+
+// ClearPatioAndPorchFeatures clears the value of the "patio_and_porch_features" field.
+func (u *PropertyVersionUpsertBulk) ClearPatioAndPorchFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPatioAndPorchFeatures()
+	})
+}
+
+// SetSecurityFeatures sets the "security_features" field.
+func (u *PropertyVersionUpsertBulk) SetSecurityFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSecurityFeatures(v)
+	})
+}
+
+// UpdateSecurityFeatures sets the "security_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSecurityFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSecurityFeatures()
+	})
+}
+
+// ClearSecurityFeatures clears the value of the "security_features" field.
+func (u *PropertyVersionUpsertBulk) ClearSecurityFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSecurityFeatures()
+	})
+}
+
+// SetConstructionMaterials sets the "construction_materials" field.
+func (u *PropertyVersionUpsertBulk) SetConstructionMaterials(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetConstructionMaterials(v)
+	})
+}
+
+// UpdateConstructionMaterials sets the "construction_materials" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateConstructionMaterials() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateConstructionMaterials()
+	})
+}
+
+// ClearConstructionMaterials clears the value of the "construction_materials" field.
+func (u *PropertyVersionUpsertBulk) ClearConstructionMaterials() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearConstructionMaterials()
+	})
+}
+
+// SetFoundationDetails sets the "foundation_details" field.
+func (u *PropertyVersionUpsertBulk) SetFoundationDetails(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFoundationDetails(v)
+	})
+}
+
+// UpdateFoundationDetails sets the "foundation_details" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateFoundationDetails() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFoundationDetails()
+	})
+}
+
+// ClearFoundationDetails clears the value of the "foundation_details" field.
+func (u *PropertyVersionUpsertBulk) ClearFoundationDetails() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFoundationDetails()
+	})
+}
+
+// SetLevels sets the "levels" field.
+func (u *PropertyVersionUpsertBulk) SetLevels(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetLevels(v)
+	})
+}
+
+// UpdateLevels sets the "levels" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateLevels() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateLevels()
+	})
+}
+
+// ClearLevels clears the value of the "levels" field.
+func (u *PropertyVersionUpsertBulk) ClearLevels() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearLevels()
+	})
+}
+
+// SetFireplaceFeatures sets the "fireplace_features" field.
+func (u *PropertyVersionUpsertBulk) SetFireplaceFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFireplaceFeatures(v)
+	})
+}
+
+// UpdateFireplaceFeatures sets the "fireplace_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateFireplaceFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFireplaceFeatures()
+	})
+}
+
+// ClearFireplaceFeatures clears the value of the "fireplace_features" field.
+func (u *PropertyVersionUpsertBulk) ClearFireplaceFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFireplaceFeatures()
+	})
+}
+
+// SetSpaFeatures sets the "spa_features" field.
+func (u *PropertyVersionUpsertBulk) SetSpaFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSpaFeatures(v)
+	})
+}
+
+// UpdateSpaFeatures sets the "spa_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSpaFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSpaFeatures()
+	})
+}
+
+// ClearSpaFeatures clears the value of the "spa_features" field.
+func (u *PropertyVersionUpsertBulk) ClearSpaFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSpaFeatures()
+	})
+}
+
+// SetFencing sets the "fencing" field.
+func (u *PropertyVersionUpsertBulk) SetFencing(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFencing(v)
+	})
+}
+
+// UpdateFencing sets the "fencing" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateFencing() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFencing()
+	})
+}
+
+// ClearFencing clears the value of the "fencing" field.
+func (u *PropertyVersionUpsertBulk) ClearFencing() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFencing()
+	})
+}
+
+// SetHorseAmenities sets the "horse_amenities" field.
+func (u *PropertyVersionUpsertBulk) SetHorseAmenities(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetHorseAmenities(v)
+	})
+}
+
+// UpdateHorseAmenities sets the "horse_amenities" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateHorseAmenities() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateHorseAmenities()
+	})
+}
+
+// ClearHorseAmenities clears the value of the "horse_amenities" field.
+func (u *PropertyVersionUpsertBulk) ClearHorseAmenities() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearHorseAmenities()
+	})
+}
+
+// SetWindowFeatures sets the "window_features" field.
+func (u *PropertyVersionUpsertBulk) SetWindowFeatures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetWindowFeatures(v)
+	})
+}
+
+// UpdateWindowFeatures sets the "window_features" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateWindowFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateWindowFeatures()
+	})
+}
+
+// ClearWindowFeatures clears the value of the "window_features" field.
+func (u *PropertyVersionUpsertBulk) ClearWindowFeatures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearWindowFeatures()
+	})
+}
+
+// SetPetsAllowed sets the "pets_allowed" field.
+func (u *PropertyVersionUpsertBulk) SetPetsAllowed(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPetsAllowed(v)
+	})
+}
+
+// UpdatePetsAllowed sets the "pets_allowed" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePetsAllowed() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePetsAllowed()
+	})
+}
+
+// ClearPetsAllowed clears the value of the "pets_allowed" field.
+func (u *PropertyVersionUpsertBulk) ClearPetsAllowed() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPetsAllowed()
+	})
+}
+
+// SetDisclosures sets the "disclosures" field.
+func (u *PropertyVersionUpsertBulk) SetDisclosures(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetDisclosures(v)
+	})
+}
+
+// UpdateDisclosures sets the "disclosures" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateDisclosures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateDisclosures()
+	})
+}
+
+// ClearDisclosures clears the value of the "disclosures" field.
+func (u *PropertyVersionUpsertBulk) ClearDisclosures() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearDisclosures()
+	})
+}
+
+// SetPropertyCondition sets the "property_condition" field.
+func (u *PropertyVersionUpsertBulk) SetPropertyCondition(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPropertyCondition(v)
+	})
+}
+
+// UpdatePropertyCondition sets the "property_condition" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePropertyCondition() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePropertyCondition()
+	})
+}
+
+// ClearPropertyCondition clears the value of the "property_condition" field.
+func (u *PropertyVersionUpsertBulk) ClearPropertyCondition() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPropertyCondition()
+	})
+}
+
+// SetSpecialListingConditions sets the "special_listing_conditions" field.
+func (u *PropertyVersionUpsertBulk) SetSpecialListingConditions(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSpecialListingConditions(v)
+	})
+}
+
+// UpdateSpecialListingConditions sets the "special_listing_conditions" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSpecialListingConditions() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSpecialListingConditions()
+	})
+}
+
+// ClearSpecialListingConditions clears the value of the "special_listing_conditions" field.
+func (u *PropertyVersionUpsertBulk) ClearSpecialListingConditions() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSpecialListingConditions()
+	})
+}
+
+// SetGreenEnergyEfficient sets the "green_energy_efficient" field.
+func (u *PropertyVersionUpsertBulk) SetGreenEnergyEfficient(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetGreenEnergyEfficient(v)
+	})
+}
+
+// UpdateGreenEnergyEfficient sets the "green_energy_efficient" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateGreenEnergyEfficient() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateGreenEnergyEfficient()
+	})
+}
+
+// ClearGreenEnergyEfficient clears the value of the "green_energy_efficient" field.
+func (u *PropertyVersionUpsertBulk) ClearGreenEnergyEfficient() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearGreenEnergyEfficient()
+	})
+}
+
+// SetGreenSustainability sets the "green_sustainability" field.
+func (u *PropertyVersionUpsertBulk) SetGreenSustainability(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetGreenSustainability(v)
+	})
+}
+
+// UpdateGreenSustainability sets the "green_sustainability" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateGreenSustainability() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateGreenSustainability()
+	})
+}
+
+// ClearGreenSustainability clears the value of the "green_sustainability" field.
+func (u *PropertyVersionUpsertBulk) ClearGreenSustainability() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearGreenSustainability()
+	})
+}
+
+// SetSyndicateTo sets the "syndicate_to" field.
+func (u *PropertyVersionUpsertBulk) SetSyndicateTo(v pq.StringArray) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSyndicateTo(v)
+	})
+}
+
+// UpdateSyndicateTo sets the "syndicate_to" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSyndicateTo() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSyndicateTo()
+	})
+}
+
+// ClearSyndicateTo clears the value of the "syndicate_to" field.
+func (u *PropertyVersionUpsertBulk) ClearSyndicateTo() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSyndicateTo()
+	})
+}
+
+// SetPublicRemarks sets the "public_remarks" field.
+func (u *PropertyVersionUpsertBulk) SetPublicRemarks(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetPublicRemarks(v)
+	})
+}
+
+// UpdatePublicRemarks sets the "public_remarks" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdatePublicRemarks() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdatePublicRemarks()
+	})
+}
+
+// ClearPublicRemarks clears the value of the "public_remarks" field.
+func (u *PropertyVersionUpsertBulk) ClearPublicRemarks() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearPublicRemarks()
+	})
+}
+
+// SetSyndicationRemarks sets the "syndication_remarks" field.
+func (u *PropertyVersionUpsertBulk) SetSyndicationRemarks(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSyndicationRemarks(v)
+	})
+}
+
+// UpdateSyndicationRemarks sets the "syndication_remarks" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSyndicationRemarks() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSyndicationRemarks()
+	})
+}
+
+// ClearSyndicationRemarks clears the value of the "syndication_remarks" field.
+func (u *PropertyVersionUpsertBulk) ClearSyndicationRemarks() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearSyndicationRemarks()
+	})
+}
+
+// SetDirections sets the "directions" field.
+func (u *PropertyVersionUpsertBulk) SetDirections(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetDirections(v)
+	})
+}
+
+// UpdateDirections sets the "directions" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateDirections() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateDirections()
+	})
+}
+
+// ClearDirections clears the value of the "directions" field.
+func (u *PropertyVersionUpsertBulk) ClearDirections() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearDirections()
+	})
+}
+
+// SetFurnished sets the "furnished" field.
+func (u *PropertyVersionUpsertBulk) SetFurnished(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetFurnished(v)
+	})
+}
+
+// UpdateFurnished sets the "furnished" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateFurnished() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateFurnished()
+	})
+}
+
+// ClearFurnished clears the value of the "furnished" field.
+func (u *PropertyVersionUpsertBulk) ClearFurnished() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearFurnished()
+	})
+}
+
+// SetDirectionFaces sets the "direction_faces" field.
+func (u *PropertyVersionUpsertBulk) SetDirectionFaces(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetDirectionFaces(v)
+	})
+}
+
+// UpdateDirectionFaces sets the "direction_faces" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateDirectionFaces() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateDirectionFaces()
+	})
+}
+
+// ClearDirectionFaces clears the value of the "direction_faces" field.
+func (u *PropertyVersionUpsertBulk) ClearDirectionFaces() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearDirectionFaces()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyVersionUpsertBulk) SetExtendedFields(v map[string]interface{}) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateExtendedFields() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyVersionUpsertBulk) ClearExtendedFields() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyVersionUpsertBulk) SetListingKey(v string) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateListingKey() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateSyncEventID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyVersionUpsertBulk) UpdateRawOutputID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyVersionUpsertBulk) ClearRawOutputID() *PropertyVersionUpsertBulk {
+	return u.Update(func(s *PropertyVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *PropertyVersionUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PropertyVersionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PropertyVersionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PropertyVersionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion"
@@ -19,6 +21,7 @@ type MediaVersionCreate struct {
 	config
 	mutation *MediaVersionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetValidFrom sets the "valid_from" field.
@@ -398,6 +401,7 @@ func (_c *MediaVersionCreate) createSpec() (*MediaVersion, *sqlgraph.CreateSpec)
 		_node = &MediaVersion{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(mediaversion.Table, sqlgraph.NewFieldSpec(mediaversion.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -501,11 +505,1005 @@ func (_c *MediaVersionCreate) createSpec() (*MediaVersion, *sqlgraph.CreateSpec)
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.MediaVersion.Create().
+//		SetValidFrom(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MediaVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MediaVersionCreate) OnConflict(opts ...sql.ConflictOption) *MediaVersionUpsertOne {
+	_c.conflict = opts
+	return &MediaVersionUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.MediaVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MediaVersionCreate) OnConflictColumns(columns ...string) *MediaVersionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MediaVersionUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// MediaVersionUpsertOne is the builder for "upsert"-ing
+	//  one MediaVersion node.
+	MediaVersionUpsertOne struct {
+		create *MediaVersionCreate
+	}
+
+	// MediaVersionUpsert is the "OnConflict" setter.
+	MediaVersionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetValidFrom sets the "valid_from" field.
+func (u *MediaVersionUpsert) SetValidFrom(v time.Time) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldValidFrom, v)
+	return u
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateValidFrom() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldValidFrom)
+	return u
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *MediaVersionUpsert) SetValidTo(v time.Time) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldValidTo, v)
+	return u
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateValidTo() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldValidTo)
+	return u
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *MediaVersionUpsert) ClearValidTo() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldValidTo)
+	return u
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *MediaVersionUpsert) SetChangeType(v mediaversion.ChangeType) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldChangeType, v)
+	return u
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateChangeType() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldChangeType)
+	return u
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *MediaVersionUpsert) SetChangedFields(v map[string]interface{}) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldChangedFields, v)
+	return u
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateChangedFields() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldChangedFields)
+	return u
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *MediaVersionUpsert) ClearChangedFields() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldChangedFields)
+	return u
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *MediaVersionUpsert) SetProcessorVersion(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldProcessorVersion, v)
+	return u
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateProcessorVersion() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *MediaVersionUpsert) SetSourceModifiedAt(v time.Time) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateSourceModifiedAt() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *MediaVersionUpsert) SetOriginatingSystemName(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateOriginatingSystemName() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *MediaVersionUpsert) ClearOriginatingSystemName() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *MediaVersionUpsert) SetMlgCanView(v bool) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateMlgCanView() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *MediaVersionUpsert) SetMlgCanUse(v []string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateMlgCanUse() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *MediaVersionUpsert) ClearMlgCanUse() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldMlgCanUse)
+	return u
+}
+
+// SetResourceType sets the "resource_type" field.
+func (u *MediaVersionUpsert) SetResourceType(v mediaversion.ResourceType) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldResourceType, v)
+	return u
+}
+
+// UpdateResourceType sets the "resource_type" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateResourceType() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldResourceType)
+	return u
+}
+
+// SetResourceRecordKey sets the "resource_record_key" field.
+func (u *MediaVersionUpsert) SetResourceRecordKey(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldResourceRecordKey, v)
+	return u
+}
+
+// UpdateResourceRecordKey sets the "resource_record_key" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateResourceRecordKey() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldResourceRecordKey)
+	return u
+}
+
+// SetMediaType sets the "media_type" field.
+func (u *MediaVersionUpsert) SetMediaType(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldMediaType, v)
+	return u
+}
+
+// UpdateMediaType sets the "media_type" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateMediaType() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldMediaType)
+	return u
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (u *MediaVersionUpsert) ClearMediaType() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldMediaType)
+	return u
+}
+
+// SetMediaURL sets the "media_url" field.
+func (u *MediaVersionUpsert) SetMediaURL(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldMediaURL, v)
+	return u
+}
+
+// UpdateMediaURL sets the "media_url" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateMediaURL() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldMediaURL)
+	return u
+}
+
+// ClearMediaURL clears the value of the "media_url" field.
+func (u *MediaVersionUpsert) ClearMediaURL() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldMediaURL)
+	return u
+}
+
+// SetImageHeight sets the "image_height" field.
+func (u *MediaVersionUpsert) SetImageHeight(v int64) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldImageHeight, v)
+	return u
+}
+
+// UpdateImageHeight sets the "image_height" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateImageHeight() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldImageHeight)
+	return u
+}
+
+// AddImageHeight adds v to the "image_height" field.
+func (u *MediaVersionUpsert) AddImageHeight(v int64) *MediaVersionUpsert {
+	u.Add(mediaversion.FieldImageHeight, v)
+	return u
+}
+
+// ClearImageHeight clears the value of the "image_height" field.
+func (u *MediaVersionUpsert) ClearImageHeight() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldImageHeight)
+	return u
+}
+
+// SetImageWidth sets the "image_width" field.
+func (u *MediaVersionUpsert) SetImageWidth(v int64) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldImageWidth, v)
+	return u
+}
+
+// UpdateImageWidth sets the "image_width" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateImageWidth() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldImageWidth)
+	return u
+}
+
+// AddImageWidth adds v to the "image_width" field.
+func (u *MediaVersionUpsert) AddImageWidth(v int64) *MediaVersionUpsert {
+	u.Add(mediaversion.FieldImageWidth, v)
+	return u
+}
+
+// ClearImageWidth clears the value of the "image_width" field.
+func (u *MediaVersionUpsert) ClearImageWidth() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldImageWidth)
+	return u
+}
+
+// SetImageSizeDescription sets the "image_size_description" field.
+func (u *MediaVersionUpsert) SetImageSizeDescription(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldImageSizeDescription, v)
+	return u
+}
+
+// UpdateImageSizeDescription sets the "image_size_description" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateImageSizeDescription() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldImageSizeDescription)
+	return u
+}
+
+// ClearImageSizeDescription clears the value of the "image_size_description" field.
+func (u *MediaVersionUpsert) ClearImageSizeDescription() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldImageSizeDescription)
+	return u
+}
+
+// SetLongDescription sets the "long_description" field.
+func (u *MediaVersionUpsert) SetLongDescription(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldLongDescription, v)
+	return u
+}
+
+// UpdateLongDescription sets the "long_description" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateLongDescription() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldLongDescription)
+	return u
+}
+
+// ClearLongDescription clears the value of the "long_description" field.
+func (u *MediaVersionUpsert) ClearLongDescription() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldLongDescription)
+	return u
+}
+
+// SetOrder sets the "order" field.
+func (u *MediaVersionUpsert) SetOrder(v int16) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldOrder, v)
+	return u
+}
+
+// UpdateOrder sets the "order" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateOrder() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldOrder)
+	return u
+}
+
+// AddOrder adds v to the "order" field.
+func (u *MediaVersionUpsert) AddOrder(v int16) *MediaVersionUpsert {
+	u.Add(mediaversion.FieldOrder, v)
+	return u
+}
+
+// ClearOrder clears the value of the "order" field.
+func (u *MediaVersionUpsert) ClearOrder() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldOrder)
+	return u
+}
+
+// SetPreferredPhotoYn sets the "preferred_photo_yn" field.
+func (u *MediaVersionUpsert) SetPreferredPhotoYn(v bool) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldPreferredPhotoYn, v)
+	return u
+}
+
+// UpdatePreferredPhotoYn sets the "preferred_photo_yn" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdatePreferredPhotoYn() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldPreferredPhotoYn)
+	return u
+}
+
+// ClearPreferredPhotoYn clears the value of the "preferred_photo_yn" field.
+func (u *MediaVersionUpsert) ClearPreferredPhotoYn() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldPreferredPhotoYn)
+	return u
+}
+
+// SetMediaModificationTimestamp sets the "media_modification_timestamp" field.
+func (u *MediaVersionUpsert) SetMediaModificationTimestamp(v time.Time) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldMediaModificationTimestamp, v)
+	return u
+}
+
+// UpdateMediaModificationTimestamp sets the "media_modification_timestamp" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateMediaModificationTimestamp() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldMediaModificationTimestamp)
+	return u
+}
+
+// ClearMediaModificationTimestamp clears the value of the "media_modification_timestamp" field.
+func (u *MediaVersionUpsert) ClearMediaModificationTimestamp() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldMediaModificationTimestamp)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *MediaVersionUpsert) SetExtendedFields(v map[string]interface{}) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateExtendedFields() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *MediaVersionUpsert) ClearExtendedFields() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldExtendedFields)
+	return u
+}
+
+// SetMediaKey sets the "media_key" field.
+func (u *MediaVersionUpsert) SetMediaKey(v string) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldMediaKey, v)
+	return u
+}
+
+// UpdateMediaKey sets the "media_key" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateMediaKey() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldMediaKey)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MediaVersionUpsert) SetSyncEventID(v uuid.UUID) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateSyncEventID() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MediaVersionUpsert) SetRawOutputID(v uuid.UUID) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateRawOutputID() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MediaVersionUpsert) ClearRawOutputID() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldRawOutputID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.MediaVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(mediaversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MediaVersionUpsertOne) UpdateNewValues() *MediaVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(mediaversion.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.MediaVersion.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *MediaVersionUpsertOne) Ignore() *MediaVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MediaVersionUpsertOne) DoNothing() *MediaVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MediaVersionCreate.OnConflict
+// documentation for more info.
+func (u *MediaVersionUpsertOne) Update(set func(*MediaVersionUpsert)) *MediaVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MediaVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *MediaVersionUpsertOne) SetValidFrom(v time.Time) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateValidFrom() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *MediaVersionUpsertOne) SetValidTo(v time.Time) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateValidTo() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *MediaVersionUpsertOne) ClearValidTo() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *MediaVersionUpsertOne) SetChangeType(v mediaversion.ChangeType) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateChangeType() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *MediaVersionUpsertOne) SetChangedFields(v map[string]interface{}) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateChangedFields() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *MediaVersionUpsertOne) ClearChangedFields() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *MediaVersionUpsertOne) SetProcessorVersion(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateProcessorVersion() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *MediaVersionUpsertOne) SetSourceModifiedAt(v time.Time) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateSourceModifiedAt() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *MediaVersionUpsertOne) SetOriginatingSystemName(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateOriginatingSystemName() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *MediaVersionUpsertOne) ClearOriginatingSystemName() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *MediaVersionUpsertOne) SetMlgCanView(v bool) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateMlgCanView() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *MediaVersionUpsertOne) SetMlgCanUse(v []string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateMlgCanUse() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *MediaVersionUpsertOne) ClearMlgCanUse() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetResourceType sets the "resource_type" field.
+func (u *MediaVersionUpsertOne) SetResourceType(v mediaversion.ResourceType) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetResourceType(v)
+	})
+}
+
+// UpdateResourceType sets the "resource_type" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateResourceType() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateResourceType()
+	})
+}
+
+// SetResourceRecordKey sets the "resource_record_key" field.
+func (u *MediaVersionUpsertOne) SetResourceRecordKey(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetResourceRecordKey(v)
+	})
+}
+
+// UpdateResourceRecordKey sets the "resource_record_key" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateResourceRecordKey() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateResourceRecordKey()
+	})
+}
+
+// SetMediaType sets the "media_type" field.
+func (u *MediaVersionUpsertOne) SetMediaType(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaType(v)
+	})
+}
+
+// UpdateMediaType sets the "media_type" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateMediaType() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaType()
+	})
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (u *MediaVersionUpsertOne) ClearMediaType() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMediaType()
+	})
+}
+
+// SetMediaURL sets the "media_url" field.
+func (u *MediaVersionUpsertOne) SetMediaURL(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaURL(v)
+	})
+}
+
+// UpdateMediaURL sets the "media_url" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateMediaURL() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaURL()
+	})
+}
+
+// ClearMediaURL clears the value of the "media_url" field.
+func (u *MediaVersionUpsertOne) ClearMediaURL() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMediaURL()
+	})
+}
+
+// SetImageHeight sets the "image_height" field.
+func (u *MediaVersionUpsertOne) SetImageHeight(v int64) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetImageHeight(v)
+	})
+}
+
+// AddImageHeight adds v to the "image_height" field.
+func (u *MediaVersionUpsertOne) AddImageHeight(v int64) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.AddImageHeight(v)
+	})
+}
+
+// UpdateImageHeight sets the "image_height" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateImageHeight() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateImageHeight()
+	})
+}
+
+// ClearImageHeight clears the value of the "image_height" field.
+func (u *MediaVersionUpsertOne) ClearImageHeight() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearImageHeight()
+	})
+}
+
+// SetImageWidth sets the "image_width" field.
+func (u *MediaVersionUpsertOne) SetImageWidth(v int64) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetImageWidth(v)
+	})
+}
+
+// AddImageWidth adds v to the "image_width" field.
+func (u *MediaVersionUpsertOne) AddImageWidth(v int64) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.AddImageWidth(v)
+	})
+}
+
+// UpdateImageWidth sets the "image_width" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateImageWidth() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateImageWidth()
+	})
+}
+
+// ClearImageWidth clears the value of the "image_width" field.
+func (u *MediaVersionUpsertOne) ClearImageWidth() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearImageWidth()
+	})
+}
+
+// SetImageSizeDescription sets the "image_size_description" field.
+func (u *MediaVersionUpsertOne) SetImageSizeDescription(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetImageSizeDescription(v)
+	})
+}
+
+// UpdateImageSizeDescription sets the "image_size_description" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateImageSizeDescription() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateImageSizeDescription()
+	})
+}
+
+// ClearImageSizeDescription clears the value of the "image_size_description" field.
+func (u *MediaVersionUpsertOne) ClearImageSizeDescription() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearImageSizeDescription()
+	})
+}
+
+// SetLongDescription sets the "long_description" field.
+func (u *MediaVersionUpsertOne) SetLongDescription(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetLongDescription(v)
+	})
+}
+
+// UpdateLongDescription sets the "long_description" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateLongDescription() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateLongDescription()
+	})
+}
+
+// ClearLongDescription clears the value of the "long_description" field.
+func (u *MediaVersionUpsertOne) ClearLongDescription() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearLongDescription()
+	})
+}
+
+// SetOrder sets the "order" field.
+func (u *MediaVersionUpsertOne) SetOrder(v int16) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetOrder(v)
+	})
+}
+
+// AddOrder adds v to the "order" field.
+func (u *MediaVersionUpsertOne) AddOrder(v int16) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.AddOrder(v)
+	})
+}
+
+// UpdateOrder sets the "order" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateOrder() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateOrder()
+	})
+}
+
+// ClearOrder clears the value of the "order" field.
+func (u *MediaVersionUpsertOne) ClearOrder() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearOrder()
+	})
+}
+
+// SetPreferredPhotoYn sets the "preferred_photo_yn" field.
+func (u *MediaVersionUpsertOne) SetPreferredPhotoYn(v bool) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetPreferredPhotoYn(v)
+	})
+}
+
+// UpdatePreferredPhotoYn sets the "preferred_photo_yn" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdatePreferredPhotoYn() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdatePreferredPhotoYn()
+	})
+}
+
+// ClearPreferredPhotoYn clears the value of the "preferred_photo_yn" field.
+func (u *MediaVersionUpsertOne) ClearPreferredPhotoYn() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearPreferredPhotoYn()
+	})
+}
+
+// SetMediaModificationTimestamp sets the "media_modification_timestamp" field.
+func (u *MediaVersionUpsertOne) SetMediaModificationTimestamp(v time.Time) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaModificationTimestamp(v)
+	})
+}
+
+// UpdateMediaModificationTimestamp sets the "media_modification_timestamp" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateMediaModificationTimestamp() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaModificationTimestamp()
+	})
+}
+
+// ClearMediaModificationTimestamp clears the value of the "media_modification_timestamp" field.
+func (u *MediaVersionUpsertOne) ClearMediaModificationTimestamp() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMediaModificationTimestamp()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *MediaVersionUpsertOne) SetExtendedFields(v map[string]interface{}) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateExtendedFields() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *MediaVersionUpsertOne) ClearExtendedFields() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetMediaKey sets the "media_key" field.
+func (u *MediaVersionUpsertOne) SetMediaKey(v string) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaKey(v)
+	})
+}
+
+// UpdateMediaKey sets the "media_key" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateMediaKey() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MediaVersionUpsertOne) SetSyncEventID(v uuid.UUID) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateSyncEventID() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MediaVersionUpsertOne) SetRawOutputID(v uuid.UUID) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateRawOutputID() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MediaVersionUpsertOne) ClearRawOutputID() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *MediaVersionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MediaVersionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MediaVersionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *MediaVersionUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: MediaVersionUpsertOne.ID is not supported by MySQL driver. Use MediaVersionUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *MediaVersionUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // MediaVersionCreateBulk is the builder for creating many MediaVersion entities in bulk.
 type MediaVersionCreateBulk struct {
 	config
 	err      error
 	builders []*MediaVersionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the MediaVersion entities in the database.
@@ -535,6 +1533,7 @@ func (_c *MediaVersionCreateBulk) Save(ctx context.Context) ([]*MediaVersion, er
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -581,6 +1580,582 @@ func (_c *MediaVersionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *MediaVersionCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.MediaVersion.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MediaVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MediaVersionCreateBulk) OnConflict(opts ...sql.ConflictOption) *MediaVersionUpsertBulk {
+	_c.conflict = opts
+	return &MediaVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.MediaVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MediaVersionCreateBulk) OnConflictColumns(columns ...string) *MediaVersionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MediaVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// MediaVersionUpsertBulk is the builder for "upsert"-ing
+// a bulk of MediaVersion nodes.
+type MediaVersionUpsertBulk struct {
+	create *MediaVersionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.MediaVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(mediaversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MediaVersionUpsertBulk) UpdateNewValues() *MediaVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(mediaversion.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.MediaVersion.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *MediaVersionUpsertBulk) Ignore() *MediaVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MediaVersionUpsertBulk) DoNothing() *MediaVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MediaVersionCreateBulk.OnConflict
+// documentation for more info.
+func (u *MediaVersionUpsertBulk) Update(set func(*MediaVersionUpsert)) *MediaVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MediaVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *MediaVersionUpsertBulk) SetValidFrom(v time.Time) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateValidFrom() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *MediaVersionUpsertBulk) SetValidTo(v time.Time) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateValidTo() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *MediaVersionUpsertBulk) ClearValidTo() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *MediaVersionUpsertBulk) SetChangeType(v mediaversion.ChangeType) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateChangeType() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *MediaVersionUpsertBulk) SetChangedFields(v map[string]interface{}) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateChangedFields() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *MediaVersionUpsertBulk) ClearChangedFields() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *MediaVersionUpsertBulk) SetProcessorVersion(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateProcessorVersion() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *MediaVersionUpsertBulk) SetSourceModifiedAt(v time.Time) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateSourceModifiedAt() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *MediaVersionUpsertBulk) SetOriginatingSystemName(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateOriginatingSystemName() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *MediaVersionUpsertBulk) ClearOriginatingSystemName() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *MediaVersionUpsertBulk) SetMlgCanView(v bool) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateMlgCanView() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *MediaVersionUpsertBulk) SetMlgCanUse(v []string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateMlgCanUse() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *MediaVersionUpsertBulk) ClearMlgCanUse() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetResourceType sets the "resource_type" field.
+func (u *MediaVersionUpsertBulk) SetResourceType(v mediaversion.ResourceType) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetResourceType(v)
+	})
+}
+
+// UpdateResourceType sets the "resource_type" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateResourceType() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateResourceType()
+	})
+}
+
+// SetResourceRecordKey sets the "resource_record_key" field.
+func (u *MediaVersionUpsertBulk) SetResourceRecordKey(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetResourceRecordKey(v)
+	})
+}
+
+// UpdateResourceRecordKey sets the "resource_record_key" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateResourceRecordKey() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateResourceRecordKey()
+	})
+}
+
+// SetMediaType sets the "media_type" field.
+func (u *MediaVersionUpsertBulk) SetMediaType(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaType(v)
+	})
+}
+
+// UpdateMediaType sets the "media_type" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateMediaType() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaType()
+	})
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (u *MediaVersionUpsertBulk) ClearMediaType() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMediaType()
+	})
+}
+
+// SetMediaURL sets the "media_url" field.
+func (u *MediaVersionUpsertBulk) SetMediaURL(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaURL(v)
+	})
+}
+
+// UpdateMediaURL sets the "media_url" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateMediaURL() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaURL()
+	})
+}
+
+// ClearMediaURL clears the value of the "media_url" field.
+func (u *MediaVersionUpsertBulk) ClearMediaURL() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMediaURL()
+	})
+}
+
+// SetImageHeight sets the "image_height" field.
+func (u *MediaVersionUpsertBulk) SetImageHeight(v int64) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetImageHeight(v)
+	})
+}
+
+// AddImageHeight adds v to the "image_height" field.
+func (u *MediaVersionUpsertBulk) AddImageHeight(v int64) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.AddImageHeight(v)
+	})
+}
+
+// UpdateImageHeight sets the "image_height" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateImageHeight() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateImageHeight()
+	})
+}
+
+// ClearImageHeight clears the value of the "image_height" field.
+func (u *MediaVersionUpsertBulk) ClearImageHeight() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearImageHeight()
+	})
+}
+
+// SetImageWidth sets the "image_width" field.
+func (u *MediaVersionUpsertBulk) SetImageWidth(v int64) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetImageWidth(v)
+	})
+}
+
+// AddImageWidth adds v to the "image_width" field.
+func (u *MediaVersionUpsertBulk) AddImageWidth(v int64) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.AddImageWidth(v)
+	})
+}
+
+// UpdateImageWidth sets the "image_width" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateImageWidth() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateImageWidth()
+	})
+}
+
+// ClearImageWidth clears the value of the "image_width" field.
+func (u *MediaVersionUpsertBulk) ClearImageWidth() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearImageWidth()
+	})
+}
+
+// SetImageSizeDescription sets the "image_size_description" field.
+func (u *MediaVersionUpsertBulk) SetImageSizeDescription(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetImageSizeDescription(v)
+	})
+}
+
+// UpdateImageSizeDescription sets the "image_size_description" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateImageSizeDescription() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateImageSizeDescription()
+	})
+}
+
+// ClearImageSizeDescription clears the value of the "image_size_description" field.
+func (u *MediaVersionUpsertBulk) ClearImageSizeDescription() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearImageSizeDescription()
+	})
+}
+
+// SetLongDescription sets the "long_description" field.
+func (u *MediaVersionUpsertBulk) SetLongDescription(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetLongDescription(v)
+	})
+}
+
+// UpdateLongDescription sets the "long_description" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateLongDescription() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateLongDescription()
+	})
+}
+
+// ClearLongDescription clears the value of the "long_description" field.
+func (u *MediaVersionUpsertBulk) ClearLongDescription() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearLongDescription()
+	})
+}
+
+// SetOrder sets the "order" field.
+func (u *MediaVersionUpsertBulk) SetOrder(v int16) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetOrder(v)
+	})
+}
+
+// AddOrder adds v to the "order" field.
+func (u *MediaVersionUpsertBulk) AddOrder(v int16) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.AddOrder(v)
+	})
+}
+
+// UpdateOrder sets the "order" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateOrder() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateOrder()
+	})
+}
+
+// ClearOrder clears the value of the "order" field.
+func (u *MediaVersionUpsertBulk) ClearOrder() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearOrder()
+	})
+}
+
+// SetPreferredPhotoYn sets the "preferred_photo_yn" field.
+func (u *MediaVersionUpsertBulk) SetPreferredPhotoYn(v bool) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetPreferredPhotoYn(v)
+	})
+}
+
+// UpdatePreferredPhotoYn sets the "preferred_photo_yn" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdatePreferredPhotoYn() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdatePreferredPhotoYn()
+	})
+}
+
+// ClearPreferredPhotoYn clears the value of the "preferred_photo_yn" field.
+func (u *MediaVersionUpsertBulk) ClearPreferredPhotoYn() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearPreferredPhotoYn()
+	})
+}
+
+// SetMediaModificationTimestamp sets the "media_modification_timestamp" field.
+func (u *MediaVersionUpsertBulk) SetMediaModificationTimestamp(v time.Time) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaModificationTimestamp(v)
+	})
+}
+
+// UpdateMediaModificationTimestamp sets the "media_modification_timestamp" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateMediaModificationTimestamp() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaModificationTimestamp()
+	})
+}
+
+// ClearMediaModificationTimestamp clears the value of the "media_modification_timestamp" field.
+func (u *MediaVersionUpsertBulk) ClearMediaModificationTimestamp() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearMediaModificationTimestamp()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *MediaVersionUpsertBulk) SetExtendedFields(v map[string]interface{}) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateExtendedFields() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *MediaVersionUpsertBulk) ClearExtendedFields() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetMediaKey sets the "media_key" field.
+func (u *MediaVersionUpsertBulk) SetMediaKey(v string) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetMediaKey(v)
+	})
+}
+
+// UpdateMediaKey sets the "media_key" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateMediaKey() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateMediaKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MediaVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateSyncEventID() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MediaVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateRawOutputID() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MediaVersionUpsertBulk) ClearRawOutputID() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *MediaVersionUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the MediaVersionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MediaVersionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MediaVersionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

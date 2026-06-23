@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/lunarhue/libs-go/log"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/google/uuid"
+	"github.com/lunarhue/libs-go/log"
 )
 
 // rawOutputInsertColumns is the column count for raw_output's bulk INSERT:

@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"encoding/json"
 	"time"
 
 	"entgo.io/contrib/entgql"
@@ -46,7 +47,11 @@ func (RawOutput) Fields() []ent.Field {
 			Values("insert", "update", "delete"),
 		field.Time("source_modified_at").
 			Comment("Upstream ModificationTimestamp from the payload"),
-		field.JSON("payload", map[string]any{}).
+		// Stored as raw JSON bytes (json.RawMessage), not a decoded map. ent's
+		// JSON ValueScanner copies the jsonb bytes verbatim on scan, so the
+		// processor parses raw.Payload directly — no decode-to-map then
+		// re-marshal round-trip (see sync/processor profiling, 2026-06).
+		field.JSON("payload", json.RawMessage{}).
 			SchemaType(map[string]string{
 				dialect.Postgres: "jsonb",
 			}),

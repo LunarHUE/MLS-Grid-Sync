@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
@@ -19,6 +21,7 @@ type ProcessorCursorCreate struct {
 	config
 	mutation *ProcessorCursorMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -188,6 +191,7 @@ func (_c *ProcessorCursorCreate) createSpec() (*ProcessorCursor, *sqlgraph.Creat
 		_node = &ProcessorCursor{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(processorcursor.Table, sqlgraph.NewFieldSpec(processorcursor.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -215,11 +219,244 @@ func (_c *ProcessorCursorCreate) createSpec() (*ProcessorCursor, *sqlgraph.Creat
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ProcessorCursor.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ProcessorCursorUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *ProcessorCursorCreate) OnConflict(opts ...sql.ConflictOption) *ProcessorCursorUpsertOne {
+	_c.conflict = opts
+	return &ProcessorCursorUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ProcessorCursor.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *ProcessorCursorCreate) OnConflictColumns(columns ...string) *ProcessorCursorUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &ProcessorCursorUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// ProcessorCursorUpsertOne is the builder for "upsert"-ing
+	//  one ProcessorCursor node.
+	ProcessorCursorUpsertOne struct {
+		create *ProcessorCursorCreate
+	}
+
+	// ProcessorCursorUpsert is the "OnConflict" setter.
+	ProcessorCursorUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *ProcessorCursorUpsert) SetModifiedAt(v time.Time) *ProcessorCursorUpsert {
+	u.Set(processorcursor.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *ProcessorCursorUpsert) UpdateModifiedAt() *ProcessorCursorUpsert {
+	u.SetExcluded(processorcursor.FieldModifiedAt)
+	return u
+}
+
+// SetLastRawOutputID sets the "last_raw_output_id" field.
+func (u *ProcessorCursorUpsert) SetLastRawOutputID(v uuid.UUID) *ProcessorCursorUpsert {
+	u.Set(processorcursor.FieldLastRawOutputID, v)
+	return u
+}
+
+// UpdateLastRawOutputID sets the "last_raw_output_id" field to the value that was provided on create.
+func (u *ProcessorCursorUpsert) UpdateLastRawOutputID() *ProcessorCursorUpsert {
+	u.SetExcluded(processorcursor.FieldLastRawOutputID)
+	return u
+}
+
+// ClearLastRawOutputID clears the value of the "last_raw_output_id" field.
+func (u *ProcessorCursorUpsert) ClearLastRawOutputID() *ProcessorCursorUpsert {
+	u.SetNull(processorcursor.FieldLastRawOutputID)
+	return u
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *ProcessorCursorUpsert) SetProcessorVersion(v string) *ProcessorCursorUpsert {
+	u.Set(processorcursor.FieldProcessorVersion, v)
+	return u
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *ProcessorCursorUpsert) UpdateProcessorVersion() *ProcessorCursorUpsert {
+	u.SetExcluded(processorcursor.FieldProcessorVersion)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.ProcessorCursor.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(processorcursor.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *ProcessorCursorUpsertOne) UpdateNewValues() *ProcessorCursorUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(processorcursor.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(processorcursor.FieldCreatedAt)
+		}
+		if _, exists := u.create.mutation.Resource(); exists {
+			s.SetIgnore(processorcursor.FieldResource)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.ProcessorCursor.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *ProcessorCursorUpsertOne) Ignore() *ProcessorCursorUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ProcessorCursorUpsertOne) DoNothing() *ProcessorCursorUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ProcessorCursorCreate.OnConflict
+// documentation for more info.
+func (u *ProcessorCursorUpsertOne) Update(set func(*ProcessorCursorUpsert)) *ProcessorCursorUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ProcessorCursorUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *ProcessorCursorUpsertOne) SetModifiedAt(v time.Time) *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *ProcessorCursorUpsertOne) UpdateModifiedAt() *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetLastRawOutputID sets the "last_raw_output_id" field.
+func (u *ProcessorCursorUpsertOne) SetLastRawOutputID(v uuid.UUID) *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.SetLastRawOutputID(v)
+	})
+}
+
+// UpdateLastRawOutputID sets the "last_raw_output_id" field to the value that was provided on create.
+func (u *ProcessorCursorUpsertOne) UpdateLastRawOutputID() *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.UpdateLastRawOutputID()
+	})
+}
+
+// ClearLastRawOutputID clears the value of the "last_raw_output_id" field.
+func (u *ProcessorCursorUpsertOne) ClearLastRawOutputID() *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.ClearLastRawOutputID()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *ProcessorCursorUpsertOne) SetProcessorVersion(v string) *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *ProcessorCursorUpsertOne) UpdateProcessorVersion() *ProcessorCursorUpsertOne {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// Exec executes the query.
+func (u *ProcessorCursorUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ProcessorCursorCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ProcessorCursorUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *ProcessorCursorUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: ProcessorCursorUpsertOne.ID is not supported by MySQL driver. Use ProcessorCursorUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *ProcessorCursorUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // ProcessorCursorCreateBulk is the builder for creating many ProcessorCursor entities in bulk.
 type ProcessorCursorCreateBulk struct {
 	config
 	err      error
 	builders []*ProcessorCursorCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the ProcessorCursor entities in the database.
@@ -249,6 +486,7 @@ func (_c *ProcessorCursorCreateBulk) Save(ctx context.Context) ([]*ProcessorCurs
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -295,6 +533,175 @@ func (_c *ProcessorCursorCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *ProcessorCursorCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ProcessorCursor.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ProcessorCursorUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *ProcessorCursorCreateBulk) OnConflict(opts ...sql.ConflictOption) *ProcessorCursorUpsertBulk {
+	_c.conflict = opts
+	return &ProcessorCursorUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ProcessorCursor.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *ProcessorCursorCreateBulk) OnConflictColumns(columns ...string) *ProcessorCursorUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &ProcessorCursorUpsertBulk{
+		create: _c,
+	}
+}
+
+// ProcessorCursorUpsertBulk is the builder for "upsert"-ing
+// a bulk of ProcessorCursor nodes.
+type ProcessorCursorUpsertBulk struct {
+	create *ProcessorCursorCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.ProcessorCursor.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(processorcursor.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *ProcessorCursorUpsertBulk) UpdateNewValues() *ProcessorCursorUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(processorcursor.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(processorcursor.FieldCreatedAt)
+			}
+			if _, exists := b.mutation.Resource(); exists {
+				s.SetIgnore(processorcursor.FieldResource)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.ProcessorCursor.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *ProcessorCursorUpsertBulk) Ignore() *ProcessorCursorUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ProcessorCursorUpsertBulk) DoNothing() *ProcessorCursorUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ProcessorCursorCreateBulk.OnConflict
+// documentation for more info.
+func (u *ProcessorCursorUpsertBulk) Update(set func(*ProcessorCursorUpsert)) *ProcessorCursorUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ProcessorCursorUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *ProcessorCursorUpsertBulk) SetModifiedAt(v time.Time) *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *ProcessorCursorUpsertBulk) UpdateModifiedAt() *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetLastRawOutputID sets the "last_raw_output_id" field.
+func (u *ProcessorCursorUpsertBulk) SetLastRawOutputID(v uuid.UUID) *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.SetLastRawOutputID(v)
+	})
+}
+
+// UpdateLastRawOutputID sets the "last_raw_output_id" field to the value that was provided on create.
+func (u *ProcessorCursorUpsertBulk) UpdateLastRawOutputID() *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.UpdateLastRawOutputID()
+	})
+}
+
+// ClearLastRawOutputID clears the value of the "last_raw_output_id" field.
+func (u *ProcessorCursorUpsertBulk) ClearLastRawOutputID() *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.ClearLastRawOutputID()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *ProcessorCursorUpsertBulk) SetProcessorVersion(v string) *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *ProcessorCursorUpsertBulk) UpdateProcessorVersion() *ProcessorCursorUpsertBulk {
+	return u.Update(func(s *ProcessorCursorUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// Exec executes the query.
+func (u *ProcessorCursorUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ProcessorCursorCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ProcessorCursorCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ProcessorCursorUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

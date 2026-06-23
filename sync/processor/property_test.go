@@ -45,7 +45,7 @@ func insertRaw(t *testing.T, client *ent.Client, ctx context.Context, syncEventI
 		SetSourceKey(listingKey).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 

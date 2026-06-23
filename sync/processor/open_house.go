@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -30,22 +29,32 @@ func NewOpenHouseProcessor() *OpenHouseProcessor { return &OpenHouseProcessor{} 
 func (*OpenHouseProcessor) Resource() rawoutput.Resource { return rawoutput.ResourceOpenHouse }
 
 func (p *OpenHouseProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOutput) (Outcome, error) {
-	payload, err := json.Marshal(raw.Payload)
-	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("marshal payload: %w", err)
-	}
-	fields, err := parseOpenHouse(payload)
+	fields, err := parseOpenHouse(raw.Payload)
 	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	current, err := tx.OpenHouse.Query().
+	// Narrow lookup: the control flow needs existence + mlg_can_view
+	// (tombstone-skip) and parent_listing_key (the FK-promotion guard in
+	// applyUpdate). The diff target is the version row, so the rest of the
+	// entity row is not read here. (perf: see docs/profiling.md)
+	var entityRows []struct {
+		MlgCanView       bool    `json:"mlg_can_view"`
+		ParentListingKey *string `json:"parent_listing_key"`
+	}
+	if err := tx.OpenHouse.Query().
 		Where(openhouse.IDEQ(fields.OpenHouseKey)).
-		Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
+		Select(openhouse.FieldMlgCanView, openhouse.FieldParentListingKey).
+		Scan(ctx, &entityRows); err != nil {
 		return OutcomeUnknown, fmt.Errorf("lookup open_house: %w", err)
 	}
-	entityExists := err == nil
+	entityExists := len(entityRows) > 0
+	var currentMlgCanView bool
+	var currentParentListingKey *string
+	if entityExists {
+		currentMlgCanView = entityRows[0].MlgCanView
+		currentParentListingKey = entityRows[0].ParentListingKey
+	}
 
 	var currentVersion *ent.OpenHouseVersion
 	if entityExists {
@@ -84,10 +93,10 @@ func (p *OpenHouseProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.R
 
 	if !fields.MlgCanView {
 		// Already-tombstoned skip — see property.go for rationale.
-		if current != nil && !current.MlgCanView {
+		if entityExists && !currentMlgCanView {
 			return OutcomeSkipTombstoned, nil
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, current, currentVersion, parentFK, now)
+		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, currentVersion, parentFK, entityExists, now)
 	}
 
 	if !entityExists {
@@ -98,7 +107,7 @@ func (p *OpenHouseProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.R
 	if len(diff) == 0 {
 		return OutcomeSkipNoDiff, nil
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, current, currentVersion, parentFK, diff, now)
+	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, currentVersion, parentFK, currentParentListingKey, diff, now)
 }
 
 func (p *OpenHouseProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, parentFK *string, now time.Time) error {
@@ -126,7 +135,7 @@ func (p *OpenHouseProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *Ope
 	return nil
 }
 
-func (p *OpenHouseProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, current *ent.OpenHouse, currentVersion *ent.OpenHouseVersion, parentFK *string, diff map[string]any, now time.Time) error {
+func (p *OpenHouseProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, currentVersion *ent.OpenHouseVersion, parentFK, currentParentListingKey *string, diff map[string]any, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.OpenHouseVersion.UpdateOneID(currentVersion.ID).
 			SetValidTo(now).
@@ -148,11 +157,11 @@ func (p *OpenHouseProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Ope
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	u := tx.OpenHouse.UpdateOneID(current.ID).
+	u := tx.OpenHouse.UpdateOneID(f.OpenHouseKey).
 		SetCurrentVersionID(verID)
 	// Promote parent_listing_key if it just became resolvable, but never
 	// clear an already-linked FK on a routine update.
-	if parentFK != nil && current.ParentListingKey == nil {
+	if parentFK != nil && currentParentListingKey == nil {
 		u.SetParentListingKey(*parentFK)
 	}
 	applyToOpenHouseUpdate(u, f)
@@ -162,7 +171,7 @@ func (p *OpenHouseProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Ope
 	return nil
 }
 
-func (p *OpenHouseProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, current *ent.OpenHouse, currentVersion *ent.OpenHouseVersion, parentFK *string, now time.Time) error {
+func (p *OpenHouseProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *OpenHouseFields, raw *ent.RawOutput, currentVersion *ent.OpenHouseVersion, parentFK *string, entityExists bool, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.OpenHouseVersion.UpdateOneID(currentVersion.ID).
 			SetValidTo(now).
@@ -184,7 +193,7 @@ func (p *OpenHouseProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Ope
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	if current == nil {
+	if !entityExists {
 		c := tx.OpenHouse.Create().
 			SetID(f.OpenHouseKey).
 			SetCurrentVersionID(verID).
@@ -196,7 +205,7 @@ func (p *OpenHouseProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Ope
 		return nil
 	}
 
-	u := tx.OpenHouse.UpdateOneID(current.ID).
+	u := tx.OpenHouse.UpdateOneID(f.OpenHouseKey).
 		SetCurrentVersionID(verID).
 		SetMlgCanView(false)
 	if _, err := u.Save(ctx); err != nil {

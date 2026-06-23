@@ -21,6 +21,28 @@ profiling:
   enabled: false
   port: 6060
 
+processor:
+  # Records committed per transaction in the raw -> typed pass. Amortizes the
+  # per-record COMMIT/fsync + cursor write that dominate the I/O-bound pass.
+  # On a batch error the loop retries that batch one-record-per-tx so the exact
+  # poison record is still named. Set to 1 for the historical per-record
+  # behavior. Override: MLS_SYNC_PROCESSOR_COMMIT_BATCH_SIZE or --commit-batch-size.
+  commit_batch_size: 100
+
+  # Overlap MLS page-fetching with the typed processor during `init` so the
+  # network-bound fetch and the Postgres-bound processing run concurrently
+  # (wall-clock -> max(fetch, process) instead of the sum). Delta syncs are
+  # unaffected. Disable with `init --no-pipeline` for the sequential path.
+  # Override: MLS_SYNC_PROCESSOR_INIT_PIPELINE.
+  init_pipeline: true
+
+  # Project each commit-chunk with batched SQL (bulk read current state, then a
+  # few bulk INSERT/UPSERT/UPDATE statements) instead of per-record round-trips,
+  # for resources that support it (Property today). Collapses ~300 round-trips
+  # per 100 records to ~5. Set false to force the per-record path (kill-switch).
+  # Override: MLS_SYNC_PROCESSOR_BULK or `reprocess --bulk=false`.
+  bulk: true
+
 server:
   # Listen address for the `serve` subcommand (GraphQL API). Override
   # via MLS_SYNC_SERVER_ADDR or the --addr flag.

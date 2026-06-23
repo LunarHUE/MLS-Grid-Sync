@@ -15,6 +15,7 @@ import (
 )
 
 const skipFlag = "skip"
+const noPipelineFlag = "no-pipeline"
 
 var initCmd = &cobra.Command{
 	Use:   "init",
@@ -53,6 +54,17 @@ clean resources.`,
 			return err
 		}
 		defer db.Close()
+
+		// Pipeline init by default (config); --no-pipeline forces the
+		// sequential fetch-then-process path.
+		pipeline := appConfig.Processor.InitPipeline
+		if noPipeline, _ := cmd.Flags().GetBool(noPipelineFlag); noPipeline {
+			pipeline = false
+		}
+		svc.WithInitPipeline(pipeline)
+		if pipeline {
+			log.Infof("init: pipelined fetch‖process enabled")
+		}
 
 		if _, err := svc.SweepStaleRunningEvents(ctx, pkgsync.DefaultStaleRunningThreshold); err != nil {
 			log.Errorf("startup sweep failed: %v", err)
@@ -154,5 +166,6 @@ func normalizeSkipName(name string) (rawoutput.Resource, error) {
 func init() {
 	addOriginatingSystemFlag(initCmd)
 	initCmd.Flags().String(skipFlag, "", "comma-separated resources to skip (e.g. Office,Media)")
+	initCmd.Flags().Bool(noPipelineFlag, false, "disable fetch‖process overlap; fetch all pages, then process (sequential)")
 	rootCmd.AddCommand(initCmd)
 }

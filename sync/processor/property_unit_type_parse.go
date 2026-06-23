@@ -16,9 +16,9 @@ type PropertyUnitTypeFields struct {
 	MlgCanView            bool
 	MlgCanUse             []string
 
-	ListingKey         string
-	UnitTypeBedsTotal  *int16
-	UnitTypeFurnished  *string
+	ListingKey        string
+	UnitTypeBedsTotal *int16
+	UnitTypeFurnished *string
 
 	ExtendedFields map[string]any
 }

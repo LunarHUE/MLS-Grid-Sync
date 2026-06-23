@@ -4,10 +4,13 @@ package ent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
@@ -21,6 +24,7 @@ type RawOutputCreate struct {
 	config
 	mutation *RawOutputMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetSyncEventID sets the "sync_event_id" field.
@@ -54,7 +58,7 @@ func (_c *RawOutputCreate) SetSourceModifiedAt(v time.Time) *RawOutputCreate {
 }
 
 // SetPayload sets the "payload" field.
-func (_c *RawOutputCreate) SetPayload(v map[string]interface{}) *RawOutputCreate {
+func (_c *RawOutputCreate) SetPayload(v json.RawMessage) *RawOutputCreate {
 	_c.mutation.SetPayload(v)
 	return _c
 }
@@ -219,6 +223,7 @@ func (_c *RawOutputCreate) createSpec() (*RawOutput, *sqlgraph.CreateSpec) {
 		_node = &RawOutput{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(rawoutput.Table, sqlgraph.NewFieldSpec(rawoutput.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -283,11 +288,306 @@ func (_c *RawOutputCreate) createSpec() (*RawOutput, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.RawOutput.Create().
+//		SetSyncEventID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RawOutputUpsert) {
+//			SetSyncEventID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *RawOutputCreate) OnConflict(opts ...sql.ConflictOption) *RawOutputUpsertOne {
+	_c.conflict = opts
+	return &RawOutputUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.RawOutput.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *RawOutputCreate) OnConflictColumns(columns ...string) *RawOutputUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &RawOutputUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// RawOutputUpsertOne is the builder for "upsert"-ing
+	//  one RawOutput node.
+	RawOutputUpsertOne struct {
+		create *RawOutputCreate
+	}
+
+	// RawOutputUpsert is the "OnConflict" setter.
+	RawOutputUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *RawOutputUpsert) SetSyncEventID(v uuid.UUID) *RawOutputUpsert {
+	u.Set(rawoutput.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *RawOutputUpsert) UpdateSyncEventID() *RawOutputUpsert {
+	u.SetExcluded(rawoutput.FieldSyncEventID)
+	return u
+}
+
+// SetResource sets the "resource" field.
+func (u *RawOutputUpsert) SetResource(v rawoutput.Resource) *RawOutputUpsert {
+	u.Set(rawoutput.FieldResource, v)
+	return u
+}
+
+// UpdateResource sets the "resource" field to the value that was provided on create.
+func (u *RawOutputUpsert) UpdateResource() *RawOutputUpsert {
+	u.SetExcluded(rawoutput.FieldResource)
+	return u
+}
+
+// SetSourceKey sets the "source_key" field.
+func (u *RawOutputUpsert) SetSourceKey(v string) *RawOutputUpsert {
+	u.Set(rawoutput.FieldSourceKey, v)
+	return u
+}
+
+// UpdateSourceKey sets the "source_key" field to the value that was provided on create.
+func (u *RawOutputUpsert) UpdateSourceKey() *RawOutputUpsert {
+	u.SetExcluded(rawoutput.FieldSourceKey)
+	return u
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *RawOutputUpsert) SetChangeType(v rawoutput.ChangeType) *RawOutputUpsert {
+	u.Set(rawoutput.FieldChangeType, v)
+	return u
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *RawOutputUpsert) UpdateChangeType() *RawOutputUpsert {
+	u.SetExcluded(rawoutput.FieldChangeType)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *RawOutputUpsert) SetSourceModifiedAt(v time.Time) *RawOutputUpsert {
+	u.Set(rawoutput.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *RawOutputUpsert) UpdateSourceModifiedAt() *RawOutputUpsert {
+	u.SetExcluded(rawoutput.FieldSourceModifiedAt)
+	return u
+}
+
+// SetPayload sets the "payload" field.
+func (u *RawOutputUpsert) SetPayload(v json.RawMessage) *RawOutputUpsert {
+	u.Set(rawoutput.FieldPayload, v)
+	return u
+}
+
+// UpdatePayload sets the "payload" field to the value that was provided on create.
+func (u *RawOutputUpsert) UpdatePayload() *RawOutputUpsert {
+	u.SetExcluded(rawoutput.FieldPayload)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.RawOutput.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(rawoutput.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *RawOutputUpsertOne) UpdateNewValues() *RawOutputUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(rawoutput.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(rawoutput.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.RawOutput.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *RawOutputUpsertOne) Ignore() *RawOutputUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RawOutputUpsertOne) DoNothing() *RawOutputUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RawOutputCreate.OnConflict
+// documentation for more info.
+func (u *RawOutputUpsertOne) Update(set func(*RawOutputUpsert)) *RawOutputUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RawOutputUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *RawOutputUpsertOne) SetSyncEventID(v uuid.UUID) *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *RawOutputUpsertOne) UpdateSyncEventID() *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetResource sets the "resource" field.
+func (u *RawOutputUpsertOne) SetResource(v rawoutput.Resource) *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetResource(v)
+	})
+}
+
+// UpdateResource sets the "resource" field to the value that was provided on create.
+func (u *RawOutputUpsertOne) UpdateResource() *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateResource()
+	})
+}
+
+// SetSourceKey sets the "source_key" field.
+func (u *RawOutputUpsertOne) SetSourceKey(v string) *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetSourceKey(v)
+	})
+}
+
+// UpdateSourceKey sets the "source_key" field to the value that was provided on create.
+func (u *RawOutputUpsertOne) UpdateSourceKey() *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateSourceKey()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *RawOutputUpsertOne) SetChangeType(v rawoutput.ChangeType) *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *RawOutputUpsertOne) UpdateChangeType() *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *RawOutputUpsertOne) SetSourceModifiedAt(v time.Time) *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *RawOutputUpsertOne) UpdateSourceModifiedAt() *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetPayload sets the "payload" field.
+func (u *RawOutputUpsertOne) SetPayload(v json.RawMessage) *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetPayload(v)
+	})
+}
+
+// UpdatePayload sets the "payload" field to the value that was provided on create.
+func (u *RawOutputUpsertOne) UpdatePayload() *RawOutputUpsertOne {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdatePayload()
+	})
+}
+
+// Exec executes the query.
+func (u *RawOutputUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RawOutputCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RawOutputUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *RawOutputUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: RawOutputUpsertOne.ID is not supported by MySQL driver. Use RawOutputUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *RawOutputUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // RawOutputCreateBulk is the builder for creating many RawOutput entities in bulk.
 type RawOutputCreateBulk struct {
 	config
 	err      error
 	builders []*RawOutputCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the RawOutput entities in the database.
@@ -317,6 +617,7 @@ func (_c *RawOutputCreateBulk) Save(ctx context.Context) ([]*RawOutput, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -363,6 +664,207 @@ func (_c *RawOutputCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *RawOutputCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.RawOutput.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RawOutputUpsert) {
+//			SetSyncEventID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *RawOutputCreateBulk) OnConflict(opts ...sql.ConflictOption) *RawOutputUpsertBulk {
+	_c.conflict = opts
+	return &RawOutputUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.RawOutput.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *RawOutputCreateBulk) OnConflictColumns(columns ...string) *RawOutputUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &RawOutputUpsertBulk{
+		create: _c,
+	}
+}
+
+// RawOutputUpsertBulk is the builder for "upsert"-ing
+// a bulk of RawOutput nodes.
+type RawOutputUpsertBulk struct {
+	create *RawOutputCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.RawOutput.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(rawoutput.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *RawOutputUpsertBulk) UpdateNewValues() *RawOutputUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(rawoutput.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(rawoutput.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.RawOutput.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *RawOutputUpsertBulk) Ignore() *RawOutputUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RawOutputUpsertBulk) DoNothing() *RawOutputUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RawOutputCreateBulk.OnConflict
+// documentation for more info.
+func (u *RawOutputUpsertBulk) Update(set func(*RawOutputUpsert)) *RawOutputUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RawOutputUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *RawOutputUpsertBulk) SetSyncEventID(v uuid.UUID) *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *RawOutputUpsertBulk) UpdateSyncEventID() *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetResource sets the "resource" field.
+func (u *RawOutputUpsertBulk) SetResource(v rawoutput.Resource) *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetResource(v)
+	})
+}
+
+// UpdateResource sets the "resource" field to the value that was provided on create.
+func (u *RawOutputUpsertBulk) UpdateResource() *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateResource()
+	})
+}
+
+// SetSourceKey sets the "source_key" field.
+func (u *RawOutputUpsertBulk) SetSourceKey(v string) *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetSourceKey(v)
+	})
+}
+
+// UpdateSourceKey sets the "source_key" field to the value that was provided on create.
+func (u *RawOutputUpsertBulk) UpdateSourceKey() *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateSourceKey()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *RawOutputUpsertBulk) SetChangeType(v rawoutput.ChangeType) *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *RawOutputUpsertBulk) UpdateChangeType() *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *RawOutputUpsertBulk) SetSourceModifiedAt(v time.Time) *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *RawOutputUpsertBulk) UpdateSourceModifiedAt() *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetPayload sets the "payload" field.
+func (u *RawOutputUpsertBulk) SetPayload(v json.RawMessage) *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.SetPayload(v)
+	})
+}
+
+// UpdatePayload sets the "payload" field to the value that was provided on create.
+func (u *RawOutputUpsertBulk) UpdatePayload() *RawOutputUpsertBulk {
+	return u.Update(func(s *RawOutputUpsert) {
+		s.UpdatePayload()
+	})
+}
+
+// Exec executes the query.
+func (u *RawOutputUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the RawOutputCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RawOutputCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RawOutputUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

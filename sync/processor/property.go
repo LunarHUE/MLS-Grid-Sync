@@ -3,7 +3,6 @@ package processor
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -31,25 +30,27 @@ func NewPropertyProcessor() *PropertyProcessor { return &PropertyProcessor{} }
 func (*PropertyProcessor) Resource() rawoutput.Resource { return rawoutput.ResourceProperty }
 
 func (p *PropertyProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOutput) (Outcome, error) {
-	// raw_output.payload is stored as JSONB and surfaced as map[string]any by
-	// ent; re-marshal so the parser can work over json.RawMessage.
-	payload, err := json.Marshal(raw.Payload)
-	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("marshal payload: %w", err)
-	}
-	fields, err := parseProperty(payload)
+	// raw_output.payload is stored as raw JSON bytes (json.RawMessage); the
+	// parser consumes them directly — no decode-to-map then re-marshal.
+	fields, err := parseProperty(raw.Payload)
 	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	// Look up the current entity (if any) by listing_key.
-	current, err := tx.Property.Query().
+	// Look up the current entity by listing_key — but only the columns the
+	// control flow actually needs: existence + mlg_can_view (for the
+	// tombstone-skip). The diff target is the version row below; the full
+	// entity row (34 text[] arrays + 2 JSONB blobs) is never read here, so a
+	// narrow Select avoids scanning it per record. (perf: see docs/profiling.md)
+	var entityCanView []bool
+	if err := tx.Property.Query().
 		Where(property.IDEQ(fields.ListingKey)).
-		Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
+		Select(property.FieldMlgCanView).
+		Scan(ctx, &entityCanView); err != nil {
 		return OutcomeUnknown, fmt.Errorf("lookup property: %w", err)
 	}
-	entityExists := err == nil
+	entityExists := len(entityCanView) > 0
+	currentMlgCanView := entityExists && entityCanView[0]
 
 	// Look up the current open version (valid_to IS NULL), if any. This is
 	// also our diff target — we diff against the open version's data so
@@ -84,10 +85,10 @@ func (p *PropertyProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.Ra
 		// whose current state is already tombstoned is a no-op. Without this
 		// skip, we'd close the open delete version and write another delete
 		// version on every re-arrival, polluting the audit trail.
-		if current != nil && !current.MlgCanView {
+		if entityExists && !currentMlgCanView {
 			return OutcomeSkipTombstoned, nil
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, current, currentVersion, now)
+		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, currentVersion, entityExists, now)
 	}
 
 	// First-time sighting (no entity).
@@ -100,7 +101,7 @@ func (p *PropertyProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.Ra
 	if len(diff) == 0 {
 		return OutcomeSkipNoDiff, nil
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, current, currentVersion, diff, now)
+	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, currentVersion, diff, now)
 }
 
 // cancelPendingAttachmentJobs flips status to 'canceled' (and clears
@@ -225,7 +226,7 @@ func (p *PropertyProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *Prop
 	return nil
 }
 
-func (p *PropertyProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *PropertyFields, raw *ent.RawOutput, current *ent.Property, currentVersion *ent.PropertyVersion, diff map[string]any, now time.Time) error {
+func (p *PropertyProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *PropertyFields, raw *ent.RawOutput, currentVersion *ent.PropertyVersion, diff map[string]any, now time.Time) error {
 	// Close the prior open version.
 	if currentVersion != nil {
 		if _, err := tx.PropertyVersion.UpdateOneID(currentVersion.ID).
@@ -249,8 +250,8 @@ func (p *PropertyProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Prop
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	// Update the entity in place.
-	u := tx.Property.UpdateOneID(current.ID).SetCurrentVersionID(verID)
+	// Update the entity in place (id == f.ListingKey, the key we looked up by).
+	u := tx.Property.UpdateOneID(f.ListingKey).SetCurrentVersionID(verID)
 	applyToPropertyUpdate(u, f)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("update entity: %w", err)
@@ -270,7 +271,7 @@ func (p *PropertyProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Prop
 // future drift-audit query (entity.col vs current_version.col) must
 // exclude tombstoned entities (mlg_can_view = false) or it will flag
 // every delete as drift.
-func (p *PropertyProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *PropertyFields, raw *ent.RawOutput, current *ent.Property, currentVersion *ent.PropertyVersion, now time.Time) error {
+func (p *PropertyProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *PropertyFields, raw *ent.RawOutput, currentVersion *ent.PropertyVersion, entityExists bool, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.PropertyVersion.UpdateOneID(currentVersion.ID).
 			SetValidTo(now).
@@ -292,7 +293,7 @@ func (p *PropertyProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Prop
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	if current == nil {
+	if !entityExists {
 		// First sighting and already invisible — create a tombstoned entity so
 		// the audit trail (the delete version row) has somewhere to point.
 		c := tx.Property.Create().
@@ -312,7 +313,7 @@ func (p *PropertyProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Prop
 		return nil
 	}
 
-	u := tx.Property.UpdateOneID(current.ID).
+	u := tx.Property.UpdateOneID(f.ListingKey).
 		SetCurrentVersionID(verID).
 		SetMlgCanView(false)
 	if _, err := u.Save(ctx); err != nil {
