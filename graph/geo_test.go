@@ -191,9 +191,9 @@ func TestPropertiesInPolygon_PentagonClosedRing(t *testing.T) {
 	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
 	seedPropertyAt(t, client, "geo-inside", dtLat, dtLng, true)
-	seedPropertyAt(t, client, "geo-1km", dtLat+0.01, dtLng, true)     // inside the pentagon
-	seedPropertyAt(t, client, "geo-far", dtLat+1.0, dtLng, true)      // far outside
-	seedPropertyAt(t, client, "geo-east", dtLat, dtLng+0.05, true)    // outside, east
+	seedPropertyAt(t, client, "geo-1km", dtLat+0.01, dtLng, true)  // inside the pentagon
+	seedPropertyAt(t, client, "geo-far", dtLat+1.0, dtLng, true)   // far outside
+	seedPropertyAt(t, client, "geo-east", dtLat, dtLng+0.05, true) // outside, east
 
 	pentagon := []any{
 		pt(dtLat-0.010, dtLng-0.010),
@@ -251,6 +251,110 @@ func TestPropertiesInPolygon_VertexCap(t *testing.T) {
 	// One past the cap: rejected.
 	errs := testutil.GQLExpectError(t, srv, polygonQuery, map[string]any{
 		"vertices": circleVertices(1025, 0.01),
+	})
+	require.NotEmpty(t, errs)
+}
+
+const multiPolygonQuery = `query($polygons: [[GeoPoint!]!]!) {
+	propertiesInMultiPolygon(polygons: $polygons, first: 50) {
+		totalCount
+		edges { node { id } }
+	}
+}`
+
+// square returns a 4-vertex (open) ring of half-side halfDeg around (lat,lng).
+func square(lat, lng, halfDeg float64) []any {
+	return []any{
+		pt(lat-halfDeg, lng-halfDeg),
+		pt(lat-halfDeg, lng+halfDeg),
+		pt(lat+halfDeg, lng+halfDeg),
+		pt(lat+halfDeg, lng-halfDeg),
+	}
+}
+
+// TestPropertiesInMultiPolygon_DiscontiguousRegions is the load-bearing
+// check: two separate boxes — one downtown, one ~111km north — must both
+// contribute matches in a single query, while a property between them does
+// not. This is what a single polygon cannot express.
+func TestPropertiesInMultiPolygon_DiscontiguousRegions(t *testing.T) {
+	t.Parallel()
+	srv, client := testutil.NewTestServer(t)
+	seedPropertyAt(t, client, "geo-downtown", dtLat, dtLng, true)
+	seedPropertyAt(t, client, "geo-north", dtLat+1.0, dtLng, true)   // inside the north box
+	seedPropertyAt(t, client, "geo-between", dtLat+0.5, dtLng, true) // in the gap, matches neither
+
+	var data struct {
+		PropertiesInMultiPolygon geoConn `json:"propertiesInMultiPolygon"`
+	}
+	testutil.GQL(t, srv, multiPolygonQuery, map[string]any{
+		"polygons": []any{
+			square(dtLat, dtLng, 0.01),     // downtown
+			square(dtLat+1.0, dtLng, 0.01), // ~111km north
+		},
+	}, &data)
+
+	assert.Equal(t, 2, data.PropertiesInMultiPolygon.TotalCount)
+	assert.ElementsMatch(t, []string{"geo-downtown", "geo-north"}, data.PropertiesInMultiPolygon.ids())
+}
+
+// TestPropertiesInMultiPolygon_SinglePolygonMatchesPolygonQuery pins that a
+// one-element multipolygon behaves exactly like propertiesInPolygon — the
+// multipolygon path is a strict superset.
+func TestPropertiesInMultiPolygon_SinglePolygon(t *testing.T) {
+	t.Parallel()
+	srv, client := testutil.NewTestServer(t)
+	seedPropertyAt(t, client, "geo-inside", dtLat, dtLng, true)
+	seedPropertyAt(t, client, "geo-west", dtLat, dtLng-0.02, true) // outside
+
+	var data struct {
+		PropertiesInMultiPolygon geoConn `json:"propertiesInMultiPolygon"`
+	}
+	testutil.GQL(t, srv, multiPolygonQuery, map[string]any{
+		"polygons": []any{square(dtLat, dtLng, 0.01)},
+	}, &data)
+
+	assert.Equal(t, 1, data.PropertiesInMultiPolygon.TotalCount)
+	assert.Equal(t, []string{"geo-inside"}, data.PropertiesInMultiPolygon.ids())
+}
+
+// TestPropertiesInMultiPolygon_ExcludesTombstoned confirms the same
+// mlg_can_view filter the other geo searches apply.
+func TestPropertiesInMultiPolygon_ExcludesTombstoned(t *testing.T) {
+	t.Parallel()
+	srv, client := testutil.NewTestServer(t)
+	seedPropertyAt(t, client, "geo-vis", dtLat, dtLng, true)
+	seedPropertyAt(t, client, "geo-tomb", dtLat, dtLng, false)
+
+	var data struct {
+		PropertiesInMultiPolygon geoConn `json:"propertiesInMultiPolygon"`
+	}
+	testutil.GQL(t, srv, multiPolygonQuery, map[string]any{
+		"polygons": []any{square(dtLat, dtLng, 0.01)},
+	}, &data)
+
+	assert.Equal(t, 1, data.PropertiesInMultiPolygon.TotalCount)
+	assert.Equal(t, []string{"geo-vis"}, data.PropertiesInMultiPolygon.ids())
+}
+
+func TestPropertiesInMultiPolygon_InvalidArgs(t *testing.T) {
+	t.Parallel()
+	srv, _ := testutil.NewTestServer(t)
+
+	// Empty polygon list.
+	errs := testutil.GQLExpectError(t, srv, multiPolygonQuery, map[string]any{
+		"polygons": []any{},
+	})
+	require.NotEmpty(t, errs)
+
+	// A polygon with fewer than 3 vertices.
+	errs = testutil.GQLExpectError(t, srv, multiPolygonQuery, map[string]any{
+		"polygons": []any{[]any{pt(dtLat, dtLng), pt(dtLat+0.01, dtLng)}},
+	})
+	require.NotEmpty(t, errs)
+
+	// Out-of-range latitude inside an otherwise valid ring.
+	errs = testutil.GQLExpectError(t, srv, multiPolygonQuery, map[string]any{
+		"polygons": []any{[]any{pt(91.0, dtLng), pt(dtLat, dtLng+0.01), pt(dtLat+0.01, dtLng)}},
 	})
 	require.NotEmpty(t, errs)
 }

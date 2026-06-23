@@ -88,3 +88,52 @@ func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*mod
 			ent.WithPropertyOrder(orderBy),
 			ent.WithPropertyFilter(where.Filter))
 }
+
+// multipolygon caps. Each polygon still needs >= 3 vertices (a ring); the
+// total vertex count across all polygons bounds the work ST_Covers does,
+// mirroring how maxPolygonVertices bounds the single-polygon path.
+const (
+	maxMultiPolygons             = 64
+	maxMultiPolygonTotalVertices = 4096
+)
+
+// PropertiesInMultiPolygon matches properties covered by ANY of several
+// polygons (a multipolygon), so consumers can search discontiguous regions
+// — several separate neighborhoods, say — in a single query. Each polygon
+// is validated and built into a ring exactly like propertiesInPolygon, then
+// all rings are combined into one MULTIPOLYGON and tested with ST_Covers
+// (true when a point lies in any constituent polygon). Same visibility
+// filter as the rest of the geo searches.
+func (r *queryResolver) PropertiesInMultiPolygon(ctx context.Context, polygons [][]*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
+	first, last = clampPage(first, last)
+	if len(polygons) == 0 {
+		return nil, fmt.Errorf("multipolygon needs at least 1 polygon, got 0")
+	}
+	if len(polygons) > maxMultiPolygons {
+		return nil, fmt.Errorf("multipolygon supports at most %d polygons, got %d", maxMultiPolygons, len(polygons))
+	}
+	total := 0
+	rings := make([][][2]float64, len(polygons))
+	for pi, poly := range polygons {
+		if len(poly) < 3 {
+			return nil, fmt.Errorf("polygons[%d] needs at least 3 vertices, got %d", pi, len(poly))
+		}
+		total += len(poly)
+		if total > maxMultiPolygonTotalVertices {
+			return nil, fmt.Errorf("multipolygon supports at most %d total vertices across all polygons", maxMultiPolygonTotalVertices)
+		}
+		ring := make([][2]float64, len(poly))
+		for i, v := range poly {
+			if err := validatePoint(fmt.Sprintf("polygons[%d][%d]", pi, i), *v); err != nil {
+				return nil, err
+			}
+			ring[i] = [2]float64{v.Latitude, v.Longitude}
+		}
+		rings[pi] = ring
+	}
+	return r.client.Property.Query().
+		Where(property.MlgCanView(true), geo.InMultiPolygon(geo.MultiPolygonWKT(rings))).
+		Paginate(ctx, after, first, before, last,
+			ent.WithPropertyOrder(orderBy),
+			ent.WithPropertyFilter(where.Filter))
+}

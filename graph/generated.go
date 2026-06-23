@@ -875,6 +875,7 @@ type ComplexityRoot struct {
 		OpenHouses               func(childComplexity int, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.OpenHouseOrder, where *ent.OpenHouseWhereInput) int
 		Properties               func(childComplexity int, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesInBBox         func(childComplexity int, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
+		PropertiesInMultiPolygon func(childComplexity int, polygons [][]*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesInPolygon      func(childComplexity int, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesNear           func(childComplexity int, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertyRoomVersions     func(childComplexity int, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyRoomVersionOrder, where *ent.PropertyRoomVersionWhereInput) int
@@ -1061,6 +1062,7 @@ type QueryResolver interface {
 	PropertiesNear(ctx context.Context, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
 	PropertiesInBBox(ctx context.Context, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
 	PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
+	PropertiesInMultiPolygon(ctx context.Context, polygons [][]*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
 }
 
 type executableSchema graphql.ExecutableSchemaState[ResolverRoot, DirectiveRoot, ComplexityRoot]
@@ -5226,6 +5228,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.PropertiesInBBox(childComplexity, args["southWest"].(model.GeoPoint), args["northEast"].(model.GeoPoint), args["after"].(*entgql.Cursor[string]), args["first"].(*int), args["before"].(*entgql.Cursor[string]), args["last"].(*int), args["orderBy"].(*ent.PropertyOrder), args["where"].(*ent.PropertyWhereInput)), true
+	case "Query.propertiesInMultiPolygon":
+		if e.ComplexityRoot.Query.PropertiesInMultiPolygon == nil {
+			break
+		}
+
+		args, err := ec.field_Query_propertiesInMultiPolygon_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.PropertiesInMultiPolygon(childComplexity, args["polygons"].([][]*model.GeoPoint), args["after"].(*entgql.Cursor[string]), args["first"].(*int), args["before"].(*entgql.Cursor[string]), args["last"].(*int), args["orderBy"].(*ent.PropertyOrder), args["where"].(*ent.PropertyWhereInput)), true
 	case "Query.propertiesInPolygon":
 		if e.ComplexityRoot.Query.PropertiesInPolygon == nil {
 			break
@@ -7836,6 +7849,68 @@ func (ec *executionContext) field_Query_propertiesInBBox_args(ctx context.Contex
 		return nil, err
 	}
 	args["where"] = arg7
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_propertiesInMultiPolygon_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "polygons",
+		func(ctx context.Context, v any) ([][]*model.GeoPoint, error) {
+			return ec.unmarshalNGeoPoint2ᚕᚕᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPointᚄ(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["polygons"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*entgql.Cursor[string], error) {
+			return ec.unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*entgql.Cursor[string], error) {
+			return ec.unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*ent.PropertyOrder, error) {
+			return ec.unmarshalOPropertyOrder2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋentᚐPropertyOrder(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg5
+	arg6, err := graphql.ProcessArgField(ctx, rawArgs, "where",
+		func(ctx context.Context, v any) (*ent.PropertyWhereInput, error) {
+			return ec.unmarshalOPropertyWhereInput2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋentᚐPropertyWhereInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["where"] = arg6
 	return args, nil
 }
 
@@ -25070,6 +25145,50 @@ func (ec *executionContext) fieldContext_Query_propertiesInPolygon(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_propertiesInPolygon_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_propertiesInMultiPolygon(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_propertiesInMultiPolygon(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().PropertiesInMultiPolygon(ctx, fc.Args["polygons"].([][]*model.GeoPoint), fc.Args["after"].(*entgql.Cursor[string]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[string]), fc.Args["last"].(*int), fc.Args["orderBy"].(*ent.PropertyOrder), fc.Args["where"].(*ent.PropertyWhereInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *ent.PropertyConnection) graphql.Marshaler {
+			return ec.marshalNPropertyConnection2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋentᚐPropertyConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_propertiesInMultiPolygon(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PropertyConnection(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_propertiesInMultiPolygon_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -71752,6 +71871,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "propertiesInMultiPolygon":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_propertiesInMultiPolygon(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -72320,6 +72461,21 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 func (ec *executionContext) unmarshalNGeoPoint2githubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPoint(ctx context.Context, v any) (model.GeoPoint, error) {
 	res, err := ec.unmarshalInputGeoPoint(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNGeoPoint2ᚕᚕᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPointᚄ(ctx context.Context, v any) ([][]*model.GeoPoint, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([][]*model.GeoPoint, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNGeoPoint2ᚕᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPointᚄ(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) unmarshalNGeoPoint2ᚕᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPointᚄ(ctx context.Context, v any) ([]*model.GeoPoint, error) {

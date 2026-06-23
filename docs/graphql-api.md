@@ -91,9 +91,10 @@ history also expose an audit list:
 |---|---|
 | `lookups`, `mediaSlice`¹, `members`, `offices`, `openHouses`, `properties`, `propertyRooms`, `propertyUnitTypes`, `sourceSystems` | `mediaVersions`, `memberVersions`, `officeVersions`, `openHouseVersions`, `propertyVersions`, `propertyRoomVersions`, `propertyUnitTypeVersions` |
 
-Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, and three
+Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, and four
 **geo-search** queries over properties: `propertiesNear`,
-`propertiesInBBox`, `propertiesInPolygon` (see [Geo search](#geo-search)).
+`propertiesInBBox`, `propertiesInPolygon`, and `propertiesInMultiPolygon`
+(see [Geo search](#geo-search)).
 
 ¹ The Media list is named `mediaSlice` because `Property.media` already
 exists as a field name.
@@ -292,8 +293,35 @@ lat/lng space.
 }
 ```
 
+**`propertiesInMultiPolygon(polygons)`** — several discontiguous shapes in
+one query (e.g. a handful of separate neighborhoods). `polygons` is a list
+of rings (`[[GeoPoint!]!]!`); each ring follows the `propertiesInPolygon`
+rules (≥ 3 vertices, closes automatically, planar lat/lng edges, boundary
+inclusive). A property matches if it falls inside **any** one of the
+polygons — under the hood it's a single `ST_Covers` against a PostGIS
+`MULTIPOLYGON`, so there's no extra round-trip per shape. At most 64
+polygons and 4096 total vertices across all of them.
+
+```graphql
+{
+  propertiesInMultiPolygon(polygons: [
+    [ { latitude: 30.257, longitude: -97.750 },
+      { latitude: 30.257, longitude: -97.736 },
+      { latitude: 30.279, longitude: -97.743 } ],
+    [ { latitude: 30.500, longitude: -97.700 },
+      { latitude: 30.500, longitude: -97.680 },
+      { latitude: 30.520, longitude: -97.690 } ]
+  ], first: 25) {
+    totalCount
+    edges { node { id unparsedAddress } }
+  }
+}
+```
+
 Validation errors (radius ≤ 0, coordinates out of range, inverted bbox,
-fewer than 3 or more than 1024 vertices) come back as GraphQL errors.
+fewer than 3 or more than 1024 polygon vertices, an empty `polygons` list,
+a ring with fewer than 3 vertices, or more than 64 polygons / 4096 total
+multipolygon vertices) come back as GraphQL errors.
 
 **Infrastructure note:** these queries require a PostGIS-enabled
 Postgres (the compose file and tests use `imresamu/postgis:15-3.5-alpine`).
