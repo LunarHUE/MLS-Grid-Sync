@@ -12,8 +12,19 @@ mls:
   originating_system: "actris"
   v2_url: "https://api.mlsgrid.com/v2"
   # Attachment worker media-download rate cap (requests/sec). Separate from
-  # the OData API limiter (1 RPS, hardcoded in mls/client.go).
+  # the OData API limiter (api_rps below).
   media_download_rps: 1.0
+  # OData API page-fetch rate cap (requests/sec). MLS Grid's documented
+  # ceiling is ~2 RPS; default 1 is conservative. A non-positive value
+  # falls back to 1. Override: MLS_SYNC_MLS_API_RPS.
+  api_rps: 1.0
+  # Pages fetched in parallel during init via $skip offset paging. Overlaps
+  # MLS Grid's per-page server latency (the init bottleneck — the server
+  # spends 1-2s assembling each expanded page while the client is idle).
+  # Set to 1 to disable (sequential nextLink paging); >1 enables it. Capped
+  # by api_rps, so raise both together for the full effect. Init-only; delta
+  # stays sequential. Override: MLS_SYNC_MLS_FETCH_CONCURRENCY.
+  fetch_concurrency: 4
 
 profiling:
   # Localhost-bound pprof endpoint for the throughput investigation

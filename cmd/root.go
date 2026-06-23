@@ -8,6 +8,7 @@ import (
 	_ "net/http/pprof" // registers handlers on http.DefaultServeMux when imported
 	"os"
 	"runtime"
+	"time"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -84,6 +85,14 @@ type components struct {
 	proc  *processor.Processor
 }
 
+// Bounded retry for the initial DB connection, which is established lazily on
+// the first Schema.Create. Backoff is linear: attempt N waits N*backoff, so
+// three attempts span ~0s + 2s + 4s before giving up.
+const (
+	schemaCreateAttempts = 3
+	schemaCreateBackoff  = 2 * time.Second
+)
+
 func setupComponents(ctx context.Context) (*components, error) {
 	if appConfig.MLS.Token == "" {
 		return nil, fmt.Errorf("fatal: MLS token is missing from configuration")
@@ -97,9 +106,31 @@ func setupComponents(ctx context.Context) (*components, error) {
 	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
 	db := ent.NewClient(ent.Driver(drv))
 
-	if err := db.Schema.Create(ctx); err != nil {
+	// db.Schema.Create is the first call that actually dials Postgres (sql.Open
+	// is lazy), so a still-booting or briefly-unreachable server surfaces here
+	// as a connection EOF rather than a schema problem. Retry a few times with
+	// linear backoff so a DB that is just coming up (compose start, restart)
+	// doesn't fail the whole command on the first try.
+	var schemaErr error
+	for attempt := 1; attempt <= schemaCreateAttempts; attempt++ {
+		if schemaErr = db.Schema.Create(ctx); schemaErr == nil {
+			break
+		}
+		if attempt < schemaCreateAttempts {
+			backoff := time.Duration(attempt) * schemaCreateBackoff
+			log.Warnf("schema create attempt %d/%d failed (%v); retrying in %s",
+				attempt, schemaCreateAttempts, schemaErr, backoff)
+			select {
+			case <-time.After(backoff):
+			case <-ctx.Done():
+				db.Close()
+				return nil, ctx.Err()
+			}
+		}
+	}
+	if schemaErr != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed creating schema resources: %w", err)
+		return nil, fmt.Errorf("failed creating schema resources after %d attempts: %w", schemaCreateAttempts, schemaErr)
 	}
 
 	if err := geo.Migrate(ctx, sqlDB); err != nil {
@@ -107,7 +138,7 @@ func setupComponents(ctx context.Context) (*components, error) {
 		return nil, fmt.Errorf("failed applying postgis migrations: %w", err)
 	}
 
-	mlsClient := mls.NewClient(appConfig.MLS.Token)
+	mlsClient := mls.NewClient(appConfig.MLS.Token, appConfig.MLS.APIRPS)
 
 	proc := processor.New(db, sqlDB,
 		processor.NewLookupProcessor(),
@@ -126,7 +157,8 @@ func setupComponents(ctx context.Context) (*components, error) {
 		db.Close()
 		return nil, fmt.Errorf("storage backend: %w", err)
 	}
-	svc := sync.NewService(mlsClient, db, sqlDB, storer, proc)
+	svc := sync.NewService(mlsClient, db, sqlDB, storer, proc).
+		WithFetchConcurrency(appConfig.MLS.FetchConcurrency)
 
 	return &components{svc: svc, db: db, sqlDB: sqlDB, proc: proc}, nil
 }

@@ -172,6 +172,40 @@ on the production-shaped DB before drawing further conclusions.
   per-record/bulk decision is factored into a shared `decideX` so the two paths
   can't diverge (guarded by per-resource bulk-vs-per-record A/B equivalence tests).
 
+- **R5 — concurrent `init` fetch (overlap the server's per-page latency).** R3/R4
+  make the *processing* side fast; once they land, a full Property `init` is
+  **fetch-bound on MLS Grid's server**. Per-page telemetry in `FetchPage`
+  (`fetch timing: N records, X MiB decoded, rate-wait …, http-hdr …, body+decode …`)
+  showed the cost is entirely **time-to-first-byte** (~1–2 s/page, the server
+  assembling the `$expand=Media,Rooms,UnitTypes` document for 1000 listings),
+  while the client is idle: rate-wait `0s`, body+decode ~150 ms even at 16 MiB,
+  and every page returns the full `$top=1000`. So `$top` is maxed, the payload
+  isn't the cost, and **`api_rps` alone does nothing** (the limiter isn't even
+  engaged — each page's server time already exceeds the 1 RPS interval).
+  Crucially, **de-expanding is the wrong direction**: under a per-request rate
+  limit, `$expand` is throughput-optimal (it packs ~20–50× Media records per
+  rate-limited request); fetching Media as its own resource would explode the
+  request count. The only lever left is **overlapping the serial server waits** —
+  multiple requests in flight. Opaque `nextLink` paging can't pipeline (page N+1's
+  URL only arrives with page N), but the feed supports **`$skip` offset paging**
+  (verified live: `$skip=1000` under `$orderby` returns a distinct record), so the
+  concurrent fetcher pre-computes `$skip=0,1000,2000…` URLs and runs `workers`
+  in flight, bounded by `api_rps` (the shared limiter throttles request *starts*).
+  Throughput goes from ~1 page / server-latency to ~`api_rps` pages/sec — at
+  `api_rps=2` a ~45 s Property fetch drops toward ~12–15 s. End-of-data is the
+  first page returning `< PageSize` records; a few speculative requests past the
+  boundary (≤ `workers`) return empty and are discarded. **Init-only and
+  fill-then-process, NOT pipelined**: concurrent saves commit out of UUIDv7 order,
+  so a cursor-driven streaming consumer could advance past a not-yet-committed
+  lower id and skip it — safe only because a full snapshot has each key exactly
+  once and projection runs after the fetch completes. Delta stays sequential (a
+  key can recur across delta pages and must project in order). Gated by
+  `mls.fetch_concurrency` (default 4; set 1 to disable → sequential `nextLink`);
+  pairs with `mls.api_rps` (default 1, conservative; MLS Grid documents ~2 RPS).
+  Implemented in `sync/resource.go` (`paginateConcurrentInit`) + `mls.SkipURL` /
+  `mls.PageSize`; equivalence + boundary + bounded-over-fetch tests in
+  `sync/concurrent_fetch_test.go` (run under `-race`).
+
 ### Hypothesis to test first
 
 When throughput is flat across resources of very different per-record

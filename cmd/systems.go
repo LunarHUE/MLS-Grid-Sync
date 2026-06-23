@@ -30,7 +30,7 @@ non-zero exit code surfaces so automation notices.`,
 		if appConfig.MLS.Token == "" {
 			return fmt.Errorf("fatal: MLS token is missing from configuration")
 		}
-		client := mls.NewClient(appConfig.MLS.Token)
+		client := mls.NewClient(appConfig.MLS.Token, appConfig.MLS.APIRPS)
 		names, err := probeOriginatingSystems(ctx, client, appConfig.MLS.V2URL)
 		if err != nil {
 			fmt.Fprintf(cmd.OutOrStderr(), "discovery probe failed: %v\n", err)
@@ -90,7 +90,7 @@ func init() {
 		if appConfig == nil || appConfig.MLS.Token == "" || appConfig.MLS.V2URL == "" {
 			return nil
 		}
-		client := mls.NewClient(appConfig.MLS.Token)
+		client := mls.NewClient(appConfig.MLS.Token, appConfig.MLS.APIRPS)
 		names, err := probeOriginatingSystems(context.Background(), client, appConfig.MLS.V2URL)
 		if err != nil {
 			// Discovery failure is non-fatal at prompt time — fall back to

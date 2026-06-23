@@ -37,10 +37,17 @@ type Client struct {
 	sleep func(time.Duration)
 }
 
-func NewClient(token string) *Client {
+// NewClient builds a production client whose OData page-fetch rate is capped
+// at rps requests/sec. A non-positive rps falls back to the conservative 1 RPS
+// default rather than rate.NewLimiter(0) (which would block every request
+// forever).
+func NewClient(token string, rps float64) *Client {
+	if rps <= 0 {
+		rps = 1
+	}
 	return &Client{
 		httpClient:  &http.Client{Timeout: 30 * time.Second},
-		rateLimiter: rate.NewLimiter(rate.Limit(1), 1),
+		rateLimiter: rate.NewLimiter(rate.Limit(rps), 1),
 		bearerToken: token,
 		sleep:       time.Sleep,
 	}
@@ -65,15 +72,19 @@ func NewClientWithURL(token, _ string) *Client {
 // `init`, the request-heaviest path in the system — without it, a 429
 // burst would burn the budget in ~6 seconds and give up.
 func (c *Client) FetchPage(ctx context.Context, pageURL string) (*ODataResponse, error) {
+	rateWaitStart := time.Now()
 	if err := c.rateLimiter.Wait(ctx); err != nil {
 		return nil, fmt.Errorf("rate limiter: %w", err)
 	}
+	rateWait := time.Since(rateWaitStart)
 
 	var (
 		resp            *http.Response
 		err             error
 		nonRateAttempts int
 		consec429       int
+		httpStart       time.Time
+		httpDur         time.Duration
 	)
 	for {
 		var req *http.Request
@@ -84,7 +95,9 @@ func (c *Client) FetchPage(ctx context.Context, pageURL string) (*ODataResponse,
 		}
 		req.Header.Set("Authorization", "Bearer "+c.bearerToken)
 
+		httpStart = time.Now()
 		resp, err = c.httpClient.Do(req)
+		httpDur = time.Since(httpStart)
 
 		// Network-level error → countable attempt, exponential backoff.
 		if err != nil {
@@ -146,11 +159,42 @@ func (c *Client) FetchPage(ctx context.Context, pageURL string) (*ODataResponse,
 		return nil, fmt.Errorf("mls grid status %d, response: %s", resp.StatusCode, string(bodyBytes))
 	}
 
+	// Perf telemetry: count the decompressed bytes the decoder consumes and
+	// time the decode separately from the network round-trip. This splits a
+	// slow page into its real causes — rate-limiter wait vs server/transfer
+	// time vs client-side JSON decode — so $top / api_rps tuning is measured,
+	// not guessed. (httpDur already includes response-header latency; the
+	// body is streamed during decode, so transfer+decode land in decodeDur.)
+	counter := &countingReader{r: resp.Body}
+	decodeStart := time.Now()
 	var odata ODataResponse
-	if err := json.NewDecoder(resp.Body).Decode(&odata); err != nil {
+	if err := json.NewDecoder(counter).Decode(&odata); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
+	decodeDur := time.Since(decodeStart)
+
+	log.Infof("fetch timing: %d records, %.1f MiB decoded, rate-wait %s, http-hdr %s, body+decode %s",
+		len(odata.Value),
+		float64(counter.n)/(1024*1024),
+		rateWait.Round(time.Millisecond),
+		httpDur.Round(time.Millisecond),
+		decodeDur.Round(time.Millisecond),
+	)
 	return &odata, nil
+}
+
+// countingReader tallies bytes read through it — used to report the
+// decompressed payload size of a fetched page (Accept-Encoding: gzip is
+// negotiated transparently by net/http, so this counts post-gunzip bytes).
+type countingReader struct {
+	r io.Reader
+	n int64
+}
+
+func (c *countingReader) Read(p []byte) (int, error) {
+	n, err := c.r.Read(p)
+	c.n += int64(n)
+	return n, err
 }
 
 // parseRetryAfter parses an RFC 7231 §7.1.3 Retry-After header value,

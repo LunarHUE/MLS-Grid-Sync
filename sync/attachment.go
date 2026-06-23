@@ -10,10 +10,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"sync/atomic"
 	"time"
 
 	entdialectsql "entgo.io/ent/dialect/sql"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
@@ -48,6 +50,12 @@ var blockingJobStatuses = []attachmentjob.Status{
 // during init on 2026-06-11 with 586k media records to enqueue.
 const enqueueProgressEvery = 500
 
+// enqueueChunkSize is the number of distinct media keys processed per
+// bulk-read + bulk-insert round-trip in EnqueueAttachmentJobs. Each chunk costs
+// ~one SELECT + one multi-row INSERT instead of ~2 round-trips per record, the
+// same chunk-as-unit batching the typed processor uses (docs/profiling.md R4).
+const enqueueChunkSize = 1000
+
 // EnqueueAttachmentJobs inserts an AttachmentJob for each visible Media
 // record whose content has changed (or that we've never seen before),
 // gated by MediaModificationTimestamp.
@@ -64,9 +72,17 @@ func (s *Service) EnqueueAttachmentJobs(ctx context.Context, syncEventID uuid.UU
 		log.Infof("enqueue: starting pass over %d media records", total)
 	}
 	start := time.Now()
-	var enqueued, skipped, processed int
+
+	// Parse + filter + dedup by MediaKey, keeping the latest revision. Like the
+	// typed processor, enqueue is round-trip-bound when done per record (a SELECT
+	// for the latest blocking job + an INSERT each). Collapsing to one job per
+	// media key at its newest revision lets us bulk-read existing jobs and
+	// bulk-insert new ones a chunk at a time. (The feed carries one record per
+	// media key, so this only changes the rare multi-revision-in-one-batch case —
+	// for the better: one download job at the latest revision instead of several.)
+	latest := make(map[string]time.Time, total)
+	order := make([]string, 0, total) // first-seen order, for stable progress logs
 	for _, raw := range records {
-		processed++
 		var record map[string]any
 		if err := json.Unmarshal(raw, &record); err != nil {
 			return fmt.Errorf("unmarshal media record: %w", err)
@@ -78,52 +94,92 @@ func (s *Service) EnqueueAttachmentJobs(ctx context.Context, syncEventID uuid.UU
 		if !ok || mediaKey == "" {
 			continue
 		}
-
-		// Parse MediaModificationTimestamp (falls back to ModificationTimestamp
-		// — Media records carry both; the more specific Media* field wins).
 		incoming := parseEnqueueTimestamp(record)
-
-		// Look up the most recent blocking-status job for this MediaKey.
-		mostRecent, err := s.dbClient.AttachmentJob.Query().
-			Where(
-				attachmentjob.MediaKey(mediaKey),
-				attachmentjob.StatusIn(blockingJobStatuses...),
-			).
-			Order(attachmentjob.ByCreatedAt(entdialectsql.OrderDesc())).
-			First(ctx)
-		if err == nil && mostRecent.MediaModifiedAt != nil && !mostRecent.MediaModifiedAt.Before(incoming) {
-			// Existing job covers this revision (or a newer one). Skip.
-			log.Debugf("media %s skip (current)", mediaKey)
-			skipped++
-			continue
-		}
-
-		creator := s.dbClient.AttachmentJob.Create().
-			SetMediaKey(mediaKey).
-			SetSyncEventID(syncEventID)
-		if !incoming.IsZero() {
-			creator.SetMediaModifiedAt(incoming)
-		}
-		if err := creator.Exec(ctx); err != nil {
-			return fmt.Errorf("enqueue job %s: %w", mediaKey, err)
-		}
-		log.Debugf("media %s enqueue (new revision)", mediaKey)
-		enqueued++
-
-		if processed%enqueueProgressEvery == 0 {
-			log.Infof("enqueue: %d/%d processed (%d enqueued, %d skipped)",
-				processed, total, enqueued, skipped)
+		if prev, seen := latest[mediaKey]; !seen {
+			latest[mediaKey] = incoming
+			order = append(order, mediaKey)
+		} else if incoming.After(prev) {
+			latest[mediaKey] = incoming
 		}
 	}
+
+	var enqueued, skipped, processed int
+	for chunk := range slices.Chunk(order, enqueueChunkSize) {
+		// One query: the latest blocking job per key in this chunk.
+		existing, err := s.latestBlockingJobs(ctx, chunk)
+		if err != nil {
+			return err
+		}
+
+		creates := make([]*ent.AttachmentJobCreate, 0, len(chunk))
+		for _, mediaKey := range chunk {
+			incoming := latest[mediaKey]
+			// Skip when an existing blocking job already covers this revision (or
+			// a newer one) — same gate as the per-record path.
+			if mmAt, ok := existing[mediaKey]; ok && mmAt != nil && !mmAt.Before(incoming) {
+				skipped++
+				continue
+			}
+			c := s.dbClient.AttachmentJob.Create().
+				SetMediaKey(mediaKey).
+				SetSyncEventID(syncEventID)
+			if !incoming.IsZero() {
+				c.SetMediaModifiedAt(incoming)
+			}
+			creates = append(creates, c)
+		}
+		if len(creates) > 0 {
+			if err := s.dbClient.AttachmentJob.CreateBulk(creates...).Exec(ctx); err != nil {
+				return fmt.Errorf("bulk enqueue %d jobs: %w", len(creates), err)
+			}
+			enqueued += len(creates)
+		}
+
+		processed += len(chunk)
+		if total >= enqueueProgressEvery {
+			log.Infof("enqueue: %d/%d processed (%d enqueued, %d skipped)",
+				processed, len(order), enqueued, skipped)
+		}
+	}
+
 	if total >= enqueueProgressEvery {
 		elapsed := time.Since(start)
-		rate := float64(processed) / elapsed.Seconds()
-		log.Infof("enqueue: pass complete — %d records in %s (%.1f/s): %d enqueued, %d skipped",
-			processed, elapsed.Round(time.Second), rate, enqueued, skipped)
+		rate := float64(total) / elapsed.Seconds()
+		log.Infof("enqueue: pass complete — %d records (%d distinct media) in %s (%.1f/s): %d enqueued, %d skipped",
+			total, len(order), elapsed.Round(time.Second), rate, enqueued, skipped)
 	} else if enqueued+skipped > 0 {
 		log.Infof("media jobs: %d enqueued, %d skipped (already current)", enqueued, skipped)
 	}
 	return nil
+}
+
+// latestBlockingJobs returns, for each media key in keys that has a blocking-status
+// job, the media_modified_at of its most recent one (by created_at). A key absent
+// from the map has no blocking job; a present key with a nil value has one with no
+// recorded revision (which does not gate re-enqueue). One query for the whole chunk.
+func (s *Service) latestBlockingJobs(ctx context.Context, keys []string) (map[string]*time.Time, error) {
+	out := make(map[string]*time.Time, len(keys))
+	if len(keys) == 0 {
+		return out, nil
+	}
+	jobs, err := s.dbClient.AttachmentJob.Query().
+		Where(
+			attachmentjob.MediaKeyIn(keys...),
+			attachmentjob.StatusIn(blockingJobStatuses...),
+		).
+		Order(attachmentjob.ByCreatedAt(entdialectsql.OrderDesc())).
+		Select(attachmentjob.FieldMediaKey, attachmentjob.FieldMediaModifiedAt, attachmentjob.FieldCreatedAt).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("bulk lookup blocking jobs: %w", err)
+	}
+	for _, j := range jobs {
+		if _, seen := out[j.MediaKey]; seen {
+			continue // ordered created_at DESC — first per key is the latest
+		}
+		out[j.MediaKey] = j.MediaModifiedAt
+	}
+	return out, nil
 }
 
 // parseEnqueueTimestamp pulls the most appropriate timestamp from a Media
