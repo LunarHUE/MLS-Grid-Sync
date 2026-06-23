@@ -8,10 +8,7 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
 
-  "mounts": [
-    "source=lunarhue-containers-nix-store,target=/nix,type=volume",
-    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,readonly"
-  ],
+  "mounts": ["source=lunarhue-containers-nix-store,target=/nix,type=volume"],
 
   "containerEnv": {
     "NIX_CONFIG": "experimental-features = nix-command flakes"
@@ -38,11 +35,7 @@
 
   "customizations": {
     "vscode": {
-      "extensions": [
-        "mkhl.direnv",
-        "jnoortheen.nix-ide",
-        "golang.go"
-      ],
+      "extensions": ["mkhl.direnv", "jnoortheen.nix-ide", "golang.go"],
       "settings": {
         "direnv.restart.automatic": true,
         "go.useLanguageServer": true,
