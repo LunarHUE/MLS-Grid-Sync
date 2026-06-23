@@ -20,7 +20,8 @@ import (
 //
 // Concurrent writes to the same lookup_key are prevented by the per-resource
 // advisory lock in the generic loop, so the query-then-create/update pattern
-// here is race-free without OnConflict (which isn't enabled in ent codegen).
+// here is race-free. (ent's OnConflict upsert is now enabled — see ent/entc.go
+// — but Lookup keeps the simple per-record path; only Property uses bulk so far.)
 type LookupProcessor struct{}
 
 func NewLookupProcessor() *LookupProcessor { return &LookupProcessor{} }
@@ -137,20 +138,17 @@ func parseLookup(payload []byte) (*LookupFields, error) {
 }
 
 func (p *LookupProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOutput) (Outcome, error) {
-	payload, err := json.Marshal(raw.Payload)
-	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("marshal payload: %w", err)
-	}
-	fields, err := parseLookup(payload)
+	fields, err := parseLookup(raw.Payload)
 	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	current, err := tx.Lookup.Query().Where(lookup.IDEQ(fields.LookupKey)).Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
+	// Existence is all the control flow needs — Lookup upserts by key and never
+	// reads the current row's columns. (perf: see docs/profiling.md)
+	entityExists, err := tx.Lookup.Query().Where(lookup.IDEQ(fields.LookupKey)).Exist(ctx)
+	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("lookup lookup: %w", err)
 	}
-	entityExists := err == nil
 
 	// MlgCanView=false → delete the row. Lookup has no version history,
 	// so there's no tombstone to write — just remove. When the row is
@@ -185,7 +183,7 @@ func (p *LookupProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawO
 	}
 
 	// Update path — apply clear-on-nil for the optional fields.
-	u := tx.Lookup.UpdateOneID(current.ID).
+	u := tx.Lookup.UpdateOneID(fields.LookupKey).
 		SetSourceModifiedAt(fields.SourceModifiedAt).
 		SetMlgCanView(fields.MlgCanView).
 		SetLookupName(fields.LookupName).

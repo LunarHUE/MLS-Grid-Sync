@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -27,22 +26,22 @@ func NewMemberProcessor() *MemberProcessor { return &MemberProcessor{} }
 func (*MemberProcessor) Resource() rawoutput.Resource { return rawoutput.ResourceMember }
 
 func (p *MemberProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOutput) (Outcome, error) {
-	payload, err := json.Marshal(raw.Payload)
-	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("marshal payload: %w", err)
-	}
-	fields, err := parseMember(payload)
+	fields, err := parseMember(raw.Payload)
 	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	current, err := tx.Member.Query().
+	// Narrow lookup: only existence + mlg_can_view (tombstone-skip) are needed
+	// here; the diff target is the version row. (perf: see docs/profiling.md)
+	var entityCanView []bool
+	if err := tx.Member.Query().
 		Where(member.IDEQ(fields.MemberKey)).
-		Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
+		Select(member.FieldMlgCanView).
+		Scan(ctx, &entityCanView); err != nil {
 		return OutcomeUnknown, fmt.Errorf("lookup member: %w", err)
 	}
-	entityExists := err == nil
+	entityExists := len(entityCanView) > 0
+	currentMlgCanView := entityExists && entityCanView[0]
 
 	var currentVersion *ent.MemberVersion
 	if entityExists {
@@ -71,10 +70,10 @@ func (p *MemberProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawO
 		// entity already in tombstoned state is a no-op. Without this, we'd
 		// close the open delete version and write a second delete version
 		// every time the upstream re-asserts the deletion.
-		if current != nil && !current.MlgCanView {
+		if entityExists && !currentMlgCanView {
 			return OutcomeSkipTombstoned, nil
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, current, currentVersion, now)
+		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, currentVersion, entityExists, now)
 	}
 
 	if !entityExists {
@@ -85,7 +84,7 @@ func (p *MemberProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawO
 	if len(diff) == 0 {
 		return OutcomeSkipNoDiff, nil
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, current, currentVersion, diff, now)
+	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, currentVersion, diff, now)
 }
 
 func (p *MemberProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *MemberFields, raw *ent.RawOutput, now time.Time) error {
@@ -112,7 +111,7 @@ func (p *MemberProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *Member
 	return nil
 }
 
-func (p *MemberProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *MemberFields, raw *ent.RawOutput, current *ent.Member, currentVersion *ent.MemberVersion, diff map[string]any, now time.Time) error {
+func (p *MemberProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *MemberFields, raw *ent.RawOutput, currentVersion *ent.MemberVersion, diff map[string]any, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.MemberVersion.UpdateOneID(currentVersion.ID).
 			SetValidTo(now).
@@ -134,7 +133,7 @@ func (p *MemberProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Member
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	u := tx.Member.UpdateOneID(current.ID).SetCurrentVersionID(verID)
+	u := tx.Member.UpdateOneID(f.MemberKey).SetCurrentVersionID(verID)
 	applyToMemberUpdate(u, f)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("update entity: %w", err)
@@ -142,7 +141,7 @@ func (p *MemberProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Member
 	return nil
 }
 
-func (p *MemberProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *MemberFields, raw *ent.RawOutput, current *ent.Member, currentVersion *ent.MemberVersion, now time.Time) error {
+func (p *MemberProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *MemberFields, raw *ent.RawOutput, currentVersion *ent.MemberVersion, entityExists bool, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.MemberVersion.UpdateOneID(currentVersion.ID).
 			SetValidTo(now).
@@ -164,7 +163,7 @@ func (p *MemberProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Member
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	if current == nil {
+	if !entityExists {
 		c := tx.Member.Create().
 			SetID(f.MemberKey).
 			SetCurrentVersionID(verID)
@@ -175,7 +174,7 @@ func (p *MemberProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Member
 		return nil
 	}
 
-	u := tx.Member.UpdateOneID(current.ID).
+	u := tx.Member.UpdateOneID(f.MemberKey).
 		SetCurrentVersionID(verID).
 		SetMlgCanView(false)
 	if _, err := u.Save(ctx); err != nil {
@@ -247,9 +246,9 @@ func diffMemberReflect(currentVersion *ent.MemberVersion, next *MemberFields, ou
 		"MemberKey":             true,
 		"SourceModifiedAt":      true,
 		"OriginatingSystemName": true,
-		"MlgCanView":             true,
-		"MlgCanUse":              true,
-		"ExtendedFields":         true,
+		"MlgCanView":            true,
+		"MlgCanUse":             true,
+		"ExtendedFields":        true,
 	}
 
 	for i := 0; i < tNext.NumField(); i++ {

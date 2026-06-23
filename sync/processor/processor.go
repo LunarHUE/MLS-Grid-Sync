@@ -13,14 +13,22 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
 	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
-
 // DefaultBatchSize is the number of raw_output rows fetched per round-trip.
-// It does not affect transaction granularity — each row is processed in its
-// own transaction regardless.
+// It bounds how many rows a single fetch returns; the commit granularity is
+// governed separately by DefaultCommitBatchSize.
 const DefaultBatchSize = 500
+
+// DefaultCommitBatchSize is the number of records committed per transaction in
+// the typed pass. Batching amortizes the per-record COMMIT/fsync and cursor
+// write that dominate the I/O-bound pass (docs/profiling.md, R2). A batch error
+// triggers a one-record-per-tx fallback so the exact poison record is still
+// pinpointed. Overridable via config / --commit-batch-size; 1 means
+// one-record-per-tx (the historical behavior).
+const DefaultCommitBatchSize = 100
 
 // Outcome is the per-record result a ResourceProcessor reports to the loop.
 // Counters accumulate by Outcome into PassStats, which renders the periodic
@@ -137,13 +145,32 @@ type AfterPasser interface {
 	AfterPass(ctx context.Context, db *sql.DB) error
 }
 
+// ChunkProcessor is an optional interface a ResourceProcessor can implement to
+// project a whole commit-chunk in BULK — one set of batched SQL statements
+// instead of the per-record Process round-trips — to cut the latency-bound cost
+// of the projection (docs/profiling.md, R4). It runs inside the same chunk
+// transaction the loop owns and MUST NOT advance the cursor or commit/rollback.
+//
+// It returns exactly one Outcome per input raw, in order (driving PassStats and
+// the Processed == sum-of-six invariant). On error the loop rolls back and
+// replays the chunk one-record-per-tx via Process, pinpointing the poison
+// record — identical to the per-record halt semantics, so a ChunkProcessor must
+// also implement Process. Used only when bulk projection is enabled
+// (Processor.WithBulk); otherwise the loop always uses Process.
+type ChunkProcessor interface {
+	ResourceProcessor
+	ProcessChunk(ctx context.Context, tx *ent.Tx, raws []*ent.RawOutput) ([]Outcome, error)
+}
+
 // Processor multiplexes ResourceProcessors by resource and runs cursor-driven
 // passes over the raw_output stream.
 type Processor struct {
-	client     *ent.Client
-	db         *sql.DB
-	processors map[rawoutput.Resource]ResourceProcessor
-	batchSize  int
+	client          *ent.Client
+	db              *sql.DB
+	processors      map[rawoutput.Resource]ResourceProcessor
+	batchSize       int
+	commitBatchSize int
+	bulk            bool
 }
 
 // New constructs a Processor with the given per-resource processors registered.
@@ -155,10 +182,12 @@ func New(client *ent.Client, db *sql.DB, ps ...ResourceProcessor) *Processor {
 		m[p.Resource()] = p
 	}
 	return &Processor{
-		client:     client,
-		db:         db,
-		processors: m,
-		batchSize:  DefaultBatchSize,
+		client:          client,
+		db:              db,
+		processors:      m,
+		batchSize:       DefaultBatchSize,
+		commitBatchSize: DefaultCommitBatchSize,
+		bulk:            true,
 	}
 }
 
@@ -167,6 +196,26 @@ func (p *Processor) WithBatchSize(n int) *Processor {
 	if n > 0 {
 		p.batchSize = n
 	}
+	return p
+}
+
+// WithCommitBatchSize sets how many records commit per transaction. n <= 0 is
+// ignored (keeps the current value); n == 1 restores one-record-per-tx.
+// Returns p for chaining.
+func (p *Processor) WithCommitBatchSize(n int) *Processor {
+	if n > 0 {
+		p.commitBatchSize = n
+	}
+	return p
+}
+
+// WithBulk toggles the bulk-projection path: when enabled (default) a chunk is
+// projected via ProcessChunk for processors that implement ChunkProcessor;
+// disabled forces the per-record Process path for every resource. Returns p for
+// chaining. The flag is the operator kill-switch (processor.bulk) for the
+// batched writes.
+func (p *Processor) WithBulk(b bool) *Processor {
+	p.bulk = b
 	return p
 }
 
@@ -183,14 +232,28 @@ func (p *Processor) WithBatchSize(n int) *Processor {
 // The accumulated PassStats are logged but not returned; tests reach the
 // stats through runPassWithStats.
 func (p *Processor) RunPass(ctx context.Context, resource rawoutput.Resource) error {
-	_, err := p.runPassWithStats(ctx, resource)
+	_, err := p.runPassWithStats(ctx, resource, true)
+	return err
+}
+
+// RunPassNoFinalize advances the cursor exactly like RunPass but SKIPS the
+// optional AfterPass finalize hook (the Property child-relink). It exists for
+// the pipelined init path (sync.fetchProcessAndEnqueuePipelined), where the
+// processor consumer drains repeatedly as pages stream in: running the
+// full-table relink after every page would be quadratic. The caller runs one
+// final RunPass once pagination completes to perform the relink exactly once.
+func (p *Processor) RunPassNoFinalize(ctx context.Context, resource rawoutput.Resource) error {
+	_, err := p.runPassWithStats(ctx, resource, false)
 	return err
 }
 
 // runPassWithStats is the bare loop with the PassStats accumulation exposed
 // to the caller. RunPass wraps it for production code; the loop test
 // asserts the stats-sum invariant directly against the returned value.
-func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Resource) (PassStats, error) {
+//
+// finalize gates the AfterPass hook at drain: RunPass passes true (full
+// semantics); the streaming consumer passes false to drain without relinking.
+func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Resource, finalize bool) (PassStats, error) {
 	proc, ok := p.processors[resource]
 	if !ok {
 		return PassStats{}, fmt.Errorf("%w: %s", ErrNoProcessor, resource)
@@ -208,10 +271,15 @@ func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Res
 	}
 
 	stats := PassStats{Resource: resource, StartedAt: time.Now()}
-	if cursor.LastRawOutputID != nil {
-		log.Infof("processor[%s]: starting pass from cursor %s", resource, *cursor.LastRawOutputID)
-	} else {
-		log.Infof("processor[%s]: starting pass from beginning", resource)
+	// Streaming drains (finalize=false) run once per fetched page, concurrently
+	// with the producer's fetch logging — stay silent to avoid racing the
+	// shared libs-go log buffer. The finalize pass logs normally.
+	if finalize {
+		if cursor.LastRawOutputID != nil {
+			log.Infof("processor[%s]: starting pass from cursor %s", resource, *cursor.LastRawOutputID)
+		} else {
+			log.Infof("processor[%s]: starting pass from beginning", resource)
+		}
 	}
 
 	for {
@@ -220,26 +288,37 @@ func (p *Processor) runPassWithStats(ctx context.Context, resource rawoutput.Res
 			return stats, fmt.Errorf("processor[%s]: fetch batch: %w", resource, err)
 		}
 		if len(batch) == 0 {
-			p.logPassComplete(&stats)
-			return stats, p.runAfterPass(ctx, proc, resource)
+			if finalize {
+				p.logPassComplete(&stats)
+				return stats, p.runAfterPass(ctx, proc, resource)
+			}
+			// Streaming drain (finalize=false): nothing left to drain this wake.
+			// Per-batch heartbeats below already reported progress, so return
+			// quietly and wait for the next page signal.
+			return stats, nil
 		}
 
-		for _, raw := range batch {
-			outcome, err := p.processOne(ctx, proc, resource, raw)
-			if err != nil {
-				return stats, fmt.Errorf("processor[%s] raw_output=%s: %w", resource, raw.ID, err)
+		// Commit the fetched batch in sub-chunks of commitBatchSize, each in
+		// one transaction. processChunk advances the in-memory cursor + stats
+		// only after its tx commits.
+		for start := 0; start < len(batch); start += p.commitBatchSize {
+			end := start + p.commitBatchSize
+			if end > len(batch) {
+				end = len(batch)
 			}
-			stats.record(outcome)
-			log.Debugf("processor[%s]: %s %s", resource, raw.SourceKey, outcome)
-			// Update the in-memory cursor so the next batch query advances.
-			id := raw.ID
-			cursor.LastRawOutputID = &id
+			if err := p.processChunk(ctx, proc, resource, batch[start:end], cursor, &stats, finalize); err != nil {
+				return stats, err
+			}
 		}
 
 		// One progress line per drained batch — the cadence matches
-		// DefaultBatchSize so an operator watching at INFO sees a heartbeat
-		// every few seconds during a heavy pass.
-		log.Infof("processor[%s]: %d processed (%s), cursor %s",
+		// DefaultBatchSize so an operator sees a heartbeat every few seconds.
+		// Critically this fires DURING the drain (not only when it empties), so
+		// a streaming consumer that never catches up to the producer — heavy
+		// resources like Property drain slower than pages arrive — still shows
+		// steady progress instead of going silent. applog shares the producer's
+		// log lock so the concurrent fetch/process logging is race-free.
+		applog.Infof("processor[%s]: %d processed (%s), cursor %s",
 			resource, stats.Processed, stats.summary(), *cursor.LastRawOutputID)
 	}
 }
@@ -331,6 +410,126 @@ func (p *Processor) processOne(ctx context.Context, proc ResourceProcessor, reso
 		return OutcomeUnknown, fmt.Errorf("commit: %w", err)
 	}
 	return outcome, nil
+}
+
+// processChunk runs up to commitBatchSize records in ONE transaction, writing
+// the cursor once (the chunk's last record) so the cursor advance commits
+// atomically with the entity writes — the replayability invariant relaxed
+// durability relies on (docs/profiling.md). Stats and the in-memory cursor
+// advance only after the tx commits.
+//
+// If a record's Process errors mid-chunk, the whole tx rolls back and the chunk
+// is replayed one-record-per-tx via processOne, so the cursor stops exactly
+// before the poison record and the returned error names its raw_output id —
+// identical to the unbatched halt semantics. Rolled-back records are never
+// counted, so PassStats stays honest.
+func (p *Processor) processChunk(ctx context.Context, proc ResourceProcessor, resource rawoutput.Resource, chunk []*ent.RawOutput, cursor *ent.ProcessorCursor, stats *PassStats, finalize bool) error {
+	// A single-record chunk (commit_batch_size == 1, or a lone trailing record)
+	// is exactly the historical per-record path — go straight to processOne so
+	// a poison record is attempted once, not once-then-replayed.
+	if len(chunk) == 1 {
+		outcome, err := p.processOne(ctx, proc, resource, chunk[0])
+		if err != nil {
+			return fmt.Errorf("processor[%s] raw_output=%s: %w", resource, chunk[0].ID, err)
+		}
+		p.recordProcessed(resource, chunk[0], outcome, cursor, stats, finalize)
+		return nil
+	}
+
+	outcomes, committed, err := p.tryCommitChunk(ctx, proc, resource, chunk)
+	if err != nil {
+		return err
+	}
+	if committed {
+		for i, raw := range chunk {
+			p.recordProcessed(resource, raw, outcomes[i], cursor, stats, finalize)
+		}
+		return nil
+	}
+
+	// Fallback: a per-record Process error somewhere in the chunk. Replay the
+	// chunk one tx at a time to pinpoint (and halt at) the poison record.
+	for _, raw := range chunk {
+		outcome, err := p.processOne(ctx, proc, resource, raw)
+		if err != nil {
+			return fmt.Errorf("processor[%s] raw_output=%s: %w", resource, raw.ID, err)
+		}
+		p.recordProcessed(resource, raw, outcome, cursor, stats, finalize)
+	}
+	return nil
+}
+
+// recordProcessed folds one committed record into stats and advances the
+// in-memory cursor so the next fetchBatch pages past it. The per-record DEBUG
+// line is suppressed during a streaming drain (finalize=false): it would race
+// the producer's fetch logging through the shared libs-go log buffer.
+func (p *Processor) recordProcessed(resource rawoutput.Resource, raw *ent.RawOutput, outcome Outcome, cursor *ent.ProcessorCursor, stats *PassStats, finalize bool) {
+	stats.record(outcome)
+	if finalize {
+		log.Debugf("processor[%s]: %s %s", resource, raw.SourceKey, outcome)
+	}
+	id := raw.ID
+	cursor.LastRawOutputID = &id
+}
+
+// tryCommitChunk runs the whole chunk in a single transaction. Returns
+// committed=true with per-record outcomes on success; committed=false (err==nil)
+// when a record's Process errored and the caller should replay one-record-per-tx;
+// err!=nil for an infrastructure failure (begin / cursor write / commit /
+// rollback) that must halt the pass.
+func (p *Processor) tryCommitChunk(ctx context.Context, proc ResourceProcessor, resource rawoutput.Resource, chunk []*ent.RawOutput) ([]Outcome, bool, error) {
+	tx, err := p.client.Tx(ctx)
+	if err != nil {
+		return nil, false, fmt.Errorf("begin tx: %w", err)
+	}
+
+	outcomes, perr := p.projectChunk(ctx, proc, tx, chunk)
+	if perr != nil {
+		// Roll back and signal the caller to replay record-by-record, which
+		// reproduces and names the poison record. perr itself is discarded —
+		// the deterministic replay surfaces it with the offending id. This holds
+		// for a bulk ProcessChunk failure too: the per-record replay re-runs the
+		// chunk through Process and halts at (and names) the offending record.
+		if rerr := tx.Rollback(); rerr != nil {
+			return nil, false, errors.Join(fmt.Errorf("process: %w", perr), fmt.Errorf("rollback: %w", rerr))
+		}
+		return nil, false, nil
+	}
+
+	// Advance the cursor ONCE, to the chunk's last record, inside this tx.
+	last := chunk[len(chunk)-1]
+	if _, err := tx.ProcessorCursor.Update().
+		Where(processorcursor.ResourceEQ(processorcursor.Resource(resource))).
+		SetLastRawOutputID(last.ID).
+		SetProcessorVersion(version.Info()).
+		Save(ctx); err != nil {
+		return nil, false, rollback(tx, fmt.Errorf("advance cursor: %w", err))
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, false, fmt.Errorf("commit: %w", err)
+	}
+	return outcomes, true, nil
+}
+
+// projectChunk produces the per-record outcomes for the chunk on the open tx,
+// choosing the bulk path when enabled and supported, else the per-record loop.
+// It never commits/rolls back — the caller owns the tx. A returned error means
+// "this chunk failed; replay per-record" (poison pinpointing).
+func (p *Processor) projectChunk(ctx context.Context, proc ResourceProcessor, tx *ent.Tx, chunk []*ent.RawOutput) ([]Outcome, error) {
+	if p.bulk {
+		if bp, ok := proc.(ChunkProcessor); ok {
+			return bp.ProcessChunk(ctx, tx, chunk)
+		}
+	}
+	outcomes := make([]Outcome, 0, len(chunk))
+	for _, raw := range chunk {
+		outcome, perr := proc.Process(ctx, tx, raw)
+		if perr != nil {
+			return nil, fmt.Errorf("process: %w", perr)
+		}
+		outcomes = append(outcomes, outcome)
+	}
+	return outcomes, nil
 }
 
 // rollback combines tx rollback with the original error, preserving the

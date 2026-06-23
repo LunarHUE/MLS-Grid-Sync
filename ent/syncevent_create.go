@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
@@ -22,6 +24,7 @@ type SyncEventCreate struct {
 	config
 	mutation *SyncEventMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -390,6 +393,7 @@ func (_c *SyncEventCreate) createSpec() (*SyncEvent, *sqlgraph.CreateSpec) {
 		_node = &SyncEvent{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(syncevent.Table, sqlgraph.NewFieldSpec(syncevent.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -527,11 +531,566 @@ func (_c *SyncEventCreate) createSpec() (*SyncEvent, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.SyncEvent.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SyncEventUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *SyncEventCreate) OnConflict(opts ...sql.ConflictOption) *SyncEventUpsertOne {
+	_c.conflict = opts
+	return &SyncEventUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.SyncEvent.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *SyncEventCreate) OnConflictColumns(columns ...string) *SyncEventUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &SyncEventUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// SyncEventUpsertOne is the builder for "upsert"-ing
+	//  one SyncEvent node.
+	SyncEventUpsertOne struct {
+		create *SyncEventCreate
+	}
+
+	// SyncEventUpsert is the "OnConflict" setter.
+	SyncEventUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *SyncEventUpsert) SetModifiedAt(v time.Time) *SyncEventUpsert {
+	u.Set(syncevent.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateModifiedAt() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldModifiedAt)
+	return u
+}
+
+// SetSourceSystemID sets the "source_system_id" field.
+func (u *SyncEventUpsert) SetSourceSystemID(v string) *SyncEventUpsert {
+	u.Set(syncevent.FieldSourceSystemID, v)
+	return u
+}
+
+// UpdateSourceSystemID sets the "source_system_id" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateSourceSystemID() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldSourceSystemID)
+	return u
+}
+
+// SetResource sets the "resource" field.
+func (u *SyncEventUpsert) SetResource(v syncevent.Resource) *SyncEventUpsert {
+	u.Set(syncevent.FieldResource, v)
+	return u
+}
+
+// UpdateResource sets the "resource" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateResource() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldResource)
+	return u
+}
+
+// SetRunType sets the "run_type" field.
+func (u *SyncEventUpsert) SetRunType(v syncevent.RunType) *SyncEventUpsert {
+	u.Set(syncevent.FieldRunType, v)
+	return u
+}
+
+// UpdateRunType sets the "run_type" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateRunType() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldRunType)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *SyncEventUpsert) SetStatus(v syncevent.Status) *SyncEventUpsert {
+	u.Set(syncevent.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateStatus() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldStatus)
+	return u
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *SyncEventUpsert) SetProcessorVersion(v string) *SyncEventUpsert {
+	u.Set(syncevent.FieldProcessorVersion, v)
+	return u
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateProcessorVersion() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldProcessorVersion)
+	return u
+}
+
+// SetReprocessOf sets the "reprocess_of" field.
+func (u *SyncEventUpsert) SetReprocessOf(v uuid.UUID) *SyncEventUpsert {
+	u.Set(syncevent.FieldReprocessOf, v)
+	return u
+}
+
+// UpdateReprocessOf sets the "reprocess_of" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateReprocessOf() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldReprocessOf)
+	return u
+}
+
+// ClearReprocessOf clears the value of the "reprocess_of" field.
+func (u *SyncEventUpsert) ClearReprocessOf() *SyncEventUpsert {
+	u.SetNull(syncevent.FieldReprocessOf)
+	return u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *SyncEventUpsert) SetStartedAt(v time.Time) *SyncEventUpsert {
+	u.Set(syncevent.FieldStartedAt, v)
+	return u
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateStartedAt() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldStartedAt)
+	return u
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (u *SyncEventUpsert) SetEndedAt(v time.Time) *SyncEventUpsert {
+	u.Set(syncevent.FieldEndedAt, v)
+	return u
+}
+
+// UpdateEndedAt sets the "ended_at" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateEndedAt() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldEndedAt)
+	return u
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (u *SyncEventUpsert) ClearEndedAt() *SyncEventUpsert {
+	u.SetNull(syncevent.FieldEndedAt)
+	return u
+}
+
+// SetRecordCount sets the "record_count" field.
+func (u *SyncEventUpsert) SetRecordCount(v int) *SyncEventUpsert {
+	u.Set(syncevent.FieldRecordCount, v)
+	return u
+}
+
+// UpdateRecordCount sets the "record_count" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateRecordCount() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldRecordCount)
+	return u
+}
+
+// AddRecordCount adds v to the "record_count" field.
+func (u *SyncEventUpsert) AddRecordCount(v int) *SyncEventUpsert {
+	u.Add(syncevent.FieldRecordCount, v)
+	return u
+}
+
+// SetHighWaterMark sets the "high_water_mark" field.
+func (u *SyncEventUpsert) SetHighWaterMark(v time.Time) *SyncEventUpsert {
+	u.Set(syncevent.FieldHighWaterMark, v)
+	return u
+}
+
+// UpdateHighWaterMark sets the "high_water_mark" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateHighWaterMark() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldHighWaterMark)
+	return u
+}
+
+// ClearHighWaterMark clears the value of the "high_water_mark" field.
+func (u *SyncEventUpsert) ClearHighWaterMark() *SyncEventUpsert {
+	u.SetNull(syncevent.FieldHighWaterMark)
+	return u
+}
+
+// SetErrorSummary sets the "error_summary" field.
+func (u *SyncEventUpsert) SetErrorSummary(v string) *SyncEventUpsert {
+	u.Set(syncevent.FieldErrorSummary, v)
+	return u
+}
+
+// UpdateErrorSummary sets the "error_summary" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateErrorSummary() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldErrorSummary)
+	return u
+}
+
+// ClearErrorSummary clears the value of the "error_summary" field.
+func (u *SyncEventUpsert) ClearErrorSummary() *SyncEventUpsert {
+	u.SetNull(syncevent.FieldErrorSummary)
+	return u
+}
+
+// SetLogs sets the "logs" field.
+func (u *SyncEventUpsert) SetLogs(v []string) *SyncEventUpsert {
+	u.Set(syncevent.FieldLogs, v)
+	return u
+}
+
+// UpdateLogs sets the "logs" field to the value that was provided on create.
+func (u *SyncEventUpsert) UpdateLogs() *SyncEventUpsert {
+	u.SetExcluded(syncevent.FieldLogs)
+	return u
+}
+
+// ClearLogs clears the value of the "logs" field.
+func (u *SyncEventUpsert) ClearLogs() *SyncEventUpsert {
+	u.SetNull(syncevent.FieldLogs)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.SyncEvent.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(syncevent.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *SyncEventUpsertOne) UpdateNewValues() *SyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(syncevent.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(syncevent.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.SyncEvent.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *SyncEventUpsertOne) Ignore() *SyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SyncEventUpsertOne) DoNothing() *SyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SyncEventCreate.OnConflict
+// documentation for more info.
+func (u *SyncEventUpsertOne) Update(set func(*SyncEventUpsert)) *SyncEventUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SyncEventUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *SyncEventUpsertOne) SetModifiedAt(v time.Time) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateModifiedAt() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceSystemID sets the "source_system_id" field.
+func (u *SyncEventUpsertOne) SetSourceSystemID(v string) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetSourceSystemID(v)
+	})
+}
+
+// UpdateSourceSystemID sets the "source_system_id" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateSourceSystemID() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateSourceSystemID()
+	})
+}
+
+// SetResource sets the "resource" field.
+func (u *SyncEventUpsertOne) SetResource(v syncevent.Resource) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetResource(v)
+	})
+}
+
+// UpdateResource sets the "resource" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateResource() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateResource()
+	})
+}
+
+// SetRunType sets the "run_type" field.
+func (u *SyncEventUpsertOne) SetRunType(v syncevent.RunType) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetRunType(v)
+	})
+}
+
+// UpdateRunType sets the "run_type" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateRunType() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateRunType()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *SyncEventUpsertOne) SetStatus(v syncevent.Status) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateStatus() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *SyncEventUpsertOne) SetProcessorVersion(v string) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateProcessorVersion() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetReprocessOf sets the "reprocess_of" field.
+func (u *SyncEventUpsertOne) SetReprocessOf(v uuid.UUID) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetReprocessOf(v)
+	})
+}
+
+// UpdateReprocessOf sets the "reprocess_of" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateReprocessOf() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateReprocessOf()
+	})
+}
+
+// ClearReprocessOf clears the value of the "reprocess_of" field.
+func (u *SyncEventUpsertOne) ClearReprocessOf() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearReprocessOf()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *SyncEventUpsertOne) SetStartedAt(v time.Time) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateStartedAt() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (u *SyncEventUpsertOne) SetEndedAt(v time.Time) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetEndedAt(v)
+	})
+}
+
+// UpdateEndedAt sets the "ended_at" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateEndedAt() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateEndedAt()
+	})
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (u *SyncEventUpsertOne) ClearEndedAt() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearEndedAt()
+	})
+}
+
+// SetRecordCount sets the "record_count" field.
+func (u *SyncEventUpsertOne) SetRecordCount(v int) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetRecordCount(v)
+	})
+}
+
+// AddRecordCount adds v to the "record_count" field.
+func (u *SyncEventUpsertOne) AddRecordCount(v int) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.AddRecordCount(v)
+	})
+}
+
+// UpdateRecordCount sets the "record_count" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateRecordCount() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateRecordCount()
+	})
+}
+
+// SetHighWaterMark sets the "high_water_mark" field.
+func (u *SyncEventUpsertOne) SetHighWaterMark(v time.Time) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetHighWaterMark(v)
+	})
+}
+
+// UpdateHighWaterMark sets the "high_water_mark" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateHighWaterMark() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateHighWaterMark()
+	})
+}
+
+// ClearHighWaterMark clears the value of the "high_water_mark" field.
+func (u *SyncEventUpsertOne) ClearHighWaterMark() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearHighWaterMark()
+	})
+}
+
+// SetErrorSummary sets the "error_summary" field.
+func (u *SyncEventUpsertOne) SetErrorSummary(v string) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetErrorSummary(v)
+	})
+}
+
+// UpdateErrorSummary sets the "error_summary" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateErrorSummary() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateErrorSummary()
+	})
+}
+
+// ClearErrorSummary clears the value of the "error_summary" field.
+func (u *SyncEventUpsertOne) ClearErrorSummary() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearErrorSummary()
+	})
+}
+
+// SetLogs sets the "logs" field.
+func (u *SyncEventUpsertOne) SetLogs(v []string) *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetLogs(v)
+	})
+}
+
+// UpdateLogs sets the "logs" field to the value that was provided on create.
+func (u *SyncEventUpsertOne) UpdateLogs() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateLogs()
+	})
+}
+
+// ClearLogs clears the value of the "logs" field.
+func (u *SyncEventUpsertOne) ClearLogs() *SyncEventUpsertOne {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearLogs()
+	})
+}
+
+// Exec executes the query.
+func (u *SyncEventUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for SyncEventCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SyncEventUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *SyncEventUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: SyncEventUpsertOne.ID is not supported by MySQL driver. Use SyncEventUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *SyncEventUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // SyncEventCreateBulk is the builder for creating many SyncEvent entities in bulk.
 type SyncEventCreateBulk struct {
 	config
 	err      error
 	builders []*SyncEventCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the SyncEvent entities in the database.
@@ -561,6 +1120,7 @@ func (_c *SyncEventCreateBulk) Save(ctx context.Context) ([]*SyncEvent, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -607,6 +1167,347 @@ func (_c *SyncEventCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *SyncEventCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.SyncEvent.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SyncEventUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *SyncEventCreateBulk) OnConflict(opts ...sql.ConflictOption) *SyncEventUpsertBulk {
+	_c.conflict = opts
+	return &SyncEventUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.SyncEvent.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *SyncEventCreateBulk) OnConflictColumns(columns ...string) *SyncEventUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &SyncEventUpsertBulk{
+		create: _c,
+	}
+}
+
+// SyncEventUpsertBulk is the builder for "upsert"-ing
+// a bulk of SyncEvent nodes.
+type SyncEventUpsertBulk struct {
+	create *SyncEventCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.SyncEvent.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(syncevent.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *SyncEventUpsertBulk) UpdateNewValues() *SyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(syncevent.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(syncevent.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.SyncEvent.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *SyncEventUpsertBulk) Ignore() *SyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SyncEventUpsertBulk) DoNothing() *SyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SyncEventCreateBulk.OnConflict
+// documentation for more info.
+func (u *SyncEventUpsertBulk) Update(set func(*SyncEventUpsert)) *SyncEventUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SyncEventUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *SyncEventUpsertBulk) SetModifiedAt(v time.Time) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateModifiedAt() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceSystemID sets the "source_system_id" field.
+func (u *SyncEventUpsertBulk) SetSourceSystemID(v string) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetSourceSystemID(v)
+	})
+}
+
+// UpdateSourceSystemID sets the "source_system_id" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateSourceSystemID() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateSourceSystemID()
+	})
+}
+
+// SetResource sets the "resource" field.
+func (u *SyncEventUpsertBulk) SetResource(v syncevent.Resource) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetResource(v)
+	})
+}
+
+// UpdateResource sets the "resource" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateResource() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateResource()
+	})
+}
+
+// SetRunType sets the "run_type" field.
+func (u *SyncEventUpsertBulk) SetRunType(v syncevent.RunType) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetRunType(v)
+	})
+}
+
+// UpdateRunType sets the "run_type" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateRunType() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateRunType()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *SyncEventUpsertBulk) SetStatus(v syncevent.Status) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateStatus() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *SyncEventUpsertBulk) SetProcessorVersion(v string) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateProcessorVersion() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetReprocessOf sets the "reprocess_of" field.
+func (u *SyncEventUpsertBulk) SetReprocessOf(v uuid.UUID) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetReprocessOf(v)
+	})
+}
+
+// UpdateReprocessOf sets the "reprocess_of" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateReprocessOf() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateReprocessOf()
+	})
+}
+
+// ClearReprocessOf clears the value of the "reprocess_of" field.
+func (u *SyncEventUpsertBulk) ClearReprocessOf() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearReprocessOf()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *SyncEventUpsertBulk) SetStartedAt(v time.Time) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateStartedAt() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// SetEndedAt sets the "ended_at" field.
+func (u *SyncEventUpsertBulk) SetEndedAt(v time.Time) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetEndedAt(v)
+	})
+}
+
+// UpdateEndedAt sets the "ended_at" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateEndedAt() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateEndedAt()
+	})
+}
+
+// ClearEndedAt clears the value of the "ended_at" field.
+func (u *SyncEventUpsertBulk) ClearEndedAt() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearEndedAt()
+	})
+}
+
+// SetRecordCount sets the "record_count" field.
+func (u *SyncEventUpsertBulk) SetRecordCount(v int) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetRecordCount(v)
+	})
+}
+
+// AddRecordCount adds v to the "record_count" field.
+func (u *SyncEventUpsertBulk) AddRecordCount(v int) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.AddRecordCount(v)
+	})
+}
+
+// UpdateRecordCount sets the "record_count" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateRecordCount() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateRecordCount()
+	})
+}
+
+// SetHighWaterMark sets the "high_water_mark" field.
+func (u *SyncEventUpsertBulk) SetHighWaterMark(v time.Time) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetHighWaterMark(v)
+	})
+}
+
+// UpdateHighWaterMark sets the "high_water_mark" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateHighWaterMark() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateHighWaterMark()
+	})
+}
+
+// ClearHighWaterMark clears the value of the "high_water_mark" field.
+func (u *SyncEventUpsertBulk) ClearHighWaterMark() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearHighWaterMark()
+	})
+}
+
+// SetErrorSummary sets the "error_summary" field.
+func (u *SyncEventUpsertBulk) SetErrorSummary(v string) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetErrorSummary(v)
+	})
+}
+
+// UpdateErrorSummary sets the "error_summary" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateErrorSummary() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateErrorSummary()
+	})
+}
+
+// ClearErrorSummary clears the value of the "error_summary" field.
+func (u *SyncEventUpsertBulk) ClearErrorSummary() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearErrorSummary()
+	})
+}
+
+// SetLogs sets the "logs" field.
+func (u *SyncEventUpsertBulk) SetLogs(v []string) *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.SetLogs(v)
+	})
+}
+
+// UpdateLogs sets the "logs" field to the value that was provided on create.
+func (u *SyncEventUpsertBulk) UpdateLogs() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.UpdateLogs()
+	})
+}
+
+// ClearLogs clears the value of the "logs" field.
+func (u *SyncEventUpsertBulk) ClearLogs() *SyncEventUpsertBulk {
+	return u.Update(func(s *SyncEventUpsert) {
+		s.ClearLogs()
+	})
+}
+
+// Exec executes the query.
+func (u *SyncEventUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the SyncEventCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for SyncEventCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SyncEventUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

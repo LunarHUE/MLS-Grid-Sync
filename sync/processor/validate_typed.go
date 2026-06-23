@@ -7,10 +7,10 @@ import (
 	"sort"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
-	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
-	"github.com/LunarHUE/MLS-Grid-Sync/ent/memberversion"
 	entmedia "github.com/LunarHUE/MLS-Grid-Sync/ent/media"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/mediaversion"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/memberversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/office"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/officeversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouse"
@@ -91,29 +91,29 @@ type typedDispatch struct {
 // compare. Metadata, FK keys, audit columns, and the version-row-only
 // columns all live here.
 var commonSkipFields = map[string]bool{
-	"ID":                  true, // primary key, equal by construction
-	"CreatedAt":           true,
-	"ModifiedAt":          true,
-	"ValidFrom":           true,
-	"ValidTo":             true,
-	"ChangeType":          true,
-	"ChangedFields":       true,
-	"ProcessorVersion":    true,
-	"SourceModifiedAt":    true, // identifies the version, not the data
-	"OriginatingSystem":   true,
-	"MlgCanView":          true, // tombstones already excluded at the query layer
-	"MlgCanUse":           true,
-	"ExtendedFields":      true, // jsonb compared structurally elsewhere if needed
-	"ParentListingKey":    true, // parking column, not part of the data contract
-	"ListingKey":          true, // natural-key fields the version mirrors
-	"MemberKey":           true,
-	"OfficeKey":           true,
-	"OpenHouseKey":        true,
-	"MediaKey":            true,
-	"RoomKey":             true,
-	"UnitTypeKey":         true,
-	"ResourceType":        true, // Media polymorphic discriminator
-	"ResourceRecordKey":   true,
+	"ID":                    true, // primary key, equal by construction
+	"CreatedAt":             true,
+	"ModifiedAt":            true,
+	"ValidFrom":             true,
+	"ValidTo":               true,
+	"ChangeType":            true,
+	"ChangedFields":         true,
+	"ProcessorVersion":      true,
+	"SourceModifiedAt":      true, // identifies the version, not the data
+	"OriginatingSystem":     true,
+	"MlgCanView":            true, // tombstones already excluded at the query layer
+	"MlgCanUse":             true,
+	"ExtendedFields":        true, // jsonb compared structurally elsewhere if needed
+	"ParentListingKey":      true, // parking column, not part of the data contract
+	"ListingKey":            true, // natural-key fields the version mirrors
+	"MemberKey":             true,
+	"OfficeKey":             true,
+	"OpenHouseKey":          true,
+	"MediaKey":              true,
+	"RoomKey":               true,
+	"UnitTypeKey":           true,
+	"ResourceType":          true, // Media polymorphic discriminator
+	"ResourceRecordKey":     true,
 	"OriginatingSystemName": true,
 	// Version table FK back to the entity (varies by resource).
 	"PropertyID":     true,

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sync"
@@ -47756,7 +47757,8 @@ type RawOutputMutation struct {
 	source_key             *string
 	change_type            *rawoutput.ChangeType
 	source_modified_at     *time.Time
-	payload                *map[string]interface{}
+	payload                *json.RawMessage
+	appendpayload          json.RawMessage
 	created_at             *time.Time
 	clearedFields          map[string]struct{}
 	sync_event             *uuid.UUID
@@ -48054,12 +48056,13 @@ func (m *RawOutputMutation) ResetSourceModifiedAt() {
 }
 
 // SetPayload sets the "payload" field.
-func (m *RawOutputMutation) SetPayload(value map[string]interface{}) {
-	m.payload = &value
+func (m *RawOutputMutation) SetPayload(jm json.RawMessage) {
+	m.payload = &jm
+	m.appendpayload = nil
 }
 
 // Payload returns the value of the "payload" field in the mutation.
-func (m *RawOutputMutation) Payload() (r map[string]interface{}, exists bool) {
+func (m *RawOutputMutation) Payload() (r json.RawMessage, exists bool) {
 	v := m.payload
 	if v == nil {
 		return
@@ -48070,7 +48073,7 @@ func (m *RawOutputMutation) Payload() (r map[string]interface{}, exists bool) {
 // OldPayload returns the old "payload" field's value of the RawOutput entity.
 // If the RawOutput object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RawOutputMutation) OldPayload(ctx context.Context) (v map[string]interface{}, err error) {
+func (m *RawOutputMutation) OldPayload(ctx context.Context) (v json.RawMessage, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
 	}
@@ -48084,9 +48087,23 @@ func (m *RawOutputMutation) OldPayload(ctx context.Context) (v map[string]interf
 	return oldValue.Payload, nil
 }
 
+// AppendPayload adds jm to the "payload" field.
+func (m *RawOutputMutation) AppendPayload(jm json.RawMessage) {
+	m.appendpayload = append(m.appendpayload, jm...)
+}
+
+// AppendedPayload returns the list of values that were appended to the "payload" field in this mutation.
+func (m *RawOutputMutation) AppendedPayload() (json.RawMessage, bool) {
+	if len(m.appendpayload) == 0 {
+		return nil, false
+	}
+	return m.appendpayload, true
+}
+
 // ResetPayload resets all changes to the "payload" field.
 func (m *RawOutputMutation) ResetPayload() {
 	m.payload = nil
+	m.appendpayload = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -48352,7 +48369,7 @@ func (m *RawOutputMutation) SetField(name string, value ent.Value) error {
 		m.SetSourceModifiedAt(v)
 		return nil
 	case rawoutput.FieldPayload:
-		v, ok := value.(map[string]interface{})
+		v, ok := value.(json.RawMessage)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

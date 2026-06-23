@@ -29,6 +29,10 @@ func (f *fakeProcessor) RunPass(_ context.Context, _ rawoutput.Resource) error {
 	return f.err
 }
 
+func (f *fakeProcessor) RunPassNoFinalize(_ context.Context, _ rawoutput.Resource) error {
+	return f.err
+}
+
 // seedSourceSystem ensures the source_system row the lifecycle wrappers
 // FK to exists. Returns its ID.
 func seedSourceSystem(t *testing.T, client *ent.Client, ctx context.Context) string {

@@ -38,7 +38,7 @@ func insertPropertyRoomRaw(t *testing.T, client *ent.Client, ctx context.Context
 		SetSourceKey(key).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 
@@ -63,9 +63,9 @@ func TestPropertyRoomProcess_FreshInsertWithParent(t *testing.T) {
 
 	ts := time.Now().UTC().Truncate(time.Second)
 	raw := insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-1",
-		"ListingKey":            "LK-1",
-		"RoomType":              "Bedroom",
+		"RoomKey":    "R-1",
+		"ListingKey": "LK-1",
+		"RoomType":   "Bedroom",
 	}, ts)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, raw))
 
@@ -80,8 +80,8 @@ func TestPropertyRoomProcess_FreshInsertParked(t *testing.T) {
 
 	ts := time.Now().UTC().Truncate(time.Second)
 	raw := insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-PARK",
-		"ListingKey":            "LK-LATE",
+		"RoomKey":    "R-PARK",
+		"ListingKey": "LK-LATE",
 	}, ts)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, raw))
 
@@ -97,16 +97,16 @@ func TestPropertyRoomProcess_UpdateClearsField(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	first := insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-1",
-		"ListingKey":            "LK-1",
-		"RoomType":              "Bedroom",
+		"RoomKey":    "R-1",
+		"ListingKey": "LK-1",
+		"RoomType":   "Bedroom",
 	}, ts1)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, first))
 
 	ts2 := ts1.Add(time.Hour)
 	second := insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-1",
-		"ListingKey":            "LK-1",
+		"RoomKey":    "R-1",
+		"ListingKey": "LK-1",
 	}, ts2)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, second))
 
@@ -128,22 +128,22 @@ func TestPropertyRoomProcess_AlreadyTombstonedIsNoop(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-1",
-		"ListingKey":            "LK-1",
+		"RoomKey":    "R-1",
+		"ListingKey": "LK-1",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-1",
-		"ListingKey":            "LK-1",
-		"MlgCanView":            false,
+		"RoomKey":    "R-1",
+		"ListingKey": "LK-1",
+		"MlgCanView": false,
 	}, ts2)))
 
 	ts3 := ts2.Add(time.Hour)
 	require.NoError(t, runPropertyRoomProcess(t, client, ctx, insertPropertyRoomRaw(t, client, ctx, evID, map[string]any{
-		"RoomKey":               "R-1",
-		"ListingKey":            "LK-1",
-		"MlgCanView":            false,
+		"RoomKey":    "R-1",
+		"ListingKey": "LK-1",
+		"MlgCanView": false,
 	}, ts3)))
 
 	versions := client.PropertyRoomVersion.Query().Where(propertyroomversion.RoomKeyEQ("R-1")).AllX(ctx)

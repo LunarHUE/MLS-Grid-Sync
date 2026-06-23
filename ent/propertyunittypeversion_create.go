@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittypeversion"
@@ -19,6 +21,7 @@ type PropertyUnitTypeVersionCreate struct {
 	config
 	mutation *PropertyUnitTypeVersionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetValidFrom sets the "valid_from" field.
@@ -286,6 +289,7 @@ func (_c *PropertyUnitTypeVersionCreate) createSpec() (*PropertyUnitTypeVersion,
 		_node = &PropertyUnitTypeVersion{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(propertyunittypeversion.Table, sqlgraph.NewFieldSpec(propertyunittypeversion.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -357,11 +361,680 @@ func (_c *PropertyUnitTypeVersionCreate) createSpec() (*PropertyUnitTypeVersion,
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//		SetValidFrom(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PropertyUnitTypeVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PropertyUnitTypeVersionCreate) OnConflict(opts ...sql.ConflictOption) *PropertyUnitTypeVersionUpsertOne {
+	_c.conflict = opts
+	return &PropertyUnitTypeVersionUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PropertyUnitTypeVersionCreate) OnConflictColumns(columns ...string) *PropertyUnitTypeVersionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PropertyUnitTypeVersionUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// PropertyUnitTypeVersionUpsertOne is the builder for "upsert"-ing
+	//  one PropertyUnitTypeVersion node.
+	PropertyUnitTypeVersionUpsertOne struct {
+		create *PropertyUnitTypeVersionCreate
+	}
+
+	// PropertyUnitTypeVersionUpsert is the "OnConflict" setter.
+	PropertyUnitTypeVersionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetValidFrom sets the "valid_from" field.
+func (u *PropertyUnitTypeVersionUpsert) SetValidFrom(v time.Time) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldValidFrom, v)
+	return u
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateValidFrom() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldValidFrom)
+	return u
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *PropertyUnitTypeVersionUpsert) SetValidTo(v time.Time) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldValidTo, v)
+	return u
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateValidTo() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldValidTo)
+	return u
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearValidTo() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldValidTo)
+	return u
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *PropertyUnitTypeVersionUpsert) SetChangeType(v propertyunittypeversion.ChangeType) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldChangeType, v)
+	return u
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateChangeType() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldChangeType)
+	return u
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *PropertyUnitTypeVersionUpsert) SetChangedFields(v map[string]interface{}) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldChangedFields, v)
+	return u
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateChangedFields() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldChangedFields)
+	return u
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearChangedFields() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldChangedFields)
+	return u
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *PropertyUnitTypeVersionUpsert) SetProcessorVersion(v string) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldProcessorVersion, v)
+	return u
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateProcessorVersion() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyUnitTypeVersionUpsert) SetSourceModifiedAt(v time.Time) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateSourceModifiedAt() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyUnitTypeVersionUpsert) SetOriginatingSystemName(v string) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateOriginatingSystemName() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearOriginatingSystemName() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyUnitTypeVersionUpsert) SetMlgCanView(v bool) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateMlgCanView() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyUnitTypeVersionUpsert) SetMlgCanUse(v []string) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateMlgCanUse() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearMlgCanUse() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldMlgCanUse)
+	return u
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyUnitTypeVersionUpsert) SetListingKey(v string) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldListingKey, v)
+	return u
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateListingKey() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldListingKey)
+	return u
+}
+
+// SetUnitTypeBedsTotal sets the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsert) SetUnitTypeBedsTotal(v int16) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldUnitTypeBedsTotal, v)
+	return u
+}
+
+// UpdateUnitTypeBedsTotal sets the "unit_type_beds_total" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateUnitTypeBedsTotal() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldUnitTypeBedsTotal)
+	return u
+}
+
+// AddUnitTypeBedsTotal adds v to the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsert) AddUnitTypeBedsTotal(v int16) *PropertyUnitTypeVersionUpsert {
+	u.Add(propertyunittypeversion.FieldUnitTypeBedsTotal, v)
+	return u
+}
+
+// ClearUnitTypeBedsTotal clears the value of the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearUnitTypeBedsTotal() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldUnitTypeBedsTotal)
+	return u
+}
+
+// SetUnitTypeFurnished sets the "unit_type_furnished" field.
+func (u *PropertyUnitTypeVersionUpsert) SetUnitTypeFurnished(v string) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldUnitTypeFurnished, v)
+	return u
+}
+
+// UpdateUnitTypeFurnished sets the "unit_type_furnished" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateUnitTypeFurnished() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldUnitTypeFurnished)
+	return u
+}
+
+// ClearUnitTypeFurnished clears the value of the "unit_type_furnished" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearUnitTypeFurnished() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldUnitTypeFurnished)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyUnitTypeVersionUpsert) SetExtendedFields(v map[string]interface{}) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateExtendedFields() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearExtendedFields() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldExtendedFields)
+	return u
+}
+
+// SetUnitTypeKey sets the "unit_type_key" field.
+func (u *PropertyUnitTypeVersionUpsert) SetUnitTypeKey(v string) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldUnitTypeKey, v)
+	return u
+}
+
+// UpdateUnitTypeKey sets the "unit_type_key" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateUnitTypeKey() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldUnitTypeKey)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyUnitTypeVersionUpsert) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateSyncEventID() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsert) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateRawOutputID() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearRawOutputID() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldRawOutputID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(propertyunittypeversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateNewValues() *PropertyUnitTypeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(propertyunittypeversion.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PropertyUnitTypeVersionUpsertOne) Ignore() *PropertyUnitTypeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PropertyUnitTypeVersionUpsertOne) DoNothing() *PropertyUnitTypeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PropertyUnitTypeVersionCreate.OnConflict
+// documentation for more info.
+func (u *PropertyUnitTypeVersionUpsertOne) Update(set func(*PropertyUnitTypeVersionUpsert)) *PropertyUnitTypeVersionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PropertyUnitTypeVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetValidFrom(v time.Time) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateValidFrom() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetValidTo(v time.Time) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateValidTo() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearValidTo() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetChangeType(v propertyunittypeversion.ChangeType) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateChangeType() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetChangedFields(v map[string]interface{}) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateChangedFields() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearChangedFields() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetProcessorVersion(v string) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateProcessorVersion() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetSourceModifiedAt(v time.Time) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateSourceModifiedAt() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetOriginatingSystemName(v string) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateOriginatingSystemName() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearOriginatingSystemName() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetMlgCanView(v bool) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateMlgCanView() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetMlgCanUse(v []string) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateMlgCanUse() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearMlgCanUse() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetListingKey(v string) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateListingKey() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetUnitTypeBedsTotal sets the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetUnitTypeBedsTotal(v int16) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetUnitTypeBedsTotal(v)
+	})
+}
+
+// AddUnitTypeBedsTotal adds v to the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsertOne) AddUnitTypeBedsTotal(v int16) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.AddUnitTypeBedsTotal(v)
+	})
+}
+
+// UpdateUnitTypeBedsTotal sets the "unit_type_beds_total" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateUnitTypeBedsTotal() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateUnitTypeBedsTotal()
+	})
+}
+
+// ClearUnitTypeBedsTotal clears the value of the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearUnitTypeBedsTotal() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearUnitTypeBedsTotal()
+	})
+}
+
+// SetUnitTypeFurnished sets the "unit_type_furnished" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetUnitTypeFurnished(v string) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetUnitTypeFurnished(v)
+	})
+}
+
+// UpdateUnitTypeFurnished sets the "unit_type_furnished" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateUnitTypeFurnished() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateUnitTypeFurnished()
+	})
+}
+
+// ClearUnitTypeFurnished clears the value of the "unit_type_furnished" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearUnitTypeFurnished() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearUnitTypeFurnished()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetExtendedFields(v map[string]interface{}) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateExtendedFields() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearExtendedFields() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetUnitTypeKey sets the "unit_type_key" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetUnitTypeKey(v string) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetUnitTypeKey(v)
+	})
+}
+
+// UpdateUnitTypeKey sets the "unit_type_key" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateUnitTypeKey() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateUnitTypeKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateSyncEventID() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateRawOutputID() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearRawOutputID() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *PropertyUnitTypeVersionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PropertyUnitTypeVersionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PropertyUnitTypeVersionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PropertyUnitTypeVersionUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: PropertyUnitTypeVersionUpsertOne.ID is not supported by MySQL driver. Use PropertyUnitTypeVersionUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PropertyUnitTypeVersionUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PropertyUnitTypeVersionCreateBulk is the builder for creating many PropertyUnitTypeVersion entities in bulk.
 type PropertyUnitTypeVersionCreateBulk struct {
 	config
 	err      error
 	builders []*PropertyUnitTypeVersionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the PropertyUnitTypeVersion entities in the database.
@@ -391,6 +1064,7 @@ func (_c *PropertyUnitTypeVersionCreateBulk) Save(ctx context.Context) ([]*Prope
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -437,6 +1111,407 @@ func (_c *PropertyUnitTypeVersionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *PropertyUnitTypeVersionCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PropertyUnitTypeVersion.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PropertyUnitTypeVersionUpsert) {
+//			SetValidFrom(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PropertyUnitTypeVersionCreateBulk) OnConflict(opts ...sql.ConflictOption) *PropertyUnitTypeVersionUpsertBulk {
+	_c.conflict = opts
+	return &PropertyUnitTypeVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PropertyUnitTypeVersionCreateBulk) OnConflictColumns(columns ...string) *PropertyUnitTypeVersionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PropertyUnitTypeVersionUpsertBulk{
+		create: _c,
+	}
+}
+
+// PropertyUnitTypeVersionUpsertBulk is the builder for "upsert"-ing
+// a bulk of PropertyUnitTypeVersion nodes.
+type PropertyUnitTypeVersionUpsertBulk struct {
+	create *PropertyUnitTypeVersionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(propertyunittypeversion.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateNewValues() *PropertyUnitTypeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(propertyunittypeversion.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PropertyUnitTypeVersion.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PropertyUnitTypeVersionUpsertBulk) Ignore() *PropertyUnitTypeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PropertyUnitTypeVersionUpsertBulk) DoNothing() *PropertyUnitTypeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PropertyUnitTypeVersionCreateBulk.OnConflict
+// documentation for more info.
+func (u *PropertyUnitTypeVersionUpsertBulk) Update(set func(*PropertyUnitTypeVersionUpsert)) *PropertyUnitTypeVersionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PropertyUnitTypeVersionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetValidFrom(v time.Time) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetValidFrom(v)
+	})
+}
+
+// UpdateValidFrom sets the "valid_from" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateValidFrom() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateValidFrom()
+	})
+}
+
+// SetValidTo sets the "valid_to" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetValidTo(v time.Time) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetValidTo(v)
+	})
+}
+
+// UpdateValidTo sets the "valid_to" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateValidTo() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateValidTo()
+	})
+}
+
+// ClearValidTo clears the value of the "valid_to" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearValidTo() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearValidTo()
+	})
+}
+
+// SetChangeType sets the "change_type" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetChangeType(v propertyunittypeversion.ChangeType) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetChangeType(v)
+	})
+}
+
+// UpdateChangeType sets the "change_type" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateChangeType() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateChangeType()
+	})
+}
+
+// SetChangedFields sets the "changed_fields" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetChangedFields(v map[string]interface{}) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetChangedFields(v)
+	})
+}
+
+// UpdateChangedFields sets the "changed_fields" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateChangedFields() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateChangedFields()
+	})
+}
+
+// ClearChangedFields clears the value of the "changed_fields" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearChangedFields() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearChangedFields()
+	})
+}
+
+// SetProcessorVersion sets the "processor_version" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetProcessorVersion(v string) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetProcessorVersion(v)
+	})
+}
+
+// UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateProcessorVersion() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetSourceModifiedAt(v time.Time) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateSourceModifiedAt() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetOriginatingSystemName(v string) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateOriginatingSystemName() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearOriginatingSystemName() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetMlgCanView(v bool) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateMlgCanView() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetMlgCanUse(v []string) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateMlgCanUse() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearMlgCanUse() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetListingKey(v string) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateListingKey() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetUnitTypeBedsTotal sets the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetUnitTypeBedsTotal(v int16) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetUnitTypeBedsTotal(v)
+	})
+}
+
+// AddUnitTypeBedsTotal adds v to the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) AddUnitTypeBedsTotal(v int16) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.AddUnitTypeBedsTotal(v)
+	})
+}
+
+// UpdateUnitTypeBedsTotal sets the "unit_type_beds_total" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateUnitTypeBedsTotal() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateUnitTypeBedsTotal()
+	})
+}
+
+// ClearUnitTypeBedsTotal clears the value of the "unit_type_beds_total" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearUnitTypeBedsTotal() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearUnitTypeBedsTotal()
+	})
+}
+
+// SetUnitTypeFurnished sets the "unit_type_furnished" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetUnitTypeFurnished(v string) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetUnitTypeFurnished(v)
+	})
+}
+
+// UpdateUnitTypeFurnished sets the "unit_type_furnished" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateUnitTypeFurnished() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateUnitTypeFurnished()
+	})
+}
+
+// ClearUnitTypeFurnished clears the value of the "unit_type_furnished" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearUnitTypeFurnished() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearUnitTypeFurnished()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetExtendedFields(v map[string]interface{}) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateExtendedFields() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearExtendedFields() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetUnitTypeKey sets the "unit_type_key" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetUnitTypeKey(v string) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetUnitTypeKey(v)
+	})
+}
+
+// UpdateUnitTypeKey sets the "unit_type_key" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateUnitTypeKey() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateUnitTypeKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateSyncEventID() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateRawOutputID() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearRawOutputID() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// Exec executes the query.
+func (u *PropertyUnitTypeVersionUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PropertyUnitTypeVersionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PropertyUnitTypeVersionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PropertyUnitTypeVersionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

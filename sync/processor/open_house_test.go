@@ -38,7 +38,7 @@ func insertOpenHouseRaw(t *testing.T, client *ent.Client, ctx context.Context, s
 		SetSourceKey(key).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 

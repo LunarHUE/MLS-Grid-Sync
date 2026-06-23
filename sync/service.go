@@ -24,8 +24,14 @@ const DefaultStaleRunningThreshold = 2 * time.Hour
 // Processor is implemented by sync/processor.Processor — the post-sync
 // raw → typed pass. Declared as an interface here to avoid an import cycle
 // and to make Service testable with a fake.
+//
+// RunPassNoFinalize drains a resource exactly like RunPass but skips the
+// AfterPass finalize hook. The pipelined init consumer
+// (fetchProcessAndEnqueuePipelined) calls it on each page-stream wake, then
+// runs one final RunPass to relink once. See sync/processor for details.
 type Processor interface {
 	RunPass(ctx context.Context, resource rawoutput.Resource) error
+	RunPassNoFinalize(ctx context.Context, resource rawoutput.Resource) error
 }
 
 // Service coordinates fetching from MLS, persisting raw output, queuing
@@ -37,13 +43,19 @@ type Service struct {
 	sqlDB     *sql.DB
 	storer    storage.Storer
 	processor Processor
+
+	// pipelineInit, when true, makes InitialSync overlap page-fetching with the
+	// typed processor (producer/consumer) instead of fetch-then-process. Delta
+	// syncs are unaffected. Toggled by cmd/init's --no-pipeline / config.
+	pipelineInit bool
 }
 
 // NewService constructs a Service. processor may be nil when no post-sync
 // pass is desired (the service then behaves exactly as it did before Phase 2).
 // sqlDB is the same physical handle ent uses, exposed so saveToRawOutput can
-// run a raw bulk INSERT ... ON CONFLICT DO NOTHING (ent's CreateBulk doesn't
-// surface OnConflict) — see Phase 4 plan §7.
+// run a raw bulk INSERT ... ON CONFLICT DO NOTHING RETURNING (the raw path
+// predates enabling ent's upsert codegen and keeps its hand-rolled SQL) — see
+// Phase 4 plan §7.
 func NewService(mlsClient mls.PageFetcher, dbClient *ent.Client, sqlDB *sql.DB, store storage.Storer, processor Processor) *Service {
 	return &Service{
 		mlsClient: mlsClient,
@@ -52,6 +64,14 @@ func NewService(mlsClient mls.PageFetcher, dbClient *ent.Client, sqlDB *sql.DB, 
 		storer:    store,
 		processor: processor,
 	}
+}
+
+// WithInitPipeline enables (or disables) the pipelined init path where
+// page-fetching overlaps with the typed processor. Returns s for chaining.
+// Default (zero value) is false; cmd/init sets it from config/--no-pipeline.
+func (s *Service) WithInitPipeline(b bool) *Service {
+	s.pipelineInit = b
+	return s
 }
 
 // SweepStaleRunningEvents marks any sync_event in state `running` and

@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -26,20 +25,22 @@ func NewOfficeProcessor() *OfficeProcessor { return &OfficeProcessor{} }
 func (*OfficeProcessor) Resource() rawoutput.Resource { return rawoutput.ResourceOffice }
 
 func (p *OfficeProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOutput) (Outcome, error) {
-	payload, err := json.Marshal(raw.Payload)
-	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("marshal payload: %w", err)
-	}
-	fields, err := parseOffice(payload)
+	fields, err := parseOffice(raw.Payload)
 	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	current, err := tx.Office.Query().Where(office.IDEQ(fields.OfficeKey)).Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
+	// Narrow lookup: only existence + mlg_can_view (tombstone-skip) are needed
+	// here; the diff target is the version row. (perf: see docs/profiling.md)
+	var entityCanView []bool
+	if err := tx.Office.Query().
+		Where(office.IDEQ(fields.OfficeKey)).
+		Select(office.FieldMlgCanView).
+		Scan(ctx, &entityCanView); err != nil {
 		return OutcomeUnknown, fmt.Errorf("lookup office: %w", err)
 	}
-	entityExists := err == nil
+	entityExists := len(entityCanView) > 0
+	currentMlgCanView := entityExists && entityCanView[0]
 
 	var currentVersion *ent.OfficeVersion
 	if entityExists {
@@ -64,10 +65,10 @@ func (p *OfficeProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawO
 	}
 
 	if !fields.MlgCanView {
-		if current != nil && !current.MlgCanView {
+		if entityExists && !currentMlgCanView {
 			return OutcomeSkipTombstoned, nil
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, current, currentVersion, now)
+		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, currentVersion, entityExists, now)
 	}
 
 	if !entityExists {
@@ -78,7 +79,7 @@ func (p *OfficeProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawO
 	if len(diff) == 0 {
 		return OutcomeSkipNoDiff, nil
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, current, currentVersion, diff, now)
+	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, currentVersion, diff, now)
 }
 
 func (p *OfficeProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *OfficeFields, raw *ent.RawOutput, now time.Time) error {
@@ -103,7 +104,7 @@ func (p *OfficeProcessor) applyInsert(ctx context.Context, tx *ent.Tx, f *Office
 	return nil
 }
 
-func (p *OfficeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *OfficeFields, raw *ent.RawOutput, current *ent.Office, currentVersion *ent.OfficeVersion, diff map[string]any, now time.Time) error {
+func (p *OfficeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *OfficeFields, raw *ent.RawOutput, currentVersion *ent.OfficeVersion, diff map[string]any, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.OfficeVersion.UpdateOneID(currentVersion.ID).SetValidTo(now).Save(ctx); err != nil {
 			return fmt.Errorf("close current version: %w", err)
@@ -123,7 +124,7 @@ func (p *OfficeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Office
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	u := tx.Office.UpdateOneID(current.ID).SetCurrentVersionID(verID)
+	u := tx.Office.UpdateOneID(f.OfficeKey).SetCurrentVersionID(verID)
 	applyToOfficeUpdate(u, f)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("update entity: %w", err)
@@ -131,7 +132,7 @@ func (p *OfficeProcessor) applyUpdate(ctx context.Context, tx *ent.Tx, f *Office
 	return nil
 }
 
-func (p *OfficeProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *OfficeFields, raw *ent.RawOutput, current *ent.Office, currentVersion *ent.OfficeVersion, now time.Time) error {
+func (p *OfficeProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *OfficeFields, raw *ent.RawOutput, currentVersion *ent.OfficeVersion, entityExists bool, now time.Time) error {
 	if currentVersion != nil {
 		if _, err := tx.OfficeVersion.UpdateOneID(currentVersion.ID).SetValidTo(now).Save(ctx); err != nil {
 			return fmt.Errorf("close current version: %w", err)
@@ -151,7 +152,7 @@ func (p *OfficeProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Office
 		return fmt.Errorf("version id is not a uuid: %w", err)
 	}
 
-	if current == nil {
+	if !entityExists {
 		c := tx.Office.Create().SetID(f.OfficeKey).SetCurrentVersionID(verID)
 		applyToOfficeCreate(c, f)
 		if _, err := c.Save(ctx); err != nil {
@@ -160,7 +161,7 @@ func (p *OfficeProcessor) applyDelete(ctx context.Context, tx *ent.Tx, f *Office
 		return nil
 	}
 
-	u := tx.Office.UpdateOneID(current.ID).SetCurrentVersionID(verID).SetMlgCanView(false)
+	u := tx.Office.UpdateOneID(f.OfficeKey).SetCurrentVersionID(verID).SetMlgCanView(false)
 	if _, err := u.Save(ctx); err != nil {
 		return fmt.Errorf("tombstone entity: %w", err)
 	}

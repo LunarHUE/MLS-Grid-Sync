@@ -38,7 +38,7 @@ func insertMediaRaw(t *testing.T, client *ent.Client, ctx context.Context, syncE
 		SetSourceKey(key).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 
@@ -64,11 +64,11 @@ func TestMediaProcess_FreshInsert(t *testing.T) {
 
 	ts := time.Now().UTC().Truncate(time.Second)
 	raw := insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
-		"MediaURL":              "https://cdn.example/photo.jpg",
-		"Order":                 1,
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
+		"MediaURL":          "https://cdn.example/photo.jpg",
+		"Order":             1,
 	}, ts)
 	require.NoError(t, runMediaProcess(t, client, ctx, raw))
 
@@ -85,18 +85,18 @@ func TestMediaProcess_UpdateWithDiff(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
-		"MediaURL":              "https://cdn.example/v1.jpg",
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
+		"MediaURL":          "https://cdn.example/v1.jpg",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
-		"MediaURL":              "https://cdn.example/v2.jpg",
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
+		"MediaURL":          "https://cdn.example/v2.jpg",
 	}, ts2)))
 
 	versions := client.MediaVersion.Query().
@@ -115,17 +115,17 @@ func TestMediaProcess_UpdateClearsField(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
-		"MediaURL":              "https://cdn.example/v1.jpg",
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
+		"MediaURL":          "https://cdn.example/v1.jpg",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
 	}, ts2)))
 
 	m, err := client.Media.Query().Where(entmedia.IDEQ("M-1")).Only(ctx)
@@ -145,25 +145,25 @@ func TestMediaProcess_AlreadyTombstonedIsNoop(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
-		"MlgCanView":            false,
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
+		"MlgCanView":        false,
 	}, ts2)))
 
 	ts3 := ts2.Add(time.Hour)
 	require.NoError(t, runMediaProcess(t, client, ctx, insertMediaRaw(t, client, ctx, evID, map[string]any{
-		"MediaKey":              "M-1",
-		"ResourceName":          "Property",
-		"ResourceRecordKey":     "LK-1",
-		"MlgCanView":            false,
+		"MediaKey":          "M-1",
+		"ResourceName":      "Property",
+		"ResourceRecordKey": "LK-1",
+		"MlgCanView":        false,
 	}, ts3)))
 
 	versions := client.MediaVersion.Query().Where(mediaversion.MediaKeyEQ("M-1")).AllX(ctx)

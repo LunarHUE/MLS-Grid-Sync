@@ -38,7 +38,7 @@ func insertPropertyUnitTypeRaw(t *testing.T, client *ent.Client, ctx context.Con
 		SetSourceKey(key).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 
@@ -63,9 +63,9 @@ func TestPropertyUnitTypeProcess_FreshInsertWithParent(t *testing.T) {
 
 	ts := time.Now().UTC().Truncate(time.Second)
 	raw := insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-1",
-		"ListingKey":            "LK-1",
-		"UnitTypeBedsTotal":     2,
+		"UnitTypeKey":       "UT-1",
+		"ListingKey":        "LK-1",
+		"UnitTypeBedsTotal": 2,
 	}, ts)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, raw))
 
@@ -82,8 +82,8 @@ func TestPropertyUnitTypeProcess_FreshInsertParked(t *testing.T) {
 
 	ts := time.Now().UTC().Truncate(time.Second)
 	raw := insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-PARK",
-		"ListingKey":            "LK-LATE",
+		"UnitTypeKey": "UT-PARK",
+		"ListingKey":  "LK-LATE",
 	}, ts)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, raw))
 
@@ -99,15 +99,15 @@ func TestPropertyUnitTypeProcess_UpdateClearsField(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-1",
-		"ListingKey":            "LK-1",
-		"UnitTypeFurnished":     "Furnished",
+		"UnitTypeKey":       "UT-1",
+		"ListingKey":        "LK-1",
+		"UnitTypeFurnished": "Furnished",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-1",
-		"ListingKey":            "LK-1",
+		"UnitTypeKey": "UT-1",
+		"ListingKey":  "LK-1",
 	}, ts2)))
 
 	u, err := client.PropertyUnitType.Query().Where(propertyunittype.IDEQ("UT-1")).Only(ctx)
@@ -128,22 +128,22 @@ func TestPropertyUnitTypeProcess_AlreadyTombstonedIsNoop(t *testing.T) {
 
 	ts1 := time.Now().UTC().Truncate(time.Second)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-1",
-		"ListingKey":            "LK-1",
+		"UnitTypeKey": "UT-1",
+		"ListingKey":  "LK-1",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-1",
-		"ListingKey":            "LK-1",
-		"MlgCanView":            false,
+		"UnitTypeKey": "UT-1",
+		"ListingKey":  "LK-1",
+		"MlgCanView":  false,
 	}, ts2)))
 
 	ts3 := ts2.Add(time.Hour)
 	require.NoError(t, runPropertyUnitTypeProcess(t, client, ctx, insertPropertyUnitTypeRaw(t, client, ctx, evID, map[string]any{
-		"UnitTypeKey":           "UT-1",
-		"ListingKey":            "LK-1",
-		"MlgCanView":            false,
+		"UnitTypeKey": "UT-1",
+		"ListingKey":  "LK-1",
+		"MlgCanView":  false,
 	}, ts3)))
 
 	versions := client.PropertyUnitTypeVersion.Query().Where(propertyunittypeversion.UnitTypeKeyEQ("UT-1")).AllX(ctx)

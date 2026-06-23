@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
@@ -21,6 +23,7 @@ type PropertyRoomCreate struct {
 	config
 	mutation *PropertyRoomMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -287,6 +290,7 @@ func (_c *PropertyRoomCreate) createSpec() (*PropertyRoom, *sqlgraph.CreateSpec)
 		_node = &PropertyRoom{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(propertyroom.Table, sqlgraph.NewFieldSpec(propertyroom.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -359,11 +363,566 @@ func (_c *PropertyRoomCreate) createSpec() (*PropertyRoom, *sqlgraph.CreateSpec)
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PropertyRoom.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PropertyRoomUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PropertyRoomCreate) OnConflict(opts ...sql.ConflictOption) *PropertyRoomUpsertOne {
+	_c.conflict = opts
+	return &PropertyRoomUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PropertyRoom.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PropertyRoomCreate) OnConflictColumns(columns ...string) *PropertyRoomUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PropertyRoomUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// PropertyRoomUpsertOne is the builder for "upsert"-ing
+	//  one PropertyRoom node.
+	PropertyRoomUpsertOne struct {
+		create *PropertyRoomCreate
+	}
+
+	// PropertyRoomUpsert is the "OnConflict" setter.
+	PropertyRoomUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *PropertyRoomUpsert) SetModifiedAt(v time.Time) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateModifiedAt() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldModifiedAt)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyRoomUpsert) SetSourceModifiedAt(v time.Time) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateSourceModifiedAt() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyRoomUpsert) SetOriginatingSystemName(v string) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateOriginatingSystemName() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyRoomUpsert) ClearOriginatingSystemName() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyRoomUpsert) SetMlgCanView(v bool) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateMlgCanView() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyRoomUpsert) SetMlgCanUse(v []string) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateMlgCanUse() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyRoomUpsert) ClearMlgCanUse() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldMlgCanUse)
+	return u
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyRoomUpsert) SetListingKey(v string) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldListingKey, v)
+	return u
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateListingKey() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldListingKey)
+	return u
+}
+
+// SetRoomType sets the "room_type" field.
+func (u *PropertyRoomUpsert) SetRoomType(v string) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldRoomType, v)
+	return u
+}
+
+// UpdateRoomType sets the "room_type" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateRoomType() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldRoomType)
+	return u
+}
+
+// ClearRoomType clears the value of the "room_type" field.
+func (u *PropertyRoomUpsert) ClearRoomType() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldRoomType)
+	return u
+}
+
+// SetRoomLevel sets the "room_level" field.
+func (u *PropertyRoomUpsert) SetRoomLevel(v string) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldRoomLevel, v)
+	return u
+}
+
+// UpdateRoomLevel sets the "room_level" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateRoomLevel() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldRoomLevel)
+	return u
+}
+
+// ClearRoomLevel clears the value of the "room_level" field.
+func (u *PropertyRoomUpsert) ClearRoomLevel() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldRoomLevel)
+	return u
+}
+
+// SetRoomFeatures sets the "room_features" field.
+func (u *PropertyRoomUpsert) SetRoomFeatures(v pq.StringArray) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldRoomFeatures, v)
+	return u
+}
+
+// UpdateRoomFeatures sets the "room_features" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateRoomFeatures() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldRoomFeatures)
+	return u
+}
+
+// ClearRoomFeatures clears the value of the "room_features" field.
+func (u *PropertyRoomUpsert) ClearRoomFeatures() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldRoomFeatures)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyRoomUpsert) SetExtendedFields(v map[string]interface{}) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateExtendedFields() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyRoomUpsert) ClearExtendedFields() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldExtendedFields)
+	return u
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *PropertyRoomUpsert) SetCurrentVersionID(v uuid.UUID) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldCurrentVersionID, v)
+	return u
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateCurrentVersionID() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldCurrentVersionID)
+	return u
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *PropertyRoomUpsert) ClearCurrentVersionID() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldCurrentVersionID)
+	return u
+}
+
+// SetParentListingKey sets the "parent_listing_key" field.
+func (u *PropertyRoomUpsert) SetParentListingKey(v string) *PropertyRoomUpsert {
+	u.Set(propertyroom.FieldParentListingKey, v)
+	return u
+}
+
+// UpdateParentListingKey sets the "parent_listing_key" field to the value that was provided on create.
+func (u *PropertyRoomUpsert) UpdateParentListingKey() *PropertyRoomUpsert {
+	u.SetExcluded(propertyroom.FieldParentListingKey)
+	return u
+}
+
+// ClearParentListingKey clears the value of the "parent_listing_key" field.
+func (u *PropertyRoomUpsert) ClearParentListingKey() *PropertyRoomUpsert {
+	u.SetNull(propertyroom.FieldParentListingKey)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.PropertyRoom.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(propertyroom.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PropertyRoomUpsertOne) UpdateNewValues() *PropertyRoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(propertyroom.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(propertyroom.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PropertyRoom.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PropertyRoomUpsertOne) Ignore() *PropertyRoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PropertyRoomUpsertOne) DoNothing() *PropertyRoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PropertyRoomCreate.OnConflict
+// documentation for more info.
+func (u *PropertyRoomUpsertOne) Update(set func(*PropertyRoomUpsert)) *PropertyRoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PropertyRoomUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *PropertyRoomUpsertOne) SetModifiedAt(v time.Time) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateModifiedAt() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyRoomUpsertOne) SetSourceModifiedAt(v time.Time) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateSourceModifiedAt() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyRoomUpsertOne) SetOriginatingSystemName(v string) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateOriginatingSystemName() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyRoomUpsertOne) ClearOriginatingSystemName() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyRoomUpsertOne) SetMlgCanView(v bool) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateMlgCanView() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyRoomUpsertOne) SetMlgCanUse(v []string) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateMlgCanUse() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyRoomUpsertOne) ClearMlgCanUse() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyRoomUpsertOne) SetListingKey(v string) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateListingKey() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetRoomType sets the "room_type" field.
+func (u *PropertyRoomUpsertOne) SetRoomType(v string) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetRoomType(v)
+	})
+}
+
+// UpdateRoomType sets the "room_type" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateRoomType() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateRoomType()
+	})
+}
+
+// ClearRoomType clears the value of the "room_type" field.
+func (u *PropertyRoomUpsertOne) ClearRoomType() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearRoomType()
+	})
+}
+
+// SetRoomLevel sets the "room_level" field.
+func (u *PropertyRoomUpsertOne) SetRoomLevel(v string) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetRoomLevel(v)
+	})
+}
+
+// UpdateRoomLevel sets the "room_level" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateRoomLevel() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateRoomLevel()
+	})
+}
+
+// ClearRoomLevel clears the value of the "room_level" field.
+func (u *PropertyRoomUpsertOne) ClearRoomLevel() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearRoomLevel()
+	})
+}
+
+// SetRoomFeatures sets the "room_features" field.
+func (u *PropertyRoomUpsertOne) SetRoomFeatures(v pq.StringArray) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetRoomFeatures(v)
+	})
+}
+
+// UpdateRoomFeatures sets the "room_features" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateRoomFeatures() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateRoomFeatures()
+	})
+}
+
+// ClearRoomFeatures clears the value of the "room_features" field.
+func (u *PropertyRoomUpsertOne) ClearRoomFeatures() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearRoomFeatures()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyRoomUpsertOne) SetExtendedFields(v map[string]interface{}) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateExtendedFields() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyRoomUpsertOne) ClearExtendedFields() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *PropertyRoomUpsertOne) SetCurrentVersionID(v uuid.UUID) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetCurrentVersionID(v)
+	})
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateCurrentVersionID() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateCurrentVersionID()
+	})
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *PropertyRoomUpsertOne) ClearCurrentVersionID() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearCurrentVersionID()
+	})
+}
+
+// SetParentListingKey sets the "parent_listing_key" field.
+func (u *PropertyRoomUpsertOne) SetParentListingKey(v string) *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetParentListingKey(v)
+	})
+}
+
+// UpdateParentListingKey sets the "parent_listing_key" field to the value that was provided on create.
+func (u *PropertyRoomUpsertOne) UpdateParentListingKey() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateParentListingKey()
+	})
+}
+
+// ClearParentListingKey clears the value of the "parent_listing_key" field.
+func (u *PropertyRoomUpsertOne) ClearParentListingKey() *PropertyRoomUpsertOne {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearParentListingKey()
+	})
+}
+
+// Exec executes the query.
+func (u *PropertyRoomUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PropertyRoomCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PropertyRoomUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PropertyRoomUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: PropertyRoomUpsertOne.ID is not supported by MySQL driver. Use PropertyRoomUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PropertyRoomUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PropertyRoomCreateBulk is the builder for creating many PropertyRoom entities in bulk.
 type PropertyRoomCreateBulk struct {
 	config
 	err      error
 	builders []*PropertyRoomCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the PropertyRoom entities in the database.
@@ -393,6 +952,7 @@ func (_c *PropertyRoomCreateBulk) Save(ctx context.Context) ([]*PropertyRoom, er
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -439,6 +999,347 @@ func (_c *PropertyRoomCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *PropertyRoomCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PropertyRoom.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PropertyRoomUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PropertyRoomCreateBulk) OnConflict(opts ...sql.ConflictOption) *PropertyRoomUpsertBulk {
+	_c.conflict = opts
+	return &PropertyRoomUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PropertyRoom.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PropertyRoomCreateBulk) OnConflictColumns(columns ...string) *PropertyRoomUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PropertyRoomUpsertBulk{
+		create: _c,
+	}
+}
+
+// PropertyRoomUpsertBulk is the builder for "upsert"-ing
+// a bulk of PropertyRoom nodes.
+type PropertyRoomUpsertBulk struct {
+	create *PropertyRoomCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.PropertyRoom.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(propertyroom.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PropertyRoomUpsertBulk) UpdateNewValues() *PropertyRoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(propertyroom.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(propertyroom.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PropertyRoom.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PropertyRoomUpsertBulk) Ignore() *PropertyRoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PropertyRoomUpsertBulk) DoNothing() *PropertyRoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PropertyRoomCreateBulk.OnConflict
+// documentation for more info.
+func (u *PropertyRoomUpsertBulk) Update(set func(*PropertyRoomUpsert)) *PropertyRoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PropertyRoomUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *PropertyRoomUpsertBulk) SetModifiedAt(v time.Time) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateModifiedAt() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *PropertyRoomUpsertBulk) SetSourceModifiedAt(v time.Time) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateSourceModifiedAt() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *PropertyRoomUpsertBulk) SetOriginatingSystemName(v string) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateOriginatingSystemName() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *PropertyRoomUpsertBulk) ClearOriginatingSystemName() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *PropertyRoomUpsertBulk) SetMlgCanView(v bool) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateMlgCanView() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *PropertyRoomUpsertBulk) SetMlgCanUse(v []string) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateMlgCanUse() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *PropertyRoomUpsertBulk) ClearMlgCanUse() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetListingKey sets the "listing_key" field.
+func (u *PropertyRoomUpsertBulk) SetListingKey(v string) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetListingKey(v)
+	})
+}
+
+// UpdateListingKey sets the "listing_key" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateListingKey() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateListingKey()
+	})
+}
+
+// SetRoomType sets the "room_type" field.
+func (u *PropertyRoomUpsertBulk) SetRoomType(v string) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetRoomType(v)
+	})
+}
+
+// UpdateRoomType sets the "room_type" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateRoomType() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateRoomType()
+	})
+}
+
+// ClearRoomType clears the value of the "room_type" field.
+func (u *PropertyRoomUpsertBulk) ClearRoomType() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearRoomType()
+	})
+}
+
+// SetRoomLevel sets the "room_level" field.
+func (u *PropertyRoomUpsertBulk) SetRoomLevel(v string) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetRoomLevel(v)
+	})
+}
+
+// UpdateRoomLevel sets the "room_level" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateRoomLevel() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateRoomLevel()
+	})
+}
+
+// ClearRoomLevel clears the value of the "room_level" field.
+func (u *PropertyRoomUpsertBulk) ClearRoomLevel() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearRoomLevel()
+	})
+}
+
+// SetRoomFeatures sets the "room_features" field.
+func (u *PropertyRoomUpsertBulk) SetRoomFeatures(v pq.StringArray) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetRoomFeatures(v)
+	})
+}
+
+// UpdateRoomFeatures sets the "room_features" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateRoomFeatures() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateRoomFeatures()
+	})
+}
+
+// ClearRoomFeatures clears the value of the "room_features" field.
+func (u *PropertyRoomUpsertBulk) ClearRoomFeatures() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearRoomFeatures()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *PropertyRoomUpsertBulk) SetExtendedFields(v map[string]interface{}) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateExtendedFields() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *PropertyRoomUpsertBulk) ClearExtendedFields() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *PropertyRoomUpsertBulk) SetCurrentVersionID(v uuid.UUID) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetCurrentVersionID(v)
+	})
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateCurrentVersionID() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateCurrentVersionID()
+	})
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *PropertyRoomUpsertBulk) ClearCurrentVersionID() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearCurrentVersionID()
+	})
+}
+
+// SetParentListingKey sets the "parent_listing_key" field.
+func (u *PropertyRoomUpsertBulk) SetParentListingKey(v string) *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.SetParentListingKey(v)
+	})
+}
+
+// UpdateParentListingKey sets the "parent_listing_key" field to the value that was provided on create.
+func (u *PropertyRoomUpsertBulk) UpdateParentListingKey() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.UpdateParentListingKey()
+	})
+}
+
+// ClearParentListingKey clears the value of the "parent_listing_key" field.
+func (u *PropertyRoomUpsertBulk) ClearParentListingKey() *PropertyRoomUpsertBulk {
+	return u.Update(func(s *PropertyRoomUpsert) {
+		s.ClearParentListingKey()
+	})
+}
+
+// Exec executes the query.
+func (u *PropertyRoomUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PropertyRoomCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PropertyRoomCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PropertyRoomUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

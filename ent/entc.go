@@ -30,8 +30,17 @@ func main() {
 		entc.Extensions(ex),
 	}
 
+	// FeatureUpsert generates OnConflict / UpdateNewValues APIs on the entity
+	// builders. The typed processor's bulk-projection path (sync/processor) uses
+	// them for batched entity upserts; without this feature ent only emits
+	// conflict-free CreateBulk. Additive — existing query/create APIs are
+	// unchanged, and mutations stay off (DB is read-through-projector).
+	cfg := &gen.Config{
+		Features: []gen.Feature{gen.FeatureUpsert},
+	}
+
 	// Run the Ent compiler on your schema directory
-	if err := entc.Generate("./schema", &gen.Config{}, opts...); err != nil {
+	if err := entc.Generate("./schema", cfg, opts...); err != nil {
 		log.Panicf("running ent codegen: %v", err)
 	}
 }

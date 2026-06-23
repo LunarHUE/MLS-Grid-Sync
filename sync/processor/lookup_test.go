@@ -37,7 +37,7 @@ func insertLookupRaw(t *testing.T, client *ent.Client, ctx context.Context, sync
 		SetSourceKey(key).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 
@@ -83,8 +83,8 @@ func TestLookupProcess_UpsertNewValue(t *testing.T) {
 	require.NoError(t, runLookupProcess(t, client, ctx, insertLookupRaw(t, client, ctx, evID, map[string]any{
 		"LookupKey":             "K1",
 		"ModificationTimestamp": ts1.Format(time.RFC3339),
-		"LookupName":             "Appliances",
-		"LookupValue":            "Dishwasher",
+		"LookupName":            "Appliances",
+		"LookupValue":           "Dishwasher",
 	}, ts1)))
 
 	l, err := client.Lookup.Query().Where(lookup.IDEQ("K1")).Only(ctx)
@@ -98,8 +98,8 @@ func TestLookupProcess_UpsertNewValue(t *testing.T) {
 	require.NoError(t, runLookupProcess(t, client, ctx, insertLookupRaw(t, client, ctx, evID, map[string]any{
 		"LookupKey":             "K1",
 		"ModificationTimestamp": ts2.Format(time.RFC3339),
-		"LookupName":             "Appliances",
-		"LookupValue":            "Garbage Disposal",
+		"LookupName":            "Appliances",
+		"LookupValue":           "Garbage Disposal",
 	}, ts2)))
 
 	count := client.Lookup.Query().Where(lookup.IDEQ("K1")).CountX(ctx)
@@ -116,17 +116,17 @@ func TestLookupProcess_MlgCanViewFalseDeletes(t *testing.T) {
 	require.NoError(t, runLookupProcess(t, client, ctx, insertLookupRaw(t, client, ctx, evID, map[string]any{
 		"LookupKey":             "K1",
 		"ModificationTimestamp": ts1.Format(time.RFC3339),
-		"LookupName":             "Appliances",
-		"LookupValue":            "Old",
+		"LookupName":            "Appliances",
+		"LookupValue":           "Old",
 	}, ts1)))
 
 	ts2 := ts1.Add(time.Hour)
 	require.NoError(t, runLookupProcess(t, client, ctx, insertLookupRaw(t, client, ctx, evID, map[string]any{
 		"LookupKey":             "K1",
 		"ModificationTimestamp": ts2.Format(time.RFC3339),
-		"LookupName":             "Appliances",
-		"LookupValue":            "Old",
-		"MlgCanView":             false,
+		"LookupName":            "Appliances",
+		"LookupValue":           "Old",
+		"MlgCanView":            false,
 	}, ts2)))
 
 	count := client.Lookup.Query().Where(lookup.IDEQ("K1")).CountX(ctx)

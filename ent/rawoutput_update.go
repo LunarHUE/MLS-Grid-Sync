@@ -4,12 +4,14 @@ package ent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
@@ -102,8 +104,14 @@ func (_u *RawOutputUpdate) SetNillableSourceModifiedAt(v *time.Time) *RawOutputU
 }
 
 // SetPayload sets the "payload" field.
-func (_u *RawOutputUpdate) SetPayload(v map[string]interface{}) *RawOutputUpdate {
+func (_u *RawOutputUpdate) SetPayload(v json.RawMessage) *RawOutputUpdate {
 	_u.mutation.SetPayload(v)
+	return _u
+}
+
+// AppendPayload appends value to the "payload" field.
+func (_u *RawOutputUpdate) AppendPayload(v json.RawMessage) *RawOutputUpdate {
+	_u.mutation.AppendPayload(v)
 	return _u
 }
 
@@ -230,6 +238,11 @@ func (_u *RawOutputUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(rawoutput.FieldPayload, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPayload(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, rawoutput.FieldPayload, value)
+		})
 	}
 	if _u.mutation.SyncEventCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -396,8 +409,14 @@ func (_u *RawOutputUpdateOne) SetNillableSourceModifiedAt(v *time.Time) *RawOutp
 }
 
 // SetPayload sets the "payload" field.
-func (_u *RawOutputUpdateOne) SetPayload(v map[string]interface{}) *RawOutputUpdateOne {
+func (_u *RawOutputUpdateOne) SetPayload(v json.RawMessage) *RawOutputUpdateOne {
 	_u.mutation.SetPayload(v)
+	return _u
+}
+
+// AppendPayload appends value to the "payload" field.
+func (_u *RawOutputUpdateOne) AppendPayload(v json.RawMessage) *RawOutputUpdateOne {
+	_u.mutation.AppendPayload(v)
 	return _u
 }
 
@@ -554,6 +573,11 @@ func (_u *RawOutputUpdateOne) sqlSave(ctx context.Context) (_node *RawOutput, er
 	}
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(rawoutput.FieldPayload, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPayload(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, rawoutput.FieldPayload, value)
+		})
 	}
 	if _u.mutation.SyncEventCleared() {
 		edge := &sqlgraph.EdgeSpec{

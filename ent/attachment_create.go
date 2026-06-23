@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
@@ -21,6 +23,7 @@ type AttachmentCreate struct {
 	config
 	mutation *AttachmentMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -252,6 +255,7 @@ func (_c *AttachmentCreate) createSpec() (*Attachment, *sqlgraph.CreateSpec) {
 		_node = &Attachment{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(attachment.Table, sqlgraph.NewFieldSpec(attachment.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -323,11 +327,384 @@ func (_c *AttachmentCreate) createSpec() (*Attachment, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Attachment.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.AttachmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *AttachmentCreate) OnConflict(opts ...sql.ConflictOption) *AttachmentUpsertOne {
+	_c.conflict = opts
+	return &AttachmentUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Attachment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *AttachmentCreate) OnConflictColumns(columns ...string) *AttachmentUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &AttachmentUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// AttachmentUpsertOne is the builder for "upsert"-ing
+	//  one Attachment node.
+	AttachmentUpsertOne struct {
+		create *AttachmentCreate
+	}
+
+	// AttachmentUpsert is the "OnConflict" setter.
+	AttachmentUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *AttachmentUpsert) SetModifiedAt(v time.Time) *AttachmentUpsert {
+	u.Set(attachment.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateModifiedAt() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldModifiedAt)
+	return u
+}
+
+// SetSourceURL sets the "source_url" field.
+func (u *AttachmentUpsert) SetSourceURL(v string) *AttachmentUpsert {
+	u.Set(attachment.FieldSourceURL, v)
+	return u
+}
+
+// UpdateSourceURL sets the "source_url" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateSourceURL() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldSourceURL)
+	return u
+}
+
+// SetSourceHash sets the "source_hash" field.
+func (u *AttachmentUpsert) SetSourceHash(v string) *AttachmentUpsert {
+	u.Set(attachment.FieldSourceHash, v)
+	return u
+}
+
+// UpdateSourceHash sets the "source_hash" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateSourceHash() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldSourceHash)
+	return u
+}
+
+// SetHostURL sets the "host_url" field.
+func (u *AttachmentUpsert) SetHostURL(v string) *AttachmentUpsert {
+	u.Set(attachment.FieldHostURL, v)
+	return u
+}
+
+// UpdateHostURL sets the "host_url" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateHostURL() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldHostURL)
+	return u
+}
+
+// SetMimeType sets the "mime_type" field.
+func (u *AttachmentUpsert) SetMimeType(v string) *AttachmentUpsert {
+	u.Set(attachment.FieldMimeType, v)
+	return u
+}
+
+// UpdateMimeType sets the "mime_type" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateMimeType() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldMimeType)
+	return u
+}
+
+// ClearMimeType clears the value of the "mime_type" field.
+func (u *AttachmentUpsert) ClearMimeType() *AttachmentUpsert {
+	u.SetNull(attachment.FieldMimeType)
+	return u
+}
+
+// SetSizeBytes sets the "size_bytes" field.
+func (u *AttachmentUpsert) SetSizeBytes(v int) *AttachmentUpsert {
+	u.Set(attachment.FieldSizeBytes, v)
+	return u
+}
+
+// UpdateSizeBytes sets the "size_bytes" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateSizeBytes() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldSizeBytes)
+	return u
+}
+
+// AddSizeBytes adds v to the "size_bytes" field.
+func (u *AttachmentUpsert) AddSizeBytes(v int) *AttachmentUpsert {
+	u.Add(attachment.FieldSizeBytes, v)
+	return u
+}
+
+// ClearSizeBytes clears the value of the "size_bytes" field.
+func (u *AttachmentUpsert) ClearSizeBytes() *AttachmentUpsert {
+	u.SetNull(attachment.FieldSizeBytes)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *AttachmentUpsert) SetDeletedAt(v time.Time) *AttachmentUpsert {
+	u.Set(attachment.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *AttachmentUpsert) UpdateDeletedAt() *AttachmentUpsert {
+	u.SetExcluded(attachment.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *AttachmentUpsert) ClearDeletedAt() *AttachmentUpsert {
+	u.SetNull(attachment.FieldDeletedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Attachment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(attachment.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *AttachmentUpsertOne) UpdateNewValues() *AttachmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(attachment.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(attachment.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Attachment.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *AttachmentUpsertOne) Ignore() *AttachmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *AttachmentUpsertOne) DoNothing() *AttachmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the AttachmentCreate.OnConflict
+// documentation for more info.
+func (u *AttachmentUpsertOne) Update(set func(*AttachmentUpsert)) *AttachmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&AttachmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *AttachmentUpsertOne) SetModifiedAt(v time.Time) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateModifiedAt() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceURL sets the "source_url" field.
+func (u *AttachmentUpsertOne) SetSourceURL(v string) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetSourceURL(v)
+	})
+}
+
+// UpdateSourceURL sets the "source_url" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateSourceURL() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateSourceURL()
+	})
+}
+
+// SetSourceHash sets the "source_hash" field.
+func (u *AttachmentUpsertOne) SetSourceHash(v string) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetSourceHash(v)
+	})
+}
+
+// UpdateSourceHash sets the "source_hash" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateSourceHash() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateSourceHash()
+	})
+}
+
+// SetHostURL sets the "host_url" field.
+func (u *AttachmentUpsertOne) SetHostURL(v string) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetHostURL(v)
+	})
+}
+
+// UpdateHostURL sets the "host_url" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateHostURL() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateHostURL()
+	})
+}
+
+// SetMimeType sets the "mime_type" field.
+func (u *AttachmentUpsertOne) SetMimeType(v string) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetMimeType(v)
+	})
+}
+
+// UpdateMimeType sets the "mime_type" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateMimeType() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateMimeType()
+	})
+}
+
+// ClearMimeType clears the value of the "mime_type" field.
+func (u *AttachmentUpsertOne) ClearMimeType() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.ClearMimeType()
+	})
+}
+
+// SetSizeBytes sets the "size_bytes" field.
+func (u *AttachmentUpsertOne) SetSizeBytes(v int) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetSizeBytes(v)
+	})
+}
+
+// AddSizeBytes adds v to the "size_bytes" field.
+func (u *AttachmentUpsertOne) AddSizeBytes(v int) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.AddSizeBytes(v)
+	})
+}
+
+// UpdateSizeBytes sets the "size_bytes" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateSizeBytes() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateSizeBytes()
+	})
+}
+
+// ClearSizeBytes clears the value of the "size_bytes" field.
+func (u *AttachmentUpsertOne) ClearSizeBytes() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.ClearSizeBytes()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *AttachmentUpsertOne) SetDeletedAt(v time.Time) *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *AttachmentUpsertOne) UpdateDeletedAt() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *AttachmentUpsertOne) ClearDeletedAt() *AttachmentUpsertOne {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *AttachmentUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for AttachmentCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *AttachmentUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *AttachmentUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: AttachmentUpsertOne.ID is not supported by MySQL driver. Use AttachmentUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *AttachmentUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // AttachmentCreateBulk is the builder for creating many Attachment entities in bulk.
 type AttachmentCreateBulk struct {
 	config
 	err      error
 	builders []*AttachmentCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Attachment entities in the database.
@@ -357,6 +734,7 @@ func (_c *AttachmentCreateBulk) Save(ctx context.Context) ([]*Attachment, error)
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -403,6 +781,249 @@ func (_c *AttachmentCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *AttachmentCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Attachment.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.AttachmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *AttachmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *AttachmentUpsertBulk {
+	_c.conflict = opts
+	return &AttachmentUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Attachment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *AttachmentCreateBulk) OnConflictColumns(columns ...string) *AttachmentUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &AttachmentUpsertBulk{
+		create: _c,
+	}
+}
+
+// AttachmentUpsertBulk is the builder for "upsert"-ing
+// a bulk of Attachment nodes.
+type AttachmentUpsertBulk struct {
+	create *AttachmentCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Attachment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(attachment.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *AttachmentUpsertBulk) UpdateNewValues() *AttachmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(attachment.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(attachment.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Attachment.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *AttachmentUpsertBulk) Ignore() *AttachmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *AttachmentUpsertBulk) DoNothing() *AttachmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the AttachmentCreateBulk.OnConflict
+// documentation for more info.
+func (u *AttachmentUpsertBulk) Update(set func(*AttachmentUpsert)) *AttachmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&AttachmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *AttachmentUpsertBulk) SetModifiedAt(v time.Time) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateModifiedAt() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceURL sets the "source_url" field.
+func (u *AttachmentUpsertBulk) SetSourceURL(v string) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetSourceURL(v)
+	})
+}
+
+// UpdateSourceURL sets the "source_url" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateSourceURL() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateSourceURL()
+	})
+}
+
+// SetSourceHash sets the "source_hash" field.
+func (u *AttachmentUpsertBulk) SetSourceHash(v string) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetSourceHash(v)
+	})
+}
+
+// UpdateSourceHash sets the "source_hash" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateSourceHash() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateSourceHash()
+	})
+}
+
+// SetHostURL sets the "host_url" field.
+func (u *AttachmentUpsertBulk) SetHostURL(v string) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetHostURL(v)
+	})
+}
+
+// UpdateHostURL sets the "host_url" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateHostURL() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateHostURL()
+	})
+}
+
+// SetMimeType sets the "mime_type" field.
+func (u *AttachmentUpsertBulk) SetMimeType(v string) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetMimeType(v)
+	})
+}
+
+// UpdateMimeType sets the "mime_type" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateMimeType() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateMimeType()
+	})
+}
+
+// ClearMimeType clears the value of the "mime_type" field.
+func (u *AttachmentUpsertBulk) ClearMimeType() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.ClearMimeType()
+	})
+}
+
+// SetSizeBytes sets the "size_bytes" field.
+func (u *AttachmentUpsertBulk) SetSizeBytes(v int) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetSizeBytes(v)
+	})
+}
+
+// AddSizeBytes adds v to the "size_bytes" field.
+func (u *AttachmentUpsertBulk) AddSizeBytes(v int) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.AddSizeBytes(v)
+	})
+}
+
+// UpdateSizeBytes sets the "size_bytes" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateSizeBytes() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateSizeBytes()
+	})
+}
+
+// ClearSizeBytes clears the value of the "size_bytes" field.
+func (u *AttachmentUpsertBulk) ClearSizeBytes() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.ClearSizeBytes()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *AttachmentUpsertBulk) SetDeletedAt(v time.Time) *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *AttachmentUpsertBulk) UpdateDeletedAt() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *AttachmentUpsertBulk) ClearDeletedAt() *AttachmentUpsertBulk {
+	return u.Update(func(s *AttachmentUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *AttachmentUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the AttachmentCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for AttachmentCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *AttachmentUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

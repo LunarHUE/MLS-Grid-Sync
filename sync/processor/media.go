@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -27,11 +26,7 @@ func NewMediaProcessor() *MediaProcessor { return &MediaProcessor{} }
 func (*MediaProcessor) Resource() rawoutput.Resource { return rawoutput.ResourceMedia }
 
 func (p *MediaProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.RawOutput) (Outcome, error) {
-	payload, err := json.Marshal(raw.Payload)
-	if err != nil {
-		return OutcomeUnknown, fmt.Errorf("marshal payload: %w", err)
-	}
-	fields, err := parseMedia(payload)
+	fields, err := parseMedia(raw.Payload)
 	if err != nil {
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}

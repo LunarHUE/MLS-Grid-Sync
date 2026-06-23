@@ -44,11 +44,11 @@ type OfficeFields struct {
 	OfficeNationalAssociationID *string
 
 	// --- Org structure ---
-	MainOfficeKey      *string
-	MainOfficeMlsID    *string
-	OfficeBrokerKey    *string
-	OfficeBrokerMlsID  *string
-	OfficeManagerKey   *string
+	MainOfficeKey     *string
+	MainOfficeMlsID   *string
+	OfficeBrokerKey   *string
+	OfficeBrokerMlsID *string
+	OfficeManagerKey  *string
 
 	// --- Flags / timestamps ---
 	IdxOfficeParticipationYn *bool

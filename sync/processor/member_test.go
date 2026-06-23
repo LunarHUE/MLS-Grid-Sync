@@ -38,7 +38,7 @@ func insertMemberRaw(t *testing.T, client *ent.Client, ctx context.Context, sync
 		SetSourceKey(memberKey).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(modifiedAt).
-		SetPayload(payload).
+		SetPayload(mustJSON(t, payload)).
 		SaveX(ctx)
 }
 

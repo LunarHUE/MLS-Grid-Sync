@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
@@ -23,6 +25,7 @@ type AttachmentJobCreate struct {
 	config
 	mutation *AttachmentJobMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -384,6 +387,7 @@ func (_c *AttachmentJobCreate) createSpec() (*AttachmentJob, *sqlgraph.CreateSpe
 		_node = &AttachmentJob{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(attachmentjob.Table, sqlgraph.NewFieldSpec(attachmentjob.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -507,11 +511,696 @@ func (_c *AttachmentJobCreate) createSpec() (*AttachmentJob, *sqlgraph.CreateSpe
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.AttachmentJob.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.AttachmentJobUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *AttachmentJobCreate) OnConflict(opts ...sql.ConflictOption) *AttachmentJobUpsertOne {
+	_c.conflict = opts
+	return &AttachmentJobUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.AttachmentJob.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *AttachmentJobCreate) OnConflictColumns(columns ...string) *AttachmentJobUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &AttachmentJobUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// AttachmentJobUpsertOne is the builder for "upsert"-ing
+	//  one AttachmentJob node.
+	AttachmentJobUpsertOne struct {
+		create *AttachmentJobCreate
+	}
+
+	// AttachmentJobUpsert is the "OnConflict" setter.
+	AttachmentJobUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *AttachmentJobUpsert) SetModifiedAt(v time.Time) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateModifiedAt() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldModifiedAt)
+	return u
+}
+
+// SetMediaKey sets the "media_key" field.
+func (u *AttachmentJobUpsert) SetMediaKey(v string) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldMediaKey, v)
+	return u
+}
+
+// UpdateMediaKey sets the "media_key" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateMediaKey() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldMediaKey)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *AttachmentJobUpsert) SetSyncEventID(v uuid.UUID) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateSyncEventID() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *AttachmentJobUpsert) SetRawOutputID(v uuid.UUID) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateRawOutputID() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *AttachmentJobUpsert) ClearRawOutputID() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldRawOutputID)
+	return u
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (u *AttachmentJobUpsert) SetAttachmentID(v uuid.UUID) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldAttachmentID, v)
+	return u
+}
+
+// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateAttachmentID() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldAttachmentID)
+	return u
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (u *AttachmentJobUpsert) ClearAttachmentID() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldAttachmentID)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *AttachmentJobUpsert) SetStatus(v attachmentjob.Status) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateStatus() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldStatus)
+	return u
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (u *AttachmentJobUpsert) SetAttemptCount(v int) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldAttemptCount, v)
+	return u
+}
+
+// UpdateAttemptCount sets the "attempt_count" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateAttemptCount() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldAttemptCount)
+	return u
+}
+
+// AddAttemptCount adds v to the "attempt_count" field.
+func (u *AttachmentJobUpsert) AddAttemptCount(v int) *AttachmentJobUpsert {
+	u.Add(attachmentjob.FieldAttemptCount, v)
+	return u
+}
+
+// SetLastError sets the "last_error" field.
+func (u *AttachmentJobUpsert) SetLastError(v string) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldLastError, v)
+	return u
+}
+
+// UpdateLastError sets the "last_error" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateLastError() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldLastError)
+	return u
+}
+
+// ClearLastError clears the value of the "last_error" field.
+func (u *AttachmentJobUpsert) ClearLastError() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldLastError)
+	return u
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (u *AttachmentJobUpsert) SetNextRetryAt(v time.Time) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldNextRetryAt, v)
+	return u
+}
+
+// UpdateNextRetryAt sets the "next_retry_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateNextRetryAt() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldNextRetryAt)
+	return u
+}
+
+// ClearNextRetryAt clears the value of the "next_retry_at" field.
+func (u *AttachmentJobUpsert) ClearNextRetryAt() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldNextRetryAt)
+	return u
+}
+
+// SetClaimedAt sets the "claimed_at" field.
+func (u *AttachmentJobUpsert) SetClaimedAt(v time.Time) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldClaimedAt, v)
+	return u
+}
+
+// UpdateClaimedAt sets the "claimed_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateClaimedAt() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldClaimedAt)
+	return u
+}
+
+// ClearClaimedAt clears the value of the "claimed_at" field.
+func (u *AttachmentJobUpsert) ClearClaimedAt() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldClaimedAt)
+	return u
+}
+
+// SetClaimedBy sets the "claimed_by" field.
+func (u *AttachmentJobUpsert) SetClaimedBy(v string) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldClaimedBy, v)
+	return u
+}
+
+// UpdateClaimedBy sets the "claimed_by" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateClaimedBy() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldClaimedBy)
+	return u
+}
+
+// ClearClaimedBy clears the value of the "claimed_by" field.
+func (u *AttachmentJobUpsert) ClearClaimedBy() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldClaimedBy)
+	return u
+}
+
+// SetMediaModifiedAt sets the "media_modified_at" field.
+func (u *AttachmentJobUpsert) SetMediaModifiedAt(v time.Time) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldMediaModifiedAt, v)
+	return u
+}
+
+// UpdateMediaModifiedAt sets the "media_modified_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateMediaModifiedAt() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldMediaModifiedAt)
+	return u
+}
+
+// ClearMediaModifiedAt clears the value of the "media_modified_at" field.
+func (u *AttachmentJobUpsert) ClearMediaModifiedAt() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldMediaModifiedAt)
+	return u
+}
+
+// SetMimeType sets the "mime_type" field.
+func (u *AttachmentJobUpsert) SetMimeType(v string) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldMimeType, v)
+	return u
+}
+
+// UpdateMimeType sets the "mime_type" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateMimeType() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldMimeType)
+	return u
+}
+
+// ClearMimeType clears the value of the "mime_type" field.
+func (u *AttachmentJobUpsert) ClearMimeType() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldMimeType)
+	return u
+}
+
+// SetSizeBytes sets the "size_bytes" field.
+func (u *AttachmentJobUpsert) SetSizeBytes(v int) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldSizeBytes, v)
+	return u
+}
+
+// UpdateSizeBytes sets the "size_bytes" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateSizeBytes() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldSizeBytes)
+	return u
+}
+
+// AddSizeBytes adds v to the "size_bytes" field.
+func (u *AttachmentJobUpsert) AddSizeBytes(v int) *AttachmentJobUpsert {
+	u.Add(attachmentjob.FieldSizeBytes, v)
+	return u
+}
+
+// ClearSizeBytes clears the value of the "size_bytes" field.
+func (u *AttachmentJobUpsert) ClearSizeBytes() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldSizeBytes)
+	return u
+}
+
+// SetLogs sets the "logs" field.
+func (u *AttachmentJobUpsert) SetLogs(v []string) *AttachmentJobUpsert {
+	u.Set(attachmentjob.FieldLogs, v)
+	return u
+}
+
+// UpdateLogs sets the "logs" field to the value that was provided on create.
+func (u *AttachmentJobUpsert) UpdateLogs() *AttachmentJobUpsert {
+	u.SetExcluded(attachmentjob.FieldLogs)
+	return u
+}
+
+// ClearLogs clears the value of the "logs" field.
+func (u *AttachmentJobUpsert) ClearLogs() *AttachmentJobUpsert {
+	u.SetNull(attachmentjob.FieldLogs)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.AttachmentJob.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(attachmentjob.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *AttachmentJobUpsertOne) UpdateNewValues() *AttachmentJobUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(attachmentjob.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(attachmentjob.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.AttachmentJob.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *AttachmentJobUpsertOne) Ignore() *AttachmentJobUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *AttachmentJobUpsertOne) DoNothing() *AttachmentJobUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the AttachmentJobCreate.OnConflict
+// documentation for more info.
+func (u *AttachmentJobUpsertOne) Update(set func(*AttachmentJobUpsert)) *AttachmentJobUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&AttachmentJobUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *AttachmentJobUpsertOne) SetModifiedAt(v time.Time) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateModifiedAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetMediaKey sets the "media_key" field.
+func (u *AttachmentJobUpsertOne) SetMediaKey(v string) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetMediaKey(v)
+	})
+}
+
+// UpdateMediaKey sets the "media_key" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateMediaKey() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateMediaKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *AttachmentJobUpsertOne) SetSyncEventID(v uuid.UUID) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateSyncEventID() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *AttachmentJobUpsertOne) SetRawOutputID(v uuid.UUID) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateRawOutputID() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *AttachmentJobUpsertOne) ClearRawOutputID() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (u *AttachmentJobUpsertOne) SetAttachmentID(v uuid.UUID) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetAttachmentID(v)
+	})
+}
+
+// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateAttachmentID() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateAttachmentID()
+	})
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (u *AttachmentJobUpsertOne) ClearAttachmentID() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearAttachmentID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *AttachmentJobUpsertOne) SetStatus(v attachmentjob.Status) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateStatus() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (u *AttachmentJobUpsertOne) SetAttemptCount(v int) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetAttemptCount(v)
+	})
+}
+
+// AddAttemptCount adds v to the "attempt_count" field.
+func (u *AttachmentJobUpsertOne) AddAttemptCount(v int) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.AddAttemptCount(v)
+	})
+}
+
+// UpdateAttemptCount sets the "attempt_count" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateAttemptCount() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateAttemptCount()
+	})
+}
+
+// SetLastError sets the "last_error" field.
+func (u *AttachmentJobUpsertOne) SetLastError(v string) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetLastError(v)
+	})
+}
+
+// UpdateLastError sets the "last_error" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateLastError() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateLastError()
+	})
+}
+
+// ClearLastError clears the value of the "last_error" field.
+func (u *AttachmentJobUpsertOne) ClearLastError() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearLastError()
+	})
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (u *AttachmentJobUpsertOne) SetNextRetryAt(v time.Time) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetNextRetryAt(v)
+	})
+}
+
+// UpdateNextRetryAt sets the "next_retry_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateNextRetryAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateNextRetryAt()
+	})
+}
+
+// ClearNextRetryAt clears the value of the "next_retry_at" field.
+func (u *AttachmentJobUpsertOne) ClearNextRetryAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearNextRetryAt()
+	})
+}
+
+// SetClaimedAt sets the "claimed_at" field.
+func (u *AttachmentJobUpsertOne) SetClaimedAt(v time.Time) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetClaimedAt(v)
+	})
+}
+
+// UpdateClaimedAt sets the "claimed_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateClaimedAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateClaimedAt()
+	})
+}
+
+// ClearClaimedAt clears the value of the "claimed_at" field.
+func (u *AttachmentJobUpsertOne) ClearClaimedAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearClaimedAt()
+	})
+}
+
+// SetClaimedBy sets the "claimed_by" field.
+func (u *AttachmentJobUpsertOne) SetClaimedBy(v string) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetClaimedBy(v)
+	})
+}
+
+// UpdateClaimedBy sets the "claimed_by" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateClaimedBy() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateClaimedBy()
+	})
+}
+
+// ClearClaimedBy clears the value of the "claimed_by" field.
+func (u *AttachmentJobUpsertOne) ClearClaimedBy() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearClaimedBy()
+	})
+}
+
+// SetMediaModifiedAt sets the "media_modified_at" field.
+func (u *AttachmentJobUpsertOne) SetMediaModifiedAt(v time.Time) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetMediaModifiedAt(v)
+	})
+}
+
+// UpdateMediaModifiedAt sets the "media_modified_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateMediaModifiedAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateMediaModifiedAt()
+	})
+}
+
+// ClearMediaModifiedAt clears the value of the "media_modified_at" field.
+func (u *AttachmentJobUpsertOne) ClearMediaModifiedAt() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearMediaModifiedAt()
+	})
+}
+
+// SetMimeType sets the "mime_type" field.
+func (u *AttachmentJobUpsertOne) SetMimeType(v string) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetMimeType(v)
+	})
+}
+
+// UpdateMimeType sets the "mime_type" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateMimeType() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateMimeType()
+	})
+}
+
+// ClearMimeType clears the value of the "mime_type" field.
+func (u *AttachmentJobUpsertOne) ClearMimeType() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearMimeType()
+	})
+}
+
+// SetSizeBytes sets the "size_bytes" field.
+func (u *AttachmentJobUpsertOne) SetSizeBytes(v int) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetSizeBytes(v)
+	})
+}
+
+// AddSizeBytes adds v to the "size_bytes" field.
+func (u *AttachmentJobUpsertOne) AddSizeBytes(v int) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.AddSizeBytes(v)
+	})
+}
+
+// UpdateSizeBytes sets the "size_bytes" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateSizeBytes() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateSizeBytes()
+	})
+}
+
+// ClearSizeBytes clears the value of the "size_bytes" field.
+func (u *AttachmentJobUpsertOne) ClearSizeBytes() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearSizeBytes()
+	})
+}
+
+// SetLogs sets the "logs" field.
+func (u *AttachmentJobUpsertOne) SetLogs(v []string) *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetLogs(v)
+	})
+}
+
+// UpdateLogs sets the "logs" field to the value that was provided on create.
+func (u *AttachmentJobUpsertOne) UpdateLogs() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateLogs()
+	})
+}
+
+// ClearLogs clears the value of the "logs" field.
+func (u *AttachmentJobUpsertOne) ClearLogs() *AttachmentJobUpsertOne {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearLogs()
+	})
+}
+
+// Exec executes the query.
+func (u *AttachmentJobUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for AttachmentJobCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *AttachmentJobUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *AttachmentJobUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: AttachmentJobUpsertOne.ID is not supported by MySQL driver. Use AttachmentJobUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *AttachmentJobUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // AttachmentJobCreateBulk is the builder for creating many AttachmentJob entities in bulk.
 type AttachmentJobCreateBulk struct {
 	config
 	err      error
 	builders []*AttachmentJobCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the AttachmentJob entities in the database.
@@ -541,6 +1230,7 @@ func (_c *AttachmentJobCreateBulk) Save(ctx context.Context) ([]*AttachmentJob, 
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -587,6 +1277,417 @@ func (_c *AttachmentJobCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *AttachmentJobCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.AttachmentJob.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.AttachmentJobUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *AttachmentJobCreateBulk) OnConflict(opts ...sql.ConflictOption) *AttachmentJobUpsertBulk {
+	_c.conflict = opts
+	return &AttachmentJobUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.AttachmentJob.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *AttachmentJobCreateBulk) OnConflictColumns(columns ...string) *AttachmentJobUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &AttachmentJobUpsertBulk{
+		create: _c,
+	}
+}
+
+// AttachmentJobUpsertBulk is the builder for "upsert"-ing
+// a bulk of AttachmentJob nodes.
+type AttachmentJobUpsertBulk struct {
+	create *AttachmentJobCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.AttachmentJob.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(attachmentjob.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *AttachmentJobUpsertBulk) UpdateNewValues() *AttachmentJobUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(attachmentjob.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(attachmentjob.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.AttachmentJob.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *AttachmentJobUpsertBulk) Ignore() *AttachmentJobUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *AttachmentJobUpsertBulk) DoNothing() *AttachmentJobUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the AttachmentJobCreateBulk.OnConflict
+// documentation for more info.
+func (u *AttachmentJobUpsertBulk) Update(set func(*AttachmentJobUpsert)) *AttachmentJobUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&AttachmentJobUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *AttachmentJobUpsertBulk) SetModifiedAt(v time.Time) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateModifiedAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetMediaKey sets the "media_key" field.
+func (u *AttachmentJobUpsertBulk) SetMediaKey(v string) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetMediaKey(v)
+	})
+}
+
+// UpdateMediaKey sets the "media_key" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateMediaKey() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateMediaKey()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *AttachmentJobUpsertBulk) SetSyncEventID(v uuid.UUID) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateSyncEventID() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *AttachmentJobUpsertBulk) SetRawOutputID(v uuid.UUID) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateRawOutputID() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *AttachmentJobUpsertBulk) ClearRawOutputID() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (u *AttachmentJobUpsertBulk) SetAttachmentID(v uuid.UUID) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetAttachmentID(v)
+	})
+}
+
+// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateAttachmentID() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateAttachmentID()
+	})
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (u *AttachmentJobUpsertBulk) ClearAttachmentID() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearAttachmentID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *AttachmentJobUpsertBulk) SetStatus(v attachmentjob.Status) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateStatus() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetAttemptCount sets the "attempt_count" field.
+func (u *AttachmentJobUpsertBulk) SetAttemptCount(v int) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetAttemptCount(v)
+	})
+}
+
+// AddAttemptCount adds v to the "attempt_count" field.
+func (u *AttachmentJobUpsertBulk) AddAttemptCount(v int) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.AddAttemptCount(v)
+	})
+}
+
+// UpdateAttemptCount sets the "attempt_count" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateAttemptCount() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateAttemptCount()
+	})
+}
+
+// SetLastError sets the "last_error" field.
+func (u *AttachmentJobUpsertBulk) SetLastError(v string) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetLastError(v)
+	})
+}
+
+// UpdateLastError sets the "last_error" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateLastError() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateLastError()
+	})
+}
+
+// ClearLastError clears the value of the "last_error" field.
+func (u *AttachmentJobUpsertBulk) ClearLastError() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearLastError()
+	})
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (u *AttachmentJobUpsertBulk) SetNextRetryAt(v time.Time) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetNextRetryAt(v)
+	})
+}
+
+// UpdateNextRetryAt sets the "next_retry_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateNextRetryAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateNextRetryAt()
+	})
+}
+
+// ClearNextRetryAt clears the value of the "next_retry_at" field.
+func (u *AttachmentJobUpsertBulk) ClearNextRetryAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearNextRetryAt()
+	})
+}
+
+// SetClaimedAt sets the "claimed_at" field.
+func (u *AttachmentJobUpsertBulk) SetClaimedAt(v time.Time) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetClaimedAt(v)
+	})
+}
+
+// UpdateClaimedAt sets the "claimed_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateClaimedAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateClaimedAt()
+	})
+}
+
+// ClearClaimedAt clears the value of the "claimed_at" field.
+func (u *AttachmentJobUpsertBulk) ClearClaimedAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearClaimedAt()
+	})
+}
+
+// SetClaimedBy sets the "claimed_by" field.
+func (u *AttachmentJobUpsertBulk) SetClaimedBy(v string) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetClaimedBy(v)
+	})
+}
+
+// UpdateClaimedBy sets the "claimed_by" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateClaimedBy() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateClaimedBy()
+	})
+}
+
+// ClearClaimedBy clears the value of the "claimed_by" field.
+func (u *AttachmentJobUpsertBulk) ClearClaimedBy() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearClaimedBy()
+	})
+}
+
+// SetMediaModifiedAt sets the "media_modified_at" field.
+func (u *AttachmentJobUpsertBulk) SetMediaModifiedAt(v time.Time) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetMediaModifiedAt(v)
+	})
+}
+
+// UpdateMediaModifiedAt sets the "media_modified_at" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateMediaModifiedAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateMediaModifiedAt()
+	})
+}
+
+// ClearMediaModifiedAt clears the value of the "media_modified_at" field.
+func (u *AttachmentJobUpsertBulk) ClearMediaModifiedAt() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearMediaModifiedAt()
+	})
+}
+
+// SetMimeType sets the "mime_type" field.
+func (u *AttachmentJobUpsertBulk) SetMimeType(v string) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetMimeType(v)
+	})
+}
+
+// UpdateMimeType sets the "mime_type" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateMimeType() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateMimeType()
+	})
+}
+
+// ClearMimeType clears the value of the "mime_type" field.
+func (u *AttachmentJobUpsertBulk) ClearMimeType() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearMimeType()
+	})
+}
+
+// SetSizeBytes sets the "size_bytes" field.
+func (u *AttachmentJobUpsertBulk) SetSizeBytes(v int) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetSizeBytes(v)
+	})
+}
+
+// AddSizeBytes adds v to the "size_bytes" field.
+func (u *AttachmentJobUpsertBulk) AddSizeBytes(v int) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.AddSizeBytes(v)
+	})
+}
+
+// UpdateSizeBytes sets the "size_bytes" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateSizeBytes() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateSizeBytes()
+	})
+}
+
+// ClearSizeBytes clears the value of the "size_bytes" field.
+func (u *AttachmentJobUpsertBulk) ClearSizeBytes() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearSizeBytes()
+	})
+}
+
+// SetLogs sets the "logs" field.
+func (u *AttachmentJobUpsertBulk) SetLogs(v []string) *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.SetLogs(v)
+	})
+}
+
+// UpdateLogs sets the "logs" field to the value that was provided on create.
+func (u *AttachmentJobUpsertBulk) UpdateLogs() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.UpdateLogs()
+	})
+}
+
+// ClearLogs clears the value of the "logs" field.
+func (u *AttachmentJobUpsertBulk) ClearLogs() *AttachmentJobUpsertBulk {
+	return u.Update(func(s *AttachmentJobUpsert) {
+		s.ClearLogs()
+	})
+}
+
+// Exec executes the query.
+func (u *AttachmentJobUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the AttachmentJobCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for AttachmentJobCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *AttachmentJobUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

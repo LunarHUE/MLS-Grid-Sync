@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
@@ -19,6 +21,7 @@ type MemberCreate struct {
 	config
 	mutation *MemberMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -573,6 +576,7 @@ func (_c *MemberCreate) createSpec() (*Member, *sqlgraph.CreateSpec) {
 		_node = &Member{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(member.Table, sqlgraph.NewFieldSpec(member.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -716,11 +720,1398 @@ func (_c *MemberCreate) createSpec() (*Member, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Member.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MemberUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MemberCreate) OnConflict(opts ...sql.ConflictOption) *MemberUpsertOne {
+	_c.conflict = opts
+	return &MemberUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Member.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MemberCreate) OnConflictColumns(columns ...string) *MemberUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MemberUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// MemberUpsertOne is the builder for "upsert"-ing
+	//  one Member node.
+	MemberUpsertOne struct {
+		create *MemberCreate
+	}
+
+	// MemberUpsert is the "OnConflict" setter.
+	MemberUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *MemberUpsert) SetModifiedAt(v time.Time) *MemberUpsert {
+	u.Set(member.FieldModifiedAt, v)
+	return u
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateModifiedAt() *MemberUpsert {
+	u.SetExcluded(member.FieldModifiedAt)
+	return u
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *MemberUpsert) SetSourceModifiedAt(v time.Time) *MemberUpsert {
+	u.Set(member.FieldSourceModifiedAt, v)
+	return u
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateSourceModifiedAt() *MemberUpsert {
+	u.SetExcluded(member.FieldSourceModifiedAt)
+	return u
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *MemberUpsert) SetOriginatingSystemName(v string) *MemberUpsert {
+	u.Set(member.FieldOriginatingSystemName, v)
+	return u
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateOriginatingSystemName() *MemberUpsert {
+	u.SetExcluded(member.FieldOriginatingSystemName)
+	return u
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *MemberUpsert) ClearOriginatingSystemName() *MemberUpsert {
+	u.SetNull(member.FieldOriginatingSystemName)
+	return u
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *MemberUpsert) SetMlgCanView(v bool) *MemberUpsert {
+	u.Set(member.FieldMlgCanView, v)
+	return u
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMlgCanView() *MemberUpsert {
+	u.SetExcluded(member.FieldMlgCanView)
+	return u
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *MemberUpsert) SetMlgCanUse(v []string) *MemberUpsert {
+	u.Set(member.FieldMlgCanUse, v)
+	return u
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMlgCanUse() *MemberUpsert {
+	u.SetExcluded(member.FieldMlgCanUse)
+	return u
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *MemberUpsert) ClearMlgCanUse() *MemberUpsert {
+	u.SetNull(member.FieldMlgCanUse)
+	return u
+}
+
+// SetMemberMlsID sets the "member_mls_id" field.
+func (u *MemberUpsert) SetMemberMlsID(v string) *MemberUpsert {
+	u.Set(member.FieldMemberMlsID, v)
+	return u
+}
+
+// UpdateMemberMlsID sets the "member_mls_id" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberMlsID() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberMlsID)
+	return u
+}
+
+// ClearMemberMlsID clears the value of the "member_mls_id" field.
+func (u *MemberUpsert) ClearMemberMlsID() *MemberUpsert {
+	u.SetNull(member.FieldMemberMlsID)
+	return u
+}
+
+// SetMemberFirstName sets the "member_first_name" field.
+func (u *MemberUpsert) SetMemberFirstName(v string) *MemberUpsert {
+	u.Set(member.FieldMemberFirstName, v)
+	return u
+}
+
+// UpdateMemberFirstName sets the "member_first_name" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberFirstName() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberFirstName)
+	return u
+}
+
+// ClearMemberFirstName clears the value of the "member_first_name" field.
+func (u *MemberUpsert) ClearMemberFirstName() *MemberUpsert {
+	u.SetNull(member.FieldMemberFirstName)
+	return u
+}
+
+// SetMemberMiddleName sets the "member_middle_name" field.
+func (u *MemberUpsert) SetMemberMiddleName(v string) *MemberUpsert {
+	u.Set(member.FieldMemberMiddleName, v)
+	return u
+}
+
+// UpdateMemberMiddleName sets the "member_middle_name" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberMiddleName() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberMiddleName)
+	return u
+}
+
+// ClearMemberMiddleName clears the value of the "member_middle_name" field.
+func (u *MemberUpsert) ClearMemberMiddleName() *MemberUpsert {
+	u.SetNull(member.FieldMemberMiddleName)
+	return u
+}
+
+// SetMemberLastName sets the "member_last_name" field.
+func (u *MemberUpsert) SetMemberLastName(v string) *MemberUpsert {
+	u.Set(member.FieldMemberLastName, v)
+	return u
+}
+
+// UpdateMemberLastName sets the "member_last_name" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberLastName() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberLastName)
+	return u
+}
+
+// ClearMemberLastName clears the value of the "member_last_name" field.
+func (u *MemberUpsert) ClearMemberLastName() *MemberUpsert {
+	u.SetNull(member.FieldMemberLastName)
+	return u
+}
+
+// SetMemberFullName sets the "member_full_name" field.
+func (u *MemberUpsert) SetMemberFullName(v string) *MemberUpsert {
+	u.Set(member.FieldMemberFullName, v)
+	return u
+}
+
+// UpdateMemberFullName sets the "member_full_name" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberFullName() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberFullName)
+	return u
+}
+
+// ClearMemberFullName clears the value of the "member_full_name" field.
+func (u *MemberUpsert) ClearMemberFullName() *MemberUpsert {
+	u.SetNull(member.FieldMemberFullName)
+	return u
+}
+
+// SetMemberNamePrefix sets the "member_name_prefix" field.
+func (u *MemberUpsert) SetMemberNamePrefix(v string) *MemberUpsert {
+	u.Set(member.FieldMemberNamePrefix, v)
+	return u
+}
+
+// UpdateMemberNamePrefix sets the "member_name_prefix" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberNamePrefix() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberNamePrefix)
+	return u
+}
+
+// ClearMemberNamePrefix clears the value of the "member_name_prefix" field.
+func (u *MemberUpsert) ClearMemberNamePrefix() *MemberUpsert {
+	u.SetNull(member.FieldMemberNamePrefix)
+	return u
+}
+
+// SetMemberNameSuffix sets the "member_name_suffix" field.
+func (u *MemberUpsert) SetMemberNameSuffix(v string) *MemberUpsert {
+	u.Set(member.FieldMemberNameSuffix, v)
+	return u
+}
+
+// UpdateMemberNameSuffix sets the "member_name_suffix" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberNameSuffix() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberNameSuffix)
+	return u
+}
+
+// ClearMemberNameSuffix clears the value of the "member_name_suffix" field.
+func (u *MemberUpsert) ClearMemberNameSuffix() *MemberUpsert {
+	u.SetNull(member.FieldMemberNameSuffix)
+	return u
+}
+
+// SetMemberNickname sets the "member_nickname" field.
+func (u *MemberUpsert) SetMemberNickname(v string) *MemberUpsert {
+	u.Set(member.FieldMemberNickname, v)
+	return u
+}
+
+// UpdateMemberNickname sets the "member_nickname" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberNickname() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberNickname)
+	return u
+}
+
+// ClearMemberNickname clears the value of the "member_nickname" field.
+func (u *MemberUpsert) ClearMemberNickname() *MemberUpsert {
+	u.SetNull(member.FieldMemberNickname)
+	return u
+}
+
+// SetMemberStatus sets the "member_status" field.
+func (u *MemberUpsert) SetMemberStatus(v string) *MemberUpsert {
+	u.Set(member.FieldMemberStatus, v)
+	return u
+}
+
+// UpdateMemberStatus sets the "member_status" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberStatus() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberStatus)
+	return u
+}
+
+// ClearMemberStatus clears the value of the "member_status" field.
+func (u *MemberUpsert) ClearMemberStatus() *MemberUpsert {
+	u.SetNull(member.FieldMemberStatus)
+	return u
+}
+
+// SetMemberDirectPhone sets the "member_direct_phone" field.
+func (u *MemberUpsert) SetMemberDirectPhone(v string) *MemberUpsert {
+	u.Set(member.FieldMemberDirectPhone, v)
+	return u
+}
+
+// UpdateMemberDirectPhone sets the "member_direct_phone" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberDirectPhone() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberDirectPhone)
+	return u
+}
+
+// ClearMemberDirectPhone clears the value of the "member_direct_phone" field.
+func (u *MemberUpsert) ClearMemberDirectPhone() *MemberUpsert {
+	u.SetNull(member.FieldMemberDirectPhone)
+	return u
+}
+
+// SetMemberMobilePhone sets the "member_mobile_phone" field.
+func (u *MemberUpsert) SetMemberMobilePhone(v string) *MemberUpsert {
+	u.Set(member.FieldMemberMobilePhone, v)
+	return u
+}
+
+// UpdateMemberMobilePhone sets the "member_mobile_phone" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberMobilePhone() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberMobilePhone)
+	return u
+}
+
+// ClearMemberMobilePhone clears the value of the "member_mobile_phone" field.
+func (u *MemberUpsert) ClearMemberMobilePhone() *MemberUpsert {
+	u.SetNull(member.FieldMemberMobilePhone)
+	return u
+}
+
+// SetMemberHomePhone sets the "member_home_phone" field.
+func (u *MemberUpsert) SetMemberHomePhone(v string) *MemberUpsert {
+	u.Set(member.FieldMemberHomePhone, v)
+	return u
+}
+
+// UpdateMemberHomePhone sets the "member_home_phone" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberHomePhone() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberHomePhone)
+	return u
+}
+
+// ClearMemberHomePhone clears the value of the "member_home_phone" field.
+func (u *MemberUpsert) ClearMemberHomePhone() *MemberUpsert {
+	u.SetNull(member.FieldMemberHomePhone)
+	return u
+}
+
+// SetMemberPreferredPhone sets the "member_preferred_phone" field.
+func (u *MemberUpsert) SetMemberPreferredPhone(v string) *MemberUpsert {
+	u.Set(member.FieldMemberPreferredPhone, v)
+	return u
+}
+
+// UpdateMemberPreferredPhone sets the "member_preferred_phone" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberPreferredPhone() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberPreferredPhone)
+	return u
+}
+
+// ClearMemberPreferredPhone clears the value of the "member_preferred_phone" field.
+func (u *MemberUpsert) ClearMemberPreferredPhone() *MemberUpsert {
+	u.SetNull(member.FieldMemberPreferredPhone)
+	return u
+}
+
+// SetMemberPreferredPhoneExt sets the "member_preferred_phone_ext" field.
+func (u *MemberUpsert) SetMemberPreferredPhoneExt(v string) *MemberUpsert {
+	u.Set(member.FieldMemberPreferredPhoneExt, v)
+	return u
+}
+
+// UpdateMemberPreferredPhoneExt sets the "member_preferred_phone_ext" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberPreferredPhoneExt() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberPreferredPhoneExt)
+	return u
+}
+
+// ClearMemberPreferredPhoneExt clears the value of the "member_preferred_phone_ext" field.
+func (u *MemberUpsert) ClearMemberPreferredPhoneExt() *MemberUpsert {
+	u.SetNull(member.FieldMemberPreferredPhoneExt)
+	return u
+}
+
+// SetMemberOfficePhoneExt sets the "member_office_phone_ext" field.
+func (u *MemberUpsert) SetMemberOfficePhoneExt(v string) *MemberUpsert {
+	u.Set(member.FieldMemberOfficePhoneExt, v)
+	return u
+}
+
+// UpdateMemberOfficePhoneExt sets the "member_office_phone_ext" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberOfficePhoneExt() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberOfficePhoneExt)
+	return u
+}
+
+// ClearMemberOfficePhoneExt clears the value of the "member_office_phone_ext" field.
+func (u *MemberUpsert) ClearMemberOfficePhoneExt() *MemberUpsert {
+	u.SetNull(member.FieldMemberOfficePhoneExt)
+	return u
+}
+
+// SetMemberFax sets the "member_fax" field.
+func (u *MemberUpsert) SetMemberFax(v string) *MemberUpsert {
+	u.Set(member.FieldMemberFax, v)
+	return u
+}
+
+// UpdateMemberFax sets the "member_fax" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberFax() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberFax)
+	return u
+}
+
+// ClearMemberFax clears the value of the "member_fax" field.
+func (u *MemberUpsert) ClearMemberFax() *MemberUpsert {
+	u.SetNull(member.FieldMemberFax)
+	return u
+}
+
+// SetMemberAddress1 sets the "member_address1" field.
+func (u *MemberUpsert) SetMemberAddress1(v string) *MemberUpsert {
+	u.Set(member.FieldMemberAddress1, v)
+	return u
+}
+
+// UpdateMemberAddress1 sets the "member_address1" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberAddress1() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberAddress1)
+	return u
+}
+
+// ClearMemberAddress1 clears the value of the "member_address1" field.
+func (u *MemberUpsert) ClearMemberAddress1() *MemberUpsert {
+	u.SetNull(member.FieldMemberAddress1)
+	return u
+}
+
+// SetMemberAddress2 sets the "member_address2" field.
+func (u *MemberUpsert) SetMemberAddress2(v string) *MemberUpsert {
+	u.Set(member.FieldMemberAddress2, v)
+	return u
+}
+
+// UpdateMemberAddress2 sets the "member_address2" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberAddress2() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberAddress2)
+	return u
+}
+
+// ClearMemberAddress2 clears the value of the "member_address2" field.
+func (u *MemberUpsert) ClearMemberAddress2() *MemberUpsert {
+	u.SetNull(member.FieldMemberAddress2)
+	return u
+}
+
+// SetMemberCity sets the "member_city" field.
+func (u *MemberUpsert) SetMemberCity(v string) *MemberUpsert {
+	u.Set(member.FieldMemberCity, v)
+	return u
+}
+
+// UpdateMemberCity sets the "member_city" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberCity() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberCity)
+	return u
+}
+
+// ClearMemberCity clears the value of the "member_city" field.
+func (u *MemberUpsert) ClearMemberCity() *MemberUpsert {
+	u.SetNull(member.FieldMemberCity)
+	return u
+}
+
+// SetMemberStateOrProvince sets the "member_state_or_province" field.
+func (u *MemberUpsert) SetMemberStateOrProvince(v string) *MemberUpsert {
+	u.Set(member.FieldMemberStateOrProvince, v)
+	return u
+}
+
+// UpdateMemberStateOrProvince sets the "member_state_or_province" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberStateOrProvince() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberStateOrProvince)
+	return u
+}
+
+// ClearMemberStateOrProvince clears the value of the "member_state_or_province" field.
+func (u *MemberUpsert) ClearMemberStateOrProvince() *MemberUpsert {
+	u.SetNull(member.FieldMemberStateOrProvince)
+	return u
+}
+
+// SetMemberPostalCode sets the "member_postal_code" field.
+func (u *MemberUpsert) SetMemberPostalCode(v string) *MemberUpsert {
+	u.Set(member.FieldMemberPostalCode, v)
+	return u
+}
+
+// UpdateMemberPostalCode sets the "member_postal_code" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberPostalCode() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberPostalCode)
+	return u
+}
+
+// ClearMemberPostalCode clears the value of the "member_postal_code" field.
+func (u *MemberUpsert) ClearMemberPostalCode() *MemberUpsert {
+	u.SetNull(member.FieldMemberPostalCode)
+	return u
+}
+
+// SetMemberPostalCodePlus4 sets the "member_postal_code_plus4" field.
+func (u *MemberUpsert) SetMemberPostalCodePlus4(v string) *MemberUpsert {
+	u.Set(member.FieldMemberPostalCodePlus4, v)
+	return u
+}
+
+// UpdateMemberPostalCodePlus4 sets the "member_postal_code_plus4" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberPostalCodePlus4() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberPostalCodePlus4)
+	return u
+}
+
+// ClearMemberPostalCodePlus4 clears the value of the "member_postal_code_plus4" field.
+func (u *MemberUpsert) ClearMemberPostalCodePlus4() *MemberUpsert {
+	u.SetNull(member.FieldMemberPostalCodePlus4)
+	return u
+}
+
+// SetMemberCountry sets the "member_country" field.
+func (u *MemberUpsert) SetMemberCountry(v string) *MemberUpsert {
+	u.Set(member.FieldMemberCountry, v)
+	return u
+}
+
+// UpdateMemberCountry sets the "member_country" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberCountry() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberCountry)
+	return u
+}
+
+// ClearMemberCountry clears the value of the "member_country" field.
+func (u *MemberUpsert) ClearMemberCountry() *MemberUpsert {
+	u.SetNull(member.FieldMemberCountry)
+	return u
+}
+
+// SetMemberCountyOrParish sets the "member_county_or_parish" field.
+func (u *MemberUpsert) SetMemberCountyOrParish(v string) *MemberUpsert {
+	u.Set(member.FieldMemberCountyOrParish, v)
+	return u
+}
+
+// UpdateMemberCountyOrParish sets the "member_county_or_parish" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateMemberCountyOrParish() *MemberUpsert {
+	u.SetExcluded(member.FieldMemberCountyOrParish)
+	return u
+}
+
+// ClearMemberCountyOrParish clears the value of the "member_county_or_parish" field.
+func (u *MemberUpsert) ClearMemberCountyOrParish() *MemberUpsert {
+	u.SetNull(member.FieldMemberCountyOrParish)
+	return u
+}
+
+// SetOfficeKey sets the "office_key" field.
+func (u *MemberUpsert) SetOfficeKey(v string) *MemberUpsert {
+	u.Set(member.FieldOfficeKey, v)
+	return u
+}
+
+// UpdateOfficeKey sets the "office_key" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateOfficeKey() *MemberUpsert {
+	u.SetExcluded(member.FieldOfficeKey)
+	return u
+}
+
+// ClearOfficeKey clears the value of the "office_key" field.
+func (u *MemberUpsert) ClearOfficeKey() *MemberUpsert {
+	u.SetNull(member.FieldOfficeKey)
+	return u
+}
+
+// SetOfficeMlsID sets the "office_mls_id" field.
+func (u *MemberUpsert) SetOfficeMlsID(v string) *MemberUpsert {
+	u.Set(member.FieldOfficeMlsID, v)
+	return u
+}
+
+// UpdateOfficeMlsID sets the "office_mls_id" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateOfficeMlsID() *MemberUpsert {
+	u.SetExcluded(member.FieldOfficeMlsID)
+	return u
+}
+
+// ClearOfficeMlsID clears the value of the "office_mls_id" field.
+func (u *MemberUpsert) ClearOfficeMlsID() *MemberUpsert {
+	u.SetNull(member.FieldOfficeMlsID)
+	return u
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *MemberUpsert) SetExtendedFields(v map[string]interface{}) *MemberUpsert {
+	u.Set(member.FieldExtendedFields, v)
+	return u
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateExtendedFields() *MemberUpsert {
+	u.SetExcluded(member.FieldExtendedFields)
+	return u
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *MemberUpsert) ClearExtendedFields() *MemberUpsert {
+	u.SetNull(member.FieldExtendedFields)
+	return u
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *MemberUpsert) SetCurrentVersionID(v uuid.UUID) *MemberUpsert {
+	u.Set(member.FieldCurrentVersionID, v)
+	return u
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *MemberUpsert) UpdateCurrentVersionID() *MemberUpsert {
+	u.SetExcluded(member.FieldCurrentVersionID)
+	return u
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *MemberUpsert) ClearCurrentVersionID() *MemberUpsert {
+	u.SetNull(member.FieldCurrentVersionID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Member.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(member.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MemberUpsertOne) UpdateNewValues() *MemberUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(member.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(member.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Member.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *MemberUpsertOne) Ignore() *MemberUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MemberUpsertOne) DoNothing() *MemberUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MemberCreate.OnConflict
+// documentation for more info.
+func (u *MemberUpsertOne) Update(set func(*MemberUpsert)) *MemberUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MemberUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *MemberUpsertOne) SetModifiedAt(v time.Time) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateModifiedAt() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *MemberUpsertOne) SetSourceModifiedAt(v time.Time) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateSourceModifiedAt() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *MemberUpsertOne) SetOriginatingSystemName(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateOriginatingSystemName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *MemberUpsertOne) ClearOriginatingSystemName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *MemberUpsertOne) SetMlgCanView(v bool) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMlgCanView() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *MemberUpsertOne) SetMlgCanUse(v []string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMlgCanUse() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *MemberUpsertOne) ClearMlgCanUse() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetMemberMlsID sets the "member_mls_id" field.
+func (u *MemberUpsertOne) SetMemberMlsID(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberMlsID(v)
+	})
+}
+
+// UpdateMemberMlsID sets the "member_mls_id" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberMlsID() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberMlsID()
+	})
+}
+
+// ClearMemberMlsID clears the value of the "member_mls_id" field.
+func (u *MemberUpsertOne) ClearMemberMlsID() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberMlsID()
+	})
+}
+
+// SetMemberFirstName sets the "member_first_name" field.
+func (u *MemberUpsertOne) SetMemberFirstName(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberFirstName(v)
+	})
+}
+
+// UpdateMemberFirstName sets the "member_first_name" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberFirstName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberFirstName()
+	})
+}
+
+// ClearMemberFirstName clears the value of the "member_first_name" field.
+func (u *MemberUpsertOne) ClearMemberFirstName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberFirstName()
+	})
+}
+
+// SetMemberMiddleName sets the "member_middle_name" field.
+func (u *MemberUpsertOne) SetMemberMiddleName(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberMiddleName(v)
+	})
+}
+
+// UpdateMemberMiddleName sets the "member_middle_name" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberMiddleName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberMiddleName()
+	})
+}
+
+// ClearMemberMiddleName clears the value of the "member_middle_name" field.
+func (u *MemberUpsertOne) ClearMemberMiddleName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberMiddleName()
+	})
+}
+
+// SetMemberLastName sets the "member_last_name" field.
+func (u *MemberUpsertOne) SetMemberLastName(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberLastName(v)
+	})
+}
+
+// UpdateMemberLastName sets the "member_last_name" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberLastName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberLastName()
+	})
+}
+
+// ClearMemberLastName clears the value of the "member_last_name" field.
+func (u *MemberUpsertOne) ClearMemberLastName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberLastName()
+	})
+}
+
+// SetMemberFullName sets the "member_full_name" field.
+func (u *MemberUpsertOne) SetMemberFullName(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberFullName(v)
+	})
+}
+
+// UpdateMemberFullName sets the "member_full_name" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberFullName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberFullName()
+	})
+}
+
+// ClearMemberFullName clears the value of the "member_full_name" field.
+func (u *MemberUpsertOne) ClearMemberFullName() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberFullName()
+	})
+}
+
+// SetMemberNamePrefix sets the "member_name_prefix" field.
+func (u *MemberUpsertOne) SetMemberNamePrefix(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberNamePrefix(v)
+	})
+}
+
+// UpdateMemberNamePrefix sets the "member_name_prefix" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberNamePrefix() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberNamePrefix()
+	})
+}
+
+// ClearMemberNamePrefix clears the value of the "member_name_prefix" field.
+func (u *MemberUpsertOne) ClearMemberNamePrefix() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberNamePrefix()
+	})
+}
+
+// SetMemberNameSuffix sets the "member_name_suffix" field.
+func (u *MemberUpsertOne) SetMemberNameSuffix(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberNameSuffix(v)
+	})
+}
+
+// UpdateMemberNameSuffix sets the "member_name_suffix" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberNameSuffix() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberNameSuffix()
+	})
+}
+
+// ClearMemberNameSuffix clears the value of the "member_name_suffix" field.
+func (u *MemberUpsertOne) ClearMemberNameSuffix() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberNameSuffix()
+	})
+}
+
+// SetMemberNickname sets the "member_nickname" field.
+func (u *MemberUpsertOne) SetMemberNickname(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberNickname(v)
+	})
+}
+
+// UpdateMemberNickname sets the "member_nickname" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberNickname() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberNickname()
+	})
+}
+
+// ClearMemberNickname clears the value of the "member_nickname" field.
+func (u *MemberUpsertOne) ClearMemberNickname() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberNickname()
+	})
+}
+
+// SetMemberStatus sets the "member_status" field.
+func (u *MemberUpsertOne) SetMemberStatus(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberStatus(v)
+	})
+}
+
+// UpdateMemberStatus sets the "member_status" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberStatus() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberStatus()
+	})
+}
+
+// ClearMemberStatus clears the value of the "member_status" field.
+func (u *MemberUpsertOne) ClearMemberStatus() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberStatus()
+	})
+}
+
+// SetMemberDirectPhone sets the "member_direct_phone" field.
+func (u *MemberUpsertOne) SetMemberDirectPhone(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberDirectPhone(v)
+	})
+}
+
+// UpdateMemberDirectPhone sets the "member_direct_phone" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberDirectPhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberDirectPhone()
+	})
+}
+
+// ClearMemberDirectPhone clears the value of the "member_direct_phone" field.
+func (u *MemberUpsertOne) ClearMemberDirectPhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberDirectPhone()
+	})
+}
+
+// SetMemberMobilePhone sets the "member_mobile_phone" field.
+func (u *MemberUpsertOne) SetMemberMobilePhone(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberMobilePhone(v)
+	})
+}
+
+// UpdateMemberMobilePhone sets the "member_mobile_phone" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberMobilePhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberMobilePhone()
+	})
+}
+
+// ClearMemberMobilePhone clears the value of the "member_mobile_phone" field.
+func (u *MemberUpsertOne) ClearMemberMobilePhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberMobilePhone()
+	})
+}
+
+// SetMemberHomePhone sets the "member_home_phone" field.
+func (u *MemberUpsertOne) SetMemberHomePhone(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberHomePhone(v)
+	})
+}
+
+// UpdateMemberHomePhone sets the "member_home_phone" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberHomePhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberHomePhone()
+	})
+}
+
+// ClearMemberHomePhone clears the value of the "member_home_phone" field.
+func (u *MemberUpsertOne) ClearMemberHomePhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberHomePhone()
+	})
+}
+
+// SetMemberPreferredPhone sets the "member_preferred_phone" field.
+func (u *MemberUpsertOne) SetMemberPreferredPhone(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPreferredPhone(v)
+	})
+}
+
+// UpdateMemberPreferredPhone sets the "member_preferred_phone" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberPreferredPhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPreferredPhone()
+	})
+}
+
+// ClearMemberPreferredPhone clears the value of the "member_preferred_phone" field.
+func (u *MemberUpsertOne) ClearMemberPreferredPhone() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPreferredPhone()
+	})
+}
+
+// SetMemberPreferredPhoneExt sets the "member_preferred_phone_ext" field.
+func (u *MemberUpsertOne) SetMemberPreferredPhoneExt(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPreferredPhoneExt(v)
+	})
+}
+
+// UpdateMemberPreferredPhoneExt sets the "member_preferred_phone_ext" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberPreferredPhoneExt() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPreferredPhoneExt()
+	})
+}
+
+// ClearMemberPreferredPhoneExt clears the value of the "member_preferred_phone_ext" field.
+func (u *MemberUpsertOne) ClearMemberPreferredPhoneExt() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPreferredPhoneExt()
+	})
+}
+
+// SetMemberOfficePhoneExt sets the "member_office_phone_ext" field.
+func (u *MemberUpsertOne) SetMemberOfficePhoneExt(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberOfficePhoneExt(v)
+	})
+}
+
+// UpdateMemberOfficePhoneExt sets the "member_office_phone_ext" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberOfficePhoneExt() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberOfficePhoneExt()
+	})
+}
+
+// ClearMemberOfficePhoneExt clears the value of the "member_office_phone_ext" field.
+func (u *MemberUpsertOne) ClearMemberOfficePhoneExt() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberOfficePhoneExt()
+	})
+}
+
+// SetMemberFax sets the "member_fax" field.
+func (u *MemberUpsertOne) SetMemberFax(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberFax(v)
+	})
+}
+
+// UpdateMemberFax sets the "member_fax" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberFax() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberFax()
+	})
+}
+
+// ClearMemberFax clears the value of the "member_fax" field.
+func (u *MemberUpsertOne) ClearMemberFax() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberFax()
+	})
+}
+
+// SetMemberAddress1 sets the "member_address1" field.
+func (u *MemberUpsertOne) SetMemberAddress1(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberAddress1(v)
+	})
+}
+
+// UpdateMemberAddress1 sets the "member_address1" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberAddress1() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberAddress1()
+	})
+}
+
+// ClearMemberAddress1 clears the value of the "member_address1" field.
+func (u *MemberUpsertOne) ClearMemberAddress1() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberAddress1()
+	})
+}
+
+// SetMemberAddress2 sets the "member_address2" field.
+func (u *MemberUpsertOne) SetMemberAddress2(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberAddress2(v)
+	})
+}
+
+// UpdateMemberAddress2 sets the "member_address2" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberAddress2() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberAddress2()
+	})
+}
+
+// ClearMemberAddress2 clears the value of the "member_address2" field.
+func (u *MemberUpsertOne) ClearMemberAddress2() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberAddress2()
+	})
+}
+
+// SetMemberCity sets the "member_city" field.
+func (u *MemberUpsertOne) SetMemberCity(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberCity(v)
+	})
+}
+
+// UpdateMemberCity sets the "member_city" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberCity() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberCity()
+	})
+}
+
+// ClearMemberCity clears the value of the "member_city" field.
+func (u *MemberUpsertOne) ClearMemberCity() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberCity()
+	})
+}
+
+// SetMemberStateOrProvince sets the "member_state_or_province" field.
+func (u *MemberUpsertOne) SetMemberStateOrProvince(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberStateOrProvince(v)
+	})
+}
+
+// UpdateMemberStateOrProvince sets the "member_state_or_province" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberStateOrProvince() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberStateOrProvince()
+	})
+}
+
+// ClearMemberStateOrProvince clears the value of the "member_state_or_province" field.
+func (u *MemberUpsertOne) ClearMemberStateOrProvince() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberStateOrProvince()
+	})
+}
+
+// SetMemberPostalCode sets the "member_postal_code" field.
+func (u *MemberUpsertOne) SetMemberPostalCode(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPostalCode(v)
+	})
+}
+
+// UpdateMemberPostalCode sets the "member_postal_code" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberPostalCode() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPostalCode()
+	})
+}
+
+// ClearMemberPostalCode clears the value of the "member_postal_code" field.
+func (u *MemberUpsertOne) ClearMemberPostalCode() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPostalCode()
+	})
+}
+
+// SetMemberPostalCodePlus4 sets the "member_postal_code_plus4" field.
+func (u *MemberUpsertOne) SetMemberPostalCodePlus4(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPostalCodePlus4(v)
+	})
+}
+
+// UpdateMemberPostalCodePlus4 sets the "member_postal_code_plus4" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberPostalCodePlus4() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPostalCodePlus4()
+	})
+}
+
+// ClearMemberPostalCodePlus4 clears the value of the "member_postal_code_plus4" field.
+func (u *MemberUpsertOne) ClearMemberPostalCodePlus4() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPostalCodePlus4()
+	})
+}
+
+// SetMemberCountry sets the "member_country" field.
+func (u *MemberUpsertOne) SetMemberCountry(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberCountry(v)
+	})
+}
+
+// UpdateMemberCountry sets the "member_country" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberCountry() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberCountry()
+	})
+}
+
+// ClearMemberCountry clears the value of the "member_country" field.
+func (u *MemberUpsertOne) ClearMemberCountry() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberCountry()
+	})
+}
+
+// SetMemberCountyOrParish sets the "member_county_or_parish" field.
+func (u *MemberUpsertOne) SetMemberCountyOrParish(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberCountyOrParish(v)
+	})
+}
+
+// UpdateMemberCountyOrParish sets the "member_county_or_parish" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateMemberCountyOrParish() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberCountyOrParish()
+	})
+}
+
+// ClearMemberCountyOrParish clears the value of the "member_county_or_parish" field.
+func (u *MemberUpsertOne) ClearMemberCountyOrParish() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberCountyOrParish()
+	})
+}
+
+// SetOfficeKey sets the "office_key" field.
+func (u *MemberUpsertOne) SetOfficeKey(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetOfficeKey(v)
+	})
+}
+
+// UpdateOfficeKey sets the "office_key" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateOfficeKey() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateOfficeKey()
+	})
+}
+
+// ClearOfficeKey clears the value of the "office_key" field.
+func (u *MemberUpsertOne) ClearOfficeKey() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearOfficeKey()
+	})
+}
+
+// SetOfficeMlsID sets the "office_mls_id" field.
+func (u *MemberUpsertOne) SetOfficeMlsID(v string) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetOfficeMlsID(v)
+	})
+}
+
+// UpdateOfficeMlsID sets the "office_mls_id" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateOfficeMlsID() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateOfficeMlsID()
+	})
+}
+
+// ClearOfficeMlsID clears the value of the "office_mls_id" field.
+func (u *MemberUpsertOne) ClearOfficeMlsID() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearOfficeMlsID()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *MemberUpsertOne) SetExtendedFields(v map[string]interface{}) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateExtendedFields() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *MemberUpsertOne) ClearExtendedFields() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *MemberUpsertOne) SetCurrentVersionID(v uuid.UUID) *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetCurrentVersionID(v)
+	})
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *MemberUpsertOne) UpdateCurrentVersionID() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateCurrentVersionID()
+	})
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *MemberUpsertOne) ClearCurrentVersionID() *MemberUpsertOne {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearCurrentVersionID()
+	})
+}
+
+// Exec executes the query.
+func (u *MemberUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MemberCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MemberUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *MemberUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: MemberUpsertOne.ID is not supported by MySQL driver. Use MemberUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *MemberUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // MemberCreateBulk is the builder for creating many Member entities in bulk.
 type MemberCreateBulk struct {
 	config
 	err      error
 	builders []*MemberCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Member entities in the database.
@@ -750,6 +2141,7 @@ func (_c *MemberCreateBulk) Save(ctx context.Context) ([]*Member, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -796,6 +2188,795 @@ func (_c *MemberCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *MemberCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Member.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MemberUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MemberCreateBulk) OnConflict(opts ...sql.ConflictOption) *MemberUpsertBulk {
+	_c.conflict = opts
+	return &MemberUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Member.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MemberCreateBulk) OnConflictColumns(columns ...string) *MemberUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MemberUpsertBulk{
+		create: _c,
+	}
+}
+
+// MemberUpsertBulk is the builder for "upsert"-ing
+// a bulk of Member nodes.
+type MemberUpsertBulk struct {
+	create *MemberCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Member.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(member.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MemberUpsertBulk) UpdateNewValues() *MemberUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(member.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(member.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Member.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *MemberUpsertBulk) Ignore() *MemberUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MemberUpsertBulk) DoNothing() *MemberUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MemberCreateBulk.OnConflict
+// documentation for more info.
+func (u *MemberUpsertBulk) Update(set func(*MemberUpsert)) *MemberUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MemberUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetModifiedAt sets the "modified_at" field.
+func (u *MemberUpsertBulk) SetModifiedAt(v time.Time) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetModifiedAt(v)
+	})
+}
+
+// UpdateModifiedAt sets the "modified_at" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateModifiedAt() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateModifiedAt()
+	})
+}
+
+// SetSourceModifiedAt sets the "source_modified_at" field.
+func (u *MemberUpsertBulk) SetSourceModifiedAt(v time.Time) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetSourceModifiedAt(v)
+	})
+}
+
+// UpdateSourceModifiedAt sets the "source_modified_at" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateSourceModifiedAt() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateSourceModifiedAt()
+	})
+}
+
+// SetOriginatingSystemName sets the "originating_system_name" field.
+func (u *MemberUpsertBulk) SetOriginatingSystemName(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetOriginatingSystemName(v)
+	})
+}
+
+// UpdateOriginatingSystemName sets the "originating_system_name" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateOriginatingSystemName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateOriginatingSystemName()
+	})
+}
+
+// ClearOriginatingSystemName clears the value of the "originating_system_name" field.
+func (u *MemberUpsertBulk) ClearOriginatingSystemName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearOriginatingSystemName()
+	})
+}
+
+// SetMlgCanView sets the "mlg_can_view" field.
+func (u *MemberUpsertBulk) SetMlgCanView(v bool) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMlgCanView(v)
+	})
+}
+
+// UpdateMlgCanView sets the "mlg_can_view" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMlgCanView() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMlgCanView()
+	})
+}
+
+// SetMlgCanUse sets the "mlg_can_use" field.
+func (u *MemberUpsertBulk) SetMlgCanUse(v []string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMlgCanUse(v)
+	})
+}
+
+// UpdateMlgCanUse sets the "mlg_can_use" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMlgCanUse() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMlgCanUse()
+	})
+}
+
+// ClearMlgCanUse clears the value of the "mlg_can_use" field.
+func (u *MemberUpsertBulk) ClearMlgCanUse() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMlgCanUse()
+	})
+}
+
+// SetMemberMlsID sets the "member_mls_id" field.
+func (u *MemberUpsertBulk) SetMemberMlsID(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberMlsID(v)
+	})
+}
+
+// UpdateMemberMlsID sets the "member_mls_id" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberMlsID() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberMlsID()
+	})
+}
+
+// ClearMemberMlsID clears the value of the "member_mls_id" field.
+func (u *MemberUpsertBulk) ClearMemberMlsID() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberMlsID()
+	})
+}
+
+// SetMemberFirstName sets the "member_first_name" field.
+func (u *MemberUpsertBulk) SetMemberFirstName(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberFirstName(v)
+	})
+}
+
+// UpdateMemberFirstName sets the "member_first_name" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberFirstName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberFirstName()
+	})
+}
+
+// ClearMemberFirstName clears the value of the "member_first_name" field.
+func (u *MemberUpsertBulk) ClearMemberFirstName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberFirstName()
+	})
+}
+
+// SetMemberMiddleName sets the "member_middle_name" field.
+func (u *MemberUpsertBulk) SetMemberMiddleName(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberMiddleName(v)
+	})
+}
+
+// UpdateMemberMiddleName sets the "member_middle_name" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberMiddleName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberMiddleName()
+	})
+}
+
+// ClearMemberMiddleName clears the value of the "member_middle_name" field.
+func (u *MemberUpsertBulk) ClearMemberMiddleName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberMiddleName()
+	})
+}
+
+// SetMemberLastName sets the "member_last_name" field.
+func (u *MemberUpsertBulk) SetMemberLastName(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberLastName(v)
+	})
+}
+
+// UpdateMemberLastName sets the "member_last_name" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberLastName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberLastName()
+	})
+}
+
+// ClearMemberLastName clears the value of the "member_last_name" field.
+func (u *MemberUpsertBulk) ClearMemberLastName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberLastName()
+	})
+}
+
+// SetMemberFullName sets the "member_full_name" field.
+func (u *MemberUpsertBulk) SetMemberFullName(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberFullName(v)
+	})
+}
+
+// UpdateMemberFullName sets the "member_full_name" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberFullName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberFullName()
+	})
+}
+
+// ClearMemberFullName clears the value of the "member_full_name" field.
+func (u *MemberUpsertBulk) ClearMemberFullName() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberFullName()
+	})
+}
+
+// SetMemberNamePrefix sets the "member_name_prefix" field.
+func (u *MemberUpsertBulk) SetMemberNamePrefix(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberNamePrefix(v)
+	})
+}
+
+// UpdateMemberNamePrefix sets the "member_name_prefix" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberNamePrefix() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberNamePrefix()
+	})
+}
+
+// ClearMemberNamePrefix clears the value of the "member_name_prefix" field.
+func (u *MemberUpsertBulk) ClearMemberNamePrefix() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberNamePrefix()
+	})
+}
+
+// SetMemberNameSuffix sets the "member_name_suffix" field.
+func (u *MemberUpsertBulk) SetMemberNameSuffix(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberNameSuffix(v)
+	})
+}
+
+// UpdateMemberNameSuffix sets the "member_name_suffix" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberNameSuffix() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberNameSuffix()
+	})
+}
+
+// ClearMemberNameSuffix clears the value of the "member_name_suffix" field.
+func (u *MemberUpsertBulk) ClearMemberNameSuffix() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberNameSuffix()
+	})
+}
+
+// SetMemberNickname sets the "member_nickname" field.
+func (u *MemberUpsertBulk) SetMemberNickname(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberNickname(v)
+	})
+}
+
+// UpdateMemberNickname sets the "member_nickname" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberNickname() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberNickname()
+	})
+}
+
+// ClearMemberNickname clears the value of the "member_nickname" field.
+func (u *MemberUpsertBulk) ClearMemberNickname() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberNickname()
+	})
+}
+
+// SetMemberStatus sets the "member_status" field.
+func (u *MemberUpsertBulk) SetMemberStatus(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberStatus(v)
+	})
+}
+
+// UpdateMemberStatus sets the "member_status" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberStatus() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberStatus()
+	})
+}
+
+// ClearMemberStatus clears the value of the "member_status" field.
+func (u *MemberUpsertBulk) ClearMemberStatus() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberStatus()
+	})
+}
+
+// SetMemberDirectPhone sets the "member_direct_phone" field.
+func (u *MemberUpsertBulk) SetMemberDirectPhone(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberDirectPhone(v)
+	})
+}
+
+// UpdateMemberDirectPhone sets the "member_direct_phone" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberDirectPhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberDirectPhone()
+	})
+}
+
+// ClearMemberDirectPhone clears the value of the "member_direct_phone" field.
+func (u *MemberUpsertBulk) ClearMemberDirectPhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberDirectPhone()
+	})
+}
+
+// SetMemberMobilePhone sets the "member_mobile_phone" field.
+func (u *MemberUpsertBulk) SetMemberMobilePhone(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberMobilePhone(v)
+	})
+}
+
+// UpdateMemberMobilePhone sets the "member_mobile_phone" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberMobilePhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberMobilePhone()
+	})
+}
+
+// ClearMemberMobilePhone clears the value of the "member_mobile_phone" field.
+func (u *MemberUpsertBulk) ClearMemberMobilePhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberMobilePhone()
+	})
+}
+
+// SetMemberHomePhone sets the "member_home_phone" field.
+func (u *MemberUpsertBulk) SetMemberHomePhone(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberHomePhone(v)
+	})
+}
+
+// UpdateMemberHomePhone sets the "member_home_phone" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberHomePhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberHomePhone()
+	})
+}
+
+// ClearMemberHomePhone clears the value of the "member_home_phone" field.
+func (u *MemberUpsertBulk) ClearMemberHomePhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberHomePhone()
+	})
+}
+
+// SetMemberPreferredPhone sets the "member_preferred_phone" field.
+func (u *MemberUpsertBulk) SetMemberPreferredPhone(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPreferredPhone(v)
+	})
+}
+
+// UpdateMemberPreferredPhone sets the "member_preferred_phone" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberPreferredPhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPreferredPhone()
+	})
+}
+
+// ClearMemberPreferredPhone clears the value of the "member_preferred_phone" field.
+func (u *MemberUpsertBulk) ClearMemberPreferredPhone() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPreferredPhone()
+	})
+}
+
+// SetMemberPreferredPhoneExt sets the "member_preferred_phone_ext" field.
+func (u *MemberUpsertBulk) SetMemberPreferredPhoneExt(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPreferredPhoneExt(v)
+	})
+}
+
+// UpdateMemberPreferredPhoneExt sets the "member_preferred_phone_ext" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberPreferredPhoneExt() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPreferredPhoneExt()
+	})
+}
+
+// ClearMemberPreferredPhoneExt clears the value of the "member_preferred_phone_ext" field.
+func (u *MemberUpsertBulk) ClearMemberPreferredPhoneExt() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPreferredPhoneExt()
+	})
+}
+
+// SetMemberOfficePhoneExt sets the "member_office_phone_ext" field.
+func (u *MemberUpsertBulk) SetMemberOfficePhoneExt(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberOfficePhoneExt(v)
+	})
+}
+
+// UpdateMemberOfficePhoneExt sets the "member_office_phone_ext" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberOfficePhoneExt() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberOfficePhoneExt()
+	})
+}
+
+// ClearMemberOfficePhoneExt clears the value of the "member_office_phone_ext" field.
+func (u *MemberUpsertBulk) ClearMemberOfficePhoneExt() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberOfficePhoneExt()
+	})
+}
+
+// SetMemberFax sets the "member_fax" field.
+func (u *MemberUpsertBulk) SetMemberFax(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberFax(v)
+	})
+}
+
+// UpdateMemberFax sets the "member_fax" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberFax() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberFax()
+	})
+}
+
+// ClearMemberFax clears the value of the "member_fax" field.
+func (u *MemberUpsertBulk) ClearMemberFax() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberFax()
+	})
+}
+
+// SetMemberAddress1 sets the "member_address1" field.
+func (u *MemberUpsertBulk) SetMemberAddress1(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberAddress1(v)
+	})
+}
+
+// UpdateMemberAddress1 sets the "member_address1" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberAddress1() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberAddress1()
+	})
+}
+
+// ClearMemberAddress1 clears the value of the "member_address1" field.
+func (u *MemberUpsertBulk) ClearMemberAddress1() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberAddress1()
+	})
+}
+
+// SetMemberAddress2 sets the "member_address2" field.
+func (u *MemberUpsertBulk) SetMemberAddress2(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberAddress2(v)
+	})
+}
+
+// UpdateMemberAddress2 sets the "member_address2" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberAddress2() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberAddress2()
+	})
+}
+
+// ClearMemberAddress2 clears the value of the "member_address2" field.
+func (u *MemberUpsertBulk) ClearMemberAddress2() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberAddress2()
+	})
+}
+
+// SetMemberCity sets the "member_city" field.
+func (u *MemberUpsertBulk) SetMemberCity(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberCity(v)
+	})
+}
+
+// UpdateMemberCity sets the "member_city" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberCity() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberCity()
+	})
+}
+
+// ClearMemberCity clears the value of the "member_city" field.
+func (u *MemberUpsertBulk) ClearMemberCity() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberCity()
+	})
+}
+
+// SetMemberStateOrProvince sets the "member_state_or_province" field.
+func (u *MemberUpsertBulk) SetMemberStateOrProvince(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberStateOrProvince(v)
+	})
+}
+
+// UpdateMemberStateOrProvince sets the "member_state_or_province" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberStateOrProvince() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberStateOrProvince()
+	})
+}
+
+// ClearMemberStateOrProvince clears the value of the "member_state_or_province" field.
+func (u *MemberUpsertBulk) ClearMemberStateOrProvince() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberStateOrProvince()
+	})
+}
+
+// SetMemberPostalCode sets the "member_postal_code" field.
+func (u *MemberUpsertBulk) SetMemberPostalCode(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPostalCode(v)
+	})
+}
+
+// UpdateMemberPostalCode sets the "member_postal_code" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberPostalCode() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPostalCode()
+	})
+}
+
+// ClearMemberPostalCode clears the value of the "member_postal_code" field.
+func (u *MemberUpsertBulk) ClearMemberPostalCode() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPostalCode()
+	})
+}
+
+// SetMemberPostalCodePlus4 sets the "member_postal_code_plus4" field.
+func (u *MemberUpsertBulk) SetMemberPostalCodePlus4(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberPostalCodePlus4(v)
+	})
+}
+
+// UpdateMemberPostalCodePlus4 sets the "member_postal_code_plus4" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberPostalCodePlus4() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberPostalCodePlus4()
+	})
+}
+
+// ClearMemberPostalCodePlus4 clears the value of the "member_postal_code_plus4" field.
+func (u *MemberUpsertBulk) ClearMemberPostalCodePlus4() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberPostalCodePlus4()
+	})
+}
+
+// SetMemberCountry sets the "member_country" field.
+func (u *MemberUpsertBulk) SetMemberCountry(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberCountry(v)
+	})
+}
+
+// UpdateMemberCountry sets the "member_country" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberCountry() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberCountry()
+	})
+}
+
+// ClearMemberCountry clears the value of the "member_country" field.
+func (u *MemberUpsertBulk) ClearMemberCountry() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberCountry()
+	})
+}
+
+// SetMemberCountyOrParish sets the "member_county_or_parish" field.
+func (u *MemberUpsertBulk) SetMemberCountyOrParish(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetMemberCountyOrParish(v)
+	})
+}
+
+// UpdateMemberCountyOrParish sets the "member_county_or_parish" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateMemberCountyOrParish() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateMemberCountyOrParish()
+	})
+}
+
+// ClearMemberCountyOrParish clears the value of the "member_county_or_parish" field.
+func (u *MemberUpsertBulk) ClearMemberCountyOrParish() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearMemberCountyOrParish()
+	})
+}
+
+// SetOfficeKey sets the "office_key" field.
+func (u *MemberUpsertBulk) SetOfficeKey(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetOfficeKey(v)
+	})
+}
+
+// UpdateOfficeKey sets the "office_key" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateOfficeKey() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateOfficeKey()
+	})
+}
+
+// ClearOfficeKey clears the value of the "office_key" field.
+func (u *MemberUpsertBulk) ClearOfficeKey() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearOfficeKey()
+	})
+}
+
+// SetOfficeMlsID sets the "office_mls_id" field.
+func (u *MemberUpsertBulk) SetOfficeMlsID(v string) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetOfficeMlsID(v)
+	})
+}
+
+// UpdateOfficeMlsID sets the "office_mls_id" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateOfficeMlsID() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateOfficeMlsID()
+	})
+}
+
+// ClearOfficeMlsID clears the value of the "office_mls_id" field.
+func (u *MemberUpsertBulk) ClearOfficeMlsID() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearOfficeMlsID()
+	})
+}
+
+// SetExtendedFields sets the "extended_fields" field.
+func (u *MemberUpsertBulk) SetExtendedFields(v map[string]interface{}) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetExtendedFields(v)
+	})
+}
+
+// UpdateExtendedFields sets the "extended_fields" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateExtendedFields() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateExtendedFields()
+	})
+}
+
+// ClearExtendedFields clears the value of the "extended_fields" field.
+func (u *MemberUpsertBulk) ClearExtendedFields() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearExtendedFields()
+	})
+}
+
+// SetCurrentVersionID sets the "current_version_id" field.
+func (u *MemberUpsertBulk) SetCurrentVersionID(v uuid.UUID) *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.SetCurrentVersionID(v)
+	})
+}
+
+// UpdateCurrentVersionID sets the "current_version_id" field to the value that was provided on create.
+func (u *MemberUpsertBulk) UpdateCurrentVersionID() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.UpdateCurrentVersionID()
+	})
+}
+
+// ClearCurrentVersionID clears the value of the "current_version_id" field.
+func (u *MemberUpsertBulk) ClearCurrentVersionID() *MemberUpsertBulk {
+	return u.Update(func(s *MemberUpsert) {
+		s.ClearCurrentVersionID()
+	})
+}
+
+// Exec executes the query.
+func (u *MemberUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the MemberCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MemberCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MemberUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

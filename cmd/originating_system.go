@@ -34,10 +34,10 @@ var errOriginatingSystemUnresolved = errors.New(
 // Hooks for tests: stub TTY detection and the prompt itself so the
 // precedence/no-TTY branches can be exercised without a real terminal.
 var (
-	isTerminal       = func() bool { return term.IsTerminal(int(os.Stdin.Fd())) }
-	stdinForPrompt   io.Reader = os.Stdin
-	stdoutForPrompt  io.Writer = os.Stdout
-	discoverSystems            = defaultDiscoverSystems // overridden in tests
+	isTerminal                = func() bool { return term.IsTerminal(int(os.Stdin.Fd())) }
+	stdinForPrompt  io.Reader = os.Stdin
+	stdoutForPrompt io.Writer = os.Stdout
+	discoverSystems           = defaultDiscoverSystems // overridden in tests
 )
 
 // defaultDiscoverSystems is wired up by cmd/systems.go at init time so

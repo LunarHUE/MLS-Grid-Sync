@@ -31,7 +31,7 @@ type RawOutput struct {
 	// Upstream ModificationTimestamp from the payload
 	SourceModifiedAt time.Time `json:"source_modified_at,omitempty"`
 	// Payload holds the value of the "payload" field.
-	Payload map[string]interface{} `json:"payload,omitempty"`
+	Payload json.RawMessage `json:"payload,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.

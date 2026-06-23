@@ -2,6 +2,7 @@ package sync_test
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -54,16 +55,18 @@ func (r *recordingStorer) lastKey(t *testing.T) string {
 // MediaURL from raw_output.payload, not from the Media table.
 func seedMediaRawOutput(t *testing.T, client *ent.Client, ctx context.Context, syncEventID uuid.UUID, mediaKey, url string) {
 	t.Helper()
+	payload, err := json.Marshal(map[string]any{
+		"MediaKey": mediaKey,
+		"MediaURL": url,
+	})
+	require.NoError(t, err)
 	client.RawOutput.Create().
 		SetSyncEventID(syncEventID).
 		SetResource(rawoutput.ResourceMedia).
 		SetSourceKey(mediaKey).
 		SetChangeType(rawoutput.ChangeTypeInsert).
 		SetSourceModifiedAt(time.Now()).
-		SetPayload(map[string]any{
-			"MediaKey": mediaKey,
-			"MediaURL": url,
-		}).
+		SetPayload(payload).
 		SaveX(ctx)
 }
 

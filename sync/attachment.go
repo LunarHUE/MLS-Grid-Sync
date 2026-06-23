@@ -13,13 +13,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/google/uuid"
 	entdialectsql "entgo.io/ent/dialect/sql"
-	"github.com/lunarhue/libs-go/log"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/storage"
+	"github.com/google/uuid"
+	"github.com/lunarhue/libs-go/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -479,11 +479,18 @@ func (w *AttachmentWorker) resolveMediaURL(ctx context.Context, mediaKey string)
 	if err != nil {
 		return "", fmt.Errorf("find raw output for media key %s: %w", mediaKey, err)
 	}
-	mediaURL, ok := raw.Payload["MediaURL"].(string)
-	if !ok || mediaURL == "" {
+	// raw_output.payload is raw JSON bytes (json.RawMessage); decode just the
+	// MediaURL field rather than the whole record.
+	var payload struct {
+		MediaURL string `json:"MediaURL"`
+	}
+	if err := json.Unmarshal(raw.Payload, &payload); err != nil {
+		return "", fmt.Errorf("decode payload for media key %s: %w", mediaKey, err)
+	}
+	if payload.MediaURL == "" {
 		return "", fmt.Errorf("no MediaURL in payload for media key %s", mediaKey)
 	}
-	return mediaURL, nil
+	return payload.MediaURL, nil
 }
 
 // failJob CAS-transitions the job to retrying (or permanently_failed

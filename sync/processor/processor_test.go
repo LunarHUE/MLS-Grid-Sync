@@ -2,6 +2,7 @@ package processor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"sync"
 	"testing"
@@ -16,6 +17,16 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
 )
+
+// mustJSON marshals a test payload map to json.RawMessage, matching the
+// raw_output.payload column type (raw JSON bytes). Shared by the per-resource
+// insert helpers in this package's tests.
+func mustJSON(t *testing.T, m map[string]any) json.RawMessage {
+	t.Helper()
+	b, err := json.Marshal(m)
+	require.NoError(t, err)
+	return b
+}
 
 // --- fake ResourceProcessor ---
 
@@ -88,7 +99,7 @@ func seedRawOutputs(t *testing.T, client *ent.Client, ctx context.Context, n int
 			SetSourceKey(uuid.NewString()).
 			SetChangeType(rawoutput.ChangeTypeInsert).
 			SetSourceModifiedAt(time.Now().UTC()).
-			SetPayload(map[string]any{"i": i}).
+			SetPayload(mustJSON(t, map[string]any{"i": i})).
 			Save(ctx)
 		require.NoError(t, err)
 		ids[i] = row.ID
@@ -157,13 +168,17 @@ func TestRunPass_PoisonRecord_Halts_ResumesAfterFix(t *testing.T) {
 	ctx := context.Background()
 	ids := seedRawOutputs(t, client, ctx, 4)
 
-	// Fail on the 3rd row.
+	// Fail on the 3rd row. Pin commit batch to 1 so this asserts the exact
+	// per-record halt contract (one Process attempt per record, no replay).
+	// Batched-commit poison behavior is covered by
+	// TestRunPass_BatchedPoison_HaltsAtExactRecord.
 	fake := &fakeProcessor{failOn: ids[2], failError: errors.New("synthetic poison")}
-	p := New(client, db, fake)
+	p := New(client, db, fake).WithCommitBatchSize(1)
 
 	err := p.RunPass(ctx, rawoutput.ResourceLookup)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "synthetic poison")
+	assert.Contains(t, err.Error(), ids[2].String(), "error must name the poison raw_output id")
 
 	// Only the first two should have been "seen" — and the cursor stopped at id[1].
 	assert.Equal(t, ids[:2], fake.seen())
@@ -185,6 +200,77 @@ func TestRunPass_PoisonRecord_Halts_ResumesAfterFix(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cur2.LastRawOutputID)
 	assert.Equal(t, ids[len(ids)-1], *cur2.LastRawOutputID)
+}
+
+// TestRunPass_BatchedCommit_DrainsAllInOrder verifies the batched-commit path
+// (commit_batch_size > 1) processes every record exactly once, in id order,
+// across multiple fetch batches, with honest stats and a persisted cursor.
+func TestRunPass_BatchedCommit_DrainsAllInOrder(t *testing.T) {
+	client, db := testutil.NewTestDBWithSQL(t)
+	ctx := context.Background()
+	ids := seedRawOutputs(t, client, ctx, 12)
+
+	fake := &fakeProcessor{}
+	// Fetch 5 at a time, commit 4 at a time — commit chunks tile within and
+	// across fetch batches (5 = 4 + 1; the trailing 1 takes the size-1 path).
+	p := New(client, db, fake).WithBatchSize(5).WithCommitBatchSize(4)
+
+	stats, err := p.runPassWithStats(ctx, rawoutput.ResourceLookup, true)
+	require.NoError(t, err)
+	assert.Equal(t, 12, stats.Processed, "every record counted once (no batch double-count)")
+	assert.Equal(t, ids, fake.seen(), "all rows processed exactly once, in order")
+
+	cur := loadLookupCursor(t, client, ctx)
+	require.NotNil(t, cur.LastRawOutputID)
+	assert.Equal(t, ids[len(ids)-1], *cur.LastRawOutputID, "cursor persisted at the last record")
+}
+
+// TestRunPass_BatchedPoison_HaltsAtExactRecord verifies that when a commit
+// batch contains a poison record, the loop still halts at that exact record:
+// the whole chunk rolls back, the records before the poison re-commit
+// one-per-tx (cursor stops exactly before the poison), and the error names the
+// offending raw_output id — the same contract as the unbatched path.
+func TestRunPass_BatchedPoison_HaltsAtExactRecord(t *testing.T) {
+	client, db := testutil.NewTestDBWithSQL(t)
+	ctx := context.Background()
+	ids := seedRawOutputs(t, client, ctx, 5)
+
+	fake := &fakeProcessor{failOn: ids[3], failError: errors.New("synthetic poison")}
+	// One commit chunk covers all 5; the poison sits at index 3.
+	p := New(client, db, fake).WithCommitBatchSize(10)
+
+	err := p.RunPass(ctx, rawoutput.ResourceLookup)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "synthetic poison")
+	assert.Contains(t, err.Error(), ids[3].String(), "batched poison must still name the exact record")
+
+	// Cursor resumes exactly before the poison: 0..2 committed in the
+	// one-record-per-tx fallback, 3 halted, 4 never reached.
+	cur := loadLookupCursor(t, client, ctx)
+	require.NotNil(t, cur.LastRawOutputID)
+	assert.Equal(t, ids[2], *cur.LastRawOutputID)
+
+	seenBeforeFix := fake.seen()
+	assert.NotContains(t, seenBeforeFix, ids[3], "the poison record never commits")
+	assert.NotContains(t, seenBeforeFix, ids[4], "must not over-run past the poison")
+
+	// Fix and re-run: resumes at ids[3], drains the rest, cursor ends at last.
+	fake.failOn = uuid.Nil
+	require.NoError(t, p.RunPass(ctx, rawoutput.ResourceLookup))
+	cur2 := loadLookupCursor(t, client, ctx)
+	require.NotNil(t, cur2.LastRawOutputID)
+	assert.Equal(t, ids[len(ids)-1], *cur2.LastRawOutputID)
+	assert.Subset(t, fake.seen(), ids, "every record visited at least once across both runs")
+}
+
+// loadLookupCursor fetches the processor_cursor row for ResourceLookup.
+func loadLookupCursor(t *testing.T, client *ent.Client, ctx context.Context) *ent.ProcessorCursor {
+	t.Helper()
+	cur, err := client.ProcessorCursor.Query().
+		Where(processorcursor.ResourceEQ(processorcursor.ResourceLookup)).
+		Only(ctx)
+	require.NoError(t, err)
+	return cur
 }
 
 func TestRunPass_SecondCallWithNoNewRows_IsNoop(t *testing.T) {
@@ -243,7 +329,7 @@ func TestRunPass_StatsSumInvariant(t *testing.T) {
 
 	fake := &fakeProcessor{outcomes: outcomes}
 	p := New(client, db, fake).WithBatchSize(4) // multi-batch to exercise progress logging
-	stats, err := p.runPassWithStats(ctx, rawoutput.ResourceLookup)
+	stats, err := p.runPassWithStats(ctx, rawoutput.ResourceLookup, true)
 	require.NoError(t, err)
 
 	assert.Equal(t, len(ids), stats.Processed, "Processed must equal records visited")
