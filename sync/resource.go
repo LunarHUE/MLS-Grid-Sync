@@ -12,10 +12,10 @@ import (
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
 	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 	"github.com/google/uuid"
-	"github.com/lunarhue/libs-go/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -181,7 +181,7 @@ func (s *Service) runProcessorPasses(ctx context.Context, resourceName string, f
 	if err != nil {
 		// Unknown resource: do not fail the sync just because the processor
 		// can't address it. The raw rows are already persisted.
-		log.Errorf("processor skip: %v", err)
+		applog.Errorf("processor skip: %v", err)
 		return nil
 	}
 	passes := append([]rawoutput.Resource{dbResource}, processor.ChildResources(dbResource)...)
@@ -195,7 +195,7 @@ func (s *Service) runProcessorPasses(ctx context.Context, resourceName string, f
 		if perr != nil {
 			if errors.Is(perr, processor.ErrNoProcessor) {
 				if finalize {
-					log.Infof("processor pass for %s skipped: no processor registered yet", r)
+					applog.Infof("processor pass for %s skipped: no processor registered yet", r)
 				}
 				continue
 			}
@@ -239,13 +239,22 @@ func (s *Service) paginate(ctx context.Context, syncEventID uuid.UUID, resourceN
 	pageCount := 1
 	var maxHWM time.Time
 	var mediaForEnqueue []json.RawMessage
+	// Fetch lane: a bar (TTY) or throttled %/ETA line (piped). Total is unknown
+	// until page 1's @odata.count lands, hence -1 here.
+	fetch := progress.Fetch()
+	fetch.Start(resourceName, -1)
+	defer fetch.Done()
 	for nextURL != "" {
-		// applog (shared lock) because the pipelined consumer logs concurrently.
-		applog.Infof("Fetching %s page %d...", resourceName, pageCount)
+		// Per-page line is DEBUG now (the bar shows progress); applog.Debugf
+		// keeps the shared lock the pipelined consumer needs.
+		applog.Debugf("Fetching %s page %d...", resourceName, pageCount)
 
 		odata, err := s.mlsClient.FetchPage(ctx, nextURL)
 		if err != nil {
 			return time.Time{}, nil, fmt.Errorf("page %d fetch: %w", pageCount, err)
+		}
+		if odata.Count != nil {
+			fetch.SetTotal(int(*odata.Count))
 		}
 
 		if len(odata.Value) > 0 {
@@ -257,6 +266,7 @@ func (s *Service) paginate(ctx context.Context, syncEventID uuid.UUID, resourceN
 				maxHWM = pageHWM
 			}
 			mediaForEnqueue = append(mediaForEnqueue, pageMedia...)
+			fetch.Add(len(odata.Value))
 			// Wake the pipelined consumer (nil for the sequential path) only
 			// after the page's rows have committed, so the cursor-driven reader
 			// sees them.
@@ -300,6 +310,12 @@ func (s *Service) paginateConcurrentInit(ctx context.Context, syncEventID uuid.U
 	)
 	boundary.Store(math.MaxInt64)
 
+	// Fetch lane shared across the workers. Lane updates are atomic, so
+	// concurrent Add/SetTotal from the workers is safe.
+	fetch := progress.Fetch()
+	fetch.Start(resourceName, -1)
+	defer fetch.Done()
+
 	g, gctx := errgroup.WithContext(ctx)
 	for range workers {
 		g.Go(func() error {
@@ -309,12 +325,16 @@ func (s *Service) paginateConcurrentInit(ctx context.Context, syncEventID uuid.U
 					return nil // a prior page already marked the end of data
 				}
 				url := mls.SkipURL(baseURL, int(idx)*mls.PageSize)
-				// applog (shared lock) because passes/other workers log concurrently.
-				applog.Infof("Fetching %s page %d (skip %d)...", resourceName, idx+1, idx*int64(mls.PageSize))
+				// Per-page line is DEBUG now (the bar shows progress); applog.Debugf
+				// keeps the shared lock the concurrent workers need.
+				applog.Debugf("Fetching %s page %d (skip %d)...", resourceName, idx+1, idx*int64(mls.PageSize))
 
 				odata, err := s.mlsClient.FetchPage(gctx, url)
 				if err != nil {
 					return fmt.Errorf("page %d fetch: %w", idx+1, err)
+				}
+				if odata.Count != nil {
+					fetch.SetTotal(int(*odata.Count))
 				}
 
 				n := len(odata.Value)
@@ -333,6 +353,7 @@ func (s *Service) paginateConcurrentInit(ctx context.Context, syncEventID uuid.U
 					media = append(media, pageMedia...)
 					mu.Unlock()
 					saved.Add(1)
+					fetch.Add(n)
 				}
 				if n < mls.PageSize {
 					return nil // this worker hit the end

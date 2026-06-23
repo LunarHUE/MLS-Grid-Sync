@@ -173,7 +173,7 @@ func (c *Client) FetchPage(ctx context.Context, pageURL string) (*ODataResponse,
 	}
 	decodeDur := time.Since(decodeStart)
 
-	log.Infof("fetch timing: %d records, %.1f MiB decoded, rate-wait %s, http-hdr %s, body+decode %s",
+	log.Debugf("fetch timing: %d records, %.1f MiB decoded, rate-wait %s, http-hdr %s, body+decode %s",
 		len(odata.Value),
 		float64(counter.n)/(1024*1024),
 		rateWait.Round(time.Millisecond),

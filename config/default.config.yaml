@@ -1,5 +1,13 @@
 log_level: "info"
 
+# How `init` / `import` render pull/type/enqueue progress:
+#   auto   - live in-place bars on an interactive terminal; plain %/ETA log
+#            lines when piped or redirected (CI, logfiles). The default.
+#   never  - always plain log lines (good for cron/systemd).
+#   always - force bars even when stdout is not a detected terminal.
+# Override: MLS_SYNC_PROGRESS.
+progress: "auto"
+
 database:
   # The default connection string for local development
   dsn: "host=host.docker.internal port=5432 user=postgres dbname=mls_sync password=postgres sslmode=disable"
