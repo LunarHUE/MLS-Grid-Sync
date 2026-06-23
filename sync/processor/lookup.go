@@ -21,7 +21,8 @@ import (
 // Concurrent writes to the same lookup_key are prevented by the per-resource
 // advisory lock in the generic loop, so the query-then-create/update pattern
 // here is race-free. (ent's OnConflict upsert is now enabled — see ent/entc.go
-// — but Lookup keeps the simple per-record path; only Property uses bulk so far.)
+// — but Lookup keeps the simple per-record path; Property and its derivatives
+// (Media/OpenHouse/Rooms/UnitTypes) use the bulk ChunkProcessor path.)
 type LookupProcessor struct{}
 
 func NewLookupProcessor() *LookupProcessor { return &LookupProcessor{} }

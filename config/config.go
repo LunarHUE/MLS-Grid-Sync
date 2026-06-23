@@ -97,7 +97,8 @@ type ProcessorConfig struct {
 	InitPipeline bool `mapstructure:"init_pipeline" yaml:"init_pipeline"`
 	// Bulk projects a commit-chunk with batched SQL (one bulk read + a handful
 	// of bulk writes) instead of per-record round-trips, for processors that
-	// support it (Property today). Defaults to true; disabling forces the proven
+	// support it (Property + Media/OpenHouse/Rooms/UnitTypes — all versioned
+	// resources except Lookup). Defaults to true; disabling forces the proven
 	// per-record path (the operator kill-switch). See docs/profiling.md R4.
 	Bulk bool `mapstructure:"bulk" yaml:"bulk"`
 }

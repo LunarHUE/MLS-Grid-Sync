@@ -37,71 +37,148 @@ func (p *PropertyProcessor) Process(ctx context.Context, tx *ent.Tx, raw *ent.Ra
 		return OutcomeUnknown, fmt.Errorf("parse: %w", err)
 	}
 
-	// Look up the current entity by listing_key — but only the columns the
-	// control flow actually needs: existence + mlg_can_view (for the
-	// tombstone-skip). The diff target is the version row below; the full
-	// entity row (34 text[] arrays + 2 JSONB blobs) is never read here, so a
-	// narrow Select avoids scanning it per record. (perf: see docs/profiling.md)
-	var entityCanView []bool
-	if err := tx.Property.Query().
-		Where(property.IDEQ(fields.ListingKey)).
-		Select(property.FieldMlgCanView).
-		Scan(ctx, &entityCanView); err != nil {
-		return OutcomeUnknown, fmt.Errorf("lookup property: %w", err)
+	entityExists, currentMlgCanView, err := p.lookupEntity(ctx, tx, fields.ListingKey)
+	if err != nil {
+		return OutcomeUnknown, err
 	}
-	entityExists := len(entityCanView) > 0
-	currentMlgCanView := entityExists && entityCanView[0]
 
-	// Look up the current open version (valid_to IS NULL), if any. This is
-	// also our diff target — we diff against the open version's data so
-	// repeated reads of the same MLS state don't produce phantom diffs.
+	// The current open version (valid_to IS NULL) is the diff target — diffing
+	// against it (not the raw payload) means repeated reads of the same MLS
+	// state don't produce phantom diffs.
 	var currentVersion *ent.PropertyVersion
 	if entityExists {
-		currentVersion, err = tx.PropertyVersion.Query().
-			Where(
-				propertyversion.ListingKey(fields.ListingKey),
-				propertyversion.ValidToIsNil(),
-			).
-			Only(ctx)
-		if err != nil && !ent.IsNotFound(err) {
-			return OutcomeUnknown, fmt.Errorf("lookup current version: %w", err)
-		}
-		if ent.IsNotFound(err) {
-			currentVersion = nil
+		currentVersion, err = p.lookupCurrentVersion(ctx, tx, fields.ListingKey)
+		if err != nil {
+			return OutcomeUnknown, err
 		}
 	}
 
 	now := time.Now().UTC()
+	plan := decideProperty(fields, entityExists, currentMlgCanView, currentVersion, raw)
+	if err := p.applyPlan(ctx, tx, fields, raw, currentVersion, plan, now); err != nil {
+		return OutcomeUnknown, err
+	}
+	return plan.outcome, nil
+}
 
-	// Stale check: a raw_output older than what we already wrote is a replay
-	// (e.g. reprocessing an old run). Advance cursor and do nothing.
+// lookupEntity reads only the columns the control flow needs — existence +
+// mlg_can_view (the tombstone-skip flag). The full entity row (34 text[] arrays
+// + 2 JSONB blobs) is never scanned here; the diff target is the version row.
+func (p *PropertyProcessor) lookupEntity(ctx context.Context, tx *ent.Tx, listingKey string) (exists, mlgCanView bool, err error) {
+	var canView []bool
+	if err := tx.Property.Query().
+		Where(property.IDEQ(listingKey)).
+		Select(property.FieldMlgCanView).
+		Scan(ctx, &canView); err != nil {
+		return false, false, fmt.Errorf("lookup property: %w", err)
+	}
+	return len(canView) > 0, len(canView) > 0 && canView[0], nil
+}
+
+// lookupCurrentVersion returns the open (valid_to IS NULL) version for a
+// listing_key, or nil if none. The partial unique index guarantees at most one.
+func (p *PropertyProcessor) lookupCurrentVersion(ctx context.Context, tx *ent.Tx, listingKey string) (*ent.PropertyVersion, error) {
+	v, err := tx.PropertyVersion.Query().
+		Where(
+			propertyversion.ListingKey(listingKey),
+			propertyversion.ValidToIsNil(),
+		).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("lookup current version: %w", err)
+	}
+	return v, nil
+}
+
+// propertyAction is the write shape a decided record needs. It lets the
+// per-record (applyPlan) and bulk (ProcessChunk) paths share one decision.
+type propertyAction int
+
+const (
+	actSkip                propertyAction = iota // no write
+	actInsert                                    // new version + new entity
+	actUpdate                                    // close prior version, new version, upsert entity (full)
+	actDeleteExisting                            // close prior version, delete version, tombstone existing entity
+	actDeleteFirstSighting                       // delete version + insert tombstoned entity
+)
+
+// propertyPlan is the decision for one record: its outcome plus, for writing
+// outcomes, the change_type / diff / prior-open-version-to-close.
+type propertyPlan struct {
+	action         propertyAction
+	outcome        Outcome
+	changeType     propertyversion.ChangeType
+	diff           map[string]any // changed_fields, update only
+	closeVersionID *string        // prior open version to close (update / delete-existing)
+}
+
+// decideProperty is the pure decision: given the parsed fields and the current
+// entity/version state, return the outcome and the writes it implies. Shared by
+// Process (per-record) and ProcessChunk (bulk) so the two paths cannot diverge.
+// It performs no I/O.
+func decideProperty(f *PropertyFields, entityExists, currentMlgCanView bool, currentVersion *ent.PropertyVersion, raw *ent.RawOutput) propertyPlan {
+	// Stale: a raw_output no newer than what we already wrote is a replay.
 	if currentVersion != nil && !raw.SourceModifiedAt.After(currentVersion.SourceModifiedAt) {
-		return OutcomeSkipStale, nil
+		return propertyPlan{action: actSkip, outcome: OutcomeSkipStale}
 	}
 
 	// MlgCanView == false → delete branch.
-	if !fields.MlgCanView {
-		// Already tombstoned: a newer MlgCanView=false record for an entity
-		// whose current state is already tombstoned is a no-op. Without this
-		// skip, we'd close the open delete version and write another delete
-		// version on every re-arrival, polluting the audit trail.
+	if !f.MlgCanView {
+		// Already tombstoned: re-arriving delete for an already-invisible entity
+		// is a no-op (don't pollute the audit trail with repeated deletes).
 		if entityExists && !currentMlgCanView {
-			return OutcomeSkipTombstoned, nil
+			return propertyPlan{action: actSkip, outcome: OutcomeSkipTombstoned}
 		}
-		return OutcomeDelete, p.applyDelete(ctx, tx, fields, raw, currentVersion, entityExists, now)
+		plan := propertyPlan{outcome: OutcomeDelete, changeType: propertyversion.ChangeTypeDelete}
+		if currentVersion != nil {
+			id := currentVersion.ID
+			plan.closeVersionID = &id
+		}
+		if entityExists {
+			plan.action = actDeleteExisting
+		} else {
+			plan.action = actDeleteFirstSighting
+		}
+		return plan
 	}
 
-	// First-time sighting (no entity).
+	// First-time sighting (no entity) → insert.
 	if !entityExists {
-		return OutcomeInsert, p.applyInsert(ctx, tx, fields, raw, now)
+		return propertyPlan{action: actInsert, outcome: OutcomeInsert, changeType: propertyversion.ChangeTypeInsert}
 	}
 
-	// Existing entity: diff against currentVersion. Empty diff → skip.
-	diff := diffPropertyFields(currentVersion, fields)
+	// Existing entity: diff against the open version. Empty diff → skip.
+	diff := diffPropertyFields(currentVersion, f)
 	if len(diff) == 0 {
-		return OutcomeSkipNoDiff, nil
+		return propertyPlan{action: actSkip, outcome: OutcomeSkipNoDiff}
 	}
-	return OutcomeUpdate, p.applyUpdate(ctx, tx, fields, raw, currentVersion, diff, now)
+	plan := propertyPlan{action: actUpdate, outcome: OutcomeUpdate, changeType: propertyversion.ChangeTypeUpdate, diff: diff}
+	if currentVersion != nil {
+		id := currentVersion.ID
+		plan.closeVersionID = &id
+	}
+	return plan
+}
+
+// applyPlan executes a decided plan via the per-record apply helpers. The bulk
+// path (ProcessChunk) executes the same plans in batched form instead.
+func (p *PropertyProcessor) applyPlan(ctx context.Context, tx *ent.Tx, f *PropertyFields, raw *ent.RawOutput, currentVersion *ent.PropertyVersion, plan propertyPlan, now time.Time) error {
+	switch plan.action {
+	case actSkip:
+		return nil
+	case actInsert:
+		return p.applyInsert(ctx, tx, f, raw, now)
+	case actUpdate:
+		return p.applyUpdate(ctx, tx, f, raw, currentVersion, plan.diff, now)
+	case actDeleteExisting:
+		return p.applyDelete(ctx, tx, f, raw, currentVersion, true, now)
+	case actDeleteFirstSighting:
+		return p.applyDelete(ctx, tx, f, raw, currentVersion, false, now)
+	}
+	return nil
 }
 
 // cancelPendingAttachmentJobs flips status to 'canceled' (and clears
