@@ -21,8 +21,22 @@ COPY . .
 # across target platforms (ARGs in scope invalidate later RUN cache keys).
 ARG TARGETOS TARGETARCH
 
+# Build identity, injected via -X ldflags (the image has no .git, so Go's VCS
+# stamping can't populate these — CI passes real values as --build-arg). The
+# defaults keep a plain `docker build` (no build-args) producing sane output.
+# NOTE: the -X paths must match go.mod's exact module-path casing
+# (github.com/LunarHUE/MLS-Grid-Sync) or -X silently no-ops.
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_DATE=unknown
+
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH \
-    go build -trimpath -ldflags="-s -w" -o /out/mls-cli .
+    go build -trimpath \
+      -ldflags="-s -w \
+        -X github.com/LunarHUE/MLS-Grid-Sync/version.Version=${VERSION} \
+        -X github.com/LunarHUE/MLS-Grid-Sync/version.Commit=${COMMIT} \
+        -X github.com/LunarHUE/MLS-Grid-Sync/version.BuildDate=${BUILD_DATE}" \
+      -o /out/mls-cli .
 
 FROM gcr.io/distroless/static:nonroot
 

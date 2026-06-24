@@ -68,6 +68,38 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
+      # Build identity injected via -X ldflags (the image has no .git). Sourced
+      # from the workflow context so released images self-report their build.
+      - name: Build date
+        id: date
+        run: echo "value=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      # Single-platform, load:true build whose only job is to verify the
+      # stamping actually lands inside the image (the failure mode this feature
+      # fixes). It gates the multi-arch push. Do NOT add load:true to the
+      # multi-arch push step — buildx can't load a multi-platform manifest.
+      - name: Build smoke image (host arch)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: mls-grid-sync:smoke
+          provenance: false
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            COMMIT=${{ github.sha }}
+            BUILD_DATE=${{ steps.date.outputs.value }}
+          cache-from: type=gha
+
+      - name: Verify version stamping
+        run: |
+          out=$(docker run --rm mls-grid-sync:smoke version --json)
+          echo "$out"
+          echo "$out" | jq -e '.commit != "unknown" and .commit != ""' > /dev/null
+          echo "$out" | jq -e '.buildDate != "unknown" and .buildDate != ""' > /dev/null
+          echo "$out" | jq -e --arg v "${{ github.ref_name }}" '.version == $v' > /dev/null
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -77,5 +109,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            COMMIT=${{ github.sha }}
+            BUILD_DATE=${{ steps.date.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

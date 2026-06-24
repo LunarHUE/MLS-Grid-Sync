@@ -1,4 +1,4 @@
-package cmd
+package mls_test
 
 import (
 	"context"
@@ -41,7 +41,7 @@ func TestProbeOriginatingSystems_ExtractsDistinctNames(t *testing.T) {
 	defer srv.Close()
 
 	client := mls.NewClientWithURL("my-token", srv.URL)
-	got, err := probeOriginatingSystems(context.Background(), client, srv.URL)
+	got, err := mls.ProbeOriginatingSystems(context.Background(), client, srv.URL)
 	require.NoError(t, err)
 
 	// Distinct, sorted.
@@ -59,7 +59,7 @@ func TestProbeOriginatingSystems_UpstreamRejectsSurfacesError(t *testing.T) {
 	defer srv.Close()
 
 	client := mls.NewClientWithURL("token", srv.URL)
-	_, err := probeOriginatingSystems(context.Background(), client, srv.URL)
+	_, err := mls.ProbeOriginatingSystems(context.Background(), client, srv.URL)
 	require.Error(t, err)
 	// The body must surface verbatim so the operator can read what MLS
 	// actually said.
@@ -75,7 +75,7 @@ func TestProbeOriginatingSystems_EmptyResponse(t *testing.T) {
 	defer srv.Close()
 
 	client := mls.NewClientWithURL("token", srv.URL)
-	got, err := probeOriginatingSystems(context.Background(), client, srv.URL)
+	got, err := mls.ProbeOriginatingSystems(context.Background(), client, srv.URL)
 	require.NoError(t, err, "an empty response is a valid 'probe worked, no names' outcome")
 	assert.Empty(t, got)
 }

@@ -2,6 +2,7 @@ package processor
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
 // forceSampling sets the drift sampler to fire on every record and resets the
@@ -19,11 +21,13 @@ func forceSampling(t *testing.T) {
 	sampleRate = 1.0
 	driftMu.Lock()
 	warnedDrift = map[string]bool{}
+	driftFindings = map[rawoutput.Resource][]string{}
 	driftMu.Unlock()
 	t.Cleanup(func() {
 		sampleRate = prevRate
 		driftMu.Lock()
 		warnedDrift = map[string]bool{}
+		driftFindings = map[rawoutput.Resource][]string{}
 		driftMu.Unlock()
 	})
 }
@@ -141,5 +145,102 @@ func TestRenderDriftValue_Truncates(t *testing.T) {
 	}
 	if len(got) > 220 { // 200 + suffix
 		t.Fatalf("rendered value too long: %d", len(got))
+	}
+}
+
+// TestDescribeDriftValue_ShapeOnly asserts the URL-bound descriptor reports the
+// JSON kind and size but never the value's contents — the PII guard.
+func TestDescribeDriftValue_ShapeOnly(t *testing.T) {
+	cases := []struct {
+		name  string
+		value any
+		want  string
+	}{
+		{"string", "agent@example.com", "string, len 17"},
+		{"number", float64(8.5), "number"},
+		{"bool", true, "bool"},
+		{"null", nil, "null"},
+		{"array", []any{1, 2, 3}, "array, 3 items"},
+		{"object", map[string]any{"a": 1, "b": 2}, "object, 2 keys"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := describeDriftValue(c.value); got != c.want {
+				t.Fatalf("describeDriftValue(%v) = %q, want %q", c.value, got, c.want)
+			}
+		})
+	}
+
+	// The descriptor must never leak the actual content.
+	const secret = "agent@example.com"
+	if got := describeDriftValue(secret); strings.Contains(got, secret) {
+		t.Fatalf("descriptor leaked the value: %q", got)
+	}
+}
+
+// TestWarnNovelField_IssueURLOmitsValue asserts the shareable issue URL carries
+// only the value's shape, not its (possibly PII) contents — the body is built
+// from describeDriftValue, so a decoded URL must never contain the raw value.
+func TestWarnNovelField_IssueURLOmitsValue(t *testing.T) {
+	const secret = "owner@example.com"
+	title := "New unmapped field: " + string(rawoutput.ResourceProperty) + ".NewAgentEmail"
+	u := version.NewIssueURL(title, "Example value shape: "+describeDriftValue(secret))
+
+	parsed, err := url.Parse(u)
+	if err != nil {
+		t.Fatalf("issue URL unparseable: %v", err)
+	}
+	decodedBody := parsed.Query().Get("body")
+	if strings.Contains(decodedBody, secret) {
+		t.Fatalf("issue URL body leaked the value %q: %q", secret, decodedBody)
+	}
+	if !strings.Contains(decodedBody, "string, len") {
+		t.Fatalf("issue URL body missing shape descriptor: %q", decodedBody)
+	}
+}
+
+// TestDriftSummaryLine asserts the end-of-pass summary lists the novel fields
+// seen for a resource, and is empty when nothing was flagged.
+func TestDriftSummaryLine(t *testing.T) {
+	forceSampling(t)
+
+	if line, ok := driftSummaryLine(rawoutput.ResourceProperty); ok {
+		t.Fatalf("expected no summary before any findings, got %q", line)
+	}
+
+	checkFieldDrift(rawoutput.ResourceProperty, propertyRaw(t, map[string]any{"ZZZDriftA": 1}))
+	checkFieldDrift(rawoutput.ResourceProperty, propertyRaw(t, map[string]any{"ZZZDriftB": 2}))
+
+	line, ok := driftSummaryLine(rawoutput.ResourceProperty)
+	if !ok {
+		t.Fatalf("expected a summary after findings")
+	}
+	for _, want := range []string{"2 novel", string(rawoutput.ResourceProperty), "ZZZDriftA", "ZZZDriftB"} {
+		if !strings.Contains(line, want) {
+			t.Fatalf("summary %q missing %q", line, want)
+		}
+	}
+}
+
+// TestSetDriftSampleRate asserts the config knob clamps and disables correctly.
+func TestSetDriftSampleRate(t *testing.T) {
+	prev := sampleRate
+	t.Cleanup(func() { sampleRate = prev })
+
+	SetDriftSampleRate(2.0)
+	if sampleRate != 1.0 {
+		t.Fatalf(">1 should clamp to 1, got %v", sampleRate)
+	}
+	SetDriftSampleRate(0)
+	if sampleRate != 0 {
+		t.Fatalf("0 should disable (rate 0), got %v", sampleRate)
+	}
+	if sampled() {
+		t.Fatalf("sampled() must be false when rate is 0")
+	}
+	sampleRate = 0.5
+	SetDriftSampleRate(-1)
+	if sampleRate != 0.5 {
+		t.Fatalf("negative should be ignored, got %v", sampleRate)
 	}
 }

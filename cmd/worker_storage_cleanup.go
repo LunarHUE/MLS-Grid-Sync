@@ -45,7 +45,7 @@ func runWorkerStorageCleanup(ctx context.Context, in io.Reader, out io.Writer) e
 		return fmt.Errorf("non-local backend %q requires --i-know-this-is-not-prod", appConfig.Storage.Backend)
 	}
 
-	storer, err := newStorer(appConfig.Storage)
+	storer, err := newStorer(ctx, appConfig.Storage)
 	if err != nil {
 		return fmt.Errorf("construct storer: %w", err)
 	}

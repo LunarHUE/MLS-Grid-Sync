@@ -63,6 +63,13 @@ processor:
   # Override: MLS_SYNC_PROCESSOR_BULK or `reprocess --bulk=false`.
   bulk: true
 
+  # Probability (0..1) that a processed record is inspected for new, unmapped
+  # feed fields (field-drift diagnostic). ~0.004 = 4/1000 keeps overhead
+  # negligible while still catching a new spec field quickly (it lands on most
+  # records). Set to 1.0 for a one-off audit after a known spec change, or 0 to
+  # disable. Override: MLS_SYNC_PROCESSOR_DRIFT_SAMPLE_RATE.
+  drift_sample_rate: 0.004
+
 server:
   # Listen address for the `serve` subcommand (GraphQL API). Override
   # via MLS_SYNC_SERVER_ADDR or the --addr flag.

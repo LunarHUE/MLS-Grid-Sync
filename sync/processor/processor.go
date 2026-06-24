@@ -219,6 +219,16 @@ func (p *Processor) WithBulk(b bool) *Processor {
 	return p
 }
 
+// WithDriftSampleRate sets the field-drift sampling probability
+// (processor.drift_sample_rate). >1 clamps to 1 (audit every record); 0
+// disables the diagnostic; negative is ignored (keeps the built-in default).
+// Returns p for chaining. Drift state is package-level, so this configures the
+// shared sampler rather than per-Processor state.
+func (p *Processor) WithDriftSampleRate(r float64) *Processor {
+	SetDriftSampleRate(r)
+	return p
+}
+
 // RunPass advances the cursor for resource by processing every raw_output row
 // strictly after the cursor's last_raw_output_id. It acquires the per-resource
 // advisory lock for the duration of the pass and returns once the batch
@@ -351,6 +361,11 @@ func (p *Processor) countPending(ctx context.Context, resource rawoutput.Resourc
 // when no records were processed (the common delta-cycle case) and the full
 // stats+rate form otherwise.
 func (p *Processor) logPassComplete(stats *PassStats) {
+	// Consolidated field-drift summary: reprint any novel unmapped fields seen
+	// this run as one line, so they survive a long pass where the per-record
+	// WARNs have scrolled off. No-op when nothing was flagged.
+	summarizeDrift(stats.Resource)
+
 	if stats.Processed == 0 {
 		applog.Infof("processor[%s]: pass complete — nothing to process", stats.Resource)
 		return
