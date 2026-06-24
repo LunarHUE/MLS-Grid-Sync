@@ -197,9 +197,10 @@ func newStorer(cfg config.StorageConfig) (storage.Storer, error) {
 	}
 }
 
-// setupService is the legacy 2-return signature kept for the older
-// subcommands (sync, import, worker, validate-raw). New subcommands
-// (reprocess, validate-typed) call setupComponents directly.
+// setupService is the legacy 2-return convenience wrapper over setupComponents,
+// used by the subcommands that only need (svc, db): init, import, sync, worker,
+// validate-raw, validate-typed. serve and reprocess call setupComponents
+// directly.
 func setupService(ctx context.Context) (*sync.Service, *ent.Client, error) {
 	c, err := setupComponents(ctx)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,7 +48,6 @@ func TestLocalStorer_Conformance(t *testing.T) {
 					t.Errorf("LocalStorer URL %q missing root %q", url, s.RootDir())
 				}
 			},
-			supportsAtomicity: true,
 		}
 	})
 }
@@ -186,7 +184,3 @@ func TestLocalStorer_RestartRecountsUsed(t *testing.T) {
 		t.Errorf("recount after restart = %d, want 50", got)
 	}
 }
-
-// readbackHelper is used by the conformance suite. Kept here so it
-// participates in the package's test build.
-var _ = io.Reader(nil) // pin import

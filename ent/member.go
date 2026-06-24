@@ -86,7 +86,7 @@ type Member struct {
 	OfficeMlsID *string `json:"office_mls_id,omitempty"`
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
-	// CurrentVersionID holds the value of the "current_version_id" field.
+	// Points at the latest version row
 	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	selectValues     sql.SelectValues
 }

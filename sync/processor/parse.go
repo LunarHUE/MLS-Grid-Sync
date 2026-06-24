@@ -156,6 +156,64 @@ func parseStringArray(b json.RawMessage) (pq.StringArray, error) {
 	return pq.StringArray(arr), nil
 }
 
+// consumeFunc is a parser's key accessor: it returns the raw value for a key
+// and whether it was present, deleting consumed keys from the backing map so
+// whatever remains buckets into extended_fields. Each parseX defines one over
+// its local raw map and passes it to the shared metadata helper.
+type consumeFunc func(key string) (json.RawMessage, bool)
+
+// parseMLSMetadata consumes the three MLSMetadataMixin keys every resource
+// shares (OriginatingSystemName, MlgCanView, MlgCanUse) into the caller's
+// destinations. MlgCanView is overwritten only when the key is present and
+// non-null, preserving the caller's default-true initialization.
+func parseMLSMetadata(consume consumeFunc, originatingSystemName **string, mlgCanView *bool, mlgCanUse *[]string) error {
+	if v, ok := consume("OriginatingSystemName"); ok {
+		s, err := parseString(v)
+		if err != nil {
+			return fmt.Errorf("OriginatingSystemName: %w", err)
+		}
+		*originatingSystemName = s
+	}
+	if v, ok := consume("MlgCanView"); ok {
+		b, err := parseBool(v)
+		if err != nil {
+			return fmt.Errorf("MlgCanView: %w", err)
+		}
+		if b != nil {
+			*mlgCanView = *b
+		}
+	}
+	if v, ok := consume("MlgCanUse"); ok {
+		arr, err := parseStringArray(v)
+		if err != nil {
+			return fmt.Errorf("MlgCanUse: %w", err)
+		}
+		*mlgCanUse = []string(arr)
+	}
+	return nil
+}
+
+// requiredModTimestamp resolves the required RESO ModificationTimestamp from a
+// consume() result, distinguishing the three failure modes every top-level
+// parser needs: absent (key not present), present-but-null/empty, and
+// malformed. The null/empty case is reported explicitly rather than folded
+// into the parseTime error — parseTime returns (nil, nil) for JSON null or an
+// empty string, so the historical `fmt.Errorf("...: %w", err)` wrapped a nil
+// error and rendered the useless "ModificationTimestamp: %!w(<nil>)".
+func requiredModTimestamp(tsRaw json.RawMessage, ok bool) (time.Time, error) {
+	if !ok {
+		return time.Time{}, fmt.Errorf("missing required field ModificationTimestamp")
+	}
+	ts, err := parseTime(tsRaw)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("ModificationTimestamp: %w", err)
+	}
+	if ts == nil {
+		return time.Time{}, fmt.Errorf("ModificationTimestamp: present but null or empty")
+	}
+	return *ts, nil
+}
+
 // bucketExtendedFields turns whatever keys remain in raw (after a parser has
 // consumed everything it recognizes) into a map[string]any suitable for the
 // `extended_fields` JSONB column. Returns nil if raw is empty so the parser

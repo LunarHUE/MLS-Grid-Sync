@@ -276,7 +276,7 @@ type Property struct {
 	DirectionFaces *string `json:"direction_faces,omitempty"`
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
-	// Points at the latest property_version row
+	// Points at the latest version row
 	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PropertyQuery when eager-loading is set.

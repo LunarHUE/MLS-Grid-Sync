@@ -15,8 +15,8 @@ import (
 // Value types are used for fields the schema requires.
 //
 // Unknown payload keys are collected into ExtendedFields (the catch-all JSONB
-// column on the schema). Use propertyConsumedKeys() if you need the static set
-// of typed keys for a coverage check.
+// column on the schema). For a coverage check, ValidateRaw reports the keys
+// left unconsumed across a corpus (ValidateReport.UnconsumedKeys).
 type PropertyFields struct {
 	// --- Entity identity (not a "data" column — drives the upsert key). ---
 	ListingKey string
@@ -216,37 +216,15 @@ func parseProperty(payload []byte) (*PropertyFields, error) {
 	out.ListingKey = *listingKey
 
 	tsRaw, ok := consume("ModificationTimestamp")
-	if !ok {
-		return nil, fmt.Errorf("missing required field ModificationTimestamp")
+	modAt, err := requiredModTimestamp(tsRaw, ok)
+	if err != nil {
+		return nil, err
 	}
-	ts, err := parseTime(tsRaw)
-	if err != nil || ts == nil {
-		return nil, fmt.Errorf("ModificationTimestamp: %w", err)
-	}
-	out.SourceModifiedAt = *ts
+	out.SourceModifiedAt = modAt
 
 	// --- MLSMetadataMixin ---
-	if v, ok := consume("OriginatingSystemName"); ok {
-		out.OriginatingSystemName, err = parseString(v)
-		if err != nil {
-			return nil, fmt.Errorf("OriginatingSystemName: %w", err)
-		}
-	}
-	if v, ok := consume("MlgCanView"); ok {
-		b, err := parseBool(v)
-		if err != nil {
-			return nil, fmt.Errorf("MlgCanView: %w", err)
-		}
-		if b != nil {
-			out.MlgCanView = *b
-		}
-	}
-	if v, ok := consume("MlgCanUse"); ok {
-		arr, err := parseStringArray(v)
-		if err != nil {
-			return nil, fmt.Errorf("MlgCanUse: %w", err)
-		}
-		out.MlgCanUse = []string(arr)
+	if err := parseMLSMetadata(consume, &out.OriginatingSystemName, &out.MlgCanView, &out.MlgCanUse); err != nil {
+		return nil, err
 	}
 
 	// Bulk-parse the rest via a name → assigner table. Each row consumes its

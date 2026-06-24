@@ -4549,55 +4549,6 @@ func (m *MediaMutation) ResetExtendedFields() {
 	delete(m.clearedFields, media.FieldExtendedFields)
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (m *MediaMutation) SetAttachmentID(u uuid.UUID) {
-	m.attachment = &u
-}
-
-// AttachmentID returns the value of the "attachment_id" field in the mutation.
-func (m *MediaMutation) AttachmentID() (r uuid.UUID, exists bool) {
-	v := m.attachment
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAttachmentID returns the old "attachment_id" field's value of the Media entity.
-// If the Media object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaMutation) OldAttachmentID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAttachmentID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAttachmentID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAttachmentID: %w", err)
-	}
-	return oldValue.AttachmentID, nil
-}
-
-// ClearAttachmentID clears the value of the "attachment_id" field.
-func (m *MediaMutation) ClearAttachmentID() {
-	m.attachment = nil
-	m.clearedFields[media.FieldAttachmentID] = struct{}{}
-}
-
-// AttachmentIDCleared returns if the "attachment_id" field was cleared in this mutation.
-func (m *MediaMutation) AttachmentIDCleared() bool {
-	_, ok := m.clearedFields[media.FieldAttachmentID]
-	return ok
-}
-
-// ResetAttachmentID resets all changes to the "attachment_id" field.
-func (m *MediaMutation) ResetAttachmentID() {
-	m.attachment = nil
-	delete(m.clearedFields, media.FieldAttachmentID)
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (m *MediaMutation) SetCurrentVersionID(u uuid.UUID) {
 	m.current_version_id = &u
@@ -4645,6 +4596,55 @@ func (m *MediaMutation) CurrentVersionIDCleared() bool {
 func (m *MediaMutation) ResetCurrentVersionID() {
 	m.current_version_id = nil
 	delete(m.clearedFields, media.FieldCurrentVersionID)
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (m *MediaMutation) SetAttachmentID(u uuid.UUID) {
+	m.attachment = &u
+}
+
+// AttachmentID returns the value of the "attachment_id" field in the mutation.
+func (m *MediaMutation) AttachmentID() (r uuid.UUID, exists bool) {
+	v := m.attachment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAttachmentID returns the old "attachment_id" field's value of the Media entity.
+// If the Media object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaMutation) OldAttachmentID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAttachmentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAttachmentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAttachmentID: %w", err)
+	}
+	return oldValue.AttachmentID, nil
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (m *MediaMutation) ClearAttachmentID() {
+	m.attachment = nil
+	m.clearedFields[media.FieldAttachmentID] = struct{}{}
+}
+
+// AttachmentIDCleared returns if the "attachment_id" field was cleared in this mutation.
+func (m *MediaMutation) AttachmentIDCleared() bool {
+	_, ok := m.clearedFields[media.FieldAttachmentID]
+	return ok
+}
+
+// ResetAttachmentID resets all changes to the "attachment_id" field.
+func (m *MediaMutation) ResetAttachmentID() {
+	m.attachment = nil
+	delete(m.clearedFields, media.FieldAttachmentID)
 }
 
 // ClearAttachment clears the "attachment" edge to the Attachment entity.
@@ -4817,11 +4817,11 @@ func (m *MediaMutation) Fields() []string {
 	if m.extended_fields != nil {
 		fields = append(fields, media.FieldExtendedFields)
 	}
-	if m.attachment != nil {
-		fields = append(fields, media.FieldAttachmentID)
-	}
 	if m.current_version_id != nil {
 		fields = append(fields, media.FieldCurrentVersionID)
+	}
+	if m.attachment != nil {
+		fields = append(fields, media.FieldAttachmentID)
 	}
 	return fields
 }
@@ -4867,10 +4867,10 @@ func (m *MediaMutation) Field(name string) (ent.Value, bool) {
 		return m.MediaModificationTimestamp()
 	case media.FieldExtendedFields:
 		return m.ExtendedFields()
-	case media.FieldAttachmentID:
-		return m.AttachmentID()
 	case media.FieldCurrentVersionID:
 		return m.CurrentVersionID()
+	case media.FieldAttachmentID:
+		return m.AttachmentID()
 	}
 	return nil, false
 }
@@ -4916,10 +4916,10 @@ func (m *MediaMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldMediaModificationTimestamp(ctx)
 	case media.FieldExtendedFields:
 		return m.OldExtendedFields(ctx)
-	case media.FieldAttachmentID:
-		return m.OldAttachmentID(ctx)
 	case media.FieldCurrentVersionID:
 		return m.OldCurrentVersionID(ctx)
+	case media.FieldAttachmentID:
+		return m.OldAttachmentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Media field %s", name)
 }
@@ -5055,19 +5055,19 @@ func (m *MediaMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetExtendedFields(v)
 		return nil
-	case media.FieldAttachmentID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAttachmentID(v)
-		return nil
 	case media.FieldCurrentVersionID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCurrentVersionID(v)
+		return nil
+	case media.FieldAttachmentID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAttachmentID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Media field %s", name)
@@ -5174,11 +5174,11 @@ func (m *MediaMutation) ClearedFields() []string {
 	if m.FieldCleared(media.FieldExtendedFields) {
 		fields = append(fields, media.FieldExtendedFields)
 	}
-	if m.FieldCleared(media.FieldAttachmentID) {
-		fields = append(fields, media.FieldAttachmentID)
-	}
 	if m.FieldCleared(media.FieldCurrentVersionID) {
 		fields = append(fields, media.FieldCurrentVersionID)
+	}
+	if m.FieldCleared(media.FieldAttachmentID) {
+		fields = append(fields, media.FieldAttachmentID)
 	}
 	return fields
 }
@@ -5230,11 +5230,11 @@ func (m *MediaMutation) ClearField(name string) error {
 	case media.FieldExtendedFields:
 		m.ClearExtendedFields()
 		return nil
-	case media.FieldAttachmentID:
-		m.ClearAttachmentID()
-		return nil
 	case media.FieldCurrentVersionID:
 		m.ClearCurrentVersionID()
+		return nil
+	case media.FieldAttachmentID:
+		m.ClearAttachmentID()
 		return nil
 	}
 	return fmt.Errorf("unknown Media nullable field %s", name)
@@ -5298,11 +5298,11 @@ func (m *MediaMutation) ResetField(name string) error {
 	case media.FieldExtendedFields:
 		m.ResetExtendedFields()
 		return nil
-	case media.FieldAttachmentID:
-		m.ResetAttachmentID()
-		return nil
 	case media.FieldCurrentVersionID:
 		m.ResetCurrentVersionID()
+		return nil
+	case media.FieldAttachmentID:
+		m.ResetAttachmentID()
 		return nil
 	}
 	return fmt.Errorf("unknown Media field %s", name)
@@ -5421,6 +5421,8 @@ type MediaVersionMutation struct {
 	change_type                  *mediaversion.ChangeType
 	changed_fields               *map[string]interface{}
 	processor_version            *string
+	sync_event_id                *uuid.UUID
+	raw_output_id                *uuid.UUID
 	source_modified_at           *time.Time
 	originating_system_name      *string
 	mlg_can_view                 *bool
@@ -5442,8 +5444,6 @@ type MediaVersionMutation struct {
 	media_modification_timestamp *time.Time
 	extended_fields              *map[string]interface{}
 	media_key                    *string
-	sync_event_id                *uuid.UUID
-	raw_output_id                *uuid.UUID
 	clearedFields                map[string]struct{}
 	done                         bool
 	oldValue                     func(context.Context) (*MediaVersion, error)
@@ -5758,6 +5758,91 @@ func (m *MediaVersionMutation) OldProcessorVersion(ctx context.Context) (v strin
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *MediaVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *MediaVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *MediaVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the MediaVersion entity.
+// If the MediaVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *MediaVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *MediaVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *MediaVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the MediaVersion entity.
+// If the MediaVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *MediaVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[mediaversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *MediaVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[mediaversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *MediaVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, mediaversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -6607,91 +6692,6 @@ func (m *MediaVersionMutation) ResetMediaKey() {
 	m.media_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *MediaVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *MediaVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the MediaVersion entity.
-// If the MediaVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *MediaVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *MediaVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *MediaVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the MediaVersion entity.
-// If the MediaVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *MediaVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[mediaversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *MediaVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[mediaversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *MediaVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, mediaversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the MediaVersionMutation builder.
 func (m *MediaVersionMutation) Where(ps ...predicate.MediaVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -6741,6 +6741,12 @@ func (m *MediaVersionMutation) Fields() []string {
 	}
 	if m.processor_version != nil {
 		fields = append(fields, mediaversion.FieldProcessorVersion)
+	}
+	if m.sync_event_id != nil {
+		fields = append(fields, mediaversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, mediaversion.FieldRawOutputID)
 	}
 	if m.source_modified_at != nil {
 		fields = append(fields, mediaversion.FieldSourceModifiedAt)
@@ -6793,12 +6799,6 @@ func (m *MediaVersionMutation) Fields() []string {
 	if m.media_key != nil {
 		fields = append(fields, mediaversion.FieldMediaKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, mediaversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, mediaversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -6817,6 +6817,10 @@ func (m *MediaVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case mediaversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case mediaversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case mediaversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case mediaversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case mediaversion.FieldOriginatingSystemName:
@@ -6851,10 +6855,6 @@ func (m *MediaVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case mediaversion.FieldMediaKey:
 		return m.MediaKey()
-	case mediaversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case mediaversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -6874,6 +6874,10 @@ func (m *MediaVersionMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldChangedFields(ctx)
 	case mediaversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case mediaversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case mediaversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case mediaversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case mediaversion.FieldOriginatingSystemName:
@@ -6908,10 +6912,6 @@ func (m *MediaVersionMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldExtendedFields(ctx)
 	case mediaversion.FieldMediaKey:
 		return m.OldMediaKey(ctx)
-	case mediaversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case mediaversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown MediaVersion field %s", name)
 }
@@ -6955,6 +6955,20 @@ func (m *MediaVersionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case mediaversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case mediaversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case mediaversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -7075,20 +7089,6 @@ func (m *MediaVersionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMediaKey(v)
 		return nil
-	case mediaversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case mediaversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown MediaVersion field %s", name)
 }
@@ -7164,6 +7164,9 @@ func (m *MediaVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(mediaversion.FieldChangedFields) {
 		fields = append(fields, mediaversion.FieldChangedFields)
 	}
+	if m.FieldCleared(mediaversion.FieldRawOutputID) {
+		fields = append(fields, mediaversion.FieldRawOutputID)
+	}
 	if m.FieldCleared(mediaversion.FieldOriginatingSystemName) {
 		fields = append(fields, mediaversion.FieldOriginatingSystemName)
 	}
@@ -7200,9 +7203,6 @@ func (m *MediaVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(mediaversion.FieldExtendedFields) {
 		fields = append(fields, mediaversion.FieldExtendedFields)
 	}
-	if m.FieldCleared(mediaversion.FieldRawOutputID) {
-		fields = append(fields, mediaversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -7222,6 +7222,9 @@ func (m *MediaVersionMutation) ClearField(name string) error {
 		return nil
 	case mediaversion.FieldChangedFields:
 		m.ClearChangedFields()
+		return nil
+	case mediaversion.FieldRawOutputID:
+		m.ClearRawOutputID()
 		return nil
 	case mediaversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
@@ -7259,9 +7262,6 @@ func (m *MediaVersionMutation) ClearField(name string) error {
 	case mediaversion.FieldExtendedFields:
 		m.ClearExtendedFields()
 		return nil
-	case mediaversion.FieldRawOutputID:
-		m.ClearRawOutputID()
-		return nil
 	}
 	return fmt.Errorf("unknown MediaVersion nullable field %s", name)
 }
@@ -7284,6 +7284,12 @@ func (m *MediaVersionMutation) ResetField(name string) error {
 		return nil
 	case mediaversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case mediaversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case mediaversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case mediaversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -7335,12 +7341,6 @@ func (m *MediaVersionMutation) ResetField(name string) error {
 		return nil
 	case mediaversion.FieldMediaKey:
 		m.ResetMediaKey()
-		return nil
-	case mediaversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case mediaversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown MediaVersion field %s", name)
@@ -10109,6 +10109,8 @@ type MemberVersionMutation struct {
 	change_type                *memberversion.ChangeType
 	changed_fields             *map[string]interface{}
 	processor_version          *string
+	sync_event_id              *uuid.UUID
+	raw_output_id              *uuid.UUID
 	source_modified_at         *time.Time
 	originating_system_name    *string
 	mlg_can_view               *bool
@@ -10142,8 +10144,6 @@ type MemberVersionMutation struct {
 	office_mls_id              *string
 	extended_fields            *map[string]interface{}
 	member_key                 *string
-	sync_event_id              *uuid.UUID
-	raw_output_id              *uuid.UUID
 	clearedFields              map[string]struct{}
 	done                       bool
 	oldValue                   func(context.Context) (*MemberVersion, error)
@@ -10458,6 +10458,91 @@ func (m *MemberVersionMutation) OldProcessorVersion(ctx context.Context) (v stri
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *MemberVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *MemberVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *MemberVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the MemberVersion entity.
+// If the MemberVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MemberVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *MemberVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *MemberVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *MemberVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the MemberVersion entity.
+// If the MemberVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MemberVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *MemberVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[memberversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *MemberVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[memberversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *MemberVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, memberversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -12005,91 +12090,6 @@ func (m *MemberVersionMutation) ResetMemberKey() {
 	m.member_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *MemberVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *MemberVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the MemberVersion entity.
-// If the MemberVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MemberVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *MemberVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *MemberVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *MemberVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the MemberVersion entity.
-// If the MemberVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MemberVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *MemberVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[memberversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *MemberVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[memberversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *MemberVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, memberversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the MemberVersionMutation builder.
 func (m *MemberVersionMutation) Where(ps ...predicate.MemberVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -12139,6 +12139,12 @@ func (m *MemberVersionMutation) Fields() []string {
 	}
 	if m.processor_version != nil {
 		fields = append(fields, memberversion.FieldProcessorVersion)
+	}
+	if m.sync_event_id != nil {
+		fields = append(fields, memberversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, memberversion.FieldRawOutputID)
 	}
 	if m.source_modified_at != nil {
 		fields = append(fields, memberversion.FieldSourceModifiedAt)
@@ -12236,12 +12242,6 @@ func (m *MemberVersionMutation) Fields() []string {
 	if m.member_key != nil {
 		fields = append(fields, memberversion.FieldMemberKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, memberversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, memberversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -12260,6 +12260,10 @@ func (m *MemberVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case memberversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case memberversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case memberversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case memberversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case memberversion.FieldOriginatingSystemName:
@@ -12324,10 +12328,6 @@ func (m *MemberVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case memberversion.FieldMemberKey:
 		return m.MemberKey()
-	case memberversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case memberversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -12347,6 +12347,10 @@ func (m *MemberVersionMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldChangedFields(ctx)
 	case memberversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case memberversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case memberversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case memberversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case memberversion.FieldOriginatingSystemName:
@@ -12411,10 +12415,6 @@ func (m *MemberVersionMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldExtendedFields(ctx)
 	case memberversion.FieldMemberKey:
 		return m.OldMemberKey(ctx)
-	case memberversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case memberversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown MemberVersion field %s", name)
 }
@@ -12458,6 +12458,20 @@ func (m *MemberVersionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case memberversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case memberversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case memberversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -12683,20 +12697,6 @@ func (m *MemberVersionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMemberKey(v)
 		return nil
-	case memberversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case memberversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown MemberVersion field %s", name)
 }
@@ -12732,6 +12732,9 @@ func (m *MemberVersionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(memberversion.FieldChangedFields) {
 		fields = append(fields, memberversion.FieldChangedFields)
+	}
+	if m.FieldCleared(memberversion.FieldRawOutputID) {
+		fields = append(fields, memberversion.FieldRawOutputID)
 	}
 	if m.FieldCleared(memberversion.FieldOriginatingSystemName) {
 		fields = append(fields, memberversion.FieldOriginatingSystemName)
@@ -12820,9 +12823,6 @@ func (m *MemberVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(memberversion.FieldExtendedFields) {
 		fields = append(fields, memberversion.FieldExtendedFields)
 	}
-	if m.FieldCleared(memberversion.FieldRawOutputID) {
-		fields = append(fields, memberversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -12842,6 +12842,9 @@ func (m *MemberVersionMutation) ClearField(name string) error {
 		return nil
 	case memberversion.FieldChangedFields:
 		m.ClearChangedFields()
+		return nil
+	case memberversion.FieldRawOutputID:
+		m.ClearRawOutputID()
 		return nil
 	case memberversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
@@ -12930,9 +12933,6 @@ func (m *MemberVersionMutation) ClearField(name string) error {
 	case memberversion.FieldExtendedFields:
 		m.ClearExtendedFields()
 		return nil
-	case memberversion.FieldRawOutputID:
-		m.ClearRawOutputID()
-		return nil
 	}
 	return fmt.Errorf("unknown MemberVersion nullable field %s", name)
 }
@@ -12955,6 +12955,12 @@ func (m *MemberVersionMutation) ResetField(name string) error {
 		return nil
 	case memberversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case memberversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case memberversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case memberversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -13051,12 +13057,6 @@ func (m *MemberVersionMutation) ResetField(name string) error {
 		return nil
 	case memberversion.FieldMemberKey:
 		m.ResetMemberKey()
-		return nil
-	case memberversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case memberversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown MemberVersion field %s", name)
@@ -15758,6 +15758,8 @@ type OfficeVersionMutation struct {
 	change_type                    *officeversion.ChangeType
 	changed_fields                 *map[string]interface{}
 	processor_version              *string
+	sync_event_id                  *uuid.UUID
+	raw_output_id                  *uuid.UUID
 	source_modified_at             *time.Time
 	originating_system_name        *string
 	mlg_can_view                   *bool
@@ -15788,8 +15790,6 @@ type OfficeVersionMutation struct {
 	photos_change_timestamp        *time.Time
 	extended_fields                *map[string]interface{}
 	office_key                     *string
-	sync_event_id                  *uuid.UUID
-	raw_output_id                  *uuid.UUID
 	clearedFields                  map[string]struct{}
 	done                           bool
 	oldValue                       func(context.Context) (*OfficeVersion, error)
@@ -16104,6 +16104,91 @@ func (m *OfficeVersionMutation) OldProcessorVersion(ctx context.Context) (v stri
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *OfficeVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *OfficeVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *OfficeVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the OfficeVersion entity.
+// If the OfficeVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OfficeVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *OfficeVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *OfficeVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *OfficeVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the OfficeVersion entity.
+// If the OfficeVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OfficeVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *OfficeVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[officeversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *OfficeVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[officeversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *OfficeVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, officeversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -17504,91 +17589,6 @@ func (m *OfficeVersionMutation) ResetOfficeKey() {
 	m.office_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *OfficeVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *OfficeVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the OfficeVersion entity.
-// If the OfficeVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OfficeVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *OfficeVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *OfficeVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *OfficeVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the OfficeVersion entity.
-// If the OfficeVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OfficeVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *OfficeVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[officeversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *OfficeVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[officeversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *OfficeVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, officeversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the OfficeVersionMutation builder.
 func (m *OfficeVersionMutation) Where(ps ...predicate.OfficeVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -17638,6 +17638,12 @@ func (m *OfficeVersionMutation) Fields() []string {
 	}
 	if m.processor_version != nil {
 		fields = append(fields, officeversion.FieldProcessorVersion)
+	}
+	if m.sync_event_id != nil {
+		fields = append(fields, officeversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, officeversion.FieldRawOutputID)
 	}
 	if m.source_modified_at != nil {
 		fields = append(fields, officeversion.FieldSourceModifiedAt)
@@ -17726,12 +17732,6 @@ func (m *OfficeVersionMutation) Fields() []string {
 	if m.office_key != nil {
 		fields = append(fields, officeversion.FieldOfficeKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, officeversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, officeversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -17750,6 +17750,10 @@ func (m *OfficeVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case officeversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case officeversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case officeversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case officeversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case officeversion.FieldOriginatingSystemName:
@@ -17808,10 +17812,6 @@ func (m *OfficeVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case officeversion.FieldOfficeKey:
 		return m.OfficeKey()
-	case officeversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case officeversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -17831,6 +17831,10 @@ func (m *OfficeVersionMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldChangedFields(ctx)
 	case officeversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case officeversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case officeversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case officeversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case officeversion.FieldOriginatingSystemName:
@@ -17889,10 +17893,6 @@ func (m *OfficeVersionMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldExtendedFields(ctx)
 	case officeversion.FieldOfficeKey:
 		return m.OldOfficeKey(ctx)
-	case officeversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case officeversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown OfficeVersion field %s", name)
 }
@@ -17936,6 +17936,20 @@ func (m *OfficeVersionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case officeversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case officeversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case officeversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -18140,20 +18154,6 @@ func (m *OfficeVersionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOfficeKey(v)
 		return nil
-	case officeversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case officeversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown OfficeVersion field %s", name)
 }
@@ -18189,6 +18189,9 @@ func (m *OfficeVersionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(officeversion.FieldChangedFields) {
 		fields = append(fields, officeversion.FieldChangedFields)
+	}
+	if m.FieldCleared(officeversion.FieldRawOutputID) {
+		fields = append(fields, officeversion.FieldRawOutputID)
 	}
 	if m.FieldCleared(officeversion.FieldOriginatingSystemName) {
 		fields = append(fields, officeversion.FieldOriginatingSystemName)
@@ -18268,9 +18271,6 @@ func (m *OfficeVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(officeversion.FieldExtendedFields) {
 		fields = append(fields, officeversion.FieldExtendedFields)
 	}
-	if m.FieldCleared(officeversion.FieldRawOutputID) {
-		fields = append(fields, officeversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -18290,6 +18290,9 @@ func (m *OfficeVersionMutation) ClearField(name string) error {
 		return nil
 	case officeversion.FieldChangedFields:
 		m.ClearChangedFields()
+		return nil
+	case officeversion.FieldRawOutputID:
+		m.ClearRawOutputID()
 		return nil
 	case officeversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
@@ -18369,9 +18372,6 @@ func (m *OfficeVersionMutation) ClearField(name string) error {
 	case officeversion.FieldExtendedFields:
 		m.ClearExtendedFields()
 		return nil
-	case officeversion.FieldRawOutputID:
-		m.ClearRawOutputID()
-		return nil
 	}
 	return fmt.Errorf("unknown OfficeVersion nullable field %s", name)
 }
@@ -18394,6 +18394,12 @@ func (m *OfficeVersionMutation) ResetField(name string) error {
 		return nil
 	case officeversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case officeversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case officeversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case officeversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -18481,12 +18487,6 @@ func (m *OfficeVersionMutation) ResetField(name string) error {
 		return nil
 	case officeversion.FieldOfficeKey:
 		m.ResetOfficeKey()
-		return nil
-	case officeversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case officeversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown OfficeVersion field %s", name)
@@ -19989,6 +19989,8 @@ type OpenHouseVersionMutation struct {
 	change_type             *openhouseversion.ChangeType
 	changed_fields          *map[string]interface{}
 	processor_version       *string
+	sync_event_id           *uuid.UUID
+	raw_output_id           *uuid.UUID
 	source_modified_at      *time.Time
 	originating_system_name *string
 	mlg_can_view            *bool
@@ -20003,8 +20005,6 @@ type OpenHouseVersionMutation struct {
 	open_house_type         *string
 	extended_fields         *map[string]interface{}
 	open_house_key          *string
-	sync_event_id           *uuid.UUID
-	raw_output_id           *uuid.UUID
 	clearedFields           map[string]struct{}
 	done                    bool
 	oldValue                func(context.Context) (*OpenHouseVersion, error)
@@ -20319,6 +20319,91 @@ func (m *OpenHouseVersionMutation) OldProcessorVersion(ctx context.Context) (v s
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *OpenHouseVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *OpenHouseVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *OpenHouseVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the OpenHouseVersion entity.
+// If the OpenHouseVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OpenHouseVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *OpenHouseVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *OpenHouseVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *OpenHouseVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the OpenHouseVersion entity.
+// If the OpenHouseVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OpenHouseVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *OpenHouseVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[openhouseversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *OpenHouseVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[openhouseversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *OpenHouseVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, openhouseversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -20922,91 +21007,6 @@ func (m *OpenHouseVersionMutation) ResetOpenHouseKey() {
 	m.open_house_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *OpenHouseVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *OpenHouseVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the OpenHouseVersion entity.
-// If the OpenHouseVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OpenHouseVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *OpenHouseVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *OpenHouseVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *OpenHouseVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the OpenHouseVersion entity.
-// If the OpenHouseVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OpenHouseVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *OpenHouseVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[openhouseversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *OpenHouseVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[openhouseversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *OpenHouseVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, openhouseversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the OpenHouseVersionMutation builder.
 func (m *OpenHouseVersionMutation) Where(ps ...predicate.OpenHouseVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -21057,6 +21057,12 @@ func (m *OpenHouseVersionMutation) Fields() []string {
 	if m.processor_version != nil {
 		fields = append(fields, openhouseversion.FieldProcessorVersion)
 	}
+	if m.sync_event_id != nil {
+		fields = append(fields, openhouseversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, openhouseversion.FieldRawOutputID)
+	}
 	if m.source_modified_at != nil {
 		fields = append(fields, openhouseversion.FieldSourceModifiedAt)
 	}
@@ -21096,12 +21102,6 @@ func (m *OpenHouseVersionMutation) Fields() []string {
 	if m.open_house_key != nil {
 		fields = append(fields, openhouseversion.FieldOpenHouseKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, openhouseversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, openhouseversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -21120,6 +21120,10 @@ func (m *OpenHouseVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case openhouseversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case openhouseversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case openhouseversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case openhouseversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case openhouseversion.FieldOriginatingSystemName:
@@ -21146,10 +21150,6 @@ func (m *OpenHouseVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case openhouseversion.FieldOpenHouseKey:
 		return m.OpenHouseKey()
-	case openhouseversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case openhouseversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -21169,6 +21169,10 @@ func (m *OpenHouseVersionMutation) OldField(ctx context.Context, name string) (e
 		return m.OldChangedFields(ctx)
 	case openhouseversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case openhouseversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case openhouseversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case openhouseversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case openhouseversion.FieldOriginatingSystemName:
@@ -21195,10 +21199,6 @@ func (m *OpenHouseVersionMutation) OldField(ctx context.Context, name string) (e
 		return m.OldExtendedFields(ctx)
 	case openhouseversion.FieldOpenHouseKey:
 		return m.OldOpenHouseKey(ctx)
-	case openhouseversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case openhouseversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown OpenHouseVersion field %s", name)
 }
@@ -21242,6 +21242,20 @@ func (m *OpenHouseVersionMutation) SetField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case openhouseversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case openhouseversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case openhouseversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -21334,20 +21348,6 @@ func (m *OpenHouseVersionMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetOpenHouseKey(v)
 		return nil
-	case openhouseversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case openhouseversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown OpenHouseVersion field %s", name)
 }
@@ -21384,6 +21384,9 @@ func (m *OpenHouseVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(openhouseversion.FieldChangedFields) {
 		fields = append(fields, openhouseversion.FieldChangedFields)
 	}
+	if m.FieldCleared(openhouseversion.FieldRawOutputID) {
+		fields = append(fields, openhouseversion.FieldRawOutputID)
+	}
 	if m.FieldCleared(openhouseversion.FieldOriginatingSystemName) {
 		fields = append(fields, openhouseversion.FieldOriginatingSystemName)
 	}
@@ -21411,9 +21414,6 @@ func (m *OpenHouseVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(openhouseversion.FieldExtendedFields) {
 		fields = append(fields, openhouseversion.FieldExtendedFields)
 	}
-	if m.FieldCleared(openhouseversion.FieldRawOutputID) {
-		fields = append(fields, openhouseversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -21433,6 +21433,9 @@ func (m *OpenHouseVersionMutation) ClearField(name string) error {
 		return nil
 	case openhouseversion.FieldChangedFields:
 		m.ClearChangedFields()
+		return nil
+	case openhouseversion.FieldRawOutputID:
+		m.ClearRawOutputID()
 		return nil
 	case openhouseversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
@@ -21461,9 +21464,6 @@ func (m *OpenHouseVersionMutation) ClearField(name string) error {
 	case openhouseversion.FieldExtendedFields:
 		m.ClearExtendedFields()
 		return nil
-	case openhouseversion.FieldRawOutputID:
-		m.ClearRawOutputID()
-		return nil
 	}
 	return fmt.Errorf("unknown OpenHouseVersion nullable field %s", name)
 }
@@ -21486,6 +21486,12 @@ func (m *OpenHouseVersionMutation) ResetField(name string) error {
 		return nil
 	case openhouseversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case openhouseversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case openhouseversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case openhouseversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -21525,12 +21531,6 @@ func (m *OpenHouseVersionMutation) ResetField(name string) error {
 		return nil
 	case openhouseversion.FieldOpenHouseKey:
 		m.ResetOpenHouseKey()
-		return nil
-	case openhouseversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case openhouseversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown OpenHouseVersion field %s", name)
@@ -33586,6 +33586,8 @@ type PropertyRoomVersionMutation struct {
 	change_type             *propertyroomversion.ChangeType
 	changed_fields          *map[string]interface{}
 	processor_version       *string
+	sync_event_id           *uuid.UUID
+	raw_output_id           *uuid.UUID
 	source_modified_at      *time.Time
 	originating_system_name *string
 	mlg_can_view            *bool
@@ -33597,8 +33599,6 @@ type PropertyRoomVersionMutation struct {
 	room_features           *pq.StringArray
 	extended_fields         *map[string]interface{}
 	room_key                *string
-	sync_event_id           *uuid.UUID
-	raw_output_id           *uuid.UUID
 	clearedFields           map[string]struct{}
 	done                    bool
 	oldValue                func(context.Context) (*PropertyRoomVersion, error)
@@ -33913,6 +33913,91 @@ func (m *PropertyRoomVersionMutation) OldProcessorVersion(ctx context.Context) (
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *PropertyRoomVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *PropertyRoomVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *PropertyRoomVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the PropertyRoomVersion entity.
+// If the PropertyRoomVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PropertyRoomVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *PropertyRoomVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *PropertyRoomVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *PropertyRoomVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the PropertyRoomVersion entity.
+// If the PropertyRoomVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PropertyRoomVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *PropertyRoomVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[propertyroomversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *PropertyRoomVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[propertyroomversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *PropertyRoomVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, propertyroomversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -34369,91 +34454,6 @@ func (m *PropertyRoomVersionMutation) ResetRoomKey() {
 	m.room_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *PropertyRoomVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *PropertyRoomVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the PropertyRoomVersion entity.
-// If the PropertyRoomVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyRoomVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *PropertyRoomVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *PropertyRoomVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *PropertyRoomVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the PropertyRoomVersion entity.
-// If the PropertyRoomVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyRoomVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *PropertyRoomVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[propertyroomversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *PropertyRoomVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[propertyroomversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *PropertyRoomVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, propertyroomversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the PropertyRoomVersionMutation builder.
 func (m *PropertyRoomVersionMutation) Where(ps ...predicate.PropertyRoomVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -34504,6 +34504,12 @@ func (m *PropertyRoomVersionMutation) Fields() []string {
 	if m.processor_version != nil {
 		fields = append(fields, propertyroomversion.FieldProcessorVersion)
 	}
+	if m.sync_event_id != nil {
+		fields = append(fields, propertyroomversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, propertyroomversion.FieldRawOutputID)
+	}
 	if m.source_modified_at != nil {
 		fields = append(fields, propertyroomversion.FieldSourceModifiedAt)
 	}
@@ -34534,12 +34540,6 @@ func (m *PropertyRoomVersionMutation) Fields() []string {
 	if m.room_key != nil {
 		fields = append(fields, propertyroomversion.FieldRoomKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, propertyroomversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, propertyroomversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -34558,6 +34558,10 @@ func (m *PropertyRoomVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case propertyroomversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case propertyroomversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case propertyroomversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case propertyroomversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case propertyroomversion.FieldOriginatingSystemName:
@@ -34578,10 +34582,6 @@ func (m *PropertyRoomVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case propertyroomversion.FieldRoomKey:
 		return m.RoomKey()
-	case propertyroomversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case propertyroomversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -34601,6 +34601,10 @@ func (m *PropertyRoomVersionMutation) OldField(ctx context.Context, name string)
 		return m.OldChangedFields(ctx)
 	case propertyroomversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case propertyroomversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case propertyroomversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case propertyroomversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case propertyroomversion.FieldOriginatingSystemName:
@@ -34621,10 +34625,6 @@ func (m *PropertyRoomVersionMutation) OldField(ctx context.Context, name string)
 		return m.OldExtendedFields(ctx)
 	case propertyroomversion.FieldRoomKey:
 		return m.OldRoomKey(ctx)
-	case propertyroomversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case propertyroomversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown PropertyRoomVersion field %s", name)
 }
@@ -34668,6 +34668,20 @@ func (m *PropertyRoomVersionMutation) SetField(name string, value ent.Value) err
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case propertyroomversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case propertyroomversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case propertyroomversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -34739,20 +34753,6 @@ func (m *PropertyRoomVersionMutation) SetField(name string, value ent.Value) err
 		}
 		m.SetRoomKey(v)
 		return nil
-	case propertyroomversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case propertyroomversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown PropertyRoomVersion field %s", name)
 }
@@ -34789,6 +34789,9 @@ func (m *PropertyRoomVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(propertyroomversion.FieldChangedFields) {
 		fields = append(fields, propertyroomversion.FieldChangedFields)
 	}
+	if m.FieldCleared(propertyroomversion.FieldRawOutputID) {
+		fields = append(fields, propertyroomversion.FieldRawOutputID)
+	}
 	if m.FieldCleared(propertyroomversion.FieldOriginatingSystemName) {
 		fields = append(fields, propertyroomversion.FieldOriginatingSystemName)
 	}
@@ -34806,9 +34809,6 @@ func (m *PropertyRoomVersionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(propertyroomversion.FieldExtendedFields) {
 		fields = append(fields, propertyroomversion.FieldExtendedFields)
-	}
-	if m.FieldCleared(propertyroomversion.FieldRawOutputID) {
-		fields = append(fields, propertyroomversion.FieldRawOutputID)
 	}
 	return fields
 }
@@ -34830,6 +34830,9 @@ func (m *PropertyRoomVersionMutation) ClearField(name string) error {
 	case propertyroomversion.FieldChangedFields:
 		m.ClearChangedFields()
 		return nil
+	case propertyroomversion.FieldRawOutputID:
+		m.ClearRawOutputID()
+		return nil
 	case propertyroomversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
 		return nil
@@ -34847,9 +34850,6 @@ func (m *PropertyRoomVersionMutation) ClearField(name string) error {
 		return nil
 	case propertyroomversion.FieldExtendedFields:
 		m.ClearExtendedFields()
-		return nil
-	case propertyroomversion.FieldRawOutputID:
-		m.ClearRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown PropertyRoomVersion nullable field %s", name)
@@ -34873,6 +34873,12 @@ func (m *PropertyRoomVersionMutation) ResetField(name string) error {
 		return nil
 	case propertyroomversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case propertyroomversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case propertyroomversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case propertyroomversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -34903,12 +34909,6 @@ func (m *PropertyRoomVersionMutation) ResetField(name string) error {
 		return nil
 	case propertyroomversion.FieldRoomKey:
 		m.ResetRoomKey()
-		return nil
-	case propertyroomversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case propertyroomversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown PropertyRoomVersion field %s", name)
@@ -36156,6 +36156,8 @@ type PropertyUnitTypeVersionMutation struct {
 	change_type             *propertyunittypeversion.ChangeType
 	changed_fields          *map[string]interface{}
 	processor_version       *string
+	sync_event_id           *uuid.UUID
+	raw_output_id           *uuid.UUID
 	source_modified_at      *time.Time
 	originating_system_name *string
 	mlg_can_view            *bool
@@ -36167,8 +36169,6 @@ type PropertyUnitTypeVersionMutation struct {
 	unit_type_furnished     *string
 	extended_fields         *map[string]interface{}
 	unit_type_key           *string
-	sync_event_id           *uuid.UUID
-	raw_output_id           *uuid.UUID
 	clearedFields           map[string]struct{}
 	done                    bool
 	oldValue                func(context.Context) (*PropertyUnitTypeVersion, error)
@@ -36483,6 +36483,91 @@ func (m *PropertyUnitTypeVersionMutation) OldProcessorVersion(ctx context.Contex
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *PropertyUnitTypeVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *PropertyUnitTypeVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *PropertyUnitTypeVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the PropertyUnitTypeVersion entity.
+// If the PropertyUnitTypeVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PropertyUnitTypeVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *PropertyUnitTypeVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *PropertyUnitTypeVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *PropertyUnitTypeVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the PropertyUnitTypeVersion entity.
+// If the PropertyUnitTypeVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PropertyUnitTypeVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *PropertyUnitTypeVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[propertyunittypeversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *PropertyUnitTypeVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[propertyunittypeversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *PropertyUnitTypeVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, propertyunittypeversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -36911,91 +36996,6 @@ func (m *PropertyUnitTypeVersionMutation) ResetUnitTypeKey() {
 	m.unit_type_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *PropertyUnitTypeVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *PropertyUnitTypeVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the PropertyUnitTypeVersion entity.
-// If the PropertyUnitTypeVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyUnitTypeVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *PropertyUnitTypeVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *PropertyUnitTypeVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *PropertyUnitTypeVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the PropertyUnitTypeVersion entity.
-// If the PropertyUnitTypeVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyUnitTypeVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *PropertyUnitTypeVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[propertyunittypeversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *PropertyUnitTypeVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[propertyunittypeversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *PropertyUnitTypeVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, propertyunittypeversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the PropertyUnitTypeVersionMutation builder.
 func (m *PropertyUnitTypeVersionMutation) Where(ps ...predicate.PropertyUnitTypeVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -37046,6 +37046,12 @@ func (m *PropertyUnitTypeVersionMutation) Fields() []string {
 	if m.processor_version != nil {
 		fields = append(fields, propertyunittypeversion.FieldProcessorVersion)
 	}
+	if m.sync_event_id != nil {
+		fields = append(fields, propertyunittypeversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, propertyunittypeversion.FieldRawOutputID)
+	}
 	if m.source_modified_at != nil {
 		fields = append(fields, propertyunittypeversion.FieldSourceModifiedAt)
 	}
@@ -37073,12 +37079,6 @@ func (m *PropertyUnitTypeVersionMutation) Fields() []string {
 	if m.unit_type_key != nil {
 		fields = append(fields, propertyunittypeversion.FieldUnitTypeKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, propertyunittypeversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, propertyunittypeversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -37097,6 +37097,10 @@ func (m *PropertyUnitTypeVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case propertyunittypeversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case propertyunittypeversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case propertyunittypeversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case propertyunittypeversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case propertyunittypeversion.FieldOriginatingSystemName:
@@ -37115,10 +37119,6 @@ func (m *PropertyUnitTypeVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case propertyunittypeversion.FieldUnitTypeKey:
 		return m.UnitTypeKey()
-	case propertyunittypeversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case propertyunittypeversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -37138,6 +37138,10 @@ func (m *PropertyUnitTypeVersionMutation) OldField(ctx context.Context, name str
 		return m.OldChangedFields(ctx)
 	case propertyunittypeversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case propertyunittypeversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case propertyunittypeversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case propertyunittypeversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case propertyunittypeversion.FieldOriginatingSystemName:
@@ -37156,10 +37160,6 @@ func (m *PropertyUnitTypeVersionMutation) OldField(ctx context.Context, name str
 		return m.OldExtendedFields(ctx)
 	case propertyunittypeversion.FieldUnitTypeKey:
 		return m.OldUnitTypeKey(ctx)
-	case propertyunittypeversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case propertyunittypeversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown PropertyUnitTypeVersion field %s", name)
 }
@@ -37203,6 +37203,20 @@ func (m *PropertyUnitTypeVersionMutation) SetField(name string, value ent.Value)
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case propertyunittypeversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case propertyunittypeversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case propertyunittypeversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -37267,20 +37281,6 @@ func (m *PropertyUnitTypeVersionMutation) SetField(name string, value ent.Value)
 		}
 		m.SetUnitTypeKey(v)
 		return nil
-	case propertyunittypeversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case propertyunittypeversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown PropertyUnitTypeVersion field %s", name)
 }
@@ -37332,6 +37332,9 @@ func (m *PropertyUnitTypeVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(propertyunittypeversion.FieldChangedFields) {
 		fields = append(fields, propertyunittypeversion.FieldChangedFields)
 	}
+	if m.FieldCleared(propertyunittypeversion.FieldRawOutputID) {
+		fields = append(fields, propertyunittypeversion.FieldRawOutputID)
+	}
 	if m.FieldCleared(propertyunittypeversion.FieldOriginatingSystemName) {
 		fields = append(fields, propertyunittypeversion.FieldOriginatingSystemName)
 	}
@@ -37346,9 +37349,6 @@ func (m *PropertyUnitTypeVersionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(propertyunittypeversion.FieldExtendedFields) {
 		fields = append(fields, propertyunittypeversion.FieldExtendedFields)
-	}
-	if m.FieldCleared(propertyunittypeversion.FieldRawOutputID) {
-		fields = append(fields, propertyunittypeversion.FieldRawOutputID)
 	}
 	return fields
 }
@@ -37370,6 +37370,9 @@ func (m *PropertyUnitTypeVersionMutation) ClearField(name string) error {
 	case propertyunittypeversion.FieldChangedFields:
 		m.ClearChangedFields()
 		return nil
+	case propertyunittypeversion.FieldRawOutputID:
+		m.ClearRawOutputID()
+		return nil
 	case propertyunittypeversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
 		return nil
@@ -37384,9 +37387,6 @@ func (m *PropertyUnitTypeVersionMutation) ClearField(name string) error {
 		return nil
 	case propertyunittypeversion.FieldExtendedFields:
 		m.ClearExtendedFields()
-		return nil
-	case propertyunittypeversion.FieldRawOutputID:
-		m.ClearRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown PropertyUnitTypeVersion nullable field %s", name)
@@ -37410,6 +37410,12 @@ func (m *PropertyUnitTypeVersionMutation) ResetField(name string) error {
 		return nil
 	case propertyunittypeversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case propertyunittypeversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case propertyunittypeversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case propertyunittypeversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -37437,12 +37443,6 @@ func (m *PropertyUnitTypeVersionMutation) ResetField(name string) error {
 		return nil
 	case propertyunittypeversion.FieldUnitTypeKey:
 		m.ResetUnitTypeKey()
-		return nil
-	case propertyunittypeversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case propertyunittypeversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown PropertyUnitTypeVersion field %s", name)
@@ -37507,6 +37507,8 @@ type PropertyVersionMutation struct {
 	change_type                             *propertyversion.ChangeType
 	changed_fields                          *map[string]interface{}
 	processor_version                       *string
+	sync_event_id                           *uuid.UUID
+	raw_output_id                           *uuid.UUID
 	source_modified_at                      *time.Time
 	originating_system_name                 *string
 	mlg_can_view                            *bool
@@ -37645,8 +37647,6 @@ type PropertyVersionMutation struct {
 	direction_faces                         *string
 	extended_fields                         *map[string]interface{}
 	listing_key                             *string
-	sync_event_id                           *uuid.UUID
-	raw_output_id                           *uuid.UUID
 	clearedFields                           map[string]struct{}
 	done                                    bool
 	oldValue                                func(context.Context) (*PropertyVersion, error)
@@ -37961,6 +37961,91 @@ func (m *PropertyVersionMutation) OldProcessorVersion(ctx context.Context) (v st
 // ResetProcessorVersion resets all changes to the "processor_version" field.
 func (m *PropertyVersionMutation) ResetProcessorVersion() {
 	m.processor_version = nil
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (m *PropertyVersionMutation) SetSyncEventID(u uuid.UUID) {
+	m.sync_event_id = &u
+}
+
+// SyncEventID returns the value of the "sync_event_id" field in the mutation.
+func (m *PropertyVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
+	v := m.sync_event_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncEventID returns the old "sync_event_id" field's value of the PropertyVersion entity.
+// If the PropertyVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PropertyVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
+	}
+	return oldValue.SyncEventID, nil
+}
+
+// ResetSyncEventID resets all changes to the "sync_event_id" field.
+func (m *PropertyVersionMutation) ResetSyncEventID() {
+	m.sync_event_id = nil
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (m *PropertyVersionMutation) SetRawOutputID(u uuid.UUID) {
+	m.raw_output_id = &u
+}
+
+// RawOutputID returns the value of the "raw_output_id" field in the mutation.
+func (m *PropertyVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
+	v := m.raw_output_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputID returns the old "raw_output_id" field's value of the PropertyVersion entity.
+// If the PropertyVersion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PropertyVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
+	}
+	return oldValue.RawOutputID, nil
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (m *PropertyVersionMutation) ClearRawOutputID() {
+	m.raw_output_id = nil
+	m.clearedFields[propertyversion.FieldRawOutputID] = struct{}{}
+}
+
+// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
+func (m *PropertyVersionMutation) RawOutputIDCleared() bool {
+	_, ok := m.clearedFields[propertyversion.FieldRawOutputID]
+	return ok
+}
+
+// ResetRawOutputID resets all changes to the "raw_output_id" field.
+func (m *PropertyVersionMutation) ResetRawOutputID() {
+	m.raw_output_id = nil
+	delete(m.clearedFields, propertyversion.FieldRawOutputID)
 }
 
 // SetSourceModifiedAt sets the "source_modified_at" field.
@@ -44345,91 +44430,6 @@ func (m *PropertyVersionMutation) ResetListingKey() {
 	m.listing_key = nil
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (m *PropertyVersionMutation) SetSyncEventID(u uuid.UUID) {
-	m.sync_event_id = &u
-}
-
-// SyncEventID returns the value of the "sync_event_id" field in the mutation.
-func (m *PropertyVersionMutation) SyncEventID() (r uuid.UUID, exists bool) {
-	v := m.sync_event_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSyncEventID returns the old "sync_event_id" field's value of the PropertyVersion entity.
-// If the PropertyVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyVersionMutation) OldSyncEventID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSyncEventID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSyncEventID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSyncEventID: %w", err)
-	}
-	return oldValue.SyncEventID, nil
-}
-
-// ResetSyncEventID resets all changes to the "sync_event_id" field.
-func (m *PropertyVersionMutation) ResetSyncEventID() {
-	m.sync_event_id = nil
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (m *PropertyVersionMutation) SetRawOutputID(u uuid.UUID) {
-	m.raw_output_id = &u
-}
-
-// RawOutputID returns the value of the "raw_output_id" field in the mutation.
-func (m *PropertyVersionMutation) RawOutputID() (r uuid.UUID, exists bool) {
-	v := m.raw_output_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRawOutputID returns the old "raw_output_id" field's value of the PropertyVersion entity.
-// If the PropertyVersion object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyVersionMutation) OldRawOutputID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRawOutputID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRawOutputID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRawOutputID: %w", err)
-	}
-	return oldValue.RawOutputID, nil
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (m *PropertyVersionMutation) ClearRawOutputID() {
-	m.raw_output_id = nil
-	m.clearedFields[propertyversion.FieldRawOutputID] = struct{}{}
-}
-
-// RawOutputIDCleared returns if the "raw_output_id" field was cleared in this mutation.
-func (m *PropertyVersionMutation) RawOutputIDCleared() bool {
-	_, ok := m.clearedFields[propertyversion.FieldRawOutputID]
-	return ok
-}
-
-// ResetRawOutputID resets all changes to the "raw_output_id" field.
-func (m *PropertyVersionMutation) ResetRawOutputID() {
-	m.raw_output_id = nil
-	delete(m.clearedFields, propertyversion.FieldRawOutputID)
-}
-
 // Where appends a list predicates to the PropertyVersionMutation builder.
 func (m *PropertyVersionMutation) Where(ps ...predicate.PropertyVersion) {
 	m.predicates = append(m.predicates, ps...)
@@ -44479,6 +44479,12 @@ func (m *PropertyVersionMutation) Fields() []string {
 	}
 	if m.processor_version != nil {
 		fields = append(fields, propertyversion.FieldProcessorVersion)
+	}
+	if m.sync_event_id != nil {
+		fields = append(fields, propertyversion.FieldSyncEventID)
+	}
+	if m.raw_output_id != nil {
+		fields = append(fields, propertyversion.FieldRawOutputID)
 	}
 	if m.source_modified_at != nil {
 		fields = append(fields, propertyversion.FieldSourceModifiedAt)
@@ -44858,12 +44864,6 @@ func (m *PropertyVersionMutation) Fields() []string {
 	if m.listing_key != nil {
 		fields = append(fields, propertyversion.FieldListingKey)
 	}
-	if m.sync_event_id != nil {
-		fields = append(fields, propertyversion.FieldSyncEventID)
-	}
-	if m.raw_output_id != nil {
-		fields = append(fields, propertyversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -44882,6 +44882,10 @@ func (m *PropertyVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ChangedFields()
 	case propertyversion.FieldProcessorVersion:
 		return m.ProcessorVersion()
+	case propertyversion.FieldSyncEventID:
+		return m.SyncEventID()
+	case propertyversion.FieldRawOutputID:
+		return m.RawOutputID()
 	case propertyversion.FieldSourceModifiedAt:
 		return m.SourceModifiedAt()
 	case propertyversion.FieldOriginatingSystemName:
@@ -45134,10 +45138,6 @@ func (m *PropertyVersionMutation) Field(name string) (ent.Value, bool) {
 		return m.ExtendedFields()
 	case propertyversion.FieldListingKey:
 		return m.ListingKey()
-	case propertyversion.FieldSyncEventID:
-		return m.SyncEventID()
-	case propertyversion.FieldRawOutputID:
-		return m.RawOutputID()
 	}
 	return nil, false
 }
@@ -45157,6 +45157,10 @@ func (m *PropertyVersionMutation) OldField(ctx context.Context, name string) (en
 		return m.OldChangedFields(ctx)
 	case propertyversion.FieldProcessorVersion:
 		return m.OldProcessorVersion(ctx)
+	case propertyversion.FieldSyncEventID:
+		return m.OldSyncEventID(ctx)
+	case propertyversion.FieldRawOutputID:
+		return m.OldRawOutputID(ctx)
 	case propertyversion.FieldSourceModifiedAt:
 		return m.OldSourceModifiedAt(ctx)
 	case propertyversion.FieldOriginatingSystemName:
@@ -45409,10 +45413,6 @@ func (m *PropertyVersionMutation) OldField(ctx context.Context, name string) (en
 		return m.OldExtendedFields(ctx)
 	case propertyversion.FieldListingKey:
 		return m.OldListingKey(ctx)
-	case propertyversion.FieldSyncEventID:
-		return m.OldSyncEventID(ctx)
-	case propertyversion.FieldRawOutputID:
-		return m.OldRawOutputID(ctx)
 	}
 	return nil, fmt.Errorf("unknown PropertyVersion field %s", name)
 }
@@ -45456,6 +45456,20 @@ func (m *PropertyVersionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProcessorVersion(v)
+		return nil
+	case propertyversion.FieldSyncEventID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncEventID(v)
+		return nil
+	case propertyversion.FieldRawOutputID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputID(v)
 		return nil
 	case propertyversion.FieldSourceModifiedAt:
 		v, ok := value.(time.Time)
@@ -46339,20 +46353,6 @@ func (m *PropertyVersionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetListingKey(v)
 		return nil
-	case propertyversion.FieldSyncEventID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSyncEventID(v)
-		return nil
-	case propertyversion.FieldRawOutputID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRawOutputID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown PropertyVersion field %s", name)
 }
@@ -46523,6 +46523,9 @@ func (m *PropertyVersionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(propertyversion.FieldChangedFields) {
 		fields = append(fields, propertyversion.FieldChangedFields)
+	}
+	if m.FieldCleared(propertyversion.FieldRawOutputID) {
+		fields = append(fields, propertyversion.FieldRawOutputID)
 	}
 	if m.FieldCleared(propertyversion.FieldOriginatingSystemName) {
 		fields = append(fields, propertyversion.FieldOriginatingSystemName)
@@ -46893,9 +46896,6 @@ func (m *PropertyVersionMutation) ClearedFields() []string {
 	if m.FieldCleared(propertyversion.FieldExtendedFields) {
 		fields = append(fields, propertyversion.FieldExtendedFields)
 	}
-	if m.FieldCleared(propertyversion.FieldRawOutputID) {
-		fields = append(fields, propertyversion.FieldRawOutputID)
-	}
 	return fields
 }
 
@@ -46915,6 +46915,9 @@ func (m *PropertyVersionMutation) ClearField(name string) error {
 		return nil
 	case propertyversion.FieldChangedFields:
 		m.ClearChangedFields()
+		return nil
+	case propertyversion.FieldRawOutputID:
+		m.ClearRawOutputID()
 		return nil
 	case propertyversion.FieldOriginatingSystemName:
 		m.ClearOriginatingSystemName()
@@ -47285,9 +47288,6 @@ func (m *PropertyVersionMutation) ClearField(name string) error {
 	case propertyversion.FieldExtendedFields:
 		m.ClearExtendedFields()
 		return nil
-	case propertyversion.FieldRawOutputID:
-		m.ClearRawOutputID()
-		return nil
 	}
 	return fmt.Errorf("unknown PropertyVersion nullable field %s", name)
 }
@@ -47310,6 +47310,12 @@ func (m *PropertyVersionMutation) ResetField(name string) error {
 		return nil
 	case propertyversion.FieldProcessorVersion:
 		m.ResetProcessorVersion()
+		return nil
+	case propertyversion.FieldSyncEventID:
+		m.ResetSyncEventID()
+		return nil
+	case propertyversion.FieldRawOutputID:
+		m.ResetRawOutputID()
 		return nil
 	case propertyversion.FieldSourceModifiedAt:
 		m.ResetSourceModifiedAt()
@@ -47688,12 +47694,6 @@ func (m *PropertyVersionMutation) ResetField(name string) error {
 		return nil
 	case propertyversion.FieldListingKey:
 		m.ResetListingKey()
-		return nil
-	case propertyversion.FieldSyncEventID:
-		m.ResetSyncEventID()
-		return nil
-	case propertyversion.FieldRawOutputID:
-		m.ResetRawOutputID()
 		return nil
 	}
 	return fmt.Errorf("unknown PropertyVersion field %s", name)

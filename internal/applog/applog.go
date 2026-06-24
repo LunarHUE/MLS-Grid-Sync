@@ -35,6 +35,13 @@ func Errorf(format string, args ...any) {
 	progress.Log(progress.LevelError, fmt.Sprintf(format, args...))
 }
 
+// Warnf logs at WARN, coordinated with any live progress bars. Used for
+// operator-facing alerts that are not failures — e.g. the field-drift
+// diagnostic flagging a new unmapped field in the source feed.
+func Warnf(format string, args ...any) {
+	progress.Log(progress.LevelWarn, fmt.Sprintf(format, args...))
+}
+
 // Debugf logs at DEBUG, coordinated with any live progress bars. Used for the
 // high-volume per-page/per-chunk lines that are demoted out of the default
 // INFO stream (concurrent fetch workers log these, so they still need the

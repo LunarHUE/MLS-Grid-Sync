@@ -71,6 +71,7 @@ const (
 	LevelInfo Level = iota
 	LevelError
 	LevelDebug
+	LevelWarn
 )
 
 const (
@@ -236,6 +237,8 @@ func Log(level Level, msg string) {
 	switch level {
 	case LevelError:
 		log.Errorf("%s", msg)
+	case LevelWarn:
+		log.Warnf("%s", msg)
 	case LevelDebug:
 		log.Debugf("%s", msg)
 	default:
@@ -390,6 +393,8 @@ func formatLogLine(level Level, msg string) string {
 	switch level {
 	case LevelError:
 		lvl, col = "ERROR", "\033[31m"
+	case LevelWarn:
+		lvl, col = "WARN", "\033[33m"
 	case LevelDebug:
 		lvl, col = "DEBUG", "\033[36m"
 	}

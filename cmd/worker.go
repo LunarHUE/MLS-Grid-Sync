@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/lunarhue/libs-go/log"
@@ -120,7 +121,7 @@ func runWorkerLoop(ctx context.Context, worker workerRunner, opts workerLoopOpts
 				return nil
 			}
 			if terminalReached() {
-				summarize("--max-jobs " + itoa(opts.maxJobs) + " reached")
+				summarize("--max-jobs " + strconv.Itoa(opts.maxJobs) + " reached")
 				return nil
 			}
 			if opts.pollInterval > 0 {
@@ -128,29 +129,6 @@ func runWorkerLoop(ctx context.Context, worker workerRunner, opts workerLoopOpts
 			}
 		}
 	}
-}
-
-// itoa avoids dragging strconv into the import block for a single call.
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	neg := n < 0
-	if neg {
-		n = -n
-	}
-	var buf [20]byte
-	i := len(buf)
-	for n > 0 {
-		i--
-		buf[i] = byte('0' + n%10)
-		n /= 10
-	}
-	if neg {
-		i--
-		buf[i] = '-'
-	}
-	return string(buf[i:])
 }
 
 func init() {

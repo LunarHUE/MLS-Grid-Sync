@@ -113,9 +113,6 @@ func TestS3Storer_Conformance(t *testing.T) {
 					t.Errorf("S3 URL %q missing key %q", url, key)
 				}
 			},
-			// S3 PUTs are atomic at the object level. The conformance
-			// suite has no atomicity case wired in.
-			supportsAtomicity: false,
 		}
 	})
 }

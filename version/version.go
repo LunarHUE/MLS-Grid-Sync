@@ -3,35 +3,53 @@ package version
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"runtime/debug"
 	"sync"
 
-	"github.com/lunarhue/libs-go/log"
 	"github.com/LunarHUE/MLS-Grid-Sync/git"
+	"github.com/lunarhue/libs-go/log"
 )
+
+// repoFallback is the last-resort module path used only when build info is
+// unavailable (e.g. some `go test` runs). The runtime build-info path is
+// primary, so a repo move is picked up automatically from go.mod with no edit
+// here — this constant is purely defensive.
+const repoFallback = "github.com/LunarHUE/MLS-Grid-Sync"
+
+// RepoURL returns the project's source repository URL, derived at runtime from
+// the module path in go.mod via build info — e.g.
+// https://github.com/LunarHUE/MLS-Grid-Sync. No hardcoded URL to keep in sync.
+func RepoURL() string {
+	if bi, ok := readBuildInfoFn(); ok && bi != nil && bi.Main.Path != "" {
+		return "https://" + bi.Main.Path
+	}
+	return "https://" + repoFallback
+}
+
+// NewIssueURL returns a pre-filled "open a new issue" URL for the repo. A
+// non-empty title/body is URL-encoded into the query string so the operator
+// lands on a populated GitHub issue form.
+func NewIssueURL(title, body string) string {
+	u := RepoURL() + "/issues/new"
+	q := url.Values{}
+	if title != "" {
+		q.Set("title", title)
+	}
+	if body != "" {
+		q.Set("body", body)
+	}
+	if e := q.Encode(); e != "" {
+		u += "?" + e
+	}
+	return u
+}
 
 // Version is set at build time via -X ldflags.
 var Version string
 
 // Commit is the git hash, set at build time via -X ldflags.
 var Commit string
-
-// Short returns just the semver string, e.g. "0.0.8".
-func Short() string {
-	if Version == "" {
-		return "dev"
-	}
-	return Version
-}
-
-// Tag returns the release tag for this build, e.g. "v0.0.8-abc1234".
-// Returns ("", false) if version or commit is unknown (dev build).
-func Tag() (string, bool) {
-	if Version == "" || Commit == "" || Commit == "unknown" {
-		return "", false
-	}
-	return fmt.Sprintf("v%s-%s", Version, Commit), true
-}
 
 // Info returns the formatted version stamp written to processor_version.
 // Memoized — compute() runs at most once per process. Provenance metadata,

@@ -9,7 +9,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
-	"github.com/google/uuid"
 )
 
 // PropertyUnitTypeDataMixin: shared columns for current and version.
@@ -40,6 +39,7 @@ func (PropertyUnitType) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		PropertyUnitTypeDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -48,9 +48,7 @@ func (PropertyUnitType) Fields() []ent.Field {
 		field.String("id").
 			StorageKey("unit_type_key").
 			Comment("RESO UnitTypeKey"),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 		field.String("parent_listing_key").
 			Optional().Nillable().
 			Comment("Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives."),

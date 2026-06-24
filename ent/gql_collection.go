@@ -265,15 +265,15 @@ func (_q *MediaQuery) collectField(ctx context.Context, oneNode bool, opCtx *gra
 				selectedFields = append(selectedFields, media.FieldExtendedFields)
 				fieldSeen[media.FieldExtendedFields] = struct{}{}
 			}
-		case "attachmentID":
-			if _, ok := fieldSeen[media.FieldAttachmentID]; !ok {
-				selectedFields = append(selectedFields, media.FieldAttachmentID)
-				fieldSeen[media.FieldAttachmentID] = struct{}{}
-			}
 		case "currentVersionID":
 			if _, ok := fieldSeen[media.FieldCurrentVersionID]; !ok {
 				selectedFields = append(selectedFields, media.FieldCurrentVersionID)
 				fieldSeen[media.FieldCurrentVersionID] = struct{}{}
+			}
+		case "attachmentID":
+			if _, ok := fieldSeen[media.FieldAttachmentID]; !ok {
+				selectedFields = append(selectedFields, media.FieldAttachmentID)
+				fieldSeen[media.FieldAttachmentID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -384,6 +384,16 @@ func (_q *MediaVersionQuery) collectField(ctx context.Context, oneNode bool, opC
 				selectedFields = append(selectedFields, mediaversion.FieldProcessorVersion)
 				fieldSeen[mediaversion.FieldProcessorVersion] = struct{}{}
 			}
+		case "syncEventID":
+			if _, ok := fieldSeen[mediaversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, mediaversion.FieldSyncEventID)
+				fieldSeen[mediaversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[mediaversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, mediaversion.FieldRawOutputID)
+				fieldSeen[mediaversion.FieldRawOutputID] = struct{}{}
+			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[mediaversion.FieldSourceModifiedAt]; !ok {
 				selectedFields = append(selectedFields, mediaversion.FieldSourceModifiedAt)
@@ -468,16 +478,6 @@ func (_q *MediaVersionQuery) collectField(ctx context.Context, oneNode bool, opC
 			if _, ok := fieldSeen[mediaversion.FieldMediaKey]; !ok {
 				selectedFields = append(selectedFields, mediaversion.FieldMediaKey)
 				fieldSeen[mediaversion.FieldMediaKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[mediaversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, mediaversion.FieldSyncEventID)
-				fieldSeen[mediaversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[mediaversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, mediaversion.FieldRawOutputID)
-				fieldSeen[mediaversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -842,6 +842,16 @@ func (_q *MemberVersionQuery) collectField(ctx context.Context, oneNode bool, op
 				selectedFields = append(selectedFields, memberversion.FieldProcessorVersion)
 				fieldSeen[memberversion.FieldProcessorVersion] = struct{}{}
 			}
+		case "syncEventID":
+			if _, ok := fieldSeen[memberversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, memberversion.FieldSyncEventID)
+				fieldSeen[memberversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[memberversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, memberversion.FieldRawOutputID)
+				fieldSeen[memberversion.FieldRawOutputID] = struct{}{}
+			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[memberversion.FieldSourceModifiedAt]; !ok {
 				selectedFields = append(selectedFields, memberversion.FieldSourceModifiedAt)
@@ -1001,16 +1011,6 @@ func (_q *MemberVersionQuery) collectField(ctx context.Context, oneNode bool, op
 			if _, ok := fieldSeen[memberversion.FieldMemberKey]; !ok {
 				selectedFields = append(selectedFields, memberversion.FieldMemberKey)
 				fieldSeen[memberversion.FieldMemberKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[memberversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, memberversion.FieldSyncEventID)
-				fieldSeen[memberversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[memberversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, memberversion.FieldRawOutputID)
-				fieldSeen[memberversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -1388,6 +1388,16 @@ func (_q *OfficeVersionQuery) collectField(ctx context.Context, oneNode bool, op
 				selectedFields = append(selectedFields, officeversion.FieldProcessorVersion)
 				fieldSeen[officeversion.FieldProcessorVersion] = struct{}{}
 			}
+		case "syncEventID":
+			if _, ok := fieldSeen[officeversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, officeversion.FieldSyncEventID)
+				fieldSeen[officeversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[officeversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, officeversion.FieldRawOutputID)
+				fieldSeen[officeversion.FieldRawOutputID] = struct{}{}
+			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[officeversion.FieldSourceModifiedAt]; !ok {
 				selectedFields = append(selectedFields, officeversion.FieldSourceModifiedAt)
@@ -1532,16 +1542,6 @@ func (_q *OfficeVersionQuery) collectField(ctx context.Context, oneNode bool, op
 			if _, ok := fieldSeen[officeversion.FieldOfficeKey]; !ok {
 				selectedFields = append(selectedFields, officeversion.FieldOfficeKey)
 				fieldSeen[officeversion.FieldOfficeKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[officeversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, officeversion.FieldSyncEventID)
-				fieldSeen[officeversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[officeversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, officeversion.FieldRawOutputID)
-				fieldSeen[officeversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -1831,6 +1831,16 @@ func (_q *OpenHouseVersionQuery) collectField(ctx context.Context, oneNode bool,
 				selectedFields = append(selectedFields, openhouseversion.FieldProcessorVersion)
 				fieldSeen[openhouseversion.FieldProcessorVersion] = struct{}{}
 			}
+		case "syncEventID":
+			if _, ok := fieldSeen[openhouseversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, openhouseversion.FieldSyncEventID)
+				fieldSeen[openhouseversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[openhouseversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, openhouseversion.FieldRawOutputID)
+				fieldSeen[openhouseversion.FieldRawOutputID] = struct{}{}
+			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[openhouseversion.FieldSourceModifiedAt]; !ok {
 				selectedFields = append(selectedFields, openhouseversion.FieldSourceModifiedAt)
@@ -1895,16 +1905,6 @@ func (_q *OpenHouseVersionQuery) collectField(ctx context.Context, oneNode bool,
 			if _, ok := fieldSeen[openhouseversion.FieldOpenHouseKey]; !ok {
 				selectedFields = append(selectedFields, openhouseversion.FieldOpenHouseKey)
 				fieldSeen[openhouseversion.FieldOpenHouseKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[openhouseversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, openhouseversion.FieldSyncEventID)
-				fieldSeen[openhouseversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[openhouseversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, openhouseversion.FieldRawOutputID)
-				fieldSeen[openhouseversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -2942,6 +2942,16 @@ func (_q *PropertyRoomVersionQuery) collectField(ctx context.Context, oneNode bo
 				selectedFields = append(selectedFields, propertyroomversion.FieldProcessorVersion)
 				fieldSeen[propertyroomversion.FieldProcessorVersion] = struct{}{}
 			}
+		case "syncEventID":
+			if _, ok := fieldSeen[propertyroomversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, propertyroomversion.FieldSyncEventID)
+				fieldSeen[propertyroomversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[propertyroomversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, propertyroomversion.FieldRawOutputID)
+				fieldSeen[propertyroomversion.FieldRawOutputID] = struct{}{}
+			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[propertyroomversion.FieldSourceModifiedAt]; !ok {
 				selectedFields = append(selectedFields, propertyroomversion.FieldSourceModifiedAt)
@@ -2991,16 +3001,6 @@ func (_q *PropertyRoomVersionQuery) collectField(ctx context.Context, oneNode bo
 			if _, ok := fieldSeen[propertyroomversion.FieldRoomKey]; !ok {
 				selectedFields = append(selectedFields, propertyroomversion.FieldRoomKey)
 				fieldSeen[propertyroomversion.FieldRoomKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[propertyroomversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, propertyroomversion.FieldSyncEventID)
-				fieldSeen[propertyroomversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[propertyroomversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, propertyroomversion.FieldRawOutputID)
-				fieldSeen[propertyroomversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -3270,6 +3270,16 @@ func (_q *PropertyUnitTypeVersionQuery) collectField(ctx context.Context, oneNod
 				selectedFields = append(selectedFields, propertyunittypeversion.FieldProcessorVersion)
 				fieldSeen[propertyunittypeversion.FieldProcessorVersion] = struct{}{}
 			}
+		case "syncEventID":
+			if _, ok := fieldSeen[propertyunittypeversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, propertyunittypeversion.FieldSyncEventID)
+				fieldSeen[propertyunittypeversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[propertyunittypeversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, propertyunittypeversion.FieldRawOutputID)
+				fieldSeen[propertyunittypeversion.FieldRawOutputID] = struct{}{}
+			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[propertyunittypeversion.FieldSourceModifiedAt]; !ok {
 				selectedFields = append(selectedFields, propertyunittypeversion.FieldSourceModifiedAt)
@@ -3314,16 +3324,6 @@ func (_q *PropertyUnitTypeVersionQuery) collectField(ctx context.Context, oneNod
 			if _, ok := fieldSeen[propertyunittypeversion.FieldUnitTypeKey]; !ok {
 				selectedFields = append(selectedFields, propertyunittypeversion.FieldUnitTypeKey)
 				fieldSeen[propertyunittypeversion.FieldUnitTypeKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[propertyunittypeversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, propertyunittypeversion.FieldSyncEventID)
-				fieldSeen[propertyunittypeversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[propertyunittypeversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, propertyunittypeversion.FieldRawOutputID)
-				fieldSeen[propertyunittypeversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -3433,6 +3433,16 @@ func (_q *PropertyVersionQuery) collectField(ctx context.Context, oneNode bool, 
 			if _, ok := fieldSeen[propertyversion.FieldProcessorVersion]; !ok {
 				selectedFields = append(selectedFields, propertyversion.FieldProcessorVersion)
 				fieldSeen[propertyversion.FieldProcessorVersion] = struct{}{}
+			}
+		case "syncEventID":
+			if _, ok := fieldSeen[propertyversion.FieldSyncEventID]; !ok {
+				selectedFields = append(selectedFields, propertyversion.FieldSyncEventID)
+				fieldSeen[propertyversion.FieldSyncEventID] = struct{}{}
+			}
+		case "rawOutputID":
+			if _, ok := fieldSeen[propertyversion.FieldRawOutputID]; !ok {
+				selectedFields = append(selectedFields, propertyversion.FieldRawOutputID)
+				fieldSeen[propertyversion.FieldRawOutputID] = struct{}{}
 			}
 		case "sourceModifiedAt":
 			if _, ok := fieldSeen[propertyversion.FieldSourceModifiedAt]; !ok {
@@ -4063,16 +4073,6 @@ func (_q *PropertyVersionQuery) collectField(ctx context.Context, oneNode bool, 
 			if _, ok := fieldSeen[propertyversion.FieldListingKey]; !ok {
 				selectedFields = append(selectedFields, propertyversion.FieldListingKey)
 				fieldSeen[propertyversion.FieldListingKey] = struct{}{}
-			}
-		case "syncEventID":
-			if _, ok := fieldSeen[propertyversion.FieldSyncEventID]; !ok {
-				selectedFields = append(selectedFields, propertyversion.FieldSyncEventID)
-				fieldSeen[propertyversion.FieldSyncEventID] = struct{}{}
-			}
-		case "rawOutputID":
-			if _, ok := fieldSeen[propertyversion.FieldRawOutputID]; !ok {
-				selectedFields = append(selectedFields, propertyversion.FieldRawOutputID)
-				fieldSeen[propertyversion.FieldRawOutputID] = struct{}{}
 			}
 		case "id":
 		case "__typename":

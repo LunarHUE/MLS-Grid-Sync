@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lunarhue/libs-go/log"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/processorcursor"
@@ -486,15 +485,22 @@ func (p *Processor) processChunk(ctx context.Context, proc ResourceProcessor, re
 
 // recordProcessed folds one committed record into stats and advances the
 // in-memory cursor so the next fetchBatch pages past it. The per-record DEBUG
-// line is suppressed during a streaming drain (finalize=false): it would race
-// the producer's fetch logging through the shared libs-go log buffer.
+// line is suppressed during a streaming drain (finalize=false): it routes
+// through applog (so it is race-safe against the concurrent producer), but at
+// one line per record it would still flood the output mid-stream — the
+// per-batch heartbeat already reports streaming progress.
 func (p *Processor) recordProcessed(resource rawoutput.Resource, raw *ent.RawOutput, outcome Outcome, cursor *ent.ProcessorCursor, stats *PassStats, finalize bool) {
 	stats.record(outcome)
 	if finalize {
-		log.Debugf("processor[%s]: %s %s", resource, raw.SourceKey, outcome)
+		applog.Debugf("processor[%s]: %s %s", resource, raw.SourceKey, outcome)
 	}
 	id := raw.ID
 	cursor.LastRawOutputID = &id
+
+	// Sampled field-drift diagnostic: cheap (one rand compare) for the vast
+	// majority of records; re-parses only the sampled fraction. Runs here,
+	// after the record has committed, so it is fully off the transaction path.
+	checkFieldDrift(resource, raw)
 }
 
 // tryCommitChunk runs the whole chunk in a single transaction. Returns

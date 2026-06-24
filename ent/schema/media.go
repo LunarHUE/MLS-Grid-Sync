@@ -54,6 +54,7 @@ func (Media) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		MediaDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -66,9 +67,7 @@ func (Media) Fields() []ent.Field {
 			Optional().Nillable().
 			Comment("Set when the binary has been downloaded into attachment").
 			Annotations(entgql.Skip(entgql.SkipWhereInput)),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 	}
 }
 

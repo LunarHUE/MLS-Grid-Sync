@@ -62,6 +62,26 @@ func (_c *OfficeVersionCreate) SetProcessorVersion(v string) *OfficeVersionCreat
 	return _c
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_c *OfficeVersionCreate) SetSyncEventID(v uuid.UUID) *OfficeVersionCreate {
+	_c.mutation.SetSyncEventID(v)
+	return _c
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_c *OfficeVersionCreate) SetRawOutputID(v uuid.UUID) *OfficeVersionCreate {
+	_c.mutation.SetRawOutputID(v)
+	return _c
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_c *OfficeVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *OfficeVersionCreate {
+	if v != nil {
+		_c.SetRawOutputID(*v)
+	}
+	return _c
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_c *OfficeVersionCreate) SetSourceModifiedAt(v time.Time) *OfficeVersionCreate {
 	_c.mutation.SetSourceModifiedAt(v)
@@ -436,26 +456,6 @@ func (_c *OfficeVersionCreate) SetOfficeKey(v string) *OfficeVersionCreate {
 	return _c
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_c *OfficeVersionCreate) SetSyncEventID(v uuid.UUID) *OfficeVersionCreate {
-	_c.mutation.SetSyncEventID(v)
-	return _c
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_c *OfficeVersionCreate) SetRawOutputID(v uuid.UUID) *OfficeVersionCreate {
-	_c.mutation.SetRawOutputID(v)
-	return _c
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_c *OfficeVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *OfficeVersionCreate {
-	if v != nil {
-		_c.SetRawOutputID(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *OfficeVersionCreate) SetID(v string) *OfficeVersionCreate {
 	_c.mutation.SetID(v)
@@ -531,6 +531,9 @@ func (_c *OfficeVersionCreate) check() error {
 	if _, ok := _c.mutation.ProcessorVersion(); !ok {
 		return &ValidationError{Name: "processor_version", err: errors.New(`ent: missing required field "OfficeVersion.processor_version"`)}
 	}
+	if _, ok := _c.mutation.SyncEventID(); !ok {
+		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "OfficeVersion.sync_event_id"`)}
+	}
 	if _, ok := _c.mutation.SourceModifiedAt(); !ok {
 		return &ValidationError{Name: "source_modified_at", err: errors.New(`ent: missing required field "OfficeVersion.source_modified_at"`)}
 	}
@@ -539,9 +542,6 @@ func (_c *OfficeVersionCreate) check() error {
 	}
 	if _, ok := _c.mutation.OfficeKey(); !ok {
 		return &ValidationError{Name: "office_key", err: errors.New(`ent: missing required field "OfficeVersion.office_key"`)}
-	}
-	if _, ok := _c.mutation.SyncEventID(); !ok {
-		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "OfficeVersion.sync_event_id"`)}
 	}
 	return nil
 }
@@ -598,6 +598,14 @@ func (_c *OfficeVersionCreate) createSpec() (*OfficeVersion, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.ProcessorVersion(); ok {
 		_spec.SetField(officeversion.FieldProcessorVersion, field.TypeString, value)
 		_node.ProcessorVersion = value
+	}
+	if value, ok := _c.mutation.SyncEventID(); ok {
+		_spec.SetField(officeversion.FieldSyncEventID, field.TypeUUID, value)
+		_node.SyncEventID = value
+	}
+	if value, ok := _c.mutation.RawOutputID(); ok {
+		_spec.SetField(officeversion.FieldRawOutputID, field.TypeUUID, value)
+		_node.RawOutputID = &value
 	}
 	if value, ok := _c.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(officeversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -714,14 +722,6 @@ func (_c *OfficeVersionCreate) createSpec() (*OfficeVersion, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.OfficeKey(); ok {
 		_spec.SetField(officeversion.FieldOfficeKey, field.TypeString, value)
 		_node.OfficeKey = value
-	}
-	if value, ok := _c.mutation.SyncEventID(); ok {
-		_spec.SetField(officeversion.FieldSyncEventID, field.TypeUUID, value)
-		_node.SyncEventID = value
-	}
-	if value, ok := _c.mutation.RawOutputID(); ok {
-		_spec.SetField(officeversion.FieldRawOutputID, field.TypeUUID, value)
-		_node.RawOutputID = &value
 	}
 	return _node, _spec
 }
@@ -844,6 +844,36 @@ func (u *OfficeVersionUpsert) SetProcessorVersion(v string) *OfficeVersionUpsert
 // UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
 func (u *OfficeVersionUpsert) UpdateProcessorVersion() *OfficeVersionUpsert {
 	u.SetExcluded(officeversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OfficeVersionUpsert) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateSyncEventID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OfficeVersionUpsert) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsert {
+	u.Set(officeversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsert) UpdateRawOutputID() *OfficeVersionUpsert {
+	u.SetExcluded(officeversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OfficeVersionUpsert) ClearRawOutputID() *OfficeVersionUpsert {
+	u.SetNull(officeversion.FieldRawOutputID)
 	return u
 }
 
@@ -1351,36 +1381,6 @@ func (u *OfficeVersionUpsert) UpdateOfficeKey() *OfficeVersionUpsert {
 	return u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *OfficeVersionUpsert) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsert {
-	u.Set(officeversion.FieldSyncEventID, v)
-	return u
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *OfficeVersionUpsert) UpdateSyncEventID() *OfficeVersionUpsert {
-	u.SetExcluded(officeversion.FieldSyncEventID)
-	return u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *OfficeVersionUpsert) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsert {
-	u.Set(officeversion.FieldRawOutputID, v)
-	return u
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *OfficeVersionUpsert) UpdateRawOutputID() *OfficeVersionUpsert {
-	u.SetExcluded(officeversion.FieldRawOutputID)
-	return u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *OfficeVersionUpsert) ClearRawOutputID() *OfficeVersionUpsert {
-	u.SetNull(officeversion.FieldRawOutputID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1510,6 +1510,41 @@ func (u *OfficeVersionUpsertOne) SetProcessorVersion(v string) *OfficeVersionUps
 func (u *OfficeVersionUpsertOne) UpdateProcessorVersion() *OfficeVersionUpsertOne {
 	return u.Update(func(s *OfficeVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OfficeVersionUpsertOne) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateSyncEventID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OfficeVersionUpsertOne) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertOne) UpdateRawOutputID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OfficeVersionUpsertOne) ClearRawOutputID() *OfficeVersionUpsertOne {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -2101,41 +2136,6 @@ func (u *OfficeVersionUpsertOne) UpdateOfficeKey() *OfficeVersionUpsertOne {
 	})
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *OfficeVersionUpsertOne) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsertOne {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *OfficeVersionUpsertOne) UpdateSyncEventID() *OfficeVersionUpsertOne {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *OfficeVersionUpsertOne) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsertOne {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *OfficeVersionUpsertOne) UpdateRawOutputID() *OfficeVersionUpsertOne {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *OfficeVersionUpsertOne) ClearRawOutputID() *OfficeVersionUpsertOne {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.ClearRawOutputID()
-	})
-}
-
 // Exec executes the query.
 func (u *OfficeVersionUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -2432,6 +2432,41 @@ func (u *OfficeVersionUpsertBulk) SetProcessorVersion(v string) *OfficeVersionUp
 func (u *OfficeVersionUpsertBulk) UpdateProcessorVersion() *OfficeVersionUpsertBulk {
 	return u.Update(func(s *OfficeVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OfficeVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateSyncEventID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OfficeVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OfficeVersionUpsertBulk) UpdateRawOutputID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OfficeVersionUpsertBulk) ClearRawOutputID() *OfficeVersionUpsertBulk {
+	return u.Update(func(s *OfficeVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -3020,41 +3055,6 @@ func (u *OfficeVersionUpsertBulk) SetOfficeKey(v string) *OfficeVersionUpsertBul
 func (u *OfficeVersionUpsertBulk) UpdateOfficeKey() *OfficeVersionUpsertBulk {
 	return u.Update(func(s *OfficeVersionUpsert) {
 		s.UpdateOfficeKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *OfficeVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *OfficeVersionUpsertBulk {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *OfficeVersionUpsertBulk) UpdateSyncEventID() *OfficeVersionUpsertBulk {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *OfficeVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *OfficeVersionUpsertBulk {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *OfficeVersionUpsertBulk) UpdateRawOutputID() *OfficeVersionUpsertBulk {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *OfficeVersionUpsertBulk) ClearRawOutputID() *OfficeVersionUpsertBulk {
-	return u.Update(func(s *OfficeVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 

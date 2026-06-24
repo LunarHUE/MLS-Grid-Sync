@@ -7,7 +7,6 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/google/uuid"
 )
 
 type MemberVersion struct{ ent.Schema }
@@ -32,18 +31,14 @@ func (MemberVersion) Mixin() []ent.Mixin {
 func (MemberVersion) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("member_key"),
-		field.UUID("sync_event_id", uuid.UUID{}).
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
-		field.UUID("raw_output_id", uuid.UUID{}).Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// sync_event_id and raw_output_id now live on VersionMixin.
 	}
 }
 
 func (MemberVersion) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("member_key", "valid_from"),
-		index.Fields("sync_event_id"),
-		index.Fields("processor_version"),
+		// sync_event_id and processor_version indexes now live on VersionMixin.
 		index.Fields("member_key").
 			Unique().
 			Annotations(entsql.IndexWhere("valid_to IS NULL")),

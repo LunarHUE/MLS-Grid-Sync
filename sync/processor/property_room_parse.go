@@ -87,27 +87,8 @@ func parsePropertyRoom(payload []byte) (*PropertyRoomFields, error) {
 	}
 	out.ListingKey = *listingKey
 
-	if v, ok := consume("OriginatingSystemName"); ok {
-		out.OriginatingSystemName, err = parseString(v)
-		if err != nil {
-			return nil, fmt.Errorf("OriginatingSystemName: %w", err)
-		}
-	}
-	if v, ok := consume("MlgCanView"); ok {
-		b, err := parseBool(v)
-		if err != nil {
-			return nil, fmt.Errorf("MlgCanView: %w", err)
-		}
-		if b != nil {
-			out.MlgCanView = *b
-		}
-	}
-	if v, ok := consume("MlgCanUse"); ok {
-		arr, err := parseStringArray(v)
-		if err != nil {
-			return nil, fmt.Errorf("MlgCanUse: %w", err)
-		}
-		out.MlgCanUse = []string(arr)
+	if err := parseMLSMetadata(consume, &out.OriginatingSystemName, &out.MlgCanView, &out.MlgCanUse); err != nil {
+		return nil, err
 	}
 
 	if v, ok := consume("RoomType"); ok {

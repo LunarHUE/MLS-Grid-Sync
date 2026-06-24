@@ -147,7 +147,7 @@ func (s *Service) EnqueueAttachmentJobs(ctx context.Context, syncEventID uuid.UU
 		processed += len(chunk)
 		proc.Add(len(chunk))
 		// Per-chunk line is DEBUG now (the bar/heartbeat shows progress).
-		log.Debugf("enqueue: %d/%d processed (%d enqueued, %d skipped)",
+		applog.Debugf("enqueue: %d/%d processed (%d enqueued, %d skipped)",
 			processed, len(order), enqueued, skipped)
 	}
 	proc.Done()
@@ -307,7 +307,8 @@ func (w *AttachmentWorker) WorkerID() string { return w.workerID }
 // RunResult signals to the polling loop whether the cycle did any work, so
 // it can detect busy→empty edges and emit an "idling" line once instead of
 // per poll. The terminal-status counters are populated only when Worked is
-// true; the polling loop doesn't use them but tests assert against them.
+// true; the worker command (cmd/worker.go) accumulates them into a
+// process-wide summary, and tests assert against them.
 type RunResult struct {
 	Worked            bool
 	Succeeded         int64
@@ -317,8 +318,9 @@ type RunResult struct {
 }
 
 // cycleStats accumulates per-job outcomes during the errgroup fan-out.
-// Atomic so the 8 concurrent goroutines spawned at line ~235 can bump
-// counters without contention. Reset per cycle (held by-value inside Run).
+// Atomic so the (up to 8) concurrent goroutines spawned in Run's download
+// loop can bump counters without contention. Reset per cycle (held by-value
+// inside Run).
 type cycleStats struct {
 	succeeded         atomic.Int64
 	retrying          atomic.Int64

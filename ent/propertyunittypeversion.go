@@ -29,6 +29,10 @@ type PropertyUnitTypeVersion struct {
 	ChangedFields map[string]interface{} `json:"changed_fields,omitempty"`
 	// ProcessorVersion holds the value of the "processor_version" field.
 	ProcessorVersion string `json:"processor_version,omitempty"`
+	// SyncEventID holds the value of the "sync_event_id" field.
+	SyncEventID uuid.UUID `json:"sync_event_id,omitempty"`
+	// Nullable — manual fixes may not derive from a raw_output row
+	RawOutputID *uuid.UUID `json:"raw_output_id,omitempty"`
 	// Upstream ModificationTimestamp — canonical ordering
 	SourceModifiedAt time.Time `json:"source_modified_at,omitempty"`
 	// OriginatingSystemName holds the value of the "originating_system_name" field.
@@ -46,11 +50,7 @@ type PropertyUnitTypeVersion struct {
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
 	// UnitTypeKey holds the value of the "unit_type_key" field.
-	UnitTypeKey string `json:"unit_type_key,omitempty"`
-	// SyncEventID holds the value of the "sync_event_id" field.
-	SyncEventID uuid.UUID `json:"sync_event_id,omitempty"`
-	// RawOutputID holds the value of the "raw_output_id" field.
-	RawOutputID  *uuid.UUID `json:"raw_output_id,omitempty"`
+	UnitTypeKey  string `json:"unit_type_key,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -127,6 +127,19 @@ func (_m *PropertyUnitTypeVersion) assignValues(columns []string, values []any) 
 			} else if value.Valid {
 				_m.ProcessorVersion = value.String
 			}
+		case propertyunittypeversion.FieldSyncEventID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field sync_event_id", values[i])
+			} else if value != nil {
+				_m.SyncEventID = *value
+			}
+		case propertyunittypeversion.FieldRawOutputID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_output_id", values[i])
+			} else if value.Valid {
+				_m.RawOutputID = new(uuid.UUID)
+				*_m.RawOutputID = *value.S.(*uuid.UUID)
+			}
 		case propertyunittypeversion.FieldSourceModifiedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field source_modified_at", values[i])
@@ -188,19 +201,6 @@ func (_m *PropertyUnitTypeVersion) assignValues(columns []string, values []any) 
 			} else if value.Valid {
 				_m.UnitTypeKey = value.String
 			}
-		case propertyunittypeversion.FieldSyncEventID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field sync_event_id", values[i])
-			} else if value != nil {
-				_m.SyncEventID = *value
-			}
-		case propertyunittypeversion.FieldRawOutputID:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field raw_output_id", values[i])
-			} else if value.Valid {
-				_m.RawOutputID = new(uuid.UUID)
-				*_m.RawOutputID = *value.S.(*uuid.UUID)
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -254,6 +254,14 @@ func (_m *PropertyUnitTypeVersion) String() string {
 	builder.WriteString("processor_version=")
 	builder.WriteString(_m.ProcessorVersion)
 	builder.WriteString(", ")
+	builder.WriteString("sync_event_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SyncEventID))
+	builder.WriteString(", ")
+	if v := _m.RawOutputID; v != nil {
+		builder.WriteString("raw_output_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("source_modified_at=")
 	builder.WriteString(_m.SourceModifiedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
@@ -286,14 +294,6 @@ func (_m *PropertyUnitTypeVersion) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("unit_type_key=")
 	builder.WriteString(_m.UnitTypeKey)
-	builder.WriteString(", ")
-	builder.WriteString("sync_event_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.SyncEventID))
-	builder.WriteString(", ")
-	if v := _m.RawOutputID; v != nil {
-		builder.WriteString("raw_output_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -96,7 +96,7 @@ func (s *Service) WithFetchConcurrency(n int) *Service {
 // updated. Per §7, swept events leave high_water_mark NULL, so the next
 // cycle's success-gated HWM query re-fetches the failed window.
 //
-// CLI entry points (cmd/sync, cmd/import, cmd/reprocess) call this on
+// CLI entry points (cmd/sync, cmd/import, cmd/init) call this on
 // startup. It's safe to call repeatedly and concurrently — fresh events
 // (started_at >= now-threshold) are untouched.
 func (s *Service) SweepStaleRunningEvents(ctx context.Context, threshold time.Duration) (int, error) {

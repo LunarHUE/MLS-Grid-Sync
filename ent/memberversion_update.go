@@ -104,6 +104,40 @@ func (_u *MemberVersionUpdate) SetNillableProcessorVersion(v *string) *MemberVer
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *MemberVersionUpdate) SetSyncEventID(v uuid.UUID) *MemberVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *MemberVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *MemberVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *MemberVersionUpdate) SetRawOutputID(v uuid.UUID) *MemberVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *MemberVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *MemberVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *MemberVersionUpdate) ClearRawOutputID() *MemberVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *MemberVersionUpdate) SetSourceModifiedAt(v time.Time) *MemberVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -716,40 +750,6 @@ func (_u *MemberVersionUpdate) SetNillableMemberKey(v *string) *MemberVersionUpd
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *MemberVersionUpdate) SetSyncEventID(v uuid.UUID) *MemberVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *MemberVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *MemberVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *MemberVersionUpdate) SetRawOutputID(v uuid.UUID) *MemberVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *MemberVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *MemberVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *MemberVersionUpdate) ClearRawOutputID() *MemberVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the MemberVersionMutation object of the builder.
 func (_u *MemberVersionUpdate) Mutation() *MemberVersionMutation {
 	return _u.mutation
@@ -824,6 +824,15 @@ func (_u *MemberVersionUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(memberversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(memberversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(memberversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(memberversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(memberversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -1013,15 +1022,6 @@ func (_u *MemberVersionUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.MemberKey(); ok {
 		_spec.SetField(memberversion.FieldMemberKey, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(memberversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(memberversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(memberversion.FieldRawOutputID, field.TypeUUID)
-	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{memberversion.Label}
@@ -1113,6 +1113,40 @@ func (_u *MemberVersionUpdateOne) SetNillableProcessorVersion(v *string) *Member
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *MemberVersionUpdateOne) SetSyncEventID(v uuid.UUID) *MemberVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *MemberVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *MemberVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *MemberVersionUpdateOne) SetRawOutputID(v uuid.UUID) *MemberVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *MemberVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *MemberVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *MemberVersionUpdateOne) ClearRawOutputID() *MemberVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -1728,40 +1762,6 @@ func (_u *MemberVersionUpdateOne) SetNillableMemberKey(v *string) *MemberVersion
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *MemberVersionUpdateOne) SetSyncEventID(v uuid.UUID) *MemberVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *MemberVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *MemberVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *MemberVersionUpdateOne) SetRawOutputID(v uuid.UUID) *MemberVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *MemberVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *MemberVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *MemberVersionUpdateOne) ClearRawOutputID() *MemberVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the MemberVersionMutation object of the builder.
 func (_u *MemberVersionUpdateOne) Mutation() *MemberVersionMutation {
 	return _u.mutation
@@ -1866,6 +1866,15 @@ func (_u *MemberVersionUpdateOne) sqlSave(ctx context.Context) (_node *MemberVer
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(memberversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(memberversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(memberversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(memberversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(memberversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -2054,15 +2063,6 @@ func (_u *MemberVersionUpdateOne) sqlSave(ctx context.Context) (_node *MemberVer
 	}
 	if value, ok := _u.mutation.MemberKey(); ok {
 		_spec.SetField(memberversion.FieldMemberKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(memberversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(memberversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(memberversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &MemberVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

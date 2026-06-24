@@ -148,26 +148,13 @@ func parseSkipList(s string) (map[rawoutput.Resource]bool, error) {
 		if name == "" {
 			continue
 		}
-		dbName, err := normalizeSkipName(name)
-		if err != nil {
-			return nil, err
+		dbName, ok := normalizeResource(name)
+		if !ok {
+			return nil, fmt.Errorf("invalid --skip resource %q (try Property, Office, Member, …)", name)
 		}
 		out[dbName] = true
 	}
 	return out, nil
-}
-
-func normalizeSkipName(name string) (rawoutput.Resource, error) {
-	// Try DB enum directly first.
-	r := rawoutput.Resource(name)
-	if rawoutput.ResourceValidator(r) == nil {
-		return r, nil
-	}
-	// Fall back to MLS API name (operators copy-paste from logs).
-	if db, err := pkgsync.MLSToDBResource(name); err == nil {
-		return db, nil
-	}
-	return "", fmt.Errorf("invalid --skip resource %q (try Property, Office, Member, …)", name)
 }
 
 func init() {

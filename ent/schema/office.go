@@ -9,7 +9,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
-	"github.com/google/uuid"
 )
 
 // OfficeDataMixin: shared columns between Office and OfficeVersion.
@@ -67,6 +66,7 @@ func (Office) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		OfficeDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -75,9 +75,7 @@ func (Office) Fields() []ent.Field {
 		field.String("id").
 			StorageKey("office_key").
 			Comment("PK = OfficeKey (canonical identifier from MLS Grid)"),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 	}
 }
 

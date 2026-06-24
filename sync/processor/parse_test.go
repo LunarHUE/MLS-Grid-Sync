@@ -2,6 +2,7 @@ package processor
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -64,4 +65,54 @@ func TestParseDate_RejectsNonStringJSON(t *testing.T) {
 			require.Error(t, err)
 		})
 	}
+}
+
+// TestRequiredModTimestamp covers the three failure modes the helper exists to
+// distinguish. The null/empty case is the regression guard: parseTime returns
+// (nil, nil) there, and the historical `fmt.Errorf("...: %w", err)` wrapped a
+// nil error and rendered the useless "ModificationTimestamp: %!w(<nil>)".
+func TestRequiredModTimestamp(t *testing.T) {
+	t.Run("absent", func(t *testing.T) {
+		_, err := requiredModTimestamp(nil, false)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "missing required field")
+	})
+
+	t.Run("present but null", func(t *testing.T) {
+		_, err := requiredModTimestamp(json.RawMessage(`null`), true)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "null or empty")
+		assert.NotContains(t, err.Error(), "%!w", "must not wrap a nil error")
+	})
+
+	t.Run("present but empty string", func(t *testing.T) {
+		_, err := requiredModTimestamp(json.RawMessage(`""`), true)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "null or empty")
+		assert.NotContains(t, err.Error(), "%!w")
+	})
+
+	t.Run("malformed", func(t *testing.T) {
+		_, err := requiredModTimestamp(json.RawMessage(`"not-a-time"`), true)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "ModificationTimestamp")
+		assert.NotContains(t, err.Error(), "%!w")
+	})
+
+	t.Run("valid", func(t *testing.T) {
+		got, err := requiredModTimestamp(json.RawMessage(`"2012-03-14T08:30:00Z"`), true)
+		require.NoError(t, err)
+		assert.True(t, got.Equal(time.Date(2012, 3, 14, 8, 30, 0, 0, time.UTC)))
+	})
+}
+
+// TestParseProperty_NullModificationTimestamp is the end-to-end regression: a
+// present-but-null ModificationTimestamp must produce a clear poison message,
+// never the garbage "%!w(<nil>)" the nil-wrap produced before the fix.
+func TestParseProperty_NullModificationTimestamp(t *testing.T) {
+	_, err := parseProperty([]byte(`{"ListingKey":"x","ModificationTimestamp":null}`))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "null or empty")
+	assert.False(t, strings.Contains(err.Error(), "%!w"),
+		"present-but-null timestamp must not render a wrapped-nil error: %q", err.Error())
 }

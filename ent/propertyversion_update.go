@@ -106,6 +106,40 @@ func (_u *PropertyVersionUpdate) SetNillableProcessorVersion(v *string) *Propert
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *PropertyVersionUpdate) SetSyncEventID(v uuid.UUID) *PropertyVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *PropertyVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *PropertyVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *PropertyVersionUpdate) SetRawOutputID(v uuid.UUID) *PropertyVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *PropertyVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *PropertyVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *PropertyVersionUpdate) ClearRawOutputID() *PropertyVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *PropertyVersionUpdate) SetSourceModifiedAt(v time.Time) *PropertyVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -2403,40 +2437,6 @@ func (_u *PropertyVersionUpdate) SetNillableListingKey(v *string) *PropertyVersi
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *PropertyVersionUpdate) SetSyncEventID(v uuid.UUID) *PropertyVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *PropertyVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *PropertyVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *PropertyVersionUpdate) SetRawOutputID(v uuid.UUID) *PropertyVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *PropertyVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *PropertyVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *PropertyVersionUpdate) ClearRawOutputID() *PropertyVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the PropertyVersionMutation object of the builder.
 func (_u *PropertyVersionUpdate) Mutation() *PropertyVersionMutation {
 	return _u.mutation
@@ -2511,6 +2511,15 @@ func (_u *PropertyVersionUpdate) sqlSave(ctx context.Context) (_node int, err er
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(propertyversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(propertyversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -3297,15 +3306,6 @@ func (_u *PropertyVersionUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if value, ok := _u.mutation.ListingKey(); ok {
 		_spec.SetField(propertyversion.FieldListingKey, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(propertyversion.FieldRawOutputID, field.TypeUUID)
-	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{propertyversion.Label}
@@ -3397,6 +3397,40 @@ func (_u *PropertyVersionUpdateOne) SetNillableProcessorVersion(v *string) *Prop
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *PropertyVersionUpdateOne) SetSyncEventID(v uuid.UUID) *PropertyVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *PropertyVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *PropertyVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *PropertyVersionUpdateOne) SetRawOutputID(v uuid.UUID) *PropertyVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *PropertyVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *PropertyVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *PropertyVersionUpdateOne) ClearRawOutputID() *PropertyVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -5697,40 +5731,6 @@ func (_u *PropertyVersionUpdateOne) SetNillableListingKey(v *string) *PropertyVe
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *PropertyVersionUpdateOne) SetSyncEventID(v uuid.UUID) *PropertyVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *PropertyVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *PropertyVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *PropertyVersionUpdateOne) SetRawOutputID(v uuid.UUID) *PropertyVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *PropertyVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *PropertyVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *PropertyVersionUpdateOne) ClearRawOutputID() *PropertyVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the PropertyVersionMutation object of the builder.
 func (_u *PropertyVersionUpdateOne) Mutation() *PropertyVersionMutation {
 	return _u.mutation
@@ -5835,6 +5835,15 @@ func (_u *PropertyVersionUpdateOne) sqlSave(ctx context.Context) (_node *Propert
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(propertyversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(propertyversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -6620,15 +6629,6 @@ func (_u *PropertyVersionUpdateOne) sqlSave(ctx context.Context) (_node *Propert
 	}
 	if value, ok := _u.mutation.ListingKey(); ok {
 		_spec.SetField(propertyversion.FieldListingKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(propertyversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &PropertyVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

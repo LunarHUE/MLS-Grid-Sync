@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
-	"github.com/google/uuid"
 )
 
 // MemberDataMixin: shared columns between Member and MemberVersion.
@@ -69,6 +68,7 @@ func (Member) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		MemberDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -77,9 +77,7 @@ func (Member) Fields() []ent.Field {
 		field.String("id").
 			StorageKey("member_key").
 			Comment("PK = MemberKey (canonical identifier from MLS Grid)"),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 	}
 }
 

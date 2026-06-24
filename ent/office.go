@@ -80,7 +80,7 @@ type Office struct {
 	PhotosChangeTimestamp *time.Time `json:"photos_change_timestamp,omitempty"`
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
-	// CurrentVersionID holds the value of the "current_version_id" field.
+	// Points at the latest version row
 	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OfficeQuery when eager-loading is set.

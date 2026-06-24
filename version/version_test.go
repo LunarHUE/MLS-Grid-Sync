@@ -2,12 +2,70 @@ package version
 
 import (
 	"errors"
+	"net/url"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 )
+
+func stubBuildInfoMain(t *testing.T, path string) {
+	t.Helper()
+	prev := readBuildInfoFn
+	readBuildInfoFn = func() (*debug.BuildInfo, bool) {
+		return &debug.BuildInfo{Main: debug.Module{Path: path}}, true
+	}
+	t.Cleanup(func() { readBuildInfoFn = prev })
+}
+
+// TestRepoURL_FromBuildInfo asserts the repo URL is derived from the module
+// path in build info (go.mod) rather than a hardcoded constant.
+func TestRepoURL_FromBuildInfo(t *testing.T) {
+	stubBuildInfoMain(t, "github.com/LunarHUE/MLS-Grid-Sync")
+	if got, want := RepoURL(), "https://github.com/LunarHUE/MLS-Grid-Sync"; got != want {
+		t.Fatalf("RepoURL() = %q, want %q", got, want)
+	}
+}
+
+// TestRepoURL_Fallback asserts the defensive fallback when build info is
+// unavailable (the path that keeps the diagnostic link usable under `go test`).
+func TestRepoURL_Fallback(t *testing.T) {
+	stubBuildInfoAbsent(t)
+	if got := RepoURL(); !strings.HasPrefix(got, "https://") || !strings.Contains(got, repoFallback) {
+		t.Fatalf("RepoURL() = %q, want fallback containing %q", got, repoFallback)
+	}
+}
+
+// TestNewIssueURL_EncodesTitleAndBody asserts title/body are URL-encoded into
+// the query string so the operator lands on a pre-filled issue form.
+func TestNewIssueURL_EncodesTitleAndBody(t *testing.T) {
+	stubBuildInfoMain(t, "github.com/LunarHUE/MLS-Grid-Sync")
+	got := NewIssueURL("New field: A&B", "see logs")
+
+	u, err := url.Parse(got)
+	if err != nil {
+		t.Fatalf("NewIssueURL produced unparseable URL %q: %v", got, err)
+	}
+	if want := "/LunarHUE/MLS-Grid-Sync/issues/new"; u.Path != want {
+		t.Fatalf("path = %q, want %q", u.Path, want)
+	}
+	if got, want := u.Query().Get("title"), "New field: A&B"; got != want {
+		t.Fatalf("title = %q, want %q", got, want)
+	}
+	if got, want := u.Query().Get("body"), "see logs"; got != want {
+		t.Fatalf("body = %q, want %q", got, want)
+	}
+}
+
+// TestNewIssueURL_NoQueryWhenEmpty asserts the bare issue URL when no title or
+// body is supplied (no trailing "?").
+func TestNewIssueURL_NoQueryWhenEmpty(t *testing.T) {
+	stubBuildInfoMain(t, "github.com/LunarHUE/MLS-Grid-Sync")
+	if got, want := NewIssueURL("", ""), "https://github.com/LunarHUE/MLS-Grid-Sync/issues/new"; got != want {
+		t.Fatalf("NewIssueURL(\"\",\"\") = %q, want %q", got, want)
+	}
+}
 
 // resetInfoCache clears the memoization state. Same-package tests reach
 // into the package-private once/cached pair directly; intentionally not

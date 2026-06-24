@@ -49,7 +49,7 @@ type OpenHouse struct {
 	OpenHouseType *string `json:"open_house_type,omitempty"`
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
-	// CurrentVersionID holds the value of the "current_version_id" field.
+	// Points at the latest version row
 	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	// Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
 	ParentListingKey *string `json:"parent_listing_key,omitempty"`

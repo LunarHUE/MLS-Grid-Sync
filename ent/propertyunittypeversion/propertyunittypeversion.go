@@ -25,6 +25,10 @@ const (
 	FieldChangedFields = "changed_fields"
 	// FieldProcessorVersion holds the string denoting the processor_version field in the database.
 	FieldProcessorVersion = "processor_version"
+	// FieldSyncEventID holds the string denoting the sync_event_id field in the database.
+	FieldSyncEventID = "sync_event_id"
+	// FieldRawOutputID holds the string denoting the raw_output_id field in the database.
+	FieldRawOutputID = "raw_output_id"
 	// FieldSourceModifiedAt holds the string denoting the source_modified_at field in the database.
 	FieldSourceModifiedAt = "source_modified_at"
 	// FieldOriginatingSystemName holds the string denoting the originating_system_name field in the database.
@@ -43,10 +47,6 @@ const (
 	FieldExtendedFields = "extended_fields"
 	// FieldUnitTypeKey holds the string denoting the unit_type_key field in the database.
 	FieldUnitTypeKey = "unit_type_key"
-	// FieldSyncEventID holds the string denoting the sync_event_id field in the database.
-	FieldSyncEventID = "sync_event_id"
-	// FieldRawOutputID holds the string denoting the raw_output_id field in the database.
-	FieldRawOutputID = "raw_output_id"
 	// Table holds the table name of the propertyunittypeversion in the database.
 	Table = "property_unit_type_version"
 )
@@ -59,6 +59,8 @@ var Columns = []string{
 	FieldChangeType,
 	FieldChangedFields,
 	FieldProcessorVersion,
+	FieldSyncEventID,
+	FieldRawOutputID,
 	FieldSourceModifiedAt,
 	FieldOriginatingSystemName,
 	FieldMlgCanView,
@@ -68,8 +70,6 @@ var Columns = []string{
 	FieldUnitTypeFurnished,
 	FieldExtendedFields,
 	FieldUnitTypeKey,
-	FieldSyncEventID,
-	FieldRawOutputID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -141,6 +141,16 @@ func ByProcessorVersion(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProcessorVersion, opts...).ToFunc()
 }
 
+// BySyncEventID orders the results by the sync_event_id field.
+func BySyncEventID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSyncEventID, opts...).ToFunc()
+}
+
+// ByRawOutputID orders the results by the raw_output_id field.
+func ByRawOutputID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRawOutputID, opts...).ToFunc()
+}
+
 // BySourceModifiedAt orders the results by the source_modified_at field.
 func BySourceModifiedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSourceModifiedAt, opts...).ToFunc()
@@ -174,16 +184,6 @@ func ByUnitTypeFurnished(opts ...sql.OrderTermOption) OrderOption {
 // ByUnitTypeKey orders the results by the unit_type_key field.
 func ByUnitTypeKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUnitTypeKey, opts...).ToFunc()
-}
-
-// BySyncEventID orders the results by the sync_event_id field.
-func BySyncEventID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSyncEventID, opts...).ToFunc()
-}
-
-// ByRawOutputID orders the results by the raw_output_id field.
-func ByRawOutputID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRawOutputID, opts...).ToFunc()
 }
 
 // MarshalGQL implements graphql.Marshaler interface.

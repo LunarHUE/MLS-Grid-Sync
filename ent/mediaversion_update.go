@@ -104,6 +104,40 @@ func (_u *MediaVersionUpdate) SetNillableProcessorVersion(v *string) *MediaVersi
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *MediaVersionUpdate) SetSyncEventID(v uuid.UUID) *MediaVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *MediaVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *MediaVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *MediaVersionUpdate) SetRawOutputID(v uuid.UUID) *MediaVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *MediaVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *MediaVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *MediaVersionUpdate) ClearRawOutputID() *MediaVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *MediaVersionUpdate) SetSourceModifiedAt(v time.Time) *MediaVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -425,40 +459,6 @@ func (_u *MediaVersionUpdate) SetNillableMediaKey(v *string) *MediaVersionUpdate
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *MediaVersionUpdate) SetSyncEventID(v uuid.UUID) *MediaVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *MediaVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *MediaVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *MediaVersionUpdate) SetRawOutputID(v uuid.UUID) *MediaVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *MediaVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *MediaVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *MediaVersionUpdate) ClearRawOutputID() *MediaVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the MediaVersionMutation object of the builder.
 func (_u *MediaVersionUpdate) Mutation() *MediaVersionMutation {
 	return _u.mutation
@@ -538,6 +538,15 @@ func (_u *MediaVersionUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(mediaversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(mediaversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(mediaversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(mediaversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(mediaversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -640,15 +649,6 @@ func (_u *MediaVersionUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.MediaKey(); ok {
 		_spec.SetField(mediaversion.FieldMediaKey, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(mediaversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(mediaversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(mediaversion.FieldRawOutputID, field.TypeUUID)
-	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{mediaversion.Label}
@@ -740,6 +740,40 @@ func (_u *MediaVersionUpdateOne) SetNillableProcessorVersion(v *string) *MediaVe
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *MediaVersionUpdateOne) SetSyncEventID(v uuid.UUID) *MediaVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *MediaVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *MediaVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *MediaVersionUpdateOne) SetRawOutputID(v uuid.UUID) *MediaVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *MediaVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *MediaVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *MediaVersionUpdateOne) ClearRawOutputID() *MediaVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -1064,40 +1098,6 @@ func (_u *MediaVersionUpdateOne) SetNillableMediaKey(v *string) *MediaVersionUpd
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *MediaVersionUpdateOne) SetSyncEventID(v uuid.UUID) *MediaVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *MediaVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *MediaVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *MediaVersionUpdateOne) SetRawOutputID(v uuid.UUID) *MediaVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *MediaVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *MediaVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *MediaVersionUpdateOne) ClearRawOutputID() *MediaVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the MediaVersionMutation object of the builder.
 func (_u *MediaVersionUpdateOne) Mutation() *MediaVersionMutation {
 	return _u.mutation
@@ -1208,6 +1208,15 @@ func (_u *MediaVersionUpdateOne) sqlSave(ctx context.Context) (_node *MediaVersi
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(mediaversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(mediaversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(mediaversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(mediaversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(mediaversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -1308,15 +1317,6 @@ func (_u *MediaVersionUpdateOne) sqlSave(ctx context.Context) (_node *MediaVersi
 	}
 	if value, ok := _u.mutation.MediaKey(); ok {
 		_spec.SetField(mediaversion.FieldMediaKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(mediaversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(mediaversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(mediaversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &MediaVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

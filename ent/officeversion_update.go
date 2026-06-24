@@ -104,6 +104,40 @@ func (_u *OfficeVersionUpdate) SetNillableProcessorVersion(v *string) *OfficeVer
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *OfficeVersionUpdate) SetSyncEventID(v uuid.UUID) *OfficeVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *OfficeVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *OfficeVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *OfficeVersionUpdate) SetRawOutputID(v uuid.UUID) *OfficeVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *OfficeVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *OfficeVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *OfficeVersionUpdate) ClearRawOutputID() *OfficeVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *OfficeVersionUpdate) SetSourceModifiedAt(v time.Time) *OfficeVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -656,40 +690,6 @@ func (_u *OfficeVersionUpdate) SetNillableOfficeKey(v *string) *OfficeVersionUpd
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *OfficeVersionUpdate) SetSyncEventID(v uuid.UUID) *OfficeVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *OfficeVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *OfficeVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *OfficeVersionUpdate) SetRawOutputID(v uuid.UUID) *OfficeVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *OfficeVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *OfficeVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *OfficeVersionUpdate) ClearRawOutputID() *OfficeVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the OfficeVersionMutation object of the builder.
 func (_u *OfficeVersionUpdate) Mutation() *OfficeVersionMutation {
 	return _u.mutation
@@ -764,6 +764,15 @@ func (_u *OfficeVersionUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(officeversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(officeversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(officeversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(officeversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(officeversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -935,15 +944,6 @@ func (_u *OfficeVersionUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.OfficeKey(); ok {
 		_spec.SetField(officeversion.FieldOfficeKey, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(officeversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(officeversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(officeversion.FieldRawOutputID, field.TypeUUID)
-	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{officeversion.Label}
@@ -1035,6 +1035,40 @@ func (_u *OfficeVersionUpdateOne) SetNillableProcessorVersion(v *string) *Office
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *OfficeVersionUpdateOne) SetSyncEventID(v uuid.UUID) *OfficeVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *OfficeVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *OfficeVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *OfficeVersionUpdateOne) SetRawOutputID(v uuid.UUID) *OfficeVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *OfficeVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *OfficeVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *OfficeVersionUpdateOne) ClearRawOutputID() *OfficeVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -1590,40 +1624,6 @@ func (_u *OfficeVersionUpdateOne) SetNillableOfficeKey(v *string) *OfficeVersion
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *OfficeVersionUpdateOne) SetSyncEventID(v uuid.UUID) *OfficeVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *OfficeVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *OfficeVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *OfficeVersionUpdateOne) SetRawOutputID(v uuid.UUID) *OfficeVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *OfficeVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *OfficeVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *OfficeVersionUpdateOne) ClearRawOutputID() *OfficeVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the OfficeVersionMutation object of the builder.
 func (_u *OfficeVersionUpdateOne) Mutation() *OfficeVersionMutation {
 	return _u.mutation
@@ -1728,6 +1728,15 @@ func (_u *OfficeVersionUpdateOne) sqlSave(ctx context.Context) (_node *OfficeVer
 	}
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(officeversion.FieldProcessorVersion, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(officeversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(officeversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(officeversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(officeversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -1898,15 +1907,6 @@ func (_u *OfficeVersionUpdateOne) sqlSave(ctx context.Context) (_node *OfficeVer
 	}
 	if value, ok := _u.mutation.OfficeKey(); ok {
 		_spec.SetField(officeversion.FieldOfficeKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(officeversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(officeversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(officeversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &OfficeVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

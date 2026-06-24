@@ -41,7 +41,7 @@ type PropertyUnitType struct {
 	UnitTypeFurnished *string `json:"unit_type_furnished,omitempty"`
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
-	// CurrentVersionID holds the value of the "current_version_id" field.
+	// Points at the latest version row
 	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	// Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
 	ParentListingKey *string `json:"parent_listing_key,omitempty"`

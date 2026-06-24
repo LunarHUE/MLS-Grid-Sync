@@ -62,6 +62,26 @@ func (_c *MemberVersionCreate) SetProcessorVersion(v string) *MemberVersionCreat
 	return _c
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_c *MemberVersionCreate) SetSyncEventID(v uuid.UUID) *MemberVersionCreate {
+	_c.mutation.SetSyncEventID(v)
+	return _c
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_c *MemberVersionCreate) SetRawOutputID(v uuid.UUID) *MemberVersionCreate {
+	_c.mutation.SetRawOutputID(v)
+	return _c
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_c *MemberVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *MemberVersionCreate {
+	if v != nil {
+		_c.SetRawOutputID(*v)
+	}
+	return _c
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_c *MemberVersionCreate) SetSourceModifiedAt(v time.Time) *MemberVersionCreate {
 	_c.mutation.SetSourceModifiedAt(v)
@@ -478,26 +498,6 @@ func (_c *MemberVersionCreate) SetMemberKey(v string) *MemberVersionCreate {
 	return _c
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_c *MemberVersionCreate) SetSyncEventID(v uuid.UUID) *MemberVersionCreate {
-	_c.mutation.SetSyncEventID(v)
-	return _c
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_c *MemberVersionCreate) SetRawOutputID(v uuid.UUID) *MemberVersionCreate {
-	_c.mutation.SetRawOutputID(v)
-	return _c
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_c *MemberVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *MemberVersionCreate {
-	if v != nil {
-		_c.SetRawOutputID(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *MemberVersionCreate) SetID(v string) *MemberVersionCreate {
 	_c.mutation.SetID(v)
@@ -573,6 +573,9 @@ func (_c *MemberVersionCreate) check() error {
 	if _, ok := _c.mutation.ProcessorVersion(); !ok {
 		return &ValidationError{Name: "processor_version", err: errors.New(`ent: missing required field "MemberVersion.processor_version"`)}
 	}
+	if _, ok := _c.mutation.SyncEventID(); !ok {
+		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "MemberVersion.sync_event_id"`)}
+	}
 	if _, ok := _c.mutation.SourceModifiedAt(); !ok {
 		return &ValidationError{Name: "source_modified_at", err: errors.New(`ent: missing required field "MemberVersion.source_modified_at"`)}
 	}
@@ -581,9 +584,6 @@ func (_c *MemberVersionCreate) check() error {
 	}
 	if _, ok := _c.mutation.MemberKey(); !ok {
 		return &ValidationError{Name: "member_key", err: errors.New(`ent: missing required field "MemberVersion.member_key"`)}
-	}
-	if _, ok := _c.mutation.SyncEventID(); !ok {
-		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "MemberVersion.sync_event_id"`)}
 	}
 	return nil
 }
@@ -640,6 +640,14 @@ func (_c *MemberVersionCreate) createSpec() (*MemberVersion, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.ProcessorVersion(); ok {
 		_spec.SetField(memberversion.FieldProcessorVersion, field.TypeString, value)
 		_node.ProcessorVersion = value
+	}
+	if value, ok := _c.mutation.SyncEventID(); ok {
+		_spec.SetField(memberversion.FieldSyncEventID, field.TypeUUID, value)
+		_node.SyncEventID = value
+	}
+	if value, ok := _c.mutation.RawOutputID(); ok {
+		_spec.SetField(memberversion.FieldRawOutputID, field.TypeUUID, value)
+		_node.RawOutputID = &value
 	}
 	if value, ok := _c.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(memberversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -769,14 +777,6 @@ func (_c *MemberVersionCreate) createSpec() (*MemberVersion, *sqlgraph.CreateSpe
 		_spec.SetField(memberversion.FieldMemberKey, field.TypeString, value)
 		_node.MemberKey = value
 	}
-	if value, ok := _c.mutation.SyncEventID(); ok {
-		_spec.SetField(memberversion.FieldSyncEventID, field.TypeUUID, value)
-		_node.SyncEventID = value
-	}
-	if value, ok := _c.mutation.RawOutputID(); ok {
-		_spec.SetField(memberversion.FieldRawOutputID, field.TypeUUID, value)
-		_node.RawOutputID = &value
-	}
 	return _node, _spec
 }
 
@@ -898,6 +898,36 @@ func (u *MemberVersionUpsert) SetProcessorVersion(v string) *MemberVersionUpsert
 // UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
 func (u *MemberVersionUpsert) UpdateProcessorVersion() *MemberVersionUpsert {
 	u.SetExcluded(memberversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MemberVersionUpsert) SetSyncEventID(v uuid.UUID) *MemberVersionUpsert {
+	u.Set(memberversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MemberVersionUpsert) UpdateSyncEventID() *MemberVersionUpsert {
+	u.SetExcluded(memberversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MemberVersionUpsert) SetRawOutputID(v uuid.UUID) *MemberVersionUpsert {
+	u.Set(memberversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MemberVersionUpsert) UpdateRawOutputID() *MemberVersionUpsert {
+	u.SetExcluded(memberversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MemberVersionUpsert) ClearRawOutputID() *MemberVersionUpsert {
+	u.SetNull(memberversion.FieldRawOutputID)
 	return u
 }
 
@@ -1459,36 +1489,6 @@ func (u *MemberVersionUpsert) UpdateMemberKey() *MemberVersionUpsert {
 	return u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *MemberVersionUpsert) SetSyncEventID(v uuid.UUID) *MemberVersionUpsert {
-	u.Set(memberversion.FieldSyncEventID, v)
-	return u
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *MemberVersionUpsert) UpdateSyncEventID() *MemberVersionUpsert {
-	u.SetExcluded(memberversion.FieldSyncEventID)
-	return u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *MemberVersionUpsert) SetRawOutputID(v uuid.UUID) *MemberVersionUpsert {
-	u.Set(memberversion.FieldRawOutputID, v)
-	return u
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *MemberVersionUpsert) UpdateRawOutputID() *MemberVersionUpsert {
-	u.SetExcluded(memberversion.FieldRawOutputID)
-	return u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *MemberVersionUpsert) ClearRawOutputID() *MemberVersionUpsert {
-	u.SetNull(memberversion.FieldRawOutputID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1618,6 +1618,41 @@ func (u *MemberVersionUpsertOne) SetProcessorVersion(v string) *MemberVersionUps
 func (u *MemberVersionUpsertOne) UpdateProcessorVersion() *MemberVersionUpsertOne {
 	return u.Update(func(s *MemberVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MemberVersionUpsertOne) SetSyncEventID(v uuid.UUID) *MemberVersionUpsertOne {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MemberVersionUpsertOne) UpdateSyncEventID() *MemberVersionUpsertOne {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MemberVersionUpsertOne) SetRawOutputID(v uuid.UUID) *MemberVersionUpsertOne {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MemberVersionUpsertOne) UpdateRawOutputID() *MemberVersionUpsertOne {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MemberVersionUpsertOne) ClearRawOutputID() *MemberVersionUpsertOne {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -2272,41 +2307,6 @@ func (u *MemberVersionUpsertOne) UpdateMemberKey() *MemberVersionUpsertOne {
 	})
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *MemberVersionUpsertOne) SetSyncEventID(v uuid.UUID) *MemberVersionUpsertOne {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *MemberVersionUpsertOne) UpdateSyncEventID() *MemberVersionUpsertOne {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *MemberVersionUpsertOne) SetRawOutputID(v uuid.UUID) *MemberVersionUpsertOne {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *MemberVersionUpsertOne) UpdateRawOutputID() *MemberVersionUpsertOne {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *MemberVersionUpsertOne) ClearRawOutputID() *MemberVersionUpsertOne {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.ClearRawOutputID()
-	})
-}
-
 // Exec executes the query.
 func (u *MemberVersionUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -2603,6 +2603,41 @@ func (u *MemberVersionUpsertBulk) SetProcessorVersion(v string) *MemberVersionUp
 func (u *MemberVersionUpsertBulk) UpdateProcessorVersion() *MemberVersionUpsertBulk {
 	return u.Update(func(s *MemberVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MemberVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *MemberVersionUpsertBulk {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MemberVersionUpsertBulk) UpdateSyncEventID() *MemberVersionUpsertBulk {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MemberVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *MemberVersionUpsertBulk {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MemberVersionUpsertBulk) UpdateRawOutputID() *MemberVersionUpsertBulk {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MemberVersionUpsertBulk) ClearRawOutputID() *MemberVersionUpsertBulk {
+	return u.Update(func(s *MemberVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -3254,41 +3289,6 @@ func (u *MemberVersionUpsertBulk) SetMemberKey(v string) *MemberVersionUpsertBul
 func (u *MemberVersionUpsertBulk) UpdateMemberKey() *MemberVersionUpsertBulk {
 	return u.Update(func(s *MemberVersionUpsert) {
 		s.UpdateMemberKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *MemberVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *MemberVersionUpsertBulk {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *MemberVersionUpsertBulk) UpdateSyncEventID() *MemberVersionUpsertBulk {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *MemberVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *MemberVersionUpsertBulk {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *MemberVersionUpsertBulk) UpdateRawOutputID() *MemberVersionUpsertBulk {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *MemberVersionUpsertBulk) ClearRawOutputID() *MemberVersionUpsertBulk {
-	return u.Update(func(s *MemberVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 

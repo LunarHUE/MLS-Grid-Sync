@@ -9,7 +9,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
-	"github.com/google/uuid"
 )
 
 // PropertyRoomDataMixin: shared columns between PropertyRoom and PropertyRoomVersion.
@@ -41,6 +40,7 @@ func (PropertyRoom) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		PropertyRoomDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -49,9 +49,7 @@ func (PropertyRoom) Fields() []ent.Field {
 		field.String("id").
 			StorageKey("room_key").
 			Comment("RESO RoomKey"),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 		field.String("parent_listing_key").
 			Optional().Nillable().
 			Comment("Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives."),

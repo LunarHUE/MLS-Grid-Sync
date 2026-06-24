@@ -121,11 +121,6 @@ func TestAzureBlobStorer_Conformance(t *testing.T) {
 					t.Errorf("AzureBlob URL %q missing key %q", url, key)
 				}
 			},
-			// Azure blob PUTs are atomic at the blob level — a failed
-			// upload leaves no visible blob — but the conformance suite
-			// has no atomicity case that exercises this; flag false to
-			// match the current suite's interest.
-			supportsAtomicity: false,
 		}
 	})
 }

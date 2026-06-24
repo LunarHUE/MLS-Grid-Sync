@@ -10,9 +10,9 @@ import (
 )
 
 // conformanceFixture is what each backend supplies to drive the
-// shared behavioral suite. Optional capabilities (readback, atomicity)
-// are nil-able so backends opt in only to what they can honor; the
-// suite skips the cases that don't apply.
+// shared behavioral suite. The optional readback/urlAssertion hooks are
+// nil-able so backends opt in only to what they can honor; the suite skips
+// the cases that don't apply.
 type conformanceFixture struct {
 	name   string
 	storer Storer
@@ -21,9 +21,6 @@ type conformanceFixture struct {
 	readback func(t *testing.T, key string) []byte
 	// urlAssertion validates the shape of the URL Upload returned.
 	urlAssertion func(t *testing.T, key, url string)
-	// supportsAtomicity is true for backends that guarantee no
-	// visible half-object on mid-upload error.
-	supportsAtomicity bool
 }
 
 // testStorerConformance is the shared contract suite extended by
