@@ -116,6 +116,12 @@ type ProcessorConfig struct {
 	// resources except Lookup). Defaults to true; disabling forces the proven
 	// per-record path (the operator kill-switch). See docs/profiling.md R4.
 	Bulk bool `mapstructure:"bulk" yaml:"bulk"`
+	// DriftSampleRate is the probability (0..1) that a processed record is
+	// inspected for new, unmapped feed fields (field-drift diagnostic). Defaults
+	// to 0.004 (~4/1000) in default.config.yaml; set to 1.0 for a one-off audit
+	// after a known spec change, or 0 to disable. Override:
+	// MLS_SYNC_PROCESSOR_DRIFT_SAMPLE_RATE.
+	DriftSampleRate float64 `mapstructure:"drift_sample_rate" yaml:"drift_sample_rate"`
 }
 
 // ServerConfig configures the GraphQL HTTP server started by the

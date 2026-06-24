@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"sort"
 
 	"github.com/spf13/cobra"
 
@@ -31,7 +29,7 @@ non-zero exit code surfaces so automation notices.`,
 			return fmt.Errorf("fatal: MLS token is missing from configuration")
 		}
 		client := mls.NewClient(appConfig.MLS.Token, appConfig.MLS.APIRPS)
-		names, err := probeOriginatingSystems(ctx, client, appConfig.MLS.V2URL)
+		names, err := mls.ProbeOriginatingSystems(ctx, client, appConfig.MLS.V2URL)
 		if err != nil {
 			fmt.Fprintf(cmd.OutOrStderr(), "discovery probe failed: %v\n", err)
 			fmt.Fprintln(cmd.OutOrStderr(), "discovery is unsupported for this token; supply --originating-system explicitly")
@@ -49,38 +47,6 @@ non-zero exit code surfaces so automation notices.`,
 	},
 }
 
-// probeOriginatingSystems fires one request against mls.DiscoveryURL and
-// extracts distinct OriginatingSystemName values from the response.
-// Returns the deduplicated, sorted list (or empty if records came back
-// but none carried the field).
-//
-// The fetcher interface lets cmd/systems_test inject httptest fixtures
-// without spinning up a real mls.Client.
-func probeOriginatingSystems(ctx context.Context, fetcher mls.PageFetcher, v2URL string) ([]string, error) {
-	resp, err := fetcher.FetchPage(ctx, mls.DiscoveryURL(v2URL))
-	if err != nil {
-		return nil, err
-	}
-	seen := map[string]bool{}
-	for _, raw := range resp.Value {
-		var record struct {
-			OriginatingSystemName string `json:"OriginatingSystemName"`
-		}
-		if err := json.Unmarshal(raw, &record); err != nil {
-			continue
-		}
-		if record.OriginatingSystemName != "" {
-			seen[record.OriginatingSystemName] = true
-		}
-	}
-	out := make([]string, 0, len(seen))
-	for k := range seen {
-		out = append(out, k)
-	}
-	sort.Strings(out)
-	return out, nil
-}
-
 func init() {
 	rootCmd.AddCommand(systemsCmd)
 
@@ -91,7 +57,7 @@ func init() {
 			return nil
 		}
 		client := mls.NewClient(appConfig.MLS.Token, appConfig.MLS.APIRPS)
-		names, err := probeOriginatingSystems(context.Background(), client, appConfig.MLS.V2URL)
+		names, err := mls.ProbeOriginatingSystems(context.Background(), client, appConfig.MLS.V2URL)
 		if err != nil {
 			// Discovery failure is non-fatal at prompt time — fall back to
 			// free-text entry rather than crashing the resolver.

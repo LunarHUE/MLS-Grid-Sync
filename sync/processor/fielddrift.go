@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand/v2"
+	"strings"
 	"sync"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
@@ -36,6 +37,23 @@ var sampleRate = 0.004
 // top-level funcs are goroutine-safe and lock-free, which matters because
 // distinct resources can run passes concurrently.
 func sampled() bool { return rand.Float64() < sampleRate }
+
+// SetDriftSampleRate overrides the field-drift sampling probability from
+// config (processor.drift_sample_rate / MLS_SYNC_PROCESSOR_DRIFT_SAMPLE_RATE).
+// Values >1 clamp to 1 (inspect every record — a one-off audit pass); 0
+// disables the check entirely; negative values are ignored so the built-in
+// default survives an unset/zero-on-read config. Call once at startup before a
+// pass; a plain assignment is fine because it precedes the concurrent passes.
+func SetDriftSampleRate(r float64) {
+	switch {
+	case r < 0:
+		return
+	case r > 1:
+		sampleRate = 1
+	default:
+		sampleRate = r
+	}
+}
 
 // knownExtendedFields is the per-resource allowlist of keys we already expect
 // to land in extended_fields. The drift check warns only on keys NOT listed
@@ -143,10 +161,14 @@ var knownExtendedKeys = map[rawoutput.Resource][]string{
 }
 
 // warnedDrift dedupes warnings so each novel field alerts at most once per
-// process. Guarded by driftMu because concurrent resource passes may write it.
+// process. driftFindings records the novel fields seen per resource so an
+// end-of-pass summary can reprint them in one line (the individual WARNs scroll
+// off in a long pass). Both are guarded by driftMu because concurrent resource
+// passes may write them.
 var (
-	driftMu     sync.Mutex
-	warnedDrift = map[string]bool{} // key: "<resource>.<field>"
+	driftMu       sync.Mutex
+	warnedDrift   = map[string]bool{}                 // key: "<resource>.<field>"
+	driftFindings = map[rawoutput.Resource][]string{} // novel fields seen, per resource
 )
 
 // checkFieldDrift inspects one processed record for unmapped fields, gated by
@@ -184,17 +206,24 @@ func warnNovelField(resource rawoutput.Resource, field string, value any, rawID 
 		return
 	}
 	warnedDrift[dedupeKey] = true
+	driftFindings[resource] = append(driftFindings[resource], field)
 	driftMu.Unlock()
 
 	valStr := renderDriftValue(value)
 	ver := version.Info()
 	title := fmt.Sprintf("New unmapped field: %s.%s", resource, field)
+	// The issue URL is meant to be shared, so it carries only the value's shape
+	// (type + length), never its contents — feed fields are frequently PII
+	// (emails, phones, license numbers). The operator still sees the real value
+	// in their local WARN line below.
 	body := fmt.Sprintf(
 		"The sync processor saw a field in the %s feed that is not mapped to a "+
 			"typed column and fell through to extended_fields.\n\n"+
-			"- Field: %s\n- Example value: %s\n- Sample raw_output id: %s\n- Version: %s\n\n"+
+			"- Field: %s\n- Example value shape: %s (actual value omitted to keep "+
+			"feed data out of a public issue; it is in the operator's local logs)\n"+
+			"- Sample raw_output id: %s\n- Version: %s\n\n"+
 			"Paste the surrounding processor logs below:\n\n```\n\n```\n",
-		resource, field, valStr, rawID, ver)
+		resource, field, describeDriftValue(value), rawID, ver)
 
 	applog.Warnf(
 		"field-drift: new unmapped field %s.%s (not in typed schema) — value: %s, "+
@@ -216,4 +245,63 @@ func renderDriftValue(value any) string {
 		return string(b[:max]) + "…(truncated)"
 	}
 	return string(b)
+}
+
+// describeDriftValue renders a content-free shape descriptor for the issue URL
+// — the JSON kind plus a size, never the value itself. This keeps PII out of a
+// link meant to be shared while still telling the maintainer what they're
+// dealing with.
+func describeDriftValue(value any) string {
+	switch v := value.(type) {
+	case nil:
+		return "null"
+	case bool:
+		return "bool"
+	case string:
+		return fmt.Sprintf("string, len %d", len(v))
+	case float64, float32, int, int64:
+		return "number"
+	case []any:
+		return fmt.Sprintf("array, %d items", len(v))
+	case map[string]any:
+		return fmt.Sprintf("object, %d keys", len(v))
+	default:
+		// extendedFields values are JSON-decoded, so the cases above cover the
+		// normal shapes. For anything else (e.g. json.RawMessage), re-decode to a
+		// generic value to report the JSON kind, falling back to the Go type name.
+		if b, err := json.Marshal(value); err == nil {
+			var generic any
+			if json.Unmarshal(b, &generic) == nil && generic != nil {
+				if _, sameAsString := generic.(string); !(sameAsString && fmt.Sprintf("%T", value) == "string") {
+					return describeDriftValue(generic)
+				}
+			}
+		}
+		return fmt.Sprintf("%T", value)
+	}
+}
+
+// driftSummaryLine builds the one-line end-of-pass summary for a resource,
+// returning (line, true) when novel fields were seen this run and ("", false)
+// otherwise. Pure (no logging) so it is directly testable.
+func driftSummaryLine(resource rawoutput.Resource) (string, bool) {
+	driftMu.Lock()
+	fields := driftFindings[resource]
+	driftMu.Unlock()
+	if len(fields) == 0 {
+		return "", false
+	}
+	return fmt.Sprintf(
+		"field-drift: %d novel unmapped field(s) seen this run for %s: %s — see "+
+			"warnings above; upgrade if a newer release may already map them.",
+		len(fields), resource, strings.Join(fields, ", ")), true
+}
+
+// summarizeDrift emits the end-of-pass summary for a resource if anything was
+// flagged. Called from logPassComplete so the consolidated line survives a long
+// pass where the individual WARNs have scrolled away.
+func summarizeDrift(resource rawoutput.Resource) {
+	if line, ok := driftSummaryLine(resource); ok {
+		applog.Warnf("%s", line)
+	}
 }

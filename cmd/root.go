@@ -150,9 +150,10 @@ func setupComponents(ctx context.Context) (*components, error) {
 		processor.NewPropertyRoomProcessor(),
 		processor.NewPropertyUnitTypeProcessor(),
 	).WithCommitBatchSize(appConfig.Processor.CommitBatchSize).
-		WithBulk(appConfig.Processor.Bulk)
+		WithBulk(appConfig.Processor.Bulk).
+		WithDriftSampleRate(appConfig.Processor.DriftSampleRate)
 
-	storer, err := newStorer(appConfig.Storage)
+	storer, err := newStorer(ctx, appConfig.Storage)
 	if err != nil {
 		db.Close()
 		return nil, fmt.Errorf("storage backend: %w", err)
@@ -167,7 +168,11 @@ func setupComponents(ctx context.Context) (*components, error) {
 // wired: fake (no-op), local (filesystem with cap + atomic writes),
 // azure (Azure Blob via azblob), s3 (S3 / S3-compatible via
 // aws-sdk-go-v2). Per-backend validation lives in the constructor.
-func newStorer(cfg config.StorageConfig) (storage.Storer, error) {
+//
+// ctx is threaded into the azure/s3 constructors (which round-trip to the
+// backend at startup) so a caller-supplied deadline can cancel a stuck SDK
+// dial — used by `doctor`, whose storage check runs under --timeout.
+func newStorer(ctx context.Context, cfg config.StorageConfig) (storage.Storer, error) {
 	backend := cfg.Backend
 	if backend == "" {
 		backend = "fake"
@@ -186,10 +191,10 @@ func newStorer(cfg config.StorageConfig) (storage.Storer, error) {
 		}
 		return storage.NewLocal(root, cap)
 	case "azure":
-		return storage.NewAzureBlob(context.Background(),
+		return storage.NewAzureBlob(ctx,
 			cfg.Azure.ConnectionString, cfg.Azure.AccountURL, cfg.Azure.Container)
 	case "s3":
-		return storage.NewS3(context.Background(),
+		return storage.NewS3(ctx,
 			cfg.S3.Endpoint, cfg.S3.Bucket, cfg.S3.Region,
 			cfg.S3.AccessKeyID, cfg.S3.SecretAccessKey, cfg.S3.UsePathStyle)
 	default:
