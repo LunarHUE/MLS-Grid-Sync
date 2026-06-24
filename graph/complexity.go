@@ -129,6 +129,12 @@ func complexityRoot() ComplexityRoot {
 	root.Query.PropertiesInMultiPolygon = func(childComplexity int, _ [][]*model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
+	root.Query.PropertiesByAddress = func(childComplexity int, _ string, _ *float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
+	root.Query.PropertiesByAddressFields = func(childComplexity int, _ *string, _ *string, _ *string, _ *string, _ *float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+		return connectionComplexity(childComplexity, first, last)
+	}
 
 	root.Query.Nodes = func(childComplexity int, ids []string) int {
 		return 1 + len(ids)*childComplexity
