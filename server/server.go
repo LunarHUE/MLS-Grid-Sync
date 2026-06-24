@@ -1,14 +1,13 @@
 package server
 
 import (
-	"context"
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/graph"
+	"github.com/LunarHUE/MLS-Grid-Sync/health"
 )
 
 // Options configures the API HTTP stack. Decoupled from the config
@@ -37,20 +36,39 @@ func SplitOrigins(s string) []string {
 }
 
 // NewMux assembles the serve mux: /query (API key + GraphQL),
-// / (playground HTML, open), /healthz (ping, open), all wrapped in CORS.
-func NewMux(client *ent.Client, ping func(context.Context) error, opts Options) http.Handler {
+// / (playground HTML, open), and the three health endpoints (open), all
+// wrapped in CORS. The health endpoints are registered directly on the mux —
+// only /query is wrapped in RequireAPIKey — so they stay reachable by load
+// balancers and operators without the API key.
+func NewMux(client *ent.Client, h *health.Service, opts Options) http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/query", RequireAPIKey(opts.APIKey, graph.NewHandler(client)))
 	mux.Handle("/", graph.NewPlaygroundHandler("/query"))
+	// /healthz: process alive (no DB). /readyz: can serve safely. /syncz: MLS
+	// sync within thresholds. All return the same {healthy, checks} JSON.
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		pingCtx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-		defer cancel()
-		if err := ping(pingCtx); err != nil {
-			http.Error(w, "database unreachable", http.StatusServiceUnavailable)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "ok")
+		writeHealth(w, h.Live(r.Context()))
+	})
+	mux.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {
+		writeHealth(w, h.Ready(r.Context()))
+	})
+	mux.HandleFunc("/syncz", func(w http.ResponseWriter, r *http.Request) {
+		writeHealth(w, h.Sync(r.Context()))
 	})
 	return CORS(opts.AllowedOrigins, mux)
+}
+
+// writeHealth renders a HealthStatus as indented JSON, returning 200 when
+// healthy and 503 otherwise so orchestrators and load balancers can gate on
+// the status code alone.
+func writeHealth(w http.ResponseWriter, hs health.HealthStatus) {
+	w.Header().Set("Content-Type", "application/json")
+	if hs.Healthy {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	_ = enc.Encode(hs)
 }

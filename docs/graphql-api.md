@@ -91,10 +91,12 @@ history also expose an audit list:
 |---|---|
 | `lookups`, `mediaSlice`¹, `members`, `offices`, `openHouses`, `properties`, `propertyRooms`, `propertyUnitTypes`, `sourceSystems` | `mediaVersions`, `memberVersions`, `officeVersions`, `openHouseVersions`, `propertyVersions`, `propertyRoomVersions`, `propertyUnitTypeVersions` |
 
-Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, and four
+Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, four
 **geo-search** queries over properties: `propertiesNear`,
 `propertiesInBBox`, `propertiesInPolygon`, and `propertiesInMultiPolygon`
-(see [Geo search](#geo-search)).
+(see [Geo search](#geo-search)), and two **address-search** queries:
+`propertiesByAddress` and `propertiesByAddressFields` (see
+[Address search](#address-search)).
 
 ¹ The Media list is named `mediaSlice` because `Property.media` already
 exists as a field name.
@@ -329,6 +331,72 @@ The extension, generated `geom` column, and GIST indexes are applied by
 the migration-owning commands (`sync`, `init`, `worker`, …) — run one of
 them once before `serve` against a fresh or pre-PostGIS database.
 
+## Address search
+
+Two property queries match on the address text, backed by PostgreSQL
+trigram similarity (the `pg_trgm` extension, GIN-indexed). Both return a
+standard `PropertyConnection`, apply the usual visibility filter, and are
+**ID-ordered, not relevance-ordered** — trigram search _filters_ rows, it
+does not rank them, so cursor pagination stays stable. To narrow results,
+raise the `threshold`; there is no "best match first."
+
+### `propertiesByAddress(query, threshold)` — single search box
+
+`query` is matched with trigram `word_similarity` against a **combined
+address** — street number, street name, city, state, and postal code
+concatenated — so typos and partial input still match. `threshold` is the
+`word_similarity` cutoff in `[0, 1]` (default **0.3**); higher is stricter.
+
+```graphql
+{
+  propertiesByAddress(query: "123 Mian St Austn", first: 25) {
+    totalCount
+    edges { node { id unparsedAddress city postalCode } }
+  }
+}
+```
+
+Because it matches the *combined* field, a broad query matches on any
+strongly-similar token: `query: "Austin"` returns every Austin listing (the
+city token alone clears the threshold). Send a fuller string, or use the
+structured query below, to discriminate.
+
+**ZIP fast-path:** an all-digit query (a ZIP or ZIP+4 like `"78704"` or
+`"78704-1234"`) skips trigram entirely and does an exact / prefix
+`postalCode` lookup — bare digits share no useful trigrams with an address.
+A 5-digit value matches exactly; anything shorter is treated as a prefix
+(`"787"` → `787xx`).
+
+### `propertiesByAddressFields(street, city, state, zip, threshold)` — structured
+
+Every field is optional and the supplied ones are **AND-combined** (an
+advanced-search form). At least one of `street`/`city`/`state`/`zip` must be
+provided.
+
+| Field | Match | Notes |
+|---|---|---|
+| `street` | fuzzy (`word_similarity` on `streetName`) | governed by `threshold` |
+| `city` | fuzzy (`word_similarity` on `city`) | governed by `threshold` |
+| `state` | exact, case-insensitive | `"tx"` = `"TX"` |
+| `zip` | exact (5 digits) or prefix | `"787"` → `787xx` |
+
+```graphql
+{
+  propertiesByAddressFields(city: "Austn", zip: "787", first: 25) {
+    totalCount
+    edges { node { id unparsedAddress city postalCode } }
+  }
+}
+```
+
+Validation errors (an empty `query`, a `threshold` outside `[0, 1]`, or no
+field set on `propertiesByAddressFields`) come back as GraphQL errors.
+
+**Infrastructure note:** like geo search, these require the `pg_trgm`
+extension and its GIN indexes, applied by the same migration-owning
+commands (`sync`, `init`, `worker`, …). Run one once before `serve` against
+a fresh database.
+
 ## Pagination
 
 Every list is a Relay *connection* with the same anatomy:
@@ -395,11 +463,13 @@ curl -s -X POST localhost:8080/query -H 'Content-Type: application/json' \
 
 ## Limitations
 
-- **No general filtering** — the geo-search queries are the only
-  server-side filters; there are no `where` arguments on the lists.
-  Filter client-side or query the database directly.
-- **No ordering** — results come back in primary-key (ID) order; there is
-  no `orderBy` (geo results are not distance-sorted).
+- **No general filtering** — the geo-search and address-search queries are
+  the only purpose-built server-side filters; the plain entity lists take no
+  filter beyond pagination. Filter client-side or query the database
+  directly.
+- **No ranking** — results come back in primary-key (ID) order; geo results
+  are not distance-sorted and address results are not relevance-sorted.
+  Narrow address matches with a higher `threshold` instead.
 - **No mutations or subscriptions.**
 - `nodes(ids:)` resolves each ID independently (N probes); prefer the
   list queries for bulk reads.

@@ -19,6 +19,7 @@ import (
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/geo"
+	"github.com/LunarHUE/MLS-Grid-Sync/search"
 )
 
 // One PostgreSQL container is shared by every test in the process; each
@@ -105,6 +106,12 @@ func initPostgres() {
 	// cloned test database inherits them.
 	if err := geo.Migrate(ctx, tmplDB); err != nil {
 		pgErr = fmt.Errorf("postgis template migration: %w", err)
+		return
+	}
+	// Trigram extension + address-search indexes live in the template
+	// too, so every cloned test database inherits them.
+	if err := search.Migrate(ctx, tmplDB); err != nil {
+		pgErr = fmt.Errorf("trigram template migration: %w", err)
 		return
 	}
 	// Close every connection to the template: CREATE DATABASE ...

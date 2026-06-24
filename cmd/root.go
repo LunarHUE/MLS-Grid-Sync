@@ -20,6 +20,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/geo"
 	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/search"
 	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 	"github.com/LunarHUE/MLS-Grid-Sync/sync"
 	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
@@ -136,6 +137,11 @@ func setupComponents(ctx context.Context) (*components, error) {
 	if err := geo.Migrate(ctx, sqlDB); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed applying postgis migrations: %w", err)
+	}
+
+	if err := search.Migrate(ctx, sqlDB); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed applying trigram migrations: %w", err)
 	}
 
 	mlsClient := mls.NewClient(appConfig.MLS.Token, appConfig.MLS.APIRPS)
