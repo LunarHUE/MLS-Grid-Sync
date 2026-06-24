@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 
 func TestNewStorer_FakeDefault(t *testing.T) {
 	// Empty backend → "fake" default (defends the existing test wiring).
-	s, err := newStorer(config.StorageConfig{})
+	s, err := newStorer(context.Background(), config.StorageConfig{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -20,7 +21,7 @@ func TestNewStorer_FakeDefault(t *testing.T) {
 }
 
 func TestNewStorer_FakeExplicit(t *testing.T) {
-	s, err := newStorer(config.StorageConfig{Backend: "fake"})
+	s, err := newStorer(context.Background(), config.StorageConfig{Backend: "fake"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -31,7 +32,7 @@ func TestNewStorer_FakeExplicit(t *testing.T) {
 
 func TestNewStorer_Local(t *testing.T) {
 	root := t.TempDir()
-	s, err := newStorer(config.StorageConfig{
+	s, err := newStorer(context.Background(), config.StorageConfig{
 		Backend: "local",
 		Local:   config.LocalStorageConfig{RootDir: root, CapBytes: 1 << 20},
 	})
@@ -44,7 +45,7 @@ func TestNewStorer_Local(t *testing.T) {
 }
 
 func TestNewStorer_LocalRequiresRootDir(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{
+	_, err := newStorer(context.Background(), config.StorageConfig{
 		Backend: "local",
 		Local:   config.LocalStorageConfig{CapBytes: 1 << 20},
 	})
@@ -54,7 +55,7 @@ func TestNewStorer_LocalRequiresRootDir(t *testing.T) {
 }
 
 func TestNewStorer_LocalRequiresCap(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{
+	_, err := newStorer(context.Background(), config.StorageConfig{
 		Backend: "local",
 		Local:   config.LocalStorageConfig{RootDir: t.TempDir()},
 	})
@@ -68,7 +69,7 @@ func TestNewStorer_LocalRequiresCap(t *testing.T) {
 // validation fires — no container required. Both connection_string
 // and account_url empty → clear error from NewAzureBlob.
 func TestNewStorer_AzureRequiresAuth(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{
+	_, err := newStorer(context.Background(), config.StorageConfig{
 		Backend: "azure",
 		Azure:   config.AzureStorageConfig{Container: "media"},
 	})
@@ -83,7 +84,7 @@ func TestNewStorer_AzureRequiresAuth(t *testing.T) {
 // TestNewStorer_AzureRequiresContainer structurally asserts the
 // constructor's container-required validation.
 func TestNewStorer_AzureRequiresContainer(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{
+	_, err := newStorer(context.Background(), config.StorageConfig{
 		Backend: "azure",
 		Azure:   config.AzureStorageConfig{ConnectionString: "x"},
 	})
@@ -95,7 +96,7 @@ func TestNewStorer_AzureRequiresContainer(t *testing.T) {
 // TestNewStorer_S3RequiresBucket structurally asserts the s3 arm
 // hits its constructor.
 func TestNewStorer_S3RequiresBucket(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{Backend: "s3"})
+	_, err := newStorer(context.Background(), config.StorageConfig{Backend: "s3"})
 	if err == nil || !strings.Contains(err.Error(), "bucket") {
 		t.Errorf("expected bucket-required error, got %v", err)
 	}
@@ -104,7 +105,7 @@ func TestNewStorer_S3RequiresBucket(t *testing.T) {
 // TestNewStorer_S3EndpointRequiresCreds structurally asserts the
 // endpoint branch's creds validation. Real endpoint not contacted.
 func TestNewStorer_S3EndpointRequiresCreds(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{
+	_, err := newStorer(context.Background(), config.StorageConfig{
 		Backend: "s3",
 		S3: config.S3StorageConfig{
 			Endpoint: "http://example.invalid:9000",
@@ -118,7 +119,7 @@ func TestNewStorer_S3EndpointRequiresCreds(t *testing.T) {
 }
 
 func TestNewStorer_UnknownBackend(t *testing.T) {
-	_, err := newStorer(config.StorageConfig{Backend: "gluster"})
+	_, err := newStorer(context.Background(), config.StorageConfig{Backend: "gluster"})
 	if err == nil || !strings.Contains(err.Error(), "unknown") {
 		t.Errorf("expected unknown-backend error, got %v", err)
 	}
