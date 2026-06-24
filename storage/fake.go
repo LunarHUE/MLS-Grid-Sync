@@ -9,6 +9,12 @@ import (
 type FakeStorer struct{}
 
 func (f *FakeStorer) Upload(_ context.Context, key string, body io.Reader, _ string) (string, error) {
+	// Enforce the same key contract as the filesystem-backed LocalStorer so the
+	// fake is a faithful stand-in: empty/absolute/traversal keys are rejected
+	// before any bytes are accepted.
+	if err := validateKey(key); err != nil {
+		return "", err
+	}
 	io.Copy(io.Discard, body) //nolint:errcheck
 	return "https://fake-s3.local/" + key, nil
 }

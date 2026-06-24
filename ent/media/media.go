@@ -53,10 +53,10 @@ const (
 	FieldMediaModificationTimestamp = "media_modification_timestamp"
 	// FieldExtendedFields holds the string denoting the extended_fields field in the database.
 	FieldExtendedFields = "extended_fields"
-	// FieldAttachmentID holds the string denoting the attachment_id field in the database.
-	FieldAttachmentID = "attachment_id"
 	// FieldCurrentVersionID holds the string denoting the current_version_id field in the database.
 	FieldCurrentVersionID = "current_version_id"
+	// FieldAttachmentID holds the string denoting the attachment_id field in the database.
+	FieldAttachmentID = "attachment_id"
 	// EdgeAttachment holds the string denoting the attachment edge name in mutations.
 	EdgeAttachment = "attachment"
 	// EdgeAttachmentJobs holds the string denoting the attachment_jobs edge name in mutations.
@@ -104,8 +104,8 @@ var Columns = []string{
 	FieldPreferredPhotoYn,
 	FieldMediaModificationTimestamp,
 	FieldExtendedFields,
-	FieldAttachmentID,
 	FieldCurrentVersionID,
+	FieldAttachmentID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -241,14 +241,14 @@ func ByMediaModificationTimestamp(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMediaModificationTimestamp, opts...).ToFunc()
 }
 
-// ByAttachmentID orders the results by the attachment_id field.
-func ByAttachmentID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAttachmentID, opts...).ToFunc()
-}
-
 // ByCurrentVersionID orders the results by the current_version_id field.
 func ByCurrentVersionID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCurrentVersionID, opts...).ToFunc()
+}
+
+// ByAttachmentID orders the results by the attachment_id field.
+func ByAttachmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAttachmentID, opts...).ToFunc()
 }
 
 // ByAttachmentField orders the results by attachment field.

@@ -217,6 +217,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -234,8 +236,6 @@ var (
 		{Name: "media_modification_timestamp", Type: field.TypeTime, Nullable: true},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "media_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// MediaVersionTable holds the schema information for the "media_version" table.
 	MediaVersionTable = &schema.Table{
@@ -244,14 +244,9 @@ var (
 		PrimaryKey: []*schema.Column{MediaVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "mediaversion_media_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{MediaVersionColumns[22], MediaVersionColumns[1]},
-			},
-			{
 				Name:    "mediaversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{MediaVersionColumns[23]},
+				Columns: []*schema.Column{MediaVersionColumns[6]},
 			},
 			{
 				Name:    "mediaversion_processor_version",
@@ -259,9 +254,14 @@ var (
 				Columns: []*schema.Column{MediaVersionColumns[5]},
 			},
 			{
+				Name:    "mediaversion_media_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{MediaVersionColumns[24], MediaVersionColumns[1]},
+			},
+			{
 				Name:    "mediaversion_media_key",
 				Unique:  true,
-				Columns: []*schema.Column{MediaVersionColumns[22]},
+				Columns: []*schema.Column{MediaVersionColumns[24]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},
@@ -352,6 +352,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -384,8 +386,6 @@ var (
 		{Name: "office_mls_id", Type: field.TypeString, Nullable: true},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "member_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// MemberVersionTable holds the schema information for the "member_version" table.
 	MemberVersionTable = &schema.Table{
@@ -394,14 +394,9 @@ var (
 		PrimaryKey: []*schema.Column{MemberVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "memberversion_member_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{MemberVersionColumns[37], MemberVersionColumns[1]},
-			},
-			{
 				Name:    "memberversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{MemberVersionColumns[38]},
+				Columns: []*schema.Column{MemberVersionColumns[6]},
 			},
 			{
 				Name:    "memberversion_processor_version",
@@ -409,9 +404,14 @@ var (
 				Columns: []*schema.Column{MemberVersionColumns[5]},
 			},
 			{
+				Name:    "memberversion_member_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{MemberVersionColumns[39], MemberVersionColumns[1]},
+			},
+			{
 				Name:    "memberversion_member_key",
 				Unique:  true,
-				Columns: []*schema.Column{MemberVersionColumns[37]},
+				Columns: []*schema.Column{MemberVersionColumns[39]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},
@@ -502,6 +502,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -531,8 +533,6 @@ var (
 		{Name: "photos_change_timestamp", Type: field.TypeTime, Nullable: true},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "office_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// OfficeVersionTable holds the schema information for the "office_version" table.
 	OfficeVersionTable = &schema.Table{
@@ -541,14 +541,9 @@ var (
 		PrimaryKey: []*schema.Column{OfficeVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "officeversion_office_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{OfficeVersionColumns[34], OfficeVersionColumns[1]},
-			},
-			{
 				Name:    "officeversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{OfficeVersionColumns[35]},
+				Columns: []*schema.Column{OfficeVersionColumns[6]},
 			},
 			{
 				Name:    "officeversion_processor_version",
@@ -556,9 +551,14 @@ var (
 				Columns: []*schema.Column{OfficeVersionColumns[5]},
 			},
 			{
+				Name:    "officeversion_office_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{OfficeVersionColumns[36], OfficeVersionColumns[1]},
+			},
+			{
 				Name:    "officeversion_office_key",
 				Unique:  true,
-				Columns: []*schema.Column{OfficeVersionColumns[34]},
+				Columns: []*schema.Column{OfficeVersionColumns[36]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},
@@ -634,6 +634,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -647,8 +649,6 @@ var (
 		{Name: "open_house_type", Type: field.TypeString, Nullable: true},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "open_house_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// OpenHouseVersionTable holds the schema information for the "open_house_version" table.
 	OpenHouseVersionTable = &schema.Table{
@@ -657,14 +657,9 @@ var (
 		PrimaryKey: []*schema.Column{OpenHouseVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "openhouseversion_open_house_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{OpenHouseVersionColumns[18], OpenHouseVersionColumns[1]},
-			},
-			{
 				Name:    "openhouseversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{OpenHouseVersionColumns[19]},
+				Columns: []*schema.Column{OpenHouseVersionColumns[6]},
 			},
 			{
 				Name:    "openhouseversion_processor_version",
@@ -672,9 +667,14 @@ var (
 				Columns: []*schema.Column{OpenHouseVersionColumns[5]},
 			},
 			{
+				Name:    "openhouseversion_open_house_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{OpenHouseVersionColumns[20], OpenHouseVersionColumns[1]},
+			},
+			{
 				Name:    "openhouseversion_open_house_key",
 				Unique:  true,
-				Columns: []*schema.Column{OpenHouseVersionColumns[18]},
+				Columns: []*schema.Column{OpenHouseVersionColumns[20]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},
@@ -1029,6 +1029,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -1039,8 +1041,6 @@ var (
 		{Name: "room_features", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "text[]"}},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "room_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// PropertyRoomVersionTable holds the schema information for the "property_room_version" table.
 	PropertyRoomVersionTable = &schema.Table{
@@ -1049,14 +1049,9 @@ var (
 		PrimaryKey: []*schema.Column{PropertyRoomVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "propertyroomversion_room_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{PropertyRoomVersionColumns[15], PropertyRoomVersionColumns[1]},
-			},
-			{
 				Name:    "propertyroomversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{PropertyRoomVersionColumns[16]},
+				Columns: []*schema.Column{PropertyRoomVersionColumns[6]},
 			},
 			{
 				Name:    "propertyroomversion_processor_version",
@@ -1064,9 +1059,14 @@ var (
 				Columns: []*schema.Column{PropertyRoomVersionColumns[5]},
 			},
 			{
+				Name:    "propertyroomversion_room_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{PropertyRoomVersionColumns[17], PropertyRoomVersionColumns[1]},
+			},
+			{
 				Name:    "propertyroomversion_room_key",
 				Unique:  true,
-				Columns: []*schema.Column{PropertyRoomVersionColumns[15]},
+				Columns: []*schema.Column{PropertyRoomVersionColumns[17]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},
@@ -1128,6 +1128,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -1137,8 +1139,6 @@ var (
 		{Name: "unit_type_furnished", Type: field.TypeString, Nullable: true},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "unit_type_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// PropertyUnitTypeVersionTable holds the schema information for the "property_unit_type_version" table.
 	PropertyUnitTypeVersionTable = &schema.Table{
@@ -1147,14 +1147,9 @@ var (
 		PrimaryKey: []*schema.Column{PropertyUnitTypeVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "propertyunittypeversion_unit_type_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[14], PropertyUnitTypeVersionColumns[1]},
-			},
-			{
 				Name:    "propertyunittypeversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[15]},
+				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[6]},
 			},
 			{
 				Name:    "propertyunittypeversion_processor_version",
@@ -1162,9 +1157,14 @@ var (
 				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[5]},
 			},
 			{
+				Name:    "propertyunittypeversion_unit_type_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[16], PropertyUnitTypeVersionColumns[1]},
+			},
+			{
 				Name:    "propertyunittypeversion_unit_type_key",
 				Unique:  true,
-				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[14]},
+				Columns: []*schema.Column{PropertyUnitTypeVersionColumns[16]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},
@@ -1179,6 +1179,8 @@ var (
 		{Name: "change_type", Type: field.TypeEnum, Enums: []string{"insert", "update", "delete"}},
 		{Name: "changed_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "processor_version", Type: field.TypeString},
+		{Name: "sync_event_id", Type: field.TypeUUID},
+		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "source_modified_at", Type: field.TypeTime},
 		{Name: "originating_system_name", Type: field.TypeString, Nullable: true},
 		{Name: "mlg_can_view", Type: field.TypeBool, Default: true},
@@ -1305,8 +1307,6 @@ var (
 		{Name: "direction_faces", Type: field.TypeString, Nullable: true},
 		{Name: "extended_fields", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "listing_key", Type: field.TypeString},
-		{Name: "sync_event_id", Type: field.TypeUUID},
-		{Name: "raw_output_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// PropertyVersionTable holds the schema information for the "property_version" table.
 	PropertyVersionTable = &schema.Table{
@@ -1315,14 +1315,9 @@ var (
 		PrimaryKey: []*schema.Column{PropertyVersionColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "propertyversion_listing_key_valid_from",
-				Unique:  false,
-				Columns: []*schema.Column{PropertyVersionColumns[131], PropertyVersionColumns[1]},
-			},
-			{
 				Name:    "propertyversion_sync_event_id",
 				Unique:  false,
-				Columns: []*schema.Column{PropertyVersionColumns[132]},
+				Columns: []*schema.Column{PropertyVersionColumns[6]},
 			},
 			{
 				Name:    "propertyversion_processor_version",
@@ -1330,9 +1325,14 @@ var (
 				Columns: []*schema.Column{PropertyVersionColumns[5]},
 			},
 			{
+				Name:    "propertyversion_listing_key_valid_from",
+				Unique:  false,
+				Columns: []*schema.Column{PropertyVersionColumns[133], PropertyVersionColumns[1]},
+			},
+			{
 				Name:    "propertyversion_listing_key",
 				Unique:  true,
-				Columns: []*schema.Column{PropertyVersionColumns[131]},
+				Columns: []*schema.Column{PropertyVersionColumns[133]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "valid_to IS NULL",
 				},

@@ -127,202 +127,134 @@ var commonSkipFields = map[string]bool{
 func typedDispatchFor(resource rawoutput.Resource) (*typedDispatch, bool) {
 	switch resource {
 	case rawoutput.ResourceProperty:
-		return &typedDispatch{run: scanProperty}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.Property, error) {
+					return client.Property.Query().Where(property.MlgCanView(true)).All(ctx)
+				},
+				func() ([]*ent.PropertyVersion, error) {
+					return client.PropertyVersion.Query().Where(propertyversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.Property) string { return e.ID },
+				func(v *ent.PropertyVersion) string { return v.ListingKey },
+			)
+		}}, true
 	case rawoutput.ResourceMember:
-		return &typedDispatch{run: scanMember}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.Member, error) { return client.Member.Query().Where(member.MlgCanView(true)).All(ctx) },
+				func() ([]*ent.MemberVersion, error) {
+					return client.MemberVersion.Query().Where(memberversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.Member) string { return e.ID },
+				func(v *ent.MemberVersion) string { return v.MemberKey },
+			)
+		}}, true
 	case rawoutput.ResourceOffice:
-		return &typedDispatch{run: scanOffice}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.Office, error) { return client.Office.Query().Where(office.MlgCanView(true)).All(ctx) },
+				func() ([]*ent.OfficeVersion, error) {
+					return client.OfficeVersion.Query().Where(officeversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.Office) string { return e.ID },
+				func(v *ent.OfficeVersion) string { return v.OfficeKey },
+			)
+		}}, true
 	case rawoutput.ResourceOpenHouse:
-		return &typedDispatch{run: scanOpenHouse}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.OpenHouse, error) {
+					return client.OpenHouse.Query().Where(openhouse.MlgCanView(true)).All(ctx)
+				},
+				func() ([]*ent.OpenHouseVersion, error) {
+					return client.OpenHouseVersion.Query().Where(openhouseversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.OpenHouse) string { return e.ID },
+				func(v *ent.OpenHouseVersion) string { return v.OpenHouseKey },
+			)
+		}}, true
 	case rawoutput.ResourceMedia:
-		return &typedDispatch{run: scanMedia}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.Media, error) { return client.Media.Query().Where(entmedia.MlgCanView(true)).All(ctx) },
+				func() ([]*ent.MediaVersion, error) {
+					return client.MediaVersion.Query().Where(mediaversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.Media) string { return e.ID },
+				func(v *ent.MediaVersion) string { return v.MediaKey },
+			)
+		}}, true
 	case rawoutput.ResourcePropertyRooms:
-		return &typedDispatch{run: scanPropertyRoom}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.PropertyRoom, error) {
+					return client.PropertyRoom.Query().Where(propertyroom.MlgCanView(true)).All(ctx)
+				},
+				func() ([]*ent.PropertyRoomVersion, error) {
+					return client.PropertyRoomVersion.Query().Where(propertyroomversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.PropertyRoom) string { return e.ID },
+				func(v *ent.PropertyRoomVersion) string { return v.RoomKey },
+			)
+		}}, true
 	case rawoutput.ResourcePropertyUnitTypes:
-		return &typedDispatch{run: scanPropertyUnitType}, true
+		return &typedDispatch{run: func(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
+			return scanVersioned(out,
+				func() ([]*ent.PropertyUnitType, error) {
+					return client.PropertyUnitType.Query().Where(propertyunittype.MlgCanView(true)).All(ctx)
+				},
+				func() ([]*ent.PropertyUnitTypeVersion, error) {
+					return client.PropertyUnitTypeVersion.Query().Where(propertyunittypeversion.ValidToIsNil()).All(ctx)
+				},
+				func(e *ent.PropertyUnitType) string { return e.ID },
+				func(v *ent.PropertyUnitTypeVersion) string { return v.UnitTypeKey },
+			)
+		}}, true
 	}
 	return nil, false
 }
 
-// Per-resource scanners. Each one mirrors the same shape:
-// 1. fetch visible entities,
-// 2. fetch current open versions and key them,
-// 3. compareStructs via reflection on shared field names.
-
-func scanProperty(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.Property.Query().Where(property.MlgCanView(true)).All(ctx)
+// scanVersioned is the shared drift sweep every resource runs:
+//  1. fetch visible (mlg_can_view=true) entities,
+//  2. fetch current open versions and key them by their natural key,
+//  3. compareStructs via reflection on shared field names, recording a
+//     synthetic mismatch for any entity with no open version.
+//
+// The per-resource adapters (loaders + key extractors) are the only thing that
+// varies; folding the loop here also gives every resource the same query-error
+// wrapping (previously only Property wrapped its errors).
+func scanVersioned[E any, V any](
+	out *TypedDriftReport,
+	loadEntities func() ([]*E, error),
+	loadVersions func() ([]*V, error),
+	entityID func(*E) string,
+	versionKey func(*V) string,
+) error {
+	entities, err := loadEntities()
 	if err != nil {
-		return fmt.Errorf("scan property entities: %w", err)
+		return fmt.Errorf("scan %s entities: %w", out.Resource, err)
 	}
-	versions, err := client.PropertyVersion.Query().Where(propertyversion.ValidToIsNil()).All(ctx)
+	versions, err := loadVersions()
 	if err != nil {
-		return fmt.Errorf("scan property current versions: %w", err)
+		return fmt.Errorf("scan %s current versions: %w", out.Resource, err)
 	}
-	byKey := make(map[string]*ent.PropertyVersion, len(versions))
+	byKey := make(map[string]*V, len(versions))
 	for _, v := range versions {
-		byKey[v.ListingKey] = v
+		byKey[versionKey(v)] = v
 	}
 	for _, e := range entities {
 		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
+		id := entityID(e)
+		v, ok := byKey[id]
 		if !ok {
 			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{
-				EntityID: e.ID, Field: "<missing version>",
+				EntityID: id, Field: "<missing version>",
 				EntityValue: "present", VersionVal: "absent",
 			})
 			continue
 		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
-	}
-	return nil
-}
-
-func scanMember(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.Member.Query().Where(member.MlgCanView(true)).All(ctx)
-	if err != nil {
-		return err
-	}
-	versions, err := client.MemberVersion.Query().Where(memberversion.ValidToIsNil()).All(ctx)
-	if err != nil {
-		return err
-	}
-	byKey := make(map[string]*ent.MemberVersion, len(versions))
-	for _, v := range versions {
-		byKey[v.MemberKey] = v
-	}
-	for _, e := range entities {
-		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
-		if !ok {
-			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{EntityID: e.ID, Field: "<missing version>", EntityValue: "present", VersionVal: "absent"})
-			continue
-		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
-	}
-	return nil
-}
-
-func scanOffice(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.Office.Query().Where(office.MlgCanView(true)).All(ctx)
-	if err != nil {
-		return err
-	}
-	versions, err := client.OfficeVersion.Query().Where(officeversion.ValidToIsNil()).All(ctx)
-	if err != nil {
-		return err
-	}
-	byKey := make(map[string]*ent.OfficeVersion, len(versions))
-	for _, v := range versions {
-		byKey[v.OfficeKey] = v
-	}
-	for _, e := range entities {
-		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
-		if !ok {
-			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{EntityID: e.ID, Field: "<missing version>", EntityValue: "present", VersionVal: "absent"})
-			continue
-		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
-	}
-	return nil
-}
-
-func scanOpenHouse(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.OpenHouse.Query().Where(openhouse.MlgCanView(true)).All(ctx)
-	if err != nil {
-		return err
-	}
-	versions, err := client.OpenHouseVersion.Query().Where(openhouseversion.ValidToIsNil()).All(ctx)
-	if err != nil {
-		return err
-	}
-	byKey := make(map[string]*ent.OpenHouseVersion, len(versions))
-	for _, v := range versions {
-		byKey[v.OpenHouseKey] = v
-	}
-	for _, e := range entities {
-		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
-		if !ok {
-			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{EntityID: e.ID, Field: "<missing version>", EntityValue: "present", VersionVal: "absent"})
-			continue
-		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
-	}
-	return nil
-}
-
-func scanMedia(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.Media.Query().Where(entmedia.MlgCanView(true)).All(ctx)
-	if err != nil {
-		return err
-	}
-	versions, err := client.MediaVersion.Query().Where(mediaversion.ValidToIsNil()).All(ctx)
-	if err != nil {
-		return err
-	}
-	byKey := make(map[string]*ent.MediaVersion, len(versions))
-	for _, v := range versions {
-		byKey[v.MediaKey] = v
-	}
-	for _, e := range entities {
-		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
-		if !ok {
-			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{EntityID: e.ID, Field: "<missing version>", EntityValue: "present", VersionVal: "absent"})
-			continue
-		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
-	}
-	return nil
-}
-
-func scanPropertyRoom(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.PropertyRoom.Query().Where(propertyroom.MlgCanView(true)).All(ctx)
-	if err != nil {
-		return err
-	}
-	versions, err := client.PropertyRoomVersion.Query().Where(propertyroomversion.ValidToIsNil()).All(ctx)
-	if err != nil {
-		return err
-	}
-	byKey := make(map[string]*ent.PropertyRoomVersion, len(versions))
-	for _, v := range versions {
-		byKey[v.RoomKey] = v
-	}
-	for _, e := range entities {
-		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
-		if !ok {
-			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{EntityID: e.ID, Field: "<missing version>", EntityValue: "present", VersionVal: "absent"})
-			continue
-		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
-	}
-	return nil
-}
-
-func scanPropertyUnitType(ctx context.Context, client *ent.Client, out *TypedDriftReport) error {
-	entities, err := client.PropertyUnitType.Query().Where(propertyunittype.MlgCanView(true)).All(ctx)
-	if err != nil {
-		return err
-	}
-	versions, err := client.PropertyUnitTypeVersion.Query().Where(propertyunittypeversion.ValidToIsNil()).All(ctx)
-	if err != nil {
-		return err
-	}
-	byKey := make(map[string]*ent.PropertyUnitTypeVersion, len(versions))
-	for _, v := range versions {
-		byKey[v.UnitTypeKey] = v
-	}
-	for _, e := range entities {
-		out.EntitiesSeen++
-		v, ok := byKey[e.ID]
-		if !ok {
-			out.Mismatches = append(out.Mismatches, TypedDriftMismatch{EntityID: e.ID, Field: "<missing version>", EntityValue: "present", VersionVal: "absent"})
-			continue
-		}
-		compareStructs(out, e.ID, reflect.ValueOf(*e), reflect.ValueOf(*v))
+		compareStructs(out, id, reflect.ValueOf(*e), reflect.ValueOf(*v))
 	}
 	return nil
 }

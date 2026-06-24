@@ -105,6 +105,40 @@ func (_u *PropertyRoomVersionUpdate) SetNillableProcessorVersion(v *string) *Pro
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *PropertyRoomVersionUpdate) SetSyncEventID(v uuid.UUID) *PropertyRoomVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *PropertyRoomVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *PropertyRoomVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *PropertyRoomVersionUpdate) SetRawOutputID(v uuid.UUID) *PropertyRoomVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *PropertyRoomVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *PropertyRoomVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *PropertyRoomVersionUpdate) ClearRawOutputID() *PropertyRoomVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *PropertyRoomVersionUpdate) SetSourceModifiedAt(v time.Time) *PropertyRoomVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -263,40 +297,6 @@ func (_u *PropertyRoomVersionUpdate) SetNillableRoomKey(v *string) *PropertyRoom
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *PropertyRoomVersionUpdate) SetSyncEventID(v uuid.UUID) *PropertyRoomVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *PropertyRoomVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *PropertyRoomVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *PropertyRoomVersionUpdate) SetRawOutputID(v uuid.UUID) *PropertyRoomVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *PropertyRoomVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *PropertyRoomVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *PropertyRoomVersionUpdate) ClearRawOutputID() *PropertyRoomVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the PropertyRoomVersionMutation object of the builder.
 func (_u *PropertyRoomVersionUpdate) Mutation() *PropertyRoomVersionMutation {
 	return _u.mutation
@@ -372,6 +372,15 @@ func (_u *PropertyRoomVersionUpdate) sqlSave(ctx context.Context) (_node int, er
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(propertyroomversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyroomversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyroomversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(propertyroomversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyroomversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -424,15 +433,6 @@ func (_u *PropertyRoomVersionUpdate) sqlSave(ctx context.Context) (_node int, er
 	}
 	if value, ok := _u.mutation.RoomKey(); ok {
 		_spec.SetField(propertyroomversion.FieldRoomKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyroomversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyroomversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(propertyroomversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -525,6 +525,40 @@ func (_u *PropertyRoomVersionUpdateOne) SetNillableProcessorVersion(v *string) *
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *PropertyRoomVersionUpdateOne) SetSyncEventID(v uuid.UUID) *PropertyRoomVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *PropertyRoomVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *PropertyRoomVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *PropertyRoomVersionUpdateOne) SetRawOutputID(v uuid.UUID) *PropertyRoomVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *PropertyRoomVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *PropertyRoomVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *PropertyRoomVersionUpdateOne) ClearRawOutputID() *PropertyRoomVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -686,40 +720,6 @@ func (_u *PropertyRoomVersionUpdateOne) SetNillableRoomKey(v *string) *PropertyR
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *PropertyRoomVersionUpdateOne) SetSyncEventID(v uuid.UUID) *PropertyRoomVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *PropertyRoomVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *PropertyRoomVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *PropertyRoomVersionUpdateOne) SetRawOutputID(v uuid.UUID) *PropertyRoomVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *PropertyRoomVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *PropertyRoomVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *PropertyRoomVersionUpdateOne) ClearRawOutputID() *PropertyRoomVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the PropertyRoomVersionMutation object of the builder.
 func (_u *PropertyRoomVersionUpdateOne) Mutation() *PropertyRoomVersionMutation {
 	return _u.mutation
@@ -825,6 +825,15 @@ func (_u *PropertyRoomVersionUpdateOne) sqlSave(ctx context.Context) (_node *Pro
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(propertyroomversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyroomversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyroomversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(propertyroomversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyroomversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -877,15 +886,6 @@ func (_u *PropertyRoomVersionUpdateOne) sqlSave(ctx context.Context) (_node *Pro
 	}
 	if value, ok := _u.mutation.RoomKey(); ok {
 		_spec.SetField(propertyroomversion.FieldRoomKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyroomversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyroomversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(propertyroomversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &PropertyRoomVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

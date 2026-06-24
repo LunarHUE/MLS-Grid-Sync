@@ -141,14 +141,14 @@ func MediaModificationTimestamp(v time.Time) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldMediaModificationTimestamp, v))
 }
 
-// AttachmentID applies equality check predicate on the "attachment_id" field. It's identical to AttachmentIDEQ.
-func AttachmentID(v uuid.UUID) predicate.Media {
-	return predicate.Media(sql.FieldEQ(FieldAttachmentID, v))
-}
-
 // CurrentVersionID applies equality check predicate on the "current_version_id" field. It's identical to CurrentVersionIDEQ.
 func CurrentVersionID(v uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldCurrentVersionID, v))
+}
+
+// AttachmentID applies equality check predicate on the "attachment_id" field. It's identical to AttachmentIDEQ.
+func AttachmentID(v uuid.UUID) predicate.Media {
+	return predicate.Media(sql.FieldEQ(FieldAttachmentID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -981,36 +981,6 @@ func ExtendedFieldsNotNil() predicate.Media {
 	return predicate.Media(sql.FieldNotNull(FieldExtendedFields))
 }
 
-// AttachmentIDEQ applies the EQ predicate on the "attachment_id" field.
-func AttachmentIDEQ(v uuid.UUID) predicate.Media {
-	return predicate.Media(sql.FieldEQ(FieldAttachmentID, v))
-}
-
-// AttachmentIDNEQ applies the NEQ predicate on the "attachment_id" field.
-func AttachmentIDNEQ(v uuid.UUID) predicate.Media {
-	return predicate.Media(sql.FieldNEQ(FieldAttachmentID, v))
-}
-
-// AttachmentIDIn applies the In predicate on the "attachment_id" field.
-func AttachmentIDIn(vs ...uuid.UUID) predicate.Media {
-	return predicate.Media(sql.FieldIn(FieldAttachmentID, vs...))
-}
-
-// AttachmentIDNotIn applies the NotIn predicate on the "attachment_id" field.
-func AttachmentIDNotIn(vs ...uuid.UUID) predicate.Media {
-	return predicate.Media(sql.FieldNotIn(FieldAttachmentID, vs...))
-}
-
-// AttachmentIDIsNil applies the IsNil predicate on the "attachment_id" field.
-func AttachmentIDIsNil() predicate.Media {
-	return predicate.Media(sql.FieldIsNull(FieldAttachmentID))
-}
-
-// AttachmentIDNotNil applies the NotNil predicate on the "attachment_id" field.
-func AttachmentIDNotNil() predicate.Media {
-	return predicate.Media(sql.FieldNotNull(FieldAttachmentID))
-}
-
 // CurrentVersionIDEQ applies the EQ predicate on the "current_version_id" field.
 func CurrentVersionIDEQ(v uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldCurrentVersionID, v))
@@ -1059,6 +1029,36 @@ func CurrentVersionIDIsNil() predicate.Media {
 // CurrentVersionIDNotNil applies the NotNil predicate on the "current_version_id" field.
 func CurrentVersionIDNotNil() predicate.Media {
 	return predicate.Media(sql.FieldNotNull(FieldCurrentVersionID))
+}
+
+// AttachmentIDEQ applies the EQ predicate on the "attachment_id" field.
+func AttachmentIDEQ(v uuid.UUID) predicate.Media {
+	return predicate.Media(sql.FieldEQ(FieldAttachmentID, v))
+}
+
+// AttachmentIDNEQ applies the NEQ predicate on the "attachment_id" field.
+func AttachmentIDNEQ(v uuid.UUID) predicate.Media {
+	return predicate.Media(sql.FieldNEQ(FieldAttachmentID, v))
+}
+
+// AttachmentIDIn applies the In predicate on the "attachment_id" field.
+func AttachmentIDIn(vs ...uuid.UUID) predicate.Media {
+	return predicate.Media(sql.FieldIn(FieldAttachmentID, vs...))
+}
+
+// AttachmentIDNotIn applies the NotIn predicate on the "attachment_id" field.
+func AttachmentIDNotIn(vs ...uuid.UUID) predicate.Media {
+	return predicate.Media(sql.FieldNotIn(FieldAttachmentID, vs...))
+}
+
+// AttachmentIDIsNil applies the IsNil predicate on the "attachment_id" field.
+func AttachmentIDIsNil() predicate.Media {
+	return predicate.Media(sql.FieldIsNull(FieldAttachmentID))
+}
+
+// AttachmentIDNotNil applies the NotNil predicate on the "attachment_id" field.
+func AttachmentIDNotNil() predicate.Media {
+	return predicate.Media(sql.FieldNotNull(FieldAttachmentID))
 }
 
 // HasAttachment applies the HasEdge predicate on the "attachment" edge.

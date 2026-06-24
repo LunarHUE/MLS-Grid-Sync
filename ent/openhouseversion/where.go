@@ -80,6 +80,16 @@ func ProcessorVersion(v string) predicate.OpenHouseVersion {
 	return predicate.OpenHouseVersion(sql.FieldEQ(FieldProcessorVersion, v))
 }
 
+// SyncEventID applies equality check predicate on the "sync_event_id" field. It's identical to SyncEventIDEQ.
+func SyncEventID(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldEQ(FieldSyncEventID, v))
+}
+
+// RawOutputID applies equality check predicate on the "raw_output_id" field. It's identical to RawOutputIDEQ.
+func RawOutputID(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldEQ(FieldRawOutputID, v))
+}
+
 // SourceModifiedAt applies equality check predicate on the "source_modified_at" field. It's identical to SourceModifiedAtEQ.
 func SourceModifiedAt(v time.Time) predicate.OpenHouseVersion {
 	return predicate.OpenHouseVersion(sql.FieldEQ(FieldSourceModifiedAt, v))
@@ -133,16 +143,6 @@ func OpenHouseType(v string) predicate.OpenHouseVersion {
 // OpenHouseKey applies equality check predicate on the "open_house_key" field. It's identical to OpenHouseKeyEQ.
 func OpenHouseKey(v string) predicate.OpenHouseVersion {
 	return predicate.OpenHouseVersion(sql.FieldEQ(FieldOpenHouseKey, v))
-}
-
-// SyncEventID applies equality check predicate on the "sync_event_id" field. It's identical to SyncEventIDEQ.
-func SyncEventID(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldEQ(FieldSyncEventID, v))
-}
-
-// RawOutputID applies equality check predicate on the "raw_output_id" field. It's identical to RawOutputIDEQ.
-func RawOutputID(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldEQ(FieldRawOutputID, v))
 }
 
 // ValidFromEQ applies the EQ predicate on the "valid_from" field.
@@ -328,6 +328,96 @@ func ProcessorVersionEqualFold(v string) predicate.OpenHouseVersion {
 // ProcessorVersionContainsFold applies the ContainsFold predicate on the "processor_version" field.
 func ProcessorVersionContainsFold(v string) predicate.OpenHouseVersion {
 	return predicate.OpenHouseVersion(sql.FieldContainsFold(FieldProcessorVersion, v))
+}
+
+// SyncEventIDEQ applies the EQ predicate on the "sync_event_id" field.
+func SyncEventIDEQ(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldEQ(FieldSyncEventID, v))
+}
+
+// SyncEventIDNEQ applies the NEQ predicate on the "sync_event_id" field.
+func SyncEventIDNEQ(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldNEQ(FieldSyncEventID, v))
+}
+
+// SyncEventIDIn applies the In predicate on the "sync_event_id" field.
+func SyncEventIDIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldIn(FieldSyncEventID, vs...))
+}
+
+// SyncEventIDNotIn applies the NotIn predicate on the "sync_event_id" field.
+func SyncEventIDNotIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldNotIn(FieldSyncEventID, vs...))
+}
+
+// SyncEventIDGT applies the GT predicate on the "sync_event_id" field.
+func SyncEventIDGT(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldGT(FieldSyncEventID, v))
+}
+
+// SyncEventIDGTE applies the GTE predicate on the "sync_event_id" field.
+func SyncEventIDGTE(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldGTE(FieldSyncEventID, v))
+}
+
+// SyncEventIDLT applies the LT predicate on the "sync_event_id" field.
+func SyncEventIDLT(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldLT(FieldSyncEventID, v))
+}
+
+// SyncEventIDLTE applies the LTE predicate on the "sync_event_id" field.
+func SyncEventIDLTE(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldLTE(FieldSyncEventID, v))
+}
+
+// RawOutputIDEQ applies the EQ predicate on the "raw_output_id" field.
+func RawOutputIDEQ(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldEQ(FieldRawOutputID, v))
+}
+
+// RawOutputIDNEQ applies the NEQ predicate on the "raw_output_id" field.
+func RawOutputIDNEQ(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldNEQ(FieldRawOutputID, v))
+}
+
+// RawOutputIDIn applies the In predicate on the "raw_output_id" field.
+func RawOutputIDIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldIn(FieldRawOutputID, vs...))
+}
+
+// RawOutputIDNotIn applies the NotIn predicate on the "raw_output_id" field.
+func RawOutputIDNotIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldNotIn(FieldRawOutputID, vs...))
+}
+
+// RawOutputIDGT applies the GT predicate on the "raw_output_id" field.
+func RawOutputIDGT(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldGT(FieldRawOutputID, v))
+}
+
+// RawOutputIDGTE applies the GTE predicate on the "raw_output_id" field.
+func RawOutputIDGTE(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldGTE(FieldRawOutputID, v))
+}
+
+// RawOutputIDLT applies the LT predicate on the "raw_output_id" field.
+func RawOutputIDLT(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldLT(FieldRawOutputID, v))
+}
+
+// RawOutputIDLTE applies the LTE predicate on the "raw_output_id" field.
+func RawOutputIDLTE(v uuid.UUID) predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldLTE(FieldRawOutputID, v))
+}
+
+// RawOutputIDIsNil applies the IsNil predicate on the "raw_output_id" field.
+func RawOutputIDIsNil() predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldIsNull(FieldRawOutputID))
+}
+
+// RawOutputIDNotNil applies the NotNil predicate on the "raw_output_id" field.
+func RawOutputIDNotNil() predicate.OpenHouseVersion {
+	return predicate.OpenHouseVersion(sql.FieldNotNull(FieldRawOutputID))
 }
 
 // SourceModifiedAtEQ applies the EQ predicate on the "source_modified_at" field.
@@ -978,96 +1068,6 @@ func OpenHouseKeyEqualFold(v string) predicate.OpenHouseVersion {
 // OpenHouseKeyContainsFold applies the ContainsFold predicate on the "open_house_key" field.
 func OpenHouseKeyContainsFold(v string) predicate.OpenHouseVersion {
 	return predicate.OpenHouseVersion(sql.FieldContainsFold(FieldOpenHouseKey, v))
-}
-
-// SyncEventIDEQ applies the EQ predicate on the "sync_event_id" field.
-func SyncEventIDEQ(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldEQ(FieldSyncEventID, v))
-}
-
-// SyncEventIDNEQ applies the NEQ predicate on the "sync_event_id" field.
-func SyncEventIDNEQ(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldNEQ(FieldSyncEventID, v))
-}
-
-// SyncEventIDIn applies the In predicate on the "sync_event_id" field.
-func SyncEventIDIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldIn(FieldSyncEventID, vs...))
-}
-
-// SyncEventIDNotIn applies the NotIn predicate on the "sync_event_id" field.
-func SyncEventIDNotIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldNotIn(FieldSyncEventID, vs...))
-}
-
-// SyncEventIDGT applies the GT predicate on the "sync_event_id" field.
-func SyncEventIDGT(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldGT(FieldSyncEventID, v))
-}
-
-// SyncEventIDGTE applies the GTE predicate on the "sync_event_id" field.
-func SyncEventIDGTE(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldGTE(FieldSyncEventID, v))
-}
-
-// SyncEventIDLT applies the LT predicate on the "sync_event_id" field.
-func SyncEventIDLT(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldLT(FieldSyncEventID, v))
-}
-
-// SyncEventIDLTE applies the LTE predicate on the "sync_event_id" field.
-func SyncEventIDLTE(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldLTE(FieldSyncEventID, v))
-}
-
-// RawOutputIDEQ applies the EQ predicate on the "raw_output_id" field.
-func RawOutputIDEQ(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldEQ(FieldRawOutputID, v))
-}
-
-// RawOutputIDNEQ applies the NEQ predicate on the "raw_output_id" field.
-func RawOutputIDNEQ(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldNEQ(FieldRawOutputID, v))
-}
-
-// RawOutputIDIn applies the In predicate on the "raw_output_id" field.
-func RawOutputIDIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldIn(FieldRawOutputID, vs...))
-}
-
-// RawOutputIDNotIn applies the NotIn predicate on the "raw_output_id" field.
-func RawOutputIDNotIn(vs ...uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldNotIn(FieldRawOutputID, vs...))
-}
-
-// RawOutputIDGT applies the GT predicate on the "raw_output_id" field.
-func RawOutputIDGT(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldGT(FieldRawOutputID, v))
-}
-
-// RawOutputIDGTE applies the GTE predicate on the "raw_output_id" field.
-func RawOutputIDGTE(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldGTE(FieldRawOutputID, v))
-}
-
-// RawOutputIDLT applies the LT predicate on the "raw_output_id" field.
-func RawOutputIDLT(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldLT(FieldRawOutputID, v))
-}
-
-// RawOutputIDLTE applies the LTE predicate on the "raw_output_id" field.
-func RawOutputIDLTE(v uuid.UUID) predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldLTE(FieldRawOutputID, v))
-}
-
-// RawOutputIDIsNil applies the IsNil predicate on the "raw_output_id" field.
-func RawOutputIDIsNil() predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldIsNull(FieldRawOutputID))
-}
-
-// RawOutputIDNotNil applies the NotNil predicate on the "raw_output_id" field.
-func RawOutputIDNotNil() predicate.OpenHouseVersion {
-	return predicate.OpenHouseVersion(sql.FieldNotNull(FieldRawOutputID))
 }
 
 // And groups predicates with the AND operator between them.

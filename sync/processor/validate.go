@@ -15,12 +15,11 @@ import (
 // validate-raw CLI to check that the field mapping matches real MLS Grid
 // data, not just the spec.
 type ValidateReport struct {
-	Resource           rawoutput.Resource
-	TotalRows          int
-	ParseErrors        []ParseError
-	UnconsumedKeys     map[string]int // key → count of payloads containing it
-	AlwaysNilFields    []string       // typed Fields struct fields that were nil/empty across every row
-	NeverNilFieldCount int            // number of fields seen with a value at least once
+	Resource        rawoutput.Resource
+	TotalRows       int
+	ParseErrors     []ParseError
+	UnconsumedKeys  map[string]int // key → count of payloads containing it
+	AlwaysNilFields []string       // typed Fields struct fields that were nil/empty across every row
 }
 
 type ParseError struct {
@@ -267,7 +266,6 @@ func validateOne(ctx context.Context, client *ent.Client, resource rawoutput.Res
 		offset += batchSize
 	}
 
-	report.NeverNilFieldCount = len(seenNonNil)
 	report.AlwaysNilFields = nilFieldNamesGeneric(d.zeroFieldsType, d.commonSkipNames, seenNonNil)
 	return report, nil
 }

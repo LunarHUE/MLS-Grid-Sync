@@ -81,6 +81,16 @@ func ProcessorVersion(v string) predicate.PropertyRoomVersion {
 	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldProcessorVersion, v))
 }
 
+// SyncEventID applies equality check predicate on the "sync_event_id" field. It's identical to SyncEventIDEQ.
+func SyncEventID(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldSyncEventID, v))
+}
+
+// RawOutputID applies equality check predicate on the "raw_output_id" field. It's identical to RawOutputIDEQ.
+func RawOutputID(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldRawOutputID, v))
+}
+
 // SourceModifiedAt applies equality check predicate on the "source_modified_at" field. It's identical to SourceModifiedAtEQ.
 func SourceModifiedAt(v time.Time) predicate.PropertyRoomVersion {
 	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldSourceModifiedAt, v))
@@ -119,16 +129,6 @@ func RoomFeatures(v pq.StringArray) predicate.PropertyRoomVersion {
 // RoomKey applies equality check predicate on the "room_key" field. It's identical to RoomKeyEQ.
 func RoomKey(v string) predicate.PropertyRoomVersion {
 	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldRoomKey, v))
-}
-
-// SyncEventID applies equality check predicate on the "sync_event_id" field. It's identical to SyncEventIDEQ.
-func SyncEventID(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldSyncEventID, v))
-}
-
-// RawOutputID applies equality check predicate on the "raw_output_id" field. It's identical to RawOutputIDEQ.
-func RawOutputID(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldRawOutputID, v))
 }
 
 // ValidFromEQ applies the EQ predicate on the "valid_from" field.
@@ -314,6 +314,96 @@ func ProcessorVersionEqualFold(v string) predicate.PropertyRoomVersion {
 // ProcessorVersionContainsFold applies the ContainsFold predicate on the "processor_version" field.
 func ProcessorVersionContainsFold(v string) predicate.PropertyRoomVersion {
 	return predicate.PropertyRoomVersion(sql.FieldContainsFold(FieldProcessorVersion, v))
+}
+
+// SyncEventIDEQ applies the EQ predicate on the "sync_event_id" field.
+func SyncEventIDEQ(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldSyncEventID, v))
+}
+
+// SyncEventIDNEQ applies the NEQ predicate on the "sync_event_id" field.
+func SyncEventIDNEQ(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldNEQ(FieldSyncEventID, v))
+}
+
+// SyncEventIDIn applies the In predicate on the "sync_event_id" field.
+func SyncEventIDIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldIn(FieldSyncEventID, vs...))
+}
+
+// SyncEventIDNotIn applies the NotIn predicate on the "sync_event_id" field.
+func SyncEventIDNotIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldNotIn(FieldSyncEventID, vs...))
+}
+
+// SyncEventIDGT applies the GT predicate on the "sync_event_id" field.
+func SyncEventIDGT(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldGT(FieldSyncEventID, v))
+}
+
+// SyncEventIDGTE applies the GTE predicate on the "sync_event_id" field.
+func SyncEventIDGTE(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldGTE(FieldSyncEventID, v))
+}
+
+// SyncEventIDLT applies the LT predicate on the "sync_event_id" field.
+func SyncEventIDLT(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldLT(FieldSyncEventID, v))
+}
+
+// SyncEventIDLTE applies the LTE predicate on the "sync_event_id" field.
+func SyncEventIDLTE(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldLTE(FieldSyncEventID, v))
+}
+
+// RawOutputIDEQ applies the EQ predicate on the "raw_output_id" field.
+func RawOutputIDEQ(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldRawOutputID, v))
+}
+
+// RawOutputIDNEQ applies the NEQ predicate on the "raw_output_id" field.
+func RawOutputIDNEQ(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldNEQ(FieldRawOutputID, v))
+}
+
+// RawOutputIDIn applies the In predicate on the "raw_output_id" field.
+func RawOutputIDIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldIn(FieldRawOutputID, vs...))
+}
+
+// RawOutputIDNotIn applies the NotIn predicate on the "raw_output_id" field.
+func RawOutputIDNotIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldNotIn(FieldRawOutputID, vs...))
+}
+
+// RawOutputIDGT applies the GT predicate on the "raw_output_id" field.
+func RawOutputIDGT(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldGT(FieldRawOutputID, v))
+}
+
+// RawOutputIDGTE applies the GTE predicate on the "raw_output_id" field.
+func RawOutputIDGTE(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldGTE(FieldRawOutputID, v))
+}
+
+// RawOutputIDLT applies the LT predicate on the "raw_output_id" field.
+func RawOutputIDLT(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldLT(FieldRawOutputID, v))
+}
+
+// RawOutputIDLTE applies the LTE predicate on the "raw_output_id" field.
+func RawOutputIDLTE(v uuid.UUID) predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldLTE(FieldRawOutputID, v))
+}
+
+// RawOutputIDIsNil applies the IsNil predicate on the "raw_output_id" field.
+func RawOutputIDIsNil() predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldIsNull(FieldRawOutputID))
+}
+
+// RawOutputIDNotNil applies the NotNil predicate on the "raw_output_id" field.
+func RawOutputIDNotNil() predicate.PropertyRoomVersion {
+	return predicate.PropertyRoomVersion(sql.FieldNotNull(FieldRawOutputID))
 }
 
 // SourceModifiedAtEQ applies the EQ predicate on the "source_modified_at" field.
@@ -789,96 +879,6 @@ func RoomKeyEqualFold(v string) predicate.PropertyRoomVersion {
 // RoomKeyContainsFold applies the ContainsFold predicate on the "room_key" field.
 func RoomKeyContainsFold(v string) predicate.PropertyRoomVersion {
 	return predicate.PropertyRoomVersion(sql.FieldContainsFold(FieldRoomKey, v))
-}
-
-// SyncEventIDEQ applies the EQ predicate on the "sync_event_id" field.
-func SyncEventIDEQ(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldSyncEventID, v))
-}
-
-// SyncEventIDNEQ applies the NEQ predicate on the "sync_event_id" field.
-func SyncEventIDNEQ(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldNEQ(FieldSyncEventID, v))
-}
-
-// SyncEventIDIn applies the In predicate on the "sync_event_id" field.
-func SyncEventIDIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldIn(FieldSyncEventID, vs...))
-}
-
-// SyncEventIDNotIn applies the NotIn predicate on the "sync_event_id" field.
-func SyncEventIDNotIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldNotIn(FieldSyncEventID, vs...))
-}
-
-// SyncEventIDGT applies the GT predicate on the "sync_event_id" field.
-func SyncEventIDGT(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldGT(FieldSyncEventID, v))
-}
-
-// SyncEventIDGTE applies the GTE predicate on the "sync_event_id" field.
-func SyncEventIDGTE(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldGTE(FieldSyncEventID, v))
-}
-
-// SyncEventIDLT applies the LT predicate on the "sync_event_id" field.
-func SyncEventIDLT(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldLT(FieldSyncEventID, v))
-}
-
-// SyncEventIDLTE applies the LTE predicate on the "sync_event_id" field.
-func SyncEventIDLTE(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldLTE(FieldSyncEventID, v))
-}
-
-// RawOutputIDEQ applies the EQ predicate on the "raw_output_id" field.
-func RawOutputIDEQ(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldEQ(FieldRawOutputID, v))
-}
-
-// RawOutputIDNEQ applies the NEQ predicate on the "raw_output_id" field.
-func RawOutputIDNEQ(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldNEQ(FieldRawOutputID, v))
-}
-
-// RawOutputIDIn applies the In predicate on the "raw_output_id" field.
-func RawOutputIDIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldIn(FieldRawOutputID, vs...))
-}
-
-// RawOutputIDNotIn applies the NotIn predicate on the "raw_output_id" field.
-func RawOutputIDNotIn(vs ...uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldNotIn(FieldRawOutputID, vs...))
-}
-
-// RawOutputIDGT applies the GT predicate on the "raw_output_id" field.
-func RawOutputIDGT(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldGT(FieldRawOutputID, v))
-}
-
-// RawOutputIDGTE applies the GTE predicate on the "raw_output_id" field.
-func RawOutputIDGTE(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldGTE(FieldRawOutputID, v))
-}
-
-// RawOutputIDLT applies the LT predicate on the "raw_output_id" field.
-func RawOutputIDLT(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldLT(FieldRawOutputID, v))
-}
-
-// RawOutputIDLTE applies the LTE predicate on the "raw_output_id" field.
-func RawOutputIDLTE(v uuid.UUID) predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldLTE(FieldRawOutputID, v))
-}
-
-// RawOutputIDIsNil applies the IsNil predicate on the "raw_output_id" field.
-func RawOutputIDIsNil() predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldIsNull(FieldRawOutputID))
-}
-
-// RawOutputIDNotNil applies the NotNil predicate on the "raw_output_id" field.
-func RawOutputIDNotNil() predicate.PropertyRoomVersion {
-	return predicate.PropertyRoomVersion(sql.FieldNotNull(FieldRawOutputID))
 }
 
 // And groups predicates with the AND operator between them.

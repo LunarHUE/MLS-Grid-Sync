@@ -62,6 +62,26 @@ func (_c *MediaVersionCreate) SetProcessorVersion(v string) *MediaVersionCreate 
 	return _c
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_c *MediaVersionCreate) SetSyncEventID(v uuid.UUID) *MediaVersionCreate {
+	_c.mutation.SetSyncEventID(v)
+	return _c
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_c *MediaVersionCreate) SetRawOutputID(v uuid.UUID) *MediaVersionCreate {
+	_c.mutation.SetRawOutputID(v)
+	return _c
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_c *MediaVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *MediaVersionCreate {
+	if v != nil {
+		_c.SetRawOutputID(*v)
+	}
+	return _c
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_c *MediaVersionCreate) SetSourceModifiedAt(v time.Time) *MediaVersionCreate {
 	_c.mutation.SetSourceModifiedAt(v)
@@ -252,26 +272,6 @@ func (_c *MediaVersionCreate) SetMediaKey(v string) *MediaVersionCreate {
 	return _c
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_c *MediaVersionCreate) SetSyncEventID(v uuid.UUID) *MediaVersionCreate {
-	_c.mutation.SetSyncEventID(v)
-	return _c
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_c *MediaVersionCreate) SetRawOutputID(v uuid.UUID) *MediaVersionCreate {
-	_c.mutation.SetRawOutputID(v)
-	return _c
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_c *MediaVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *MediaVersionCreate {
-	if v != nil {
-		_c.SetRawOutputID(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *MediaVersionCreate) SetID(v string) *MediaVersionCreate {
 	_c.mutation.SetID(v)
@@ -347,6 +347,9 @@ func (_c *MediaVersionCreate) check() error {
 	if _, ok := _c.mutation.ProcessorVersion(); !ok {
 		return &ValidationError{Name: "processor_version", err: errors.New(`ent: missing required field "MediaVersion.processor_version"`)}
 	}
+	if _, ok := _c.mutation.SyncEventID(); !ok {
+		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "MediaVersion.sync_event_id"`)}
+	}
 	if _, ok := _c.mutation.SourceModifiedAt(); !ok {
 		return &ValidationError{Name: "source_modified_at", err: errors.New(`ent: missing required field "MediaVersion.source_modified_at"`)}
 	}
@@ -366,9 +369,6 @@ func (_c *MediaVersionCreate) check() error {
 	}
 	if _, ok := _c.mutation.MediaKey(); !ok {
 		return &ValidationError{Name: "media_key", err: errors.New(`ent: missing required field "MediaVersion.media_key"`)}
-	}
-	if _, ok := _c.mutation.SyncEventID(); !ok {
-		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "MediaVersion.sync_event_id"`)}
 	}
 	return nil
 }
@@ -425,6 +425,14 @@ func (_c *MediaVersionCreate) createSpec() (*MediaVersion, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.ProcessorVersion(); ok {
 		_spec.SetField(mediaversion.FieldProcessorVersion, field.TypeString, value)
 		_node.ProcessorVersion = value
+	}
+	if value, ok := _c.mutation.SyncEventID(); ok {
+		_spec.SetField(mediaversion.FieldSyncEventID, field.TypeUUID, value)
+		_node.SyncEventID = value
+	}
+	if value, ok := _c.mutation.RawOutputID(); ok {
+		_spec.SetField(mediaversion.FieldRawOutputID, field.TypeUUID, value)
+		_node.RawOutputID = &value
 	}
 	if value, ok := _c.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(mediaversion.FieldSourceModifiedAt, field.TypeTime, value)
@@ -493,14 +501,6 @@ func (_c *MediaVersionCreate) createSpec() (*MediaVersion, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.MediaKey(); ok {
 		_spec.SetField(mediaversion.FieldMediaKey, field.TypeString, value)
 		_node.MediaKey = value
-	}
-	if value, ok := _c.mutation.SyncEventID(); ok {
-		_spec.SetField(mediaversion.FieldSyncEventID, field.TypeUUID, value)
-		_node.SyncEventID = value
-	}
-	if value, ok := _c.mutation.RawOutputID(); ok {
-		_spec.SetField(mediaversion.FieldRawOutputID, field.TypeUUID, value)
-		_node.RawOutputID = &value
 	}
 	return _node, _spec
 }
@@ -623,6 +623,36 @@ func (u *MediaVersionUpsert) SetProcessorVersion(v string) *MediaVersionUpsert {
 // UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
 func (u *MediaVersionUpsert) UpdateProcessorVersion() *MediaVersionUpsert {
 	u.SetExcluded(mediaversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MediaVersionUpsert) SetSyncEventID(v uuid.UUID) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateSyncEventID() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MediaVersionUpsert) SetRawOutputID(v uuid.UUID) *MediaVersionUpsert {
+	u.Set(mediaversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MediaVersionUpsert) UpdateRawOutputID() *MediaVersionUpsert {
+	u.SetExcluded(mediaversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MediaVersionUpsert) ClearRawOutputID() *MediaVersionUpsert {
+	u.SetNull(mediaversion.FieldRawOutputID)
 	return u
 }
 
@@ -920,36 +950,6 @@ func (u *MediaVersionUpsert) UpdateMediaKey() *MediaVersionUpsert {
 	return u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *MediaVersionUpsert) SetSyncEventID(v uuid.UUID) *MediaVersionUpsert {
-	u.Set(mediaversion.FieldSyncEventID, v)
-	return u
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *MediaVersionUpsert) UpdateSyncEventID() *MediaVersionUpsert {
-	u.SetExcluded(mediaversion.FieldSyncEventID)
-	return u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *MediaVersionUpsert) SetRawOutputID(v uuid.UUID) *MediaVersionUpsert {
-	u.Set(mediaversion.FieldRawOutputID, v)
-	return u
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *MediaVersionUpsert) UpdateRawOutputID() *MediaVersionUpsert {
-	u.SetExcluded(mediaversion.FieldRawOutputID)
-	return u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *MediaVersionUpsert) ClearRawOutputID() *MediaVersionUpsert {
-	u.SetNull(mediaversion.FieldRawOutputID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1079,6 +1079,41 @@ func (u *MediaVersionUpsertOne) SetProcessorVersion(v string) *MediaVersionUpser
 func (u *MediaVersionUpsertOne) UpdateProcessorVersion() *MediaVersionUpsertOne {
 	return u.Update(func(s *MediaVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MediaVersionUpsertOne) SetSyncEventID(v uuid.UUID) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateSyncEventID() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MediaVersionUpsertOne) SetRawOutputID(v uuid.UUID) *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertOne) UpdateRawOutputID() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MediaVersionUpsertOne) ClearRawOutputID() *MediaVersionUpsertOne {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -1425,41 +1460,6 @@ func (u *MediaVersionUpsertOne) UpdateMediaKey() *MediaVersionUpsertOne {
 	})
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *MediaVersionUpsertOne) SetSyncEventID(v uuid.UUID) *MediaVersionUpsertOne {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *MediaVersionUpsertOne) UpdateSyncEventID() *MediaVersionUpsertOne {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *MediaVersionUpsertOne) SetRawOutputID(v uuid.UUID) *MediaVersionUpsertOne {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *MediaVersionUpsertOne) UpdateRawOutputID() *MediaVersionUpsertOne {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *MediaVersionUpsertOne) ClearRawOutputID() *MediaVersionUpsertOne {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.ClearRawOutputID()
-	})
-}
-
 // Exec executes the query.
 func (u *MediaVersionUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -1756,6 +1756,41 @@ func (u *MediaVersionUpsertBulk) SetProcessorVersion(v string) *MediaVersionUpse
 func (u *MediaVersionUpsertBulk) UpdateProcessorVersion() *MediaVersionUpsertBulk {
 	return u.Update(func(s *MediaVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *MediaVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateSyncEventID() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *MediaVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *MediaVersionUpsertBulk) UpdateRawOutputID() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *MediaVersionUpsertBulk) ClearRawOutputID() *MediaVersionUpsertBulk {
+	return u.Update(func(s *MediaVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -2099,41 +2134,6 @@ func (u *MediaVersionUpsertBulk) SetMediaKey(v string) *MediaVersionUpsertBulk {
 func (u *MediaVersionUpsertBulk) UpdateMediaKey() *MediaVersionUpsertBulk {
 	return u.Update(func(s *MediaVersionUpsert) {
 		s.UpdateMediaKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *MediaVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *MediaVersionUpsertBulk {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *MediaVersionUpsertBulk) UpdateSyncEventID() *MediaVersionUpsertBulk {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *MediaVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *MediaVersionUpsertBulk {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *MediaVersionUpsertBulk) UpdateRawOutputID() *MediaVersionUpsertBulk {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *MediaVersionUpsertBulk) ClearRawOutputID() *MediaVersionUpsertBulk {
-	return u.Update(func(s *MediaVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 

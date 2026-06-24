@@ -9,7 +9,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
-	"github.com/google/uuid"
 )
 
 // OpenHouseDataMixin: shared columns between OpenHouse and OpenHouseVersion.
@@ -44,6 +43,7 @@ func (OpenHouse) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		OpenHouseDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -52,9 +52,7 @@ func (OpenHouse) Fields() []ent.Field {
 		field.String("id").
 			StorageKey("open_house_key").
 			Comment("RESO OpenHouseKey"),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 		field.String("parent_listing_key").
 			Optional().Nillable().
 			Comment("Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives."),

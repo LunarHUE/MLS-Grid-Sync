@@ -47,9 +47,9 @@ processor_cursor.processor_version is stamped with the current build.`,
 		// Accept either the syncevent enum form ("Property") or the
 		// raw_output form ("property"). Normalize to raw_output.Resource
 		// since that's what the processor expects.
-		dbResource, err := normalizeToDBResource(resourceArg)
-		if err != nil {
-			return err
+		dbResource, ok := normalizeResource(resourceArg)
+		if !ok {
+			return fmt.Errorf("invalid resource %q (try Property, OpenHouse, property, open_house, …)", resourceArg)
 		}
 
 		if !reprocessAll && reprocessFromID == "" {
@@ -121,21 +121,21 @@ processor_cursor.processor_version is stamped with the current build.`,
 	},
 }
 
-// normalizeToDBResource accepts either the rawoutput enum form
-// ("property", "open_house") or the MLS API name ("Property", "OpenHouse")
-// — operators tend to copy from logs. Returns the canonical rawoutput
-// form.
-func normalizeToDBResource(arg string) (rawoutput.Resource, error) {
-	// Try DB enum directly first.
-	candidate := rawoutput.Resource(arg)
-	if err := rawoutput.ResourceValidator(candidate); err == nil {
-		return candidate, nil
+// normalizeResource accepts either the rawoutput enum form ("property",
+// "open_house") or the MLS API name ("Property", "OpenHouse") — operators tend
+// to copy from logs — and returns the canonical rawoutput form. ok is false
+// when arg matches neither, leaving the error wording to the caller (--skip vs
+// the reprocess positional arg phrase it differently).
+func normalizeResource(arg string) (rawoutput.Resource, bool) {
+	// Try the DB enum directly first.
+	if r := rawoutput.Resource(arg); rawoutput.ResourceValidator(r) == nil {
+		return r, true
 	}
-	// Fall back to MLS API name.
+	// Fall back to the MLS API name.
 	if db, err := pkgsync.MLSToDBResource(arg); err == nil {
-		return db, nil
+		return db, true
 	}
-	return "", fmt.Errorf("invalid resource %q (try Property, OpenHouse, property, open_house, …)", arg)
+	return "", false
 }
 
 // resetCursorAndAudit updates processor_cursor.last_raw_output_id to the

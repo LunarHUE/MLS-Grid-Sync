@@ -24,12 +24,11 @@ import (
 // The bucket is created idempotently at construction so a fresh
 // emulator or a misconfigured prod account fails loudly at start.
 type S3Storer struct {
-	client       *s3.Client
-	uploader     *transfermanager.Client
-	bucket       string
-	region       string
-	endpoint     string
-	usePathStyle bool
+	client   *s3.Client
+	uploader *transfermanager.Client
+	bucket   string
+	region   string
+	endpoint string
 }
 
 // NewS3 constructs the storer per the auth-precedence rules above.
@@ -86,12 +85,11 @@ func NewS3(ctx context.Context, endpoint, bucket, region, accessKeyID, secretAcc
 	}
 
 	return &S3Storer{
-		client:       client,
-		uploader:     transfermanager.New(client),
-		bucket:       bucket,
-		region:       region,
-		endpoint:     endpoint,
-		usePathStyle: usePathStyle,
+		client:   client,
+		uploader: transfermanager.New(client),
+		bucket:   bucket,
+		region:   region,
+		endpoint: endpoint,
 	}, nil
 }
 

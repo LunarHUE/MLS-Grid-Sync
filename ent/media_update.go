@@ -345,26 +345,6 @@ func (_u *MediaUpdate) ClearExtendedFields() *MediaUpdate {
 	return _u
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (_u *MediaUpdate) SetAttachmentID(v uuid.UUID) *MediaUpdate {
-	_u.mutation.SetAttachmentID(v)
-	return _u
-}
-
-// SetNillableAttachmentID sets the "attachment_id" field if the given value is not nil.
-func (_u *MediaUpdate) SetNillableAttachmentID(v *uuid.UUID) *MediaUpdate {
-	if v != nil {
-		_u.SetAttachmentID(*v)
-	}
-	return _u
-}
-
-// ClearAttachmentID clears the value of the "attachment_id" field.
-func (_u *MediaUpdate) ClearAttachmentID() *MediaUpdate {
-	_u.mutation.ClearAttachmentID()
-	return _u
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (_u *MediaUpdate) SetCurrentVersionID(v uuid.UUID) *MediaUpdate {
 	_u.mutation.SetCurrentVersionID(v)
@@ -382,6 +362,26 @@ func (_u *MediaUpdate) SetNillableCurrentVersionID(v *uuid.UUID) *MediaUpdate {
 // ClearCurrentVersionID clears the value of the "current_version_id" field.
 func (_u *MediaUpdate) ClearCurrentVersionID() *MediaUpdate {
 	_u.mutation.ClearCurrentVersionID()
+	return _u
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (_u *MediaUpdate) SetAttachmentID(v uuid.UUID) *MediaUpdate {
+	_u.mutation.SetAttachmentID(v)
+	return _u
+}
+
+// SetNillableAttachmentID sets the "attachment_id" field if the given value is not nil.
+func (_u *MediaUpdate) SetNillableAttachmentID(v *uuid.UUID) *MediaUpdate {
+	if v != nil {
+		_u.SetAttachmentID(*v)
+	}
+	return _u
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (_u *MediaUpdate) ClearAttachmentID() *MediaUpdate {
+	_u.mutation.ClearAttachmentID()
 	return _u
 }
 
@@ -1009,26 +1009,6 @@ func (_u *MediaUpdateOne) ClearExtendedFields() *MediaUpdateOne {
 	return _u
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (_u *MediaUpdateOne) SetAttachmentID(v uuid.UUID) *MediaUpdateOne {
-	_u.mutation.SetAttachmentID(v)
-	return _u
-}
-
-// SetNillableAttachmentID sets the "attachment_id" field if the given value is not nil.
-func (_u *MediaUpdateOne) SetNillableAttachmentID(v *uuid.UUID) *MediaUpdateOne {
-	if v != nil {
-		_u.SetAttachmentID(*v)
-	}
-	return _u
-}
-
-// ClearAttachmentID clears the value of the "attachment_id" field.
-func (_u *MediaUpdateOne) ClearAttachmentID() *MediaUpdateOne {
-	_u.mutation.ClearAttachmentID()
-	return _u
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (_u *MediaUpdateOne) SetCurrentVersionID(v uuid.UUID) *MediaUpdateOne {
 	_u.mutation.SetCurrentVersionID(v)
@@ -1046,6 +1026,26 @@ func (_u *MediaUpdateOne) SetNillableCurrentVersionID(v *uuid.UUID) *MediaUpdate
 // ClearCurrentVersionID clears the value of the "current_version_id" field.
 func (_u *MediaUpdateOne) ClearCurrentVersionID() *MediaUpdateOne {
 	_u.mutation.ClearCurrentVersionID()
+	return _u
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (_u *MediaUpdateOne) SetAttachmentID(v uuid.UUID) *MediaUpdateOne {
+	_u.mutation.SetAttachmentID(v)
+	return _u
+}
+
+// SetNillableAttachmentID sets the "attachment_id" field if the given value is not nil.
+func (_u *MediaUpdateOne) SetNillableAttachmentID(v *uuid.UUID) *MediaUpdateOne {
+	if v != nil {
+		_u.SetAttachmentID(*v)
+	}
+	return _u
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (_u *MediaUpdateOne) ClearAttachmentID() *MediaUpdateOne {
+	_u.mutation.ClearAttachmentID()
 	return _u
 }
 

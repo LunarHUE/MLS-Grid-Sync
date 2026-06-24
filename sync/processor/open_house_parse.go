@@ -63,14 +63,11 @@ func parseOpenHouse(payload []byte) (*OpenHouseFields, error) {
 	out.OpenHouseKey = *openHouseKey
 
 	tsRaw, ok := consume("ModificationTimestamp")
-	if !ok {
-		return nil, fmt.Errorf("missing required field ModificationTimestamp")
+	modAt, err := requiredModTimestamp(tsRaw, ok)
+	if err != nil {
+		return nil, err
 	}
-	ts, err := parseTime(tsRaw)
-	if err != nil || ts == nil {
-		return nil, fmt.Errorf("ModificationTimestamp: %w", err)
-	}
-	out.SourceModifiedAt = *ts
+	out.SourceModifiedAt = modAt
 
 	listingRaw, ok := consume("ListingKey")
 	if !ok {
@@ -83,27 +80,8 @@ func parseOpenHouse(payload []byte) (*OpenHouseFields, error) {
 	out.ListingKey = *listingKey
 
 	// --- MLSMetadataMixin ---
-	if v, ok := consume("OriginatingSystemName"); ok {
-		out.OriginatingSystemName, err = parseString(v)
-		if err != nil {
-			return nil, fmt.Errorf("OriginatingSystemName: %w", err)
-		}
-	}
-	if v, ok := consume("MlgCanView"); ok {
-		b, err := parseBool(v)
-		if err != nil {
-			return nil, fmt.Errorf("MlgCanView: %w", err)
-		}
-		if b != nil {
-			out.MlgCanView = *b
-		}
-	}
-	if v, ok := consume("MlgCanUse"); ok {
-		arr, err := parseStringArray(v)
-		if err != nil {
-			return nil, fmt.Errorf("MlgCanUse: %w", err)
-		}
-		out.MlgCanUse = []string(arr)
+	if err := parseMLSMetadata(consume, &out.OriginatingSystemName, &out.MlgCanView, &out.MlgCanUse); err != nil {
+		return nil, err
 	}
 
 	if v, ok := consume("ListingId"); ok {

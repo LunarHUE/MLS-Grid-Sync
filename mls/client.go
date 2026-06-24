@@ -9,8 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lunarhue/libs-go/log"
 	"golang.org/x/time/rate"
+
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
 )
 
 const (
@@ -88,7 +89,7 @@ func (c *Client) FetchPage(ctx context.Context, pageURL string) (*ODataResponse,
 	)
 	for {
 		var req *http.Request
-		log.Debugf("fetching '%s'", pageURL)
+		applog.Debugf("fetching '%s'", pageURL)
 		req, err = http.NewRequestWithContext(ctx, http.MethodGet, pageURL, nil)
 		if err != nil {
 			return nil, fmt.Errorf("create request: %w", err)
@@ -173,7 +174,7 @@ func (c *Client) FetchPage(ctx context.Context, pageURL string) (*ODataResponse,
 	}
 	decodeDur := time.Since(decodeStart)
 
-	log.Debugf("fetch timing: %d records, %.1f MiB decoded, rate-wait %s, http-hdr %s, body+decode %s",
+	applog.Debugf("fetch timing: %d records, %.1f MiB decoded, rate-wait %s, http-hdr %s, body+decode %s",
 		len(odata.Value),
 		float64(counter.n)/(1024*1024),
 		rateWait.Round(time.Millisecond),

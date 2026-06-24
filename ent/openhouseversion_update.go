@@ -104,6 +104,40 @@ func (_u *OpenHouseVersionUpdate) SetNillableProcessorVersion(v *string) *OpenHo
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *OpenHouseVersionUpdate) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *OpenHouseVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *OpenHouseVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *OpenHouseVersionUpdate) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *OpenHouseVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *OpenHouseVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *OpenHouseVersionUpdate) ClearRawOutputID() *OpenHouseVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *OpenHouseVersionUpdate) SetSourceModifiedAt(v time.Time) *OpenHouseVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -330,40 +364,6 @@ func (_u *OpenHouseVersionUpdate) SetNillableOpenHouseKey(v *string) *OpenHouseV
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *OpenHouseVersionUpdate) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *OpenHouseVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *OpenHouseVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *OpenHouseVersionUpdate) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *OpenHouseVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *OpenHouseVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *OpenHouseVersionUpdate) ClearRawOutputID() *OpenHouseVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the OpenHouseVersionMutation object of the builder.
 func (_u *OpenHouseVersionUpdate) Mutation() *OpenHouseVersionMutation {
 	return _u.mutation
@@ -439,6 +439,15 @@ func (_u *OpenHouseVersionUpdate) sqlSave(ctx context.Context) (_node int, err e
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(openhouseversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(openhouseversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(openhouseversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(openhouseversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(openhouseversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -509,15 +518,6 @@ func (_u *OpenHouseVersionUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.OpenHouseKey(); ok {
 		_spec.SetField(openhouseversion.FieldOpenHouseKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(openhouseversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(openhouseversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(openhouseversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -610,6 +610,40 @@ func (_u *OpenHouseVersionUpdateOne) SetNillableProcessorVersion(v *string) *Ope
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *OpenHouseVersionUpdateOne) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *OpenHouseVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *OpenHouseVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *OpenHouseVersionUpdateOne) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *OpenHouseVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *OpenHouseVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *OpenHouseVersionUpdateOne) ClearRawOutputID() *OpenHouseVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -839,40 +873,6 @@ func (_u *OpenHouseVersionUpdateOne) SetNillableOpenHouseKey(v *string) *OpenHou
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *OpenHouseVersionUpdateOne) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *OpenHouseVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *OpenHouseVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *OpenHouseVersionUpdateOne) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *OpenHouseVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *OpenHouseVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *OpenHouseVersionUpdateOne) ClearRawOutputID() *OpenHouseVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the OpenHouseVersionMutation object of the builder.
 func (_u *OpenHouseVersionUpdateOne) Mutation() *OpenHouseVersionMutation {
 	return _u.mutation
@@ -978,6 +978,15 @@ func (_u *OpenHouseVersionUpdateOne) sqlSave(ctx context.Context) (_node *OpenHo
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(openhouseversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(openhouseversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(openhouseversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(openhouseversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(openhouseversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -1048,15 +1057,6 @@ func (_u *OpenHouseVersionUpdateOne) sqlSave(ctx context.Context) (_node *OpenHo
 	}
 	if value, ok := _u.mutation.OpenHouseKey(); ok {
 		_spec.SetField(openhouseversion.FieldOpenHouseKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(openhouseversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(openhouseversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(openhouseversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &OpenHouseVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

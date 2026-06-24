@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -58,6 +59,20 @@ func (MLSMetadataMixin) Fields() []ent.Field {
 	}
 }
 
+// CurrentVersionMixin: a versioned current-state entity carries a pointer to
+// its latest *Version row. Opt-in (composed only by the 7 entities that have a
+// matching *Version table); the non-versioned tables correctly omit it.
+type CurrentVersionMixin struct{ mixin.Schema }
+
+func (CurrentVersionMixin) Fields() []ent.Field {
+	return []ent.Field{
+		field.UUID("current_version_id", uuid.UUID{}).
+			Optional().Nillable().
+			Comment("Points at the latest version row").
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+	}
+}
+
 // ExtendedFieldsMixin: JSONB blob for ACT_* and uncommon RESO fields.
 type ExtendedFieldsMixin struct{ mixin.Schema }
 
@@ -78,6 +93,14 @@ func (ExtendedFieldsMixin) Fields() []ent.Field {
 //	change_type:           Insert | Update | Delete
 //	changed_fields:        JSONB dictionary of which keys differed from prior version
 //	processor_version:     parser version that produced this row (for replay debugging)
+//	sync_event_id:         the sync_event that produced this version row
+//	raw_output_id:         the raw_output row this version was projected from
+//
+// sync_event_id and raw_output_id are plain UUIDs — no Ent edges back to
+// SyncEvent/RawOutput because that requires inverse edges on those schemas for
+// all 7 version tables, which is noisy. Integrity is maintained at write time
+// (versions written in the same tx as the sync_event). Add FK constraints via
+// Atlas migration hooks if desired.
 type VersionMixin struct{ mixin.Schema }
 
 func (VersionMixin) Fields() []ent.Field {
@@ -101,6 +124,23 @@ func (VersionMixin) Fields() []ent.Field {
 			}).
 			Comment("Keys that differ from the prior version"),
 		field.String("processor_version"),
+		field.UUID("sync_event_id", uuid.UUID{}).
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		field.UUID("raw_output_id", uuid.UUID{}).
+			Optional().Nillable().
+			Comment("Nullable — manual fixes may not derive from a raw_output row").
+			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+	}
+}
+
+// Indexes are the two version-row indexes that don't reference the per-entity
+// natural key, so they live here instead of being repeated in all 7 version
+// schemas. The key-dependent indexes (key+valid_from, partial-unique key WHERE
+// valid_to IS NULL) stay in each schema since they name the key column.
+func (VersionMixin) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("sync_event_id"),
+		index.Fields("processor_version"),
 	}
 }
 

@@ -104,6 +104,40 @@ func (_u *PropertyUnitTypeVersionUpdate) SetNillableProcessorVersion(v *string) 
 	return _u
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *PropertyUnitTypeVersionUpdate) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpdate {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *PropertyUnitTypeVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *PropertyUnitTypeVersionUpdate {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *PropertyUnitTypeVersionUpdate) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpdate {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *PropertyUnitTypeVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *PropertyUnitTypeVersionUpdate {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *PropertyUnitTypeVersionUpdate) ClearRawOutputID() *PropertyUnitTypeVersionUpdate {
+	_u.mutation.ClearRawOutputID()
+	return _u
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_u *PropertyUnitTypeVersionUpdate) SetSourceModifiedAt(v time.Time) *PropertyUnitTypeVersionUpdate {
 	_u.mutation.SetSourceModifiedAt(v)
@@ -257,40 +291,6 @@ func (_u *PropertyUnitTypeVersionUpdate) SetNillableUnitTypeKey(v *string) *Prop
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *PropertyUnitTypeVersionUpdate) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpdate {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *PropertyUnitTypeVersionUpdate) SetNillableSyncEventID(v *uuid.UUID) *PropertyUnitTypeVersionUpdate {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *PropertyUnitTypeVersionUpdate) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpdate {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *PropertyUnitTypeVersionUpdate) SetNillableRawOutputID(v *uuid.UUID) *PropertyUnitTypeVersionUpdate {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *PropertyUnitTypeVersionUpdate) ClearRawOutputID() *PropertyUnitTypeVersionUpdate {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the PropertyUnitTypeVersionMutation object of the builder.
 func (_u *PropertyUnitTypeVersionUpdate) Mutation() *PropertyUnitTypeVersionMutation {
 	return _u.mutation
@@ -366,6 +366,15 @@ func (_u *PropertyUnitTypeVersionUpdate) sqlSave(ctx context.Context) (_node int
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(propertyunittypeversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyunittypeversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyunittypeversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -415,15 +424,6 @@ func (_u *PropertyUnitTypeVersionUpdate) sqlSave(ctx context.Context) (_node int
 	}
 	if value, ok := _u.mutation.UnitTypeKey(); ok {
 		_spec.SetField(propertyunittypeversion.FieldUnitTypeKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyunittypeversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -516,6 +516,40 @@ func (_u *PropertyUnitTypeVersionUpdateOne) SetNillableProcessorVersion(v *strin
 	if v != nil {
 		_u.SetProcessorVersion(*v)
 	}
+	return _u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (_u *PropertyUnitTypeVersionUpdateOne) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
+	_u.mutation.SetSyncEventID(v)
+	return _u
+}
+
+// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
+func (_u *PropertyUnitTypeVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
+	if v != nil {
+		_u.SetSyncEventID(*v)
+	}
+	return _u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_u *PropertyUnitTypeVersionUpdateOne) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
+	_u.mutation.SetRawOutputID(v)
+	return _u
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_u *PropertyUnitTypeVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
+	if v != nil {
+		_u.SetRawOutputID(*v)
+	}
+	return _u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (_u *PropertyUnitTypeVersionUpdateOne) ClearRawOutputID() *PropertyUnitTypeVersionUpdateOne {
+	_u.mutation.ClearRawOutputID()
 	return _u
 }
 
@@ -672,40 +706,6 @@ func (_u *PropertyUnitTypeVersionUpdateOne) SetNillableUnitTypeKey(v *string) *P
 	return _u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_u *PropertyUnitTypeVersionUpdateOne) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
-	_u.mutation.SetSyncEventID(v)
-	return _u
-}
-
-// SetNillableSyncEventID sets the "sync_event_id" field if the given value is not nil.
-func (_u *PropertyUnitTypeVersionUpdateOne) SetNillableSyncEventID(v *uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
-	if v != nil {
-		_u.SetSyncEventID(*v)
-	}
-	return _u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_u *PropertyUnitTypeVersionUpdateOne) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
-	_u.mutation.SetRawOutputID(v)
-	return _u
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_u *PropertyUnitTypeVersionUpdateOne) SetNillableRawOutputID(v *uuid.UUID) *PropertyUnitTypeVersionUpdateOne {
-	if v != nil {
-		_u.SetRawOutputID(*v)
-	}
-	return _u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (_u *PropertyUnitTypeVersionUpdateOne) ClearRawOutputID() *PropertyUnitTypeVersionUpdateOne {
-	_u.mutation.ClearRawOutputID()
-	return _u
-}
-
 // Mutation returns the PropertyUnitTypeVersionMutation object of the builder.
 func (_u *PropertyUnitTypeVersionUpdateOne) Mutation() *PropertyUnitTypeVersionMutation {
 	return _u.mutation
@@ -811,6 +811,15 @@ func (_u *PropertyUnitTypeVersionUpdateOne) sqlSave(ctx context.Context) (_node 
 	if value, ok := _u.mutation.ProcessorVersion(); ok {
 		_spec.SetField(propertyunittypeversion.FieldProcessorVersion, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyunittypeversion.FieldSyncEventID, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID, value)
+	}
+	if _u.mutation.RawOutputIDCleared() {
+		_spec.ClearField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID)
+	}
 	if value, ok := _u.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyunittypeversion.FieldSourceModifiedAt, field.TypeTime, value)
 	}
@@ -860,15 +869,6 @@ func (_u *PropertyUnitTypeVersionUpdateOne) sqlSave(ctx context.Context) (_node 
 	}
 	if value, ok := _u.mutation.UnitTypeKey(); ok {
 		_spec.SetField(propertyunittypeversion.FieldUnitTypeKey, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyunittypeversion.FieldSyncEventID, field.TypeUUID, value)
-	}
-	if value, ok := _u.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID, value)
-	}
-	if _u.mutation.RawOutputIDCleared() {
-		_spec.ClearField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID)
 	}
 	_node = &PropertyUnitTypeVersion{config: _u.config}
 	_spec.Assign = _node.assignValues

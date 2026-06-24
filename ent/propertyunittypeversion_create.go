@@ -62,6 +62,26 @@ func (_c *PropertyUnitTypeVersionCreate) SetProcessorVersion(v string) *Property
 	return _c
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_c *PropertyUnitTypeVersionCreate) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionCreate {
+	_c.mutation.SetSyncEventID(v)
+	return _c
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_c *PropertyUnitTypeVersionCreate) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionCreate {
+	_c.mutation.SetRawOutputID(v)
+	return _c
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_c *PropertyUnitTypeVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *PropertyUnitTypeVersionCreate {
+	if v != nil {
+		_c.SetRawOutputID(*v)
+	}
+	return _c
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_c *PropertyUnitTypeVersionCreate) SetSourceModifiedAt(v time.Time) *PropertyUnitTypeVersionCreate {
 	_c.mutation.SetSourceModifiedAt(v)
@@ -148,26 +168,6 @@ func (_c *PropertyUnitTypeVersionCreate) SetUnitTypeKey(v string) *PropertyUnitT
 	return _c
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_c *PropertyUnitTypeVersionCreate) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionCreate {
-	_c.mutation.SetSyncEventID(v)
-	return _c
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_c *PropertyUnitTypeVersionCreate) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionCreate {
-	_c.mutation.SetRawOutputID(v)
-	return _c
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_c *PropertyUnitTypeVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *PropertyUnitTypeVersionCreate {
-	if v != nil {
-		_c.SetRawOutputID(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *PropertyUnitTypeVersionCreate) SetID(v string) *PropertyUnitTypeVersionCreate {
 	_c.mutation.SetID(v)
@@ -243,6 +243,9 @@ func (_c *PropertyUnitTypeVersionCreate) check() error {
 	if _, ok := _c.mutation.ProcessorVersion(); !ok {
 		return &ValidationError{Name: "processor_version", err: errors.New(`ent: missing required field "PropertyUnitTypeVersion.processor_version"`)}
 	}
+	if _, ok := _c.mutation.SyncEventID(); !ok {
+		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "PropertyUnitTypeVersion.sync_event_id"`)}
+	}
 	if _, ok := _c.mutation.SourceModifiedAt(); !ok {
 		return &ValidationError{Name: "source_modified_at", err: errors.New(`ent: missing required field "PropertyUnitTypeVersion.source_modified_at"`)}
 	}
@@ -254,9 +257,6 @@ func (_c *PropertyUnitTypeVersionCreate) check() error {
 	}
 	if _, ok := _c.mutation.UnitTypeKey(); !ok {
 		return &ValidationError{Name: "unit_type_key", err: errors.New(`ent: missing required field "PropertyUnitTypeVersion.unit_type_key"`)}
-	}
-	if _, ok := _c.mutation.SyncEventID(); !ok {
-		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "PropertyUnitTypeVersion.sync_event_id"`)}
 	}
 	return nil
 }
@@ -314,6 +314,14 @@ func (_c *PropertyUnitTypeVersionCreate) createSpec() (*PropertyUnitTypeVersion,
 		_spec.SetField(propertyunittypeversion.FieldProcessorVersion, field.TypeString, value)
 		_node.ProcessorVersion = value
 	}
+	if value, ok := _c.mutation.SyncEventID(); ok {
+		_spec.SetField(propertyunittypeversion.FieldSyncEventID, field.TypeUUID, value)
+		_node.SyncEventID = value
+	}
+	if value, ok := _c.mutation.RawOutputID(); ok {
+		_spec.SetField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID, value)
+		_node.RawOutputID = &value
+	}
 	if value, ok := _c.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(propertyunittypeversion.FieldSourceModifiedAt, field.TypeTime, value)
 		_node.SourceModifiedAt = value
@@ -349,14 +357,6 @@ func (_c *PropertyUnitTypeVersionCreate) createSpec() (*PropertyUnitTypeVersion,
 	if value, ok := _c.mutation.UnitTypeKey(); ok {
 		_spec.SetField(propertyunittypeversion.FieldUnitTypeKey, field.TypeString, value)
 		_node.UnitTypeKey = value
-	}
-	if value, ok := _c.mutation.SyncEventID(); ok {
-		_spec.SetField(propertyunittypeversion.FieldSyncEventID, field.TypeUUID, value)
-		_node.SyncEventID = value
-	}
-	if value, ok := _c.mutation.RawOutputID(); ok {
-		_spec.SetField(propertyunittypeversion.FieldRawOutputID, field.TypeUUID, value)
-		_node.RawOutputID = &value
 	}
 	return _node, _spec
 }
@@ -479,6 +479,36 @@ func (u *PropertyUnitTypeVersionUpsert) SetProcessorVersion(v string) *PropertyU
 // UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
 func (u *PropertyUnitTypeVersionUpsert) UpdateProcessorVersion() *PropertyUnitTypeVersionUpsert {
 	u.SetExcluded(propertyunittypeversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyUnitTypeVersionUpsert) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateSyncEventID() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsert) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsert {
+	u.Set(propertyunittypeversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsert) UpdateRawOutputID() *PropertyUnitTypeVersionUpsert {
+	u.SetExcluded(propertyunittypeversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsert) ClearRawOutputID() *PropertyUnitTypeVersionUpsert {
+	u.SetNull(propertyunittypeversion.FieldRawOutputID)
 	return u
 }
 
@@ -626,36 +656,6 @@ func (u *PropertyUnitTypeVersionUpsert) UpdateUnitTypeKey() *PropertyUnitTypeVer
 	return u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *PropertyUnitTypeVersionUpsert) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsert {
-	u.Set(propertyunittypeversion.FieldSyncEventID, v)
-	return u
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *PropertyUnitTypeVersionUpsert) UpdateSyncEventID() *PropertyUnitTypeVersionUpsert {
-	u.SetExcluded(propertyunittypeversion.FieldSyncEventID)
-	return u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *PropertyUnitTypeVersionUpsert) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsert {
-	u.Set(propertyunittypeversion.FieldRawOutputID, v)
-	return u
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *PropertyUnitTypeVersionUpsert) UpdateRawOutputID() *PropertyUnitTypeVersionUpsert {
-	u.SetExcluded(propertyunittypeversion.FieldRawOutputID)
-	return u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *PropertyUnitTypeVersionUpsert) ClearRawOutputID() *PropertyUnitTypeVersionUpsert {
-	u.SetNull(propertyunittypeversion.FieldRawOutputID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -785,6 +785,41 @@ func (u *PropertyUnitTypeVersionUpsertOne) SetProcessorVersion(v string) *Proper
 func (u *PropertyUnitTypeVersionUpsertOne) UpdateProcessorVersion() *PropertyUnitTypeVersionUpsertOne {
 	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateSyncEventID() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertOne) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertOne) UpdateRawOutputID() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertOne) ClearRawOutputID() *PropertyUnitTypeVersionUpsertOne {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -953,41 +988,6 @@ func (u *PropertyUnitTypeVersionUpsertOne) SetUnitTypeKey(v string) *PropertyUni
 func (u *PropertyUnitTypeVersionUpsertOne) UpdateUnitTypeKey() *PropertyUnitTypeVersionUpsertOne {
 	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
 		s.UpdateUnitTypeKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *PropertyUnitTypeVersionUpsertOne) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsertOne {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *PropertyUnitTypeVersionUpsertOne) UpdateSyncEventID() *PropertyUnitTypeVersionUpsertOne {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *PropertyUnitTypeVersionUpsertOne) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsertOne {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *PropertyUnitTypeVersionUpsertOne) UpdateRawOutputID() *PropertyUnitTypeVersionUpsertOne {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *PropertyUnitTypeVersionUpsertOne) ClearRawOutputID() *PropertyUnitTypeVersionUpsertOne {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 
@@ -1290,6 +1290,41 @@ func (u *PropertyUnitTypeVersionUpsertBulk) UpdateProcessorVersion() *PropertyUn
 	})
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateSyncEventID() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *PropertyUnitTypeVersionUpsertBulk) UpdateRawOutputID() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *PropertyUnitTypeVersionUpsertBulk) ClearRawOutputID() *PropertyUnitTypeVersionUpsertBulk {
+	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (u *PropertyUnitTypeVersionUpsertBulk) SetSourceModifiedAt(v time.Time) *PropertyUnitTypeVersionUpsertBulk {
 	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
@@ -1455,41 +1490,6 @@ func (u *PropertyUnitTypeVersionUpsertBulk) SetUnitTypeKey(v string) *PropertyUn
 func (u *PropertyUnitTypeVersionUpsertBulk) UpdateUnitTypeKey() *PropertyUnitTypeVersionUpsertBulk {
 	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
 		s.UpdateUnitTypeKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *PropertyUnitTypeVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *PropertyUnitTypeVersionUpsertBulk {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *PropertyUnitTypeVersionUpsertBulk) UpdateSyncEventID() *PropertyUnitTypeVersionUpsertBulk {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *PropertyUnitTypeVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *PropertyUnitTypeVersionUpsertBulk {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *PropertyUnitTypeVersionUpsertBulk) UpdateRawOutputID() *PropertyUnitTypeVersionUpsertBulk {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *PropertyUnitTypeVersionUpsertBulk) ClearRawOutputID() *PropertyUnitTypeVersionUpsertBulk {
-	return u.Update(func(s *PropertyUnitTypeVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 

@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/google/uuid"
 )
 
 type Property struct{ ent.Schema }
@@ -27,6 +26,7 @@ func (Property) Mixin() []ent.Mixin {
 		MLSMetadataMixin{},
 		PropertyDataMixin{},
 		ExtendedFieldsMixin{},
+		CurrentVersionMixin{},
 	}
 }
 
@@ -35,10 +35,7 @@ func (Property) Fields() []ent.Field {
 		field.String("id").
 			StorageKey("listing_key").
 			Comment("Natural PK: the RESO ListingKey"),
-		field.UUID("current_version_id", uuid.UUID{}).
-			Optional().Nillable().
-			Comment("Points at the latest property_version row").
-			Annotations(entgql.Skip(entgql.SkipWhereInput)),
+		// current_version_id now lives on CurrentVersionMixin.
 	}
 }
 

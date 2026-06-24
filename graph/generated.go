@@ -906,8 +906,8 @@ type ComplexityRoot struct {
 }
 
 type MediaResolver interface {
-	AttachmentID(ctx context.Context, obj *ent.Media) (*string, error)
 	CurrentVersionID(ctx context.Context, obj *ent.Media) (*string, error)
+	AttachmentID(ctx context.Context, obj *ent.Media) (*string, error)
 }
 type MediaVersionResolver interface {
 	SyncEventID(ctx context.Context, obj *ent.MediaVersion) (string, error)
@@ -989,10 +989,10 @@ type PropertyRoomResolver interface {
 	CurrentVersionID(ctx context.Context, obj *ent.PropertyRoom) (*string, error)
 }
 type PropertyRoomVersionResolver interface {
-	RoomFeatures(ctx context.Context, obj *ent.PropertyRoomVersion) (any, error)
-
 	SyncEventID(ctx context.Context, obj *ent.PropertyRoomVersion) (string, error)
 	RawOutputID(ctx context.Context, obj *ent.PropertyRoomVersion) (*string, error)
+
+	RoomFeatures(ctx context.Context, obj *ent.PropertyRoomVersion) (any, error)
 }
 type PropertyUnitTypeResolver interface {
 	CurrentVersionID(ctx context.Context, obj *ent.PropertyUnitType) (*string, error)
@@ -1002,6 +1002,9 @@ type PropertyUnitTypeVersionResolver interface {
 	RawOutputID(ctx context.Context, obj *ent.PropertyUnitTypeVersion) (*string, error)
 }
 type PropertyVersionResolver interface {
+	SyncEventID(ctx context.Context, obj *ent.PropertyVersion) (string, error)
+	RawOutputID(ctx context.Context, obj *ent.PropertyVersion) (*string, error)
+
 	Appliances(ctx context.Context, obj *ent.PropertyVersion) (any, error)
 	Cooling(ctx context.Context, obj *ent.PropertyVersion) (any, error)
 	Heating(ctx context.Context, obj *ent.PropertyVersion) (any, error)
@@ -1036,9 +1039,6 @@ type PropertyVersionResolver interface {
 	GreenEnergyEfficient(ctx context.Context, obj *ent.PropertyVersion) (any, error)
 	GreenSustainability(ctx context.Context, obj *ent.PropertyVersion) (any, error)
 	SyndicateTo(ctx context.Context, obj *ent.PropertyVersion) (any, error)
-
-	SyncEventID(ctx context.Context, obj *ent.PropertyVersion) (string, error)
-	RawOutputID(ctx context.Context, obj *ent.PropertyVersion) (*string, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id string) (ent.Noder, error)
@@ -5594,10 +5594,10 @@ func (ec *executionContext) childFields_Media(ctx context.Context, field graphql
 		return ec.fieldContext_Media_mediaModificationTimestamp(ctx, field)
 	case "extendedFields":
 		return ec.fieldContext_Media_extendedFields(ctx, field)
-	case "attachmentID":
-		return ec.fieldContext_Media_attachmentID(ctx, field)
 	case "currentVersionID":
 		return ec.fieldContext_Media_currentVersionID(ctx, field)
+	case "attachmentID":
+		return ec.fieldContext_Media_attachmentID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Media", field.Name)
 }
@@ -5638,6 +5638,10 @@ func (ec *executionContext) childFields_MediaVersion(ctx context.Context, field 
 		return ec.fieldContext_MediaVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_MediaVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_MediaVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_MediaVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_MediaVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -5672,10 +5676,6 @@ func (ec *executionContext) childFields_MediaVersion(ctx context.Context, field 
 		return ec.fieldContext_MediaVersion_extendedFields(ctx, field)
 	case "mediaKey":
 		return ec.fieldContext_MediaVersion_mediaKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_MediaVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_MediaVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type MediaVersion", field.Name)
 }
@@ -5816,6 +5816,10 @@ func (ec *executionContext) childFields_MemberVersion(ctx context.Context, field
 		return ec.fieldContext_MemberVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_MemberVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_MemberVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_MemberVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_MemberVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -5880,10 +5884,6 @@ func (ec *executionContext) childFields_MemberVersion(ctx context.Context, field
 		return ec.fieldContext_MemberVersion_extendedFields(ctx, field)
 	case "memberKey":
 		return ec.fieldContext_MemberVersion_memberKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_MemberVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_MemberVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type MemberVersion", field.Name)
 }
@@ -6020,6 +6020,10 @@ func (ec *executionContext) childFields_OfficeVersion(ctx context.Context, field
 		return ec.fieldContext_OfficeVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_OfficeVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_OfficeVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_OfficeVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_OfficeVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -6078,10 +6082,6 @@ func (ec *executionContext) childFields_OfficeVersion(ctx context.Context, field
 		return ec.fieldContext_OfficeVersion_extendedFields(ctx, field)
 	case "officeKey":
 		return ec.fieldContext_OfficeVersion_officeKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_OfficeVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_OfficeVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OfficeVersion", field.Name)
 }
@@ -6186,6 +6186,10 @@ func (ec *executionContext) childFields_OpenHouseVersion(ctx context.Context, fi
 		return ec.fieldContext_OpenHouseVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_OpenHouseVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_OpenHouseVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_OpenHouseVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_OpenHouseVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -6212,10 +6216,6 @@ func (ec *executionContext) childFields_OpenHouseVersion(ctx context.Context, fi
 		return ec.fieldContext_OpenHouseVersion_extendedFields(ctx, field)
 	case "openHouseKey":
 		return ec.fieldContext_OpenHouseVersion_openHouseKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_OpenHouseVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_OpenHouseVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type OpenHouseVersion", field.Name)
 }
@@ -6638,6 +6638,10 @@ func (ec *executionContext) childFields_PropertyRoomVersion(ctx context.Context,
 		return ec.fieldContext_PropertyRoomVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_PropertyRoomVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_PropertyRoomVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_PropertyRoomVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_PropertyRoomVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -6658,10 +6662,6 @@ func (ec *executionContext) childFields_PropertyRoomVersion(ctx context.Context,
 		return ec.fieldContext_PropertyRoomVersion_extendedFields(ctx, field)
 	case "roomKey":
 		return ec.fieldContext_PropertyRoomVersion_roomKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_PropertyRoomVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_PropertyRoomVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PropertyRoomVersion", field.Name)
 }
@@ -6758,6 +6758,10 @@ func (ec *executionContext) childFields_PropertyUnitTypeVersion(ctx context.Cont
 		return ec.fieldContext_PropertyUnitTypeVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_PropertyUnitTypeVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_PropertyUnitTypeVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_PropertyUnitTypeVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_PropertyUnitTypeVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -6776,10 +6780,6 @@ func (ec *executionContext) childFields_PropertyUnitTypeVersion(ctx context.Cont
 		return ec.fieldContext_PropertyUnitTypeVersion_extendedFields(ctx, field)
 	case "unitTypeKey":
 		return ec.fieldContext_PropertyUnitTypeVersion_unitTypeKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_PropertyUnitTypeVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_PropertyUnitTypeVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PropertyUnitTypeVersion", field.Name)
 }
@@ -6820,6 +6820,10 @@ func (ec *executionContext) childFields_PropertyVersion(ctx context.Context, fie
 		return ec.fieldContext_PropertyVersion_changedFields(ctx, field)
 	case "processorVersion":
 		return ec.fieldContext_PropertyVersion_processorVersion(ctx, field)
+	case "syncEventID":
+		return ec.fieldContext_PropertyVersion_syncEventID(ctx, field)
+	case "rawOutputID":
+		return ec.fieldContext_PropertyVersion_rawOutputID(ctx, field)
 	case "sourceModifiedAt":
 		return ec.fieldContext_PropertyVersion_sourceModifiedAt(ctx, field)
 	case "originatingSystemName":
@@ -7072,10 +7076,6 @@ func (ec *executionContext) childFields_PropertyVersion(ctx context.Context, fie
 		return ec.fieldContext_PropertyVersion_extendedFields(ctx, field)
 	case "listingKey":
 		return ec.fieldContext_PropertyVersion_listingKey(ctx, field)
-	case "syncEventID":
-		return ec.fieldContext_PropertyVersion_syncEventID(ctx, field)
-	case "rawOutputID":
-		return ec.fieldContext_PropertyVersion_rawOutputID(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PropertyVersion", field.Name)
 }
@@ -9289,29 +9289,6 @@ func (ec *executionContext) fieldContext_Media_extendedFields(_ context.Context,
 	return graphql.NewScalarFieldContext("Media", field, false, false, errors.New("field of type Map does not have child fields"))
 }
 
-func (ec *executionContext) _Media_attachmentID(ctx context.Context, field graphql.CollectedField, obj *ent.Media) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Media_attachmentID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Media().AttachmentID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_Media_attachmentID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Media", field, true, true, errors.New("field of type ID does not have child fields"))
-}
-
 func (ec *executionContext) _Media_currentVersionID(ctx context.Context, field graphql.CollectedField, obj *ent.Media) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9333,6 +9310,29 @@ func (ec *executionContext) _Media_currentVersionID(ctx context.Context, field g
 }
 func (ec *executionContext) fieldContext_Media_currentVersionID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Media", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _Media_attachmentID(ctx context.Context, field graphql.CollectedField, obj *ent.Media) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Media_attachmentID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Media().AttachmentID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Media_attachmentID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Media", field, true, true, errors.New("field of type ID does not have child fields"))
 }
 
 func (ec *executionContext) _MediaConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.MediaConnection) (ret graphql.Marshaler) {
@@ -9613,6 +9613,52 @@ func (ec *executionContext) _MediaVersion_processorVersion(ctx context.Context, 
 }
 func (ec *executionContext) fieldContext_MediaVersion_processorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MediaVersion", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _MediaVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.MediaVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_MediaVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.MediaVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_MediaVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("MediaVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _MediaVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.MediaVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_MediaVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.MediaVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_MediaVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("MediaVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _MediaVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.MediaVersion) (ret graphql.Marshaler) {
@@ -10004,52 +10050,6 @@ func (ec *executionContext) _MediaVersion_mediaKey(ctx context.Context, field gr
 }
 func (ec *executionContext) fieldContext_MediaVersion_mediaKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MediaVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _MediaVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.MediaVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MediaVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.MediaVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_MediaVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("MediaVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _MediaVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.MediaVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MediaVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.MediaVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_MediaVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("MediaVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _MediaVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.MediaVersionConnection) (ret graphql.Marshaler) {
@@ -11311,6 +11311,52 @@ func (ec *executionContext) fieldContext_MemberVersion_processorVersion(_ contex
 	return graphql.NewScalarFieldContext("MemberVersion", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _MemberVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.MemberVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_MemberVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.MemberVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_MemberVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("MemberVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _MemberVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.MemberVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_MemberVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.MemberVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_MemberVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("MemberVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
 func (ec *executionContext) _MemberVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.MemberVersion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -12045,52 +12091,6 @@ func (ec *executionContext) _MemberVersion_memberKey(ctx context.Context, field 
 }
 func (ec *executionContext) fieldContext_MemberVersion_memberKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MemberVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _MemberVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.MemberVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MemberVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.MemberVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_MemberVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("MemberVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _MemberVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.MemberVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MemberVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.MemberVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_MemberVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("MemberVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _MemberVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.MemberVersionConnection) (ret graphql.Marshaler) {
@@ -13315,6 +13315,52 @@ func (ec *executionContext) fieldContext_OfficeVersion_processorVersion(_ contex
 	return graphql.NewScalarFieldContext("OfficeVersion", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _OfficeVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.OfficeVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OfficeVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.OfficeVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OfficeVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OfficeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _OfficeVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.OfficeVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OfficeVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.OfficeVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OfficeVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OfficeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
 func (ec *executionContext) _OfficeVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.OfficeVersion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -13980,52 +14026,6 @@ func (ec *executionContext) _OfficeVersion_officeKey(ctx context.Context, field 
 }
 func (ec *executionContext) fieldContext_OfficeVersion_officeKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OfficeVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _OfficeVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.OfficeVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OfficeVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.OfficeVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_OfficeVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OfficeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _OfficeVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.OfficeVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OfficeVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.OfficeVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_OfficeVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OfficeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _OfficeVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.OfficeVersionConnection) (ret graphql.Marshaler) {
@@ -14873,6 +14873,52 @@ func (ec *executionContext) fieldContext_OpenHouseVersion_processorVersion(_ con
 	return graphql.NewScalarFieldContext("OpenHouseVersion", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _OpenHouseVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.OpenHouseVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenHouseVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.OpenHouseVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_OpenHouseVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenHouseVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _OpenHouseVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.OpenHouseVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_OpenHouseVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.OpenHouseVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_OpenHouseVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("OpenHouseVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
 func (ec *executionContext) _OpenHouseVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.OpenHouseVersion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -15170,52 +15216,6 @@ func (ec *executionContext) _OpenHouseVersion_openHouseKey(ctx context.Context, 
 }
 func (ec *executionContext) fieldContext_OpenHouseVersion_openHouseKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenHouseVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _OpenHouseVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.OpenHouseVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenHouseVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.OpenHouseVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_OpenHouseVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenHouseVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _OpenHouseVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.OpenHouseVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenHouseVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.OpenHouseVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_OpenHouseVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("OpenHouseVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _OpenHouseVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.OpenHouseVersionConnection) (ret graphql.Marshaler) {
@@ -19579,6 +19579,52 @@ func (ec *executionContext) fieldContext_PropertyRoomVersion_processorVersion(_ 
 	return graphql.NewScalarFieldContext("PropertyRoomVersion", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PropertyRoomVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyRoomVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PropertyRoomVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PropertyRoomVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PropertyRoomVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PropertyRoomVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _PropertyRoomVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyRoomVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PropertyRoomVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PropertyRoomVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PropertyRoomVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PropertyRoomVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
 func (ec *executionContext) _PropertyRoomVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyRoomVersion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -19807,52 +19853,6 @@ func (ec *executionContext) _PropertyRoomVersion_roomKey(ctx context.Context, fi
 }
 func (ec *executionContext) fieldContext_PropertyRoomVersion_roomKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PropertyRoomVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _PropertyRoomVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyRoomVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PropertyRoomVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PropertyRoomVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PropertyRoomVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PropertyRoomVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _PropertyRoomVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyRoomVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PropertyRoomVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PropertyRoomVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_PropertyRoomVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PropertyRoomVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _PropertyRoomVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyRoomVersionConnection) (ret graphql.Marshaler) {
@@ -20608,6 +20608,52 @@ func (ec *executionContext) fieldContext_PropertyUnitTypeVersion_processorVersio
 	return graphql.NewScalarFieldContext("PropertyUnitTypeVersion", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PropertyUnitTypeVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyUnitTypeVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PropertyUnitTypeVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PropertyUnitTypeVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PropertyUnitTypeVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PropertyUnitTypeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _PropertyUnitTypeVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyUnitTypeVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PropertyUnitTypeVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PropertyUnitTypeVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PropertyUnitTypeVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PropertyUnitTypeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
 func (ec *executionContext) _PropertyUnitTypeVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyUnitTypeVersion) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -20813,52 +20859,6 @@ func (ec *executionContext) _PropertyUnitTypeVersion_unitTypeKey(ctx context.Con
 }
 func (ec *executionContext) fieldContext_PropertyUnitTypeVersion_unitTypeKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PropertyUnitTypeVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _PropertyUnitTypeVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyUnitTypeVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PropertyUnitTypeVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PropertyUnitTypeVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PropertyUnitTypeVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PropertyUnitTypeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _PropertyUnitTypeVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyUnitTypeVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PropertyUnitTypeVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PropertyUnitTypeVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_PropertyUnitTypeVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PropertyUnitTypeVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _PropertyUnitTypeVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyUnitTypeVersionConnection) (ret graphql.Marshaler) {
@@ -21139,6 +21139,52 @@ func (ec *executionContext) _PropertyVersion_processorVersion(ctx context.Contex
 }
 func (ec *executionContext) fieldContext_PropertyVersion_processorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PropertyVersion", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PropertyVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PropertyVersion_syncEventID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PropertyVersion().SyncEventID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNUUID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PropertyVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PropertyVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
+}
+
+func (ec *executionContext) _PropertyVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyVersion) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PropertyVersion_rawOutputID(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PropertyVersion().RawOutputID(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PropertyVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PropertyVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _PropertyVersion_sourceModifiedAt(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyVersion) (ret graphql.Marshaler) {
@@ -24037,52 +24083,6 @@ func (ec *executionContext) _PropertyVersion_listingKey(ctx context.Context, fie
 }
 func (ec *executionContext) fieldContext_PropertyVersion_listingKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PropertyVersion", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _PropertyVersion_syncEventID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PropertyVersion_syncEventID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PropertyVersion().SyncEventID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNUUID2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_PropertyVersion_syncEventID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PropertyVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
-}
-
-func (ec *executionContext) _PropertyVersion_rawOutputID(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyVersion) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PropertyVersion_rawOutputID(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PropertyVersion().RawOutputID(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOUUID2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_PropertyVersion_rawOutputID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PropertyVersion", field, true, true, errors.New("field of type UUID does not have child fields"))
 }
 
 func (ec *executionContext) _PropertyVersionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.PropertyVersionConnection) (ret graphql.Marshaler) {
@@ -64863,7 +64863,7 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Media_mediaModificationTimestamp(ctx, field, obj)
 		case "extendedFields":
 			out.Values[i] = ec._Media_extendedFields(ctx, field, obj)
-		case "attachmentID":
+		case "currentVersionID":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -64872,7 +64872,7 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Media_attachmentID(ctx, field, obj)
+				res = ec._Media_currentVersionID(ctx, field, obj)
 				return res
 			}
 
@@ -64896,7 +64896,7 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "currentVersionID":
+		case "attachmentID":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -64905,7 +64905,7 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Media_currentVersionID(ctx, field, obj)
+				res = ec._Media_attachmentID(ctx, field, obj)
 				return res
 			}
 
@@ -65074,55 +65074,6 @@ func (ec *executionContext) _MediaVersion(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "sourceModifiedAt":
-			out.Values[i] = ec._MediaVersion_sourceModifiedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "originatingSystemName":
-			out.Values[i] = ec._MediaVersion_originatingSystemName(ctx, field, obj)
-		case "mlgCanView":
-			out.Values[i] = ec._MediaVersion_mlgCanView(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "mlgCanUse":
-			out.Values[i] = ec._MediaVersion_mlgCanUse(ctx, field, obj)
-		case "resourceType":
-			out.Values[i] = ec._MediaVersion_resourceType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "resourceRecordKey":
-			out.Values[i] = ec._MediaVersion_resourceRecordKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "mediaType":
-			out.Values[i] = ec._MediaVersion_mediaType(ctx, field, obj)
-		case "mediaURL":
-			out.Values[i] = ec._MediaVersion_mediaURL(ctx, field, obj)
-		case "imageHeight":
-			out.Values[i] = ec._MediaVersion_imageHeight(ctx, field, obj)
-		case "imageWidth":
-			out.Values[i] = ec._MediaVersion_imageWidth(ctx, field, obj)
-		case "imageSizeDescription":
-			out.Values[i] = ec._MediaVersion_imageSizeDescription(ctx, field, obj)
-		case "longDescription":
-			out.Values[i] = ec._MediaVersion_longDescription(ctx, field, obj)
-		case "order":
-			out.Values[i] = ec._MediaVersion_order(ctx, field, obj)
-		case "preferredPhotoYn":
-			out.Values[i] = ec._MediaVersion_preferredPhotoYn(ctx, field, obj)
-		case "mediaModificationTimestamp":
-			out.Values[i] = ec._MediaVersion_mediaModificationTimestamp(ctx, field, obj)
-		case "extendedFields":
-			out.Values[i] = ec._MediaVersion_extendedFields(ctx, field, obj)
-		case "mediaKey":
-			out.Values[i] = ec._MediaVersion_mediaKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "syncEventID":
 			field := field
 
@@ -65192,6 +65143,55 @@ func (ec *executionContext) _MediaVersion(ctx context.Context, sel ast.Selection
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sourceModifiedAt":
+			out.Values[i] = ec._MediaVersion_sourceModifiedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "originatingSystemName":
+			out.Values[i] = ec._MediaVersion_originatingSystemName(ctx, field, obj)
+		case "mlgCanView":
+			out.Values[i] = ec._MediaVersion_mlgCanView(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "mlgCanUse":
+			out.Values[i] = ec._MediaVersion_mlgCanUse(ctx, field, obj)
+		case "resourceType":
+			out.Values[i] = ec._MediaVersion_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceRecordKey":
+			out.Values[i] = ec._MediaVersion_resourceRecordKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "mediaType":
+			out.Values[i] = ec._MediaVersion_mediaType(ctx, field, obj)
+		case "mediaURL":
+			out.Values[i] = ec._MediaVersion_mediaURL(ctx, field, obj)
+		case "imageHeight":
+			out.Values[i] = ec._MediaVersion_imageHeight(ctx, field, obj)
+		case "imageWidth":
+			out.Values[i] = ec._MediaVersion_imageWidth(ctx, field, obj)
+		case "imageSizeDescription":
+			out.Values[i] = ec._MediaVersion_imageSizeDescription(ctx, field, obj)
+		case "longDescription":
+			out.Values[i] = ec._MediaVersion_longDescription(ctx, field, obj)
+		case "order":
+			out.Values[i] = ec._MediaVersion_order(ctx, field, obj)
+		case "preferredPhotoYn":
+			out.Values[i] = ec._MediaVersion_preferredPhotoYn(ctx, field, obj)
+		case "mediaModificationTimestamp":
+			out.Values[i] = ec._MediaVersion_mediaModificationTimestamp(ctx, field, obj)
+		case "extendedFields":
+			out.Values[i] = ec._MediaVersion_extendedFields(ctx, field, obj)
+		case "mediaKey":
+			out.Values[i] = ec._MediaVersion_mediaKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -65607,6 +65607,75 @@ func (ec *executionContext) _MemberVersion(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "syncEventID":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MemberVersion_syncEventID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "rawOutputID":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._MemberVersion_rawOutputID(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "sourceModifiedAt":
 			out.Values[i] = ec._MemberVersion_sourceModifiedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -65680,75 +65749,6 @@ func (ec *executionContext) _MemberVersion(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "syncEventID":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._MemberVersion_syncEventID(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "rawOutputID":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._MemberVersion_rawOutputID(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -66191,73 +66191,6 @@ func (ec *executionContext) _OfficeVersion(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "sourceModifiedAt":
-			out.Values[i] = ec._OfficeVersion_sourceModifiedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "originatingSystemName":
-			out.Values[i] = ec._OfficeVersion_originatingSystemName(ctx, field, obj)
-		case "mlgCanView":
-			out.Values[i] = ec._OfficeVersion_mlgCanView(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "mlgCanUse":
-			out.Values[i] = ec._OfficeVersion_mlgCanUse(ctx, field, obj)
-		case "officeMlsID":
-			out.Values[i] = ec._OfficeVersion_officeMlsID(ctx, field, obj)
-		case "officeName":
-			out.Values[i] = ec._OfficeVersion_officeName(ctx, field, obj)
-		case "officeStatus":
-			out.Values[i] = ec._OfficeVersion_officeStatus(ctx, field, obj)
-		case "officeType":
-			out.Values[i] = ec._OfficeVersion_officeType(ctx, field, obj)
-		case "officePhone":
-			out.Values[i] = ec._OfficeVersion_officePhone(ctx, field, obj)
-		case "officePhoneExt":
-			out.Values[i] = ec._OfficeVersion_officePhoneExt(ctx, field, obj)
-		case "officeFax":
-			out.Values[i] = ec._OfficeVersion_officeFax(ctx, field, obj)
-		case "officeAddress1":
-			out.Values[i] = ec._OfficeVersion_officeAddress1(ctx, field, obj)
-		case "officeAddress2":
-			out.Values[i] = ec._OfficeVersion_officeAddress2(ctx, field, obj)
-		case "officeCity":
-			out.Values[i] = ec._OfficeVersion_officeCity(ctx, field, obj)
-		case "officeStateOrProvince":
-			out.Values[i] = ec._OfficeVersion_officeStateOrProvince(ctx, field, obj)
-		case "officePostalCode":
-			out.Values[i] = ec._OfficeVersion_officePostalCode(ctx, field, obj)
-		case "officePostalCodePlus4":
-			out.Values[i] = ec._OfficeVersion_officePostalCodePlus4(ctx, field, obj)
-		case "officeCountyOrParish":
-			out.Values[i] = ec._OfficeVersion_officeCountyOrParish(ctx, field, obj)
-		case "officeCorporateLicense":
-			out.Values[i] = ec._OfficeVersion_officeCorporateLicense(ctx, field, obj)
-		case "officeNationalAssociationID":
-			out.Values[i] = ec._OfficeVersion_officeNationalAssociationID(ctx, field, obj)
-		case "mainOfficeKey":
-			out.Values[i] = ec._OfficeVersion_mainOfficeKey(ctx, field, obj)
-		case "mainOfficeMlsID":
-			out.Values[i] = ec._OfficeVersion_mainOfficeMlsID(ctx, field, obj)
-		case "officeBrokerKey":
-			out.Values[i] = ec._OfficeVersion_officeBrokerKey(ctx, field, obj)
-		case "officeBrokerMlsID":
-			out.Values[i] = ec._OfficeVersion_officeBrokerMlsID(ctx, field, obj)
-		case "officeManagerKey":
-			out.Values[i] = ec._OfficeVersion_officeManagerKey(ctx, field, obj)
-		case "idxOfficeParticipationYn":
-			out.Values[i] = ec._OfficeVersion_idxOfficeParticipationYn(ctx, field, obj)
-		case "photosChangeTimestamp":
-			out.Values[i] = ec._OfficeVersion_photosChangeTimestamp(ctx, field, obj)
-		case "extendedFields":
-			out.Values[i] = ec._OfficeVersion_extendedFields(ctx, field, obj)
-		case "officeKey":
-			out.Values[i] = ec._OfficeVersion_officeKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "syncEventID":
 			field := field
 
@@ -66327,6 +66260,73 @@ func (ec *executionContext) _OfficeVersion(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sourceModifiedAt":
+			out.Values[i] = ec._OfficeVersion_sourceModifiedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "originatingSystemName":
+			out.Values[i] = ec._OfficeVersion_originatingSystemName(ctx, field, obj)
+		case "mlgCanView":
+			out.Values[i] = ec._OfficeVersion_mlgCanView(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "mlgCanUse":
+			out.Values[i] = ec._OfficeVersion_mlgCanUse(ctx, field, obj)
+		case "officeMlsID":
+			out.Values[i] = ec._OfficeVersion_officeMlsID(ctx, field, obj)
+		case "officeName":
+			out.Values[i] = ec._OfficeVersion_officeName(ctx, field, obj)
+		case "officeStatus":
+			out.Values[i] = ec._OfficeVersion_officeStatus(ctx, field, obj)
+		case "officeType":
+			out.Values[i] = ec._OfficeVersion_officeType(ctx, field, obj)
+		case "officePhone":
+			out.Values[i] = ec._OfficeVersion_officePhone(ctx, field, obj)
+		case "officePhoneExt":
+			out.Values[i] = ec._OfficeVersion_officePhoneExt(ctx, field, obj)
+		case "officeFax":
+			out.Values[i] = ec._OfficeVersion_officeFax(ctx, field, obj)
+		case "officeAddress1":
+			out.Values[i] = ec._OfficeVersion_officeAddress1(ctx, field, obj)
+		case "officeAddress2":
+			out.Values[i] = ec._OfficeVersion_officeAddress2(ctx, field, obj)
+		case "officeCity":
+			out.Values[i] = ec._OfficeVersion_officeCity(ctx, field, obj)
+		case "officeStateOrProvince":
+			out.Values[i] = ec._OfficeVersion_officeStateOrProvince(ctx, field, obj)
+		case "officePostalCode":
+			out.Values[i] = ec._OfficeVersion_officePostalCode(ctx, field, obj)
+		case "officePostalCodePlus4":
+			out.Values[i] = ec._OfficeVersion_officePostalCodePlus4(ctx, field, obj)
+		case "officeCountyOrParish":
+			out.Values[i] = ec._OfficeVersion_officeCountyOrParish(ctx, field, obj)
+		case "officeCorporateLicense":
+			out.Values[i] = ec._OfficeVersion_officeCorporateLicense(ctx, field, obj)
+		case "officeNationalAssociationID":
+			out.Values[i] = ec._OfficeVersion_officeNationalAssociationID(ctx, field, obj)
+		case "mainOfficeKey":
+			out.Values[i] = ec._OfficeVersion_mainOfficeKey(ctx, field, obj)
+		case "mainOfficeMlsID":
+			out.Values[i] = ec._OfficeVersion_mainOfficeMlsID(ctx, field, obj)
+		case "officeBrokerKey":
+			out.Values[i] = ec._OfficeVersion_officeBrokerKey(ctx, field, obj)
+		case "officeBrokerMlsID":
+			out.Values[i] = ec._OfficeVersion_officeBrokerMlsID(ctx, field, obj)
+		case "officeManagerKey":
+			out.Values[i] = ec._OfficeVersion_officeManagerKey(ctx, field, obj)
+		case "idxOfficeParticipationYn":
+			out.Values[i] = ec._OfficeVersion_idxOfficeParticipationYn(ctx, field, obj)
+		case "photosChangeTimestamp":
+			out.Values[i] = ec._OfficeVersion_photosChangeTimestamp(ctx, field, obj)
+		case "extendedFields":
+			out.Values[i] = ec._OfficeVersion_extendedFields(ctx, field, obj)
+		case "officeKey":
+			out.Values[i] = ec._OfficeVersion_officeKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -66709,44 +66709,6 @@ func (ec *executionContext) _OpenHouseVersion(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "sourceModifiedAt":
-			out.Values[i] = ec._OpenHouseVersion_sourceModifiedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "originatingSystemName":
-			out.Values[i] = ec._OpenHouseVersion_originatingSystemName(ctx, field, obj)
-		case "mlgCanView":
-			out.Values[i] = ec._OpenHouseVersion_mlgCanView(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "mlgCanUse":
-			out.Values[i] = ec._OpenHouseVersion_mlgCanUse(ctx, field, obj)
-		case "listingKey":
-			out.Values[i] = ec._OpenHouseVersion_listingKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "listingID":
-			out.Values[i] = ec._OpenHouseVersion_listingID(ctx, field, obj)
-		case "openHouseDate":
-			out.Values[i] = ec._OpenHouseVersion_openHouseDate(ctx, field, obj)
-		case "openHouseStartTime":
-			out.Values[i] = ec._OpenHouseVersion_openHouseStartTime(ctx, field, obj)
-		case "openHouseEndTime":
-			out.Values[i] = ec._OpenHouseVersion_openHouseEndTime(ctx, field, obj)
-		case "openHouseStatus":
-			out.Values[i] = ec._OpenHouseVersion_openHouseStatus(ctx, field, obj)
-		case "openHouseType":
-			out.Values[i] = ec._OpenHouseVersion_openHouseType(ctx, field, obj)
-		case "extendedFields":
-			out.Values[i] = ec._OpenHouseVersion_extendedFields(ctx, field, obj)
-		case "openHouseKey":
-			out.Values[i] = ec._OpenHouseVersion_openHouseKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "syncEventID":
 			field := field
 
@@ -66816,6 +66778,44 @@ func (ec *executionContext) _OpenHouseVersion(ctx context.Context, sel ast.Selec
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sourceModifiedAt":
+			out.Values[i] = ec._OpenHouseVersion_sourceModifiedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "originatingSystemName":
+			out.Values[i] = ec._OpenHouseVersion_originatingSystemName(ctx, field, obj)
+		case "mlgCanView":
+			out.Values[i] = ec._OpenHouseVersion_mlgCanView(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "mlgCanUse":
+			out.Values[i] = ec._OpenHouseVersion_mlgCanUse(ctx, field, obj)
+		case "listingKey":
+			out.Values[i] = ec._OpenHouseVersion_listingKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "listingID":
+			out.Values[i] = ec._OpenHouseVersion_listingID(ctx, field, obj)
+		case "openHouseDate":
+			out.Values[i] = ec._OpenHouseVersion_openHouseDate(ctx, field, obj)
+		case "openHouseStartTime":
+			out.Values[i] = ec._OpenHouseVersion_openHouseStartTime(ctx, field, obj)
+		case "openHouseEndTime":
+			out.Values[i] = ec._OpenHouseVersion_openHouseEndTime(ctx, field, obj)
+		case "openHouseStatus":
+			out.Values[i] = ec._OpenHouseVersion_openHouseStatus(ctx, field, obj)
+		case "openHouseType":
+			out.Values[i] = ec._OpenHouseVersion_openHouseType(ctx, field, obj)
+		case "extendedFields":
+			out.Values[i] = ec._OpenHouseVersion_extendedFields(ctx, field, obj)
+		case "openHouseKey":
+			out.Values[i] = ec._OpenHouseVersion_openHouseKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -69149,69 +69149,6 @@ func (ec *executionContext) _PropertyRoomVersion(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "sourceModifiedAt":
-			out.Values[i] = ec._PropertyRoomVersion_sourceModifiedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "originatingSystemName":
-			out.Values[i] = ec._PropertyRoomVersion_originatingSystemName(ctx, field, obj)
-		case "mlgCanView":
-			out.Values[i] = ec._PropertyRoomVersion_mlgCanView(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "mlgCanUse":
-			out.Values[i] = ec._PropertyRoomVersion_mlgCanUse(ctx, field, obj)
-		case "listingKey":
-			out.Values[i] = ec._PropertyRoomVersion_listingKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "roomType":
-			out.Values[i] = ec._PropertyRoomVersion_roomType(ctx, field, obj)
-		case "roomLevel":
-			out.Values[i] = ec._PropertyRoomVersion_roomLevel(ctx, field, obj)
-		case "roomFeatures":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyRoomVersion_roomFeatures(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "extendedFields":
-			out.Values[i] = ec._PropertyRoomVersion_extendedFields(ctx, field, obj)
-		case "roomKey":
-			out.Values[i] = ec._PropertyRoomVersion_roomKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "syncEventID":
 			field := field
 
@@ -69281,6 +69218,69 @@ func (ec *executionContext) _PropertyRoomVersion(ctx context.Context, sel ast.Se
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sourceModifiedAt":
+			out.Values[i] = ec._PropertyRoomVersion_sourceModifiedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "originatingSystemName":
+			out.Values[i] = ec._PropertyRoomVersion_originatingSystemName(ctx, field, obj)
+		case "mlgCanView":
+			out.Values[i] = ec._PropertyRoomVersion_mlgCanView(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "mlgCanUse":
+			out.Values[i] = ec._PropertyRoomVersion_mlgCanUse(ctx, field, obj)
+		case "listingKey":
+			out.Values[i] = ec._PropertyRoomVersion_listingKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "roomType":
+			out.Values[i] = ec._PropertyRoomVersion_roomType(ctx, field, obj)
+		case "roomLevel":
+			out.Values[i] = ec._PropertyRoomVersion_roomLevel(ctx, field, obj)
+		case "roomFeatures":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PropertyRoomVersion_roomFeatures(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "extendedFields":
+			out.Values[i] = ec._PropertyRoomVersion_extendedFields(ctx, field, obj)
+		case "roomKey":
+			out.Values[i] = ec._PropertyRoomVersion_roomKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -69655,36 +69655,6 @@ func (ec *executionContext) _PropertyUnitTypeVersion(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "sourceModifiedAt":
-			out.Values[i] = ec._PropertyUnitTypeVersion_sourceModifiedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "originatingSystemName":
-			out.Values[i] = ec._PropertyUnitTypeVersion_originatingSystemName(ctx, field, obj)
-		case "mlgCanView":
-			out.Values[i] = ec._PropertyUnitTypeVersion_mlgCanView(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "mlgCanUse":
-			out.Values[i] = ec._PropertyUnitTypeVersion_mlgCanUse(ctx, field, obj)
-		case "listingKey":
-			out.Values[i] = ec._PropertyUnitTypeVersion_listingKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "unitTypeBedsTotal":
-			out.Values[i] = ec._PropertyUnitTypeVersion_unitTypeBedsTotal(ctx, field, obj)
-		case "unitTypeFurnished":
-			out.Values[i] = ec._PropertyUnitTypeVersion_unitTypeFurnished(ctx, field, obj)
-		case "extendedFields":
-			out.Values[i] = ec._PropertyUnitTypeVersion_extendedFields(ctx, field, obj)
-		case "unitTypeKey":
-			out.Values[i] = ec._PropertyUnitTypeVersion_unitTypeKey(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "syncEventID":
 			field := field
 
@@ -69754,6 +69724,36 @@ func (ec *executionContext) _PropertyUnitTypeVersion(ctx context.Context, sel as
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sourceModifiedAt":
+			out.Values[i] = ec._PropertyUnitTypeVersion_sourceModifiedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "originatingSystemName":
+			out.Values[i] = ec._PropertyUnitTypeVersion_originatingSystemName(ctx, field, obj)
+		case "mlgCanView":
+			out.Values[i] = ec._PropertyUnitTypeVersion_mlgCanView(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "mlgCanUse":
+			out.Values[i] = ec._PropertyUnitTypeVersion_mlgCanUse(ctx, field, obj)
+		case "listingKey":
+			out.Values[i] = ec._PropertyUnitTypeVersion_listingKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "unitTypeBedsTotal":
+			out.Values[i] = ec._PropertyUnitTypeVersion_unitTypeBedsTotal(ctx, field, obj)
+		case "unitTypeFurnished":
+			out.Values[i] = ec._PropertyUnitTypeVersion_unitTypeFurnished(ctx, field, obj)
+		case "extendedFields":
+			out.Values[i] = ec._PropertyUnitTypeVersion_extendedFields(ctx, field, obj)
+		case "unitTypeKey":
+			out.Values[i] = ec._PropertyUnitTypeVersion_unitTypeKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -69899,6 +69899,75 @@ func (ec *executionContext) _PropertyVersion(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "syncEventID":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PropertyVersion_syncEventID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "rawOutputID":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PropertyVersion_rawOutputID(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "sourceModifiedAt":
 			out.Values[i] = ec._PropertyVersion_sourceModifiedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -71214,75 +71283,6 @@ func (ec *executionContext) _PropertyVersion(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "syncEventID":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyVersion_syncEventID(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "rawOutputID":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PropertyVersion_rawOutputID(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

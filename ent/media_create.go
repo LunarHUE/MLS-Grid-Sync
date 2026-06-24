@@ -238,20 +238,6 @@ func (_c *MediaCreate) SetExtendedFields(v map[string]interface{}) *MediaCreate 
 	return _c
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (_c *MediaCreate) SetAttachmentID(v uuid.UUID) *MediaCreate {
-	_c.mutation.SetAttachmentID(v)
-	return _c
-}
-
-// SetNillableAttachmentID sets the "attachment_id" field if the given value is not nil.
-func (_c *MediaCreate) SetNillableAttachmentID(v *uuid.UUID) *MediaCreate {
-	if v != nil {
-		_c.SetAttachmentID(*v)
-	}
-	return _c
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (_c *MediaCreate) SetCurrentVersionID(v uuid.UUID) *MediaCreate {
 	_c.mutation.SetCurrentVersionID(v)
@@ -262,6 +248,20 @@ func (_c *MediaCreate) SetCurrentVersionID(v uuid.UUID) *MediaCreate {
 func (_c *MediaCreate) SetNillableCurrentVersionID(v *uuid.UUID) *MediaCreate {
 	if v != nil {
 		_c.SetCurrentVersionID(*v)
+	}
+	return _c
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (_c *MediaCreate) SetAttachmentID(v uuid.UUID) *MediaCreate {
+	_c.mutation.SetAttachmentID(v)
+	return _c
+}
+
+// SetNillableAttachmentID sets the "attachment_id" field if the given value is not nil.
+func (_c *MediaCreate) SetNillableAttachmentID(v *uuid.UUID) *MediaCreate {
+	if v != nil {
+		_c.SetAttachmentID(*v)
 	}
 	return _c
 }
@@ -857,24 +857,6 @@ func (u *MediaUpsert) ClearExtendedFields() *MediaUpsert {
 	return u
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (u *MediaUpsert) SetAttachmentID(v uuid.UUID) *MediaUpsert {
-	u.Set(media.FieldAttachmentID, v)
-	return u
-}
-
-// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
-func (u *MediaUpsert) UpdateAttachmentID() *MediaUpsert {
-	u.SetExcluded(media.FieldAttachmentID)
-	return u
-}
-
-// ClearAttachmentID clears the value of the "attachment_id" field.
-func (u *MediaUpsert) ClearAttachmentID() *MediaUpsert {
-	u.SetNull(media.FieldAttachmentID)
-	return u
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (u *MediaUpsert) SetCurrentVersionID(v uuid.UUID) *MediaUpsert {
 	u.Set(media.FieldCurrentVersionID, v)
@@ -890,6 +872,24 @@ func (u *MediaUpsert) UpdateCurrentVersionID() *MediaUpsert {
 // ClearCurrentVersionID clears the value of the "current_version_id" field.
 func (u *MediaUpsert) ClearCurrentVersionID() *MediaUpsert {
 	u.SetNull(media.FieldCurrentVersionID)
+	return u
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (u *MediaUpsert) SetAttachmentID(v uuid.UUID) *MediaUpsert {
+	u.Set(media.FieldAttachmentID, v)
+	return u
+}
+
+// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
+func (u *MediaUpsert) UpdateAttachmentID() *MediaUpsert {
+	u.SetExcluded(media.FieldAttachmentID)
+	return u
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (u *MediaUpsert) ClearAttachmentID() *MediaUpsert {
+	u.SetNull(media.FieldAttachmentID)
 	return u
 }
 
@@ -1287,27 +1287,6 @@ func (u *MediaUpsertOne) ClearExtendedFields() *MediaUpsertOne {
 	})
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (u *MediaUpsertOne) SetAttachmentID(v uuid.UUID) *MediaUpsertOne {
-	return u.Update(func(s *MediaUpsert) {
-		s.SetAttachmentID(v)
-	})
-}
-
-// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
-func (u *MediaUpsertOne) UpdateAttachmentID() *MediaUpsertOne {
-	return u.Update(func(s *MediaUpsert) {
-		s.UpdateAttachmentID()
-	})
-}
-
-// ClearAttachmentID clears the value of the "attachment_id" field.
-func (u *MediaUpsertOne) ClearAttachmentID() *MediaUpsertOne {
-	return u.Update(func(s *MediaUpsert) {
-		s.ClearAttachmentID()
-	})
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (u *MediaUpsertOne) SetCurrentVersionID(v uuid.UUID) *MediaUpsertOne {
 	return u.Update(func(s *MediaUpsert) {
@@ -1326,6 +1305,27 @@ func (u *MediaUpsertOne) UpdateCurrentVersionID() *MediaUpsertOne {
 func (u *MediaUpsertOne) ClearCurrentVersionID() *MediaUpsertOne {
 	return u.Update(func(s *MediaUpsert) {
 		s.ClearCurrentVersionID()
+	})
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (u *MediaUpsertOne) SetAttachmentID(v uuid.UUID) *MediaUpsertOne {
+	return u.Update(func(s *MediaUpsert) {
+		s.SetAttachmentID(v)
+	})
+}
+
+// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
+func (u *MediaUpsertOne) UpdateAttachmentID() *MediaUpsertOne {
+	return u.Update(func(s *MediaUpsert) {
+		s.UpdateAttachmentID()
+	})
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (u *MediaUpsertOne) ClearAttachmentID() *MediaUpsertOne {
+	return u.Update(func(s *MediaUpsert) {
+		s.ClearAttachmentID()
 	})
 }
 
@@ -1890,27 +1890,6 @@ func (u *MediaUpsertBulk) ClearExtendedFields() *MediaUpsertBulk {
 	})
 }
 
-// SetAttachmentID sets the "attachment_id" field.
-func (u *MediaUpsertBulk) SetAttachmentID(v uuid.UUID) *MediaUpsertBulk {
-	return u.Update(func(s *MediaUpsert) {
-		s.SetAttachmentID(v)
-	})
-}
-
-// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
-func (u *MediaUpsertBulk) UpdateAttachmentID() *MediaUpsertBulk {
-	return u.Update(func(s *MediaUpsert) {
-		s.UpdateAttachmentID()
-	})
-}
-
-// ClearAttachmentID clears the value of the "attachment_id" field.
-func (u *MediaUpsertBulk) ClearAttachmentID() *MediaUpsertBulk {
-	return u.Update(func(s *MediaUpsert) {
-		s.ClearAttachmentID()
-	})
-}
-
 // SetCurrentVersionID sets the "current_version_id" field.
 func (u *MediaUpsertBulk) SetCurrentVersionID(v uuid.UUID) *MediaUpsertBulk {
 	return u.Update(func(s *MediaUpsert) {
@@ -1929,6 +1908,27 @@ func (u *MediaUpsertBulk) UpdateCurrentVersionID() *MediaUpsertBulk {
 func (u *MediaUpsertBulk) ClearCurrentVersionID() *MediaUpsertBulk {
 	return u.Update(func(s *MediaUpsert) {
 		s.ClearCurrentVersionID()
+	})
+}
+
+// SetAttachmentID sets the "attachment_id" field.
+func (u *MediaUpsertBulk) SetAttachmentID(v uuid.UUID) *MediaUpsertBulk {
+	return u.Update(func(s *MediaUpsert) {
+		s.SetAttachmentID(v)
+	})
+}
+
+// UpdateAttachmentID sets the "attachment_id" field to the value that was provided on create.
+func (u *MediaUpsertBulk) UpdateAttachmentID() *MediaUpsertBulk {
+	return u.Update(func(s *MediaUpsert) {
+		s.UpdateAttachmentID()
+	})
+}
+
+// ClearAttachmentID clears the value of the "attachment_id" field.
+func (u *MediaUpsertBulk) ClearAttachmentID() *MediaUpsertBulk {
+	return u.Update(func(s *MediaUpsert) {
+		s.ClearAttachmentID()
 	})
 }
 

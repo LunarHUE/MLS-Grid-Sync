@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lunarhue/libs-go/log"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
@@ -17,6 +16,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyversion"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
 	"github.com/LunarHUE/MLS-Grid-Sync/version"
 )
 
@@ -272,7 +272,7 @@ func (p *PropertyProcessor) AfterPass(ctx context.Context, db *sql.DB) error {
 	}
 	// Zero rows is information — it confirms the re-link ran and nothing
 	// was parked. Always log.
-	log.Infof("processor[property]: re-link — %d property_rooms, %d property_unit_types, %d open_houses",
+	applog.Infof("processor[property]: re-link — %d property_rooms, %d property_unit_types, %d open_houses",
 		counts["property_room"], counts["property_unit_type"], counts["open_house"])
 	return nil
 }
@@ -1172,6 +1172,3 @@ func applyToPropertyVersionCreate(c *ent.PropertyVersionCreate, f *PropertyField
 		c.SetExtendedFields(f.ExtendedFields)
 	}
 }
-
-// Ensure uuid is imported (used elsewhere indirectly).
-var _ = uuid.Nil

@@ -62,6 +62,26 @@ func (_c *OpenHouseVersionCreate) SetProcessorVersion(v string) *OpenHouseVersio
 	return _c
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (_c *OpenHouseVersionCreate) SetSyncEventID(v uuid.UUID) *OpenHouseVersionCreate {
+	_c.mutation.SetSyncEventID(v)
+	return _c
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (_c *OpenHouseVersionCreate) SetRawOutputID(v uuid.UUID) *OpenHouseVersionCreate {
+	_c.mutation.SetRawOutputID(v)
+	return _c
+}
+
+// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
+func (_c *OpenHouseVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *OpenHouseVersionCreate {
+	if v != nil {
+		_c.SetRawOutputID(*v)
+	}
+	return _c
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (_c *OpenHouseVersionCreate) SetSourceModifiedAt(v time.Time) *OpenHouseVersionCreate {
 	_c.mutation.SetSourceModifiedAt(v)
@@ -204,26 +224,6 @@ func (_c *OpenHouseVersionCreate) SetOpenHouseKey(v string) *OpenHouseVersionCre
 	return _c
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (_c *OpenHouseVersionCreate) SetSyncEventID(v uuid.UUID) *OpenHouseVersionCreate {
-	_c.mutation.SetSyncEventID(v)
-	return _c
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (_c *OpenHouseVersionCreate) SetRawOutputID(v uuid.UUID) *OpenHouseVersionCreate {
-	_c.mutation.SetRawOutputID(v)
-	return _c
-}
-
-// SetNillableRawOutputID sets the "raw_output_id" field if the given value is not nil.
-func (_c *OpenHouseVersionCreate) SetNillableRawOutputID(v *uuid.UUID) *OpenHouseVersionCreate {
-	if v != nil {
-		_c.SetRawOutputID(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *OpenHouseVersionCreate) SetID(v string) *OpenHouseVersionCreate {
 	_c.mutation.SetID(v)
@@ -299,6 +299,9 @@ func (_c *OpenHouseVersionCreate) check() error {
 	if _, ok := _c.mutation.ProcessorVersion(); !ok {
 		return &ValidationError{Name: "processor_version", err: errors.New(`ent: missing required field "OpenHouseVersion.processor_version"`)}
 	}
+	if _, ok := _c.mutation.SyncEventID(); !ok {
+		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "OpenHouseVersion.sync_event_id"`)}
+	}
 	if _, ok := _c.mutation.SourceModifiedAt(); !ok {
 		return &ValidationError{Name: "source_modified_at", err: errors.New(`ent: missing required field "OpenHouseVersion.source_modified_at"`)}
 	}
@@ -310,9 +313,6 @@ func (_c *OpenHouseVersionCreate) check() error {
 	}
 	if _, ok := _c.mutation.OpenHouseKey(); !ok {
 		return &ValidationError{Name: "open_house_key", err: errors.New(`ent: missing required field "OpenHouseVersion.open_house_key"`)}
-	}
-	if _, ok := _c.mutation.SyncEventID(); !ok {
-		return &ValidationError{Name: "sync_event_id", err: errors.New(`ent: missing required field "OpenHouseVersion.sync_event_id"`)}
 	}
 	return nil
 }
@@ -370,6 +370,14 @@ func (_c *OpenHouseVersionCreate) createSpec() (*OpenHouseVersion, *sqlgraph.Cre
 		_spec.SetField(openhouseversion.FieldProcessorVersion, field.TypeString, value)
 		_node.ProcessorVersion = value
 	}
+	if value, ok := _c.mutation.SyncEventID(); ok {
+		_spec.SetField(openhouseversion.FieldSyncEventID, field.TypeUUID, value)
+		_node.SyncEventID = value
+	}
+	if value, ok := _c.mutation.RawOutputID(); ok {
+		_spec.SetField(openhouseversion.FieldRawOutputID, field.TypeUUID, value)
+		_node.RawOutputID = &value
+	}
 	if value, ok := _c.mutation.SourceModifiedAt(); ok {
 		_spec.SetField(openhouseversion.FieldSourceModifiedAt, field.TypeTime, value)
 		_node.SourceModifiedAt = value
@@ -421,14 +429,6 @@ func (_c *OpenHouseVersionCreate) createSpec() (*OpenHouseVersion, *sqlgraph.Cre
 	if value, ok := _c.mutation.OpenHouseKey(); ok {
 		_spec.SetField(openhouseversion.FieldOpenHouseKey, field.TypeString, value)
 		_node.OpenHouseKey = value
-	}
-	if value, ok := _c.mutation.SyncEventID(); ok {
-		_spec.SetField(openhouseversion.FieldSyncEventID, field.TypeUUID, value)
-		_node.SyncEventID = value
-	}
-	if value, ok := _c.mutation.RawOutputID(); ok {
-		_spec.SetField(openhouseversion.FieldRawOutputID, field.TypeUUID, value)
-		_node.RawOutputID = &value
 	}
 	return _node, _spec
 }
@@ -551,6 +551,36 @@ func (u *OpenHouseVersionUpsert) SetProcessorVersion(v string) *OpenHouseVersion
 // UpdateProcessorVersion sets the "processor_version" field to the value that was provided on create.
 func (u *OpenHouseVersionUpsert) UpdateProcessorVersion() *OpenHouseVersionUpsert {
 	u.SetExcluded(openhouseversion.FieldProcessorVersion)
+	return u
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OpenHouseVersionUpsert) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpsert {
+	u.Set(openhouseversion.FieldSyncEventID, v)
+	return u
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OpenHouseVersionUpsert) UpdateSyncEventID() *OpenHouseVersionUpsert {
+	u.SetExcluded(openhouseversion.FieldSyncEventID)
+	return u
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OpenHouseVersionUpsert) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpsert {
+	u.Set(openhouseversion.FieldRawOutputID, v)
+	return u
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OpenHouseVersionUpsert) UpdateRawOutputID() *OpenHouseVersionUpsert {
+	u.SetExcluded(openhouseversion.FieldRawOutputID)
+	return u
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OpenHouseVersionUpsert) ClearRawOutputID() *OpenHouseVersionUpsert {
+	u.SetNull(openhouseversion.FieldRawOutputID)
 	return u
 }
 
@@ -764,36 +794,6 @@ func (u *OpenHouseVersionUpsert) UpdateOpenHouseKey() *OpenHouseVersionUpsert {
 	return u
 }
 
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *OpenHouseVersionUpsert) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpsert {
-	u.Set(openhouseversion.FieldSyncEventID, v)
-	return u
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *OpenHouseVersionUpsert) UpdateSyncEventID() *OpenHouseVersionUpsert {
-	u.SetExcluded(openhouseversion.FieldSyncEventID)
-	return u
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *OpenHouseVersionUpsert) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpsert {
-	u.Set(openhouseversion.FieldRawOutputID, v)
-	return u
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *OpenHouseVersionUpsert) UpdateRawOutputID() *OpenHouseVersionUpsert {
-	u.SetExcluded(openhouseversion.FieldRawOutputID)
-	return u
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *OpenHouseVersionUpsert) ClearRawOutputID() *OpenHouseVersionUpsert {
-	u.SetNull(openhouseversion.FieldRawOutputID)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -923,6 +923,41 @@ func (u *OpenHouseVersionUpsertOne) SetProcessorVersion(v string) *OpenHouseVers
 func (u *OpenHouseVersionUpsertOne) UpdateProcessorVersion() *OpenHouseVersionUpsertOne {
 	return u.Update(func(s *OpenHouseVersionUpsert) {
 		s.UpdateProcessorVersion()
+	})
+}
+
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OpenHouseVersionUpsertOne) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpsertOne {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OpenHouseVersionUpsertOne) UpdateSyncEventID() *OpenHouseVersionUpsertOne {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OpenHouseVersionUpsertOne) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpsertOne {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OpenHouseVersionUpsertOne) UpdateRawOutputID() *OpenHouseVersionUpsertOne {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OpenHouseVersionUpsertOne) ClearRawOutputID() *OpenHouseVersionUpsertOne {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.ClearRawOutputID()
 	})
 }
 
@@ -1168,41 +1203,6 @@ func (u *OpenHouseVersionUpsertOne) SetOpenHouseKey(v string) *OpenHouseVersionU
 func (u *OpenHouseVersionUpsertOne) UpdateOpenHouseKey() *OpenHouseVersionUpsertOne {
 	return u.Update(func(s *OpenHouseVersionUpsert) {
 		s.UpdateOpenHouseKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *OpenHouseVersionUpsertOne) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpsertOne {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *OpenHouseVersionUpsertOne) UpdateSyncEventID() *OpenHouseVersionUpsertOne {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *OpenHouseVersionUpsertOne) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpsertOne {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *OpenHouseVersionUpsertOne) UpdateRawOutputID() *OpenHouseVersionUpsertOne {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *OpenHouseVersionUpsertOne) ClearRawOutputID() *OpenHouseVersionUpsertOne {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 
@@ -1505,6 +1505,41 @@ func (u *OpenHouseVersionUpsertBulk) UpdateProcessorVersion() *OpenHouseVersionU
 	})
 }
 
+// SetSyncEventID sets the "sync_event_id" field.
+func (u *OpenHouseVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpsertBulk {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.SetSyncEventID(v)
+	})
+}
+
+// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
+func (u *OpenHouseVersionUpsertBulk) UpdateSyncEventID() *OpenHouseVersionUpsertBulk {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.UpdateSyncEventID()
+	})
+}
+
+// SetRawOutputID sets the "raw_output_id" field.
+func (u *OpenHouseVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpsertBulk {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.SetRawOutputID(v)
+	})
+}
+
+// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
+func (u *OpenHouseVersionUpsertBulk) UpdateRawOutputID() *OpenHouseVersionUpsertBulk {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.UpdateRawOutputID()
+	})
+}
+
+// ClearRawOutputID clears the value of the "raw_output_id" field.
+func (u *OpenHouseVersionUpsertBulk) ClearRawOutputID() *OpenHouseVersionUpsertBulk {
+	return u.Update(func(s *OpenHouseVersionUpsert) {
+		s.ClearRawOutputID()
+	})
+}
+
 // SetSourceModifiedAt sets the "source_modified_at" field.
 func (u *OpenHouseVersionUpsertBulk) SetSourceModifiedAt(v time.Time) *OpenHouseVersionUpsertBulk {
 	return u.Update(func(s *OpenHouseVersionUpsert) {
@@ -1747,41 +1782,6 @@ func (u *OpenHouseVersionUpsertBulk) SetOpenHouseKey(v string) *OpenHouseVersion
 func (u *OpenHouseVersionUpsertBulk) UpdateOpenHouseKey() *OpenHouseVersionUpsertBulk {
 	return u.Update(func(s *OpenHouseVersionUpsert) {
 		s.UpdateOpenHouseKey()
-	})
-}
-
-// SetSyncEventID sets the "sync_event_id" field.
-func (u *OpenHouseVersionUpsertBulk) SetSyncEventID(v uuid.UUID) *OpenHouseVersionUpsertBulk {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.SetSyncEventID(v)
-	})
-}
-
-// UpdateSyncEventID sets the "sync_event_id" field to the value that was provided on create.
-func (u *OpenHouseVersionUpsertBulk) UpdateSyncEventID() *OpenHouseVersionUpsertBulk {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.UpdateSyncEventID()
-	})
-}
-
-// SetRawOutputID sets the "raw_output_id" field.
-func (u *OpenHouseVersionUpsertBulk) SetRawOutputID(v uuid.UUID) *OpenHouseVersionUpsertBulk {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.SetRawOutputID(v)
-	})
-}
-
-// UpdateRawOutputID sets the "raw_output_id" field to the value that was provided on create.
-func (u *OpenHouseVersionUpsertBulk) UpdateRawOutputID() *OpenHouseVersionUpsertBulk {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.UpdateRawOutputID()
-	})
-}
-
-// ClearRawOutputID clears the value of the "raw_output_id" field.
-func (u *OpenHouseVersionUpsertBulk) ClearRawOutputID() *OpenHouseVersionUpsertBulk {
-	return u.Update(func(s *OpenHouseVersionUpsert) {
-		s.ClearRawOutputID()
 	})
 }
 

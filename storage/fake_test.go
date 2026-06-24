@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"bytes"
+	"context"
 	"strings"
 	"testing"
 )
@@ -23,4 +25,21 @@ func TestFakeStorer_Conformance(t *testing.T) {
 			// Fake discards bytes — no readback, no atomicity guarantee.
 		}
 	})
+}
+
+// TestFakeStorer_RejectsBadKeys pins the parity fix: the fake enforces the
+// same key contract as LocalStorer (see TestLocalStorer_PathTraversalRejected)
+// so swapping it in for a real backend doesn't silently accept keys a real
+// filesystem backend would reject.
+func TestFakeStorer_RejectsBadKeys(t *testing.T) {
+	t.Parallel()
+	bad := []string{"", "/abs/key", "../escape", "media/../../etc/passwd"}
+	for _, key := range bad {
+		t.Run(key, func(t *testing.T) {
+			_, err := (&FakeStorer{}).Upload(context.Background(), key, bytes.NewReader([]byte("x")), "text/plain")
+			if err == nil {
+				t.Errorf("FakeStorer.Upload(%q) = nil error, want rejection", key)
+			}
+		})
+	}
 }

@@ -254,10 +254,13 @@ type Media implements Node {
   mediaModificationTimestamp: Time
   extendedFields: Map
   """
+  Points at the latest version row
+  """
+  currentVersionID: UUID
+  """
   Set when the binary has been downloaded into attachment
   """
   attachmentID: ID
-  currentVersionID: UUID
 }
 """
 A connection to a list of items.
@@ -329,6 +332,11 @@ type MediaVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -364,8 +372,6 @@ type MediaVersion implements Node {
   mediaModificationTimestamp: Time
   extendedFields: Map
   mediaKey: String!
-  syncEventID: UUID!
-  rawOutputID: UUID
 }
 """
 MediaVersionChangeType is enum for the field change_type
@@ -987,6 +993,9 @@ type Member implements Node {
   officeKey: String
   officeMlsID: String
   extendedFields: Map
+  """
+  Points at the latest version row
+  """
   currentVersionID: UUID
 }
 """
@@ -1051,6 +1060,11 @@ type MemberVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -1095,8 +1109,6 @@ type MemberVersion implements Node {
   officeMlsID: String
   extendedFields: Map
   memberKey: String!
-  syncEventID: UUID!
-  rawOutputID: UUID
 }
 """
 MemberVersionChangeType is enum for the field change_type
@@ -2345,6 +2357,9 @@ type Office implements Node {
   idxOfficeParticipationYn: Boolean
   photosChangeTimestamp: Time
   extendedFields: Map
+  """
+  Points at the latest version row
+  """
   currentVersionID: UUID
   mainOffice: Office
   branches: [Office!]
@@ -2411,6 +2426,11 @@ type OfficeVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -2452,8 +2472,6 @@ type OfficeVersion implements Node {
   photosChangeTimestamp: Time
   extendedFields: Map
   officeKey: String!
-  syncEventID: UUID!
-  rawOutputID: UUID
 }
 """
 OfficeVersionChangeType is enum for the field change_type
@@ -3546,6 +3564,9 @@ type OpenHouse implements Node {
   openHouseStatus: String
   openHouseType: String
   extendedFields: Map
+  """
+  Points at the latest version row
+  """
   currentVersionID: UUID
   """
   Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
@@ -3615,6 +3636,11 @@ type OpenHouseVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -3640,8 +3666,6 @@ type OpenHouseVersion implements Node {
   openHouseType: String
   extendedFields: Map
   openHouseKey: String!
-  syncEventID: UUID!
-  rawOutputID: UUID
 }
 """
 OpenHouseVersionChangeType is enum for the field change_type
@@ -4315,7 +4339,7 @@ type Property implements Node {
   directionFaces: String
   extendedFields: Map
   """
-  Points at the latest property_version row
+  Points at the latest version row
   """
   currentVersionID: UUID
   rooms: [PropertyRoom!]
@@ -4401,6 +4425,9 @@ type PropertyRoom implements Node {
   roomLevel: String
   roomFeatures: StringArray
   extendedFields: Map
+  """
+  Points at the latest version row
+  """
   currentVersionID: UUID
   """
   Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
@@ -4470,6 +4497,11 @@ type PropertyRoomVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -4492,8 +4524,6 @@ type PropertyRoomVersion implements Node {
   roomFeatures: StringArray
   extendedFields: Map
   roomKey: String!
-  syncEventID: UUID!
-  rawOutputID: UUID
 }
 """
 PropertyRoomVersionChangeType is enum for the field change_type
@@ -4903,6 +4933,9 @@ type PropertyUnitType implements Node {
   unitTypeBedsTotal: Int
   unitTypeFurnished: String
   extendedFields: Map
+  """
+  Points at the latest version row
+  """
   currentVersionID: UUID
   """
   Nullable FK to property.listing_key. NULL means parent not yet processed (parked); re-link UPDATE fills it once Property arrives.
@@ -4972,6 +5005,11 @@ type PropertyUnitTypeVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -4993,8 +5031,6 @@ type PropertyUnitTypeVersion implements Node {
   unitTypeFurnished: String
   extendedFields: Map
   unitTypeKey: String!
-  syncEventID: UUID!
-  rawOutputID: UUID
 }
 """
 PropertyUnitTypeVersionChangeType is enum for the field change_type
@@ -5380,6 +5416,11 @@ type PropertyVersion implements Node {
   """
   changedFields: Map
   processorVersion: String!
+  syncEventID: UUID!
+  """
+  Nullable — manual fixes may not derive from a raw_output row
+  """
+  rawOutputID: UUID
   """
   Upstream ModificationTimestamp — canonical ordering
   """
@@ -5515,11 +5556,6 @@ type PropertyVersion implements Node {
   directionFaces: String
   extendedFields: Map
   listingKey: String!
-  syncEventID: UUID!
-  """
-  Nullable — manual fixes may not derive from a raw_output row
-  """
-  rawOutputID: UUID
 }
 """
 PropertyVersionChangeType is enum for the field change_type

@@ -57,10 +57,10 @@ type Media struct {
 	MediaModificationTimestamp *time.Time `json:"media_modification_timestamp,omitempty"`
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
+	// Points at the latest version row
+	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	// Set when the binary has been downloaded into attachment
 	AttachmentID *uuid.UUID `json:"attachment_id,omitempty"`
-	// CurrentVersionID holds the value of the "current_version_id" field.
-	CurrentVersionID *uuid.UUID `json:"current_version_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MediaQuery when eager-loading is set.
 	Edges        MediaEdges `json:"edges"`
@@ -105,7 +105,7 @@ func (*Media) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case media.FieldAttachmentID, media.FieldCurrentVersionID:
+		case media.FieldCurrentVersionID, media.FieldAttachmentID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case media.FieldMlgCanUse, media.FieldExtendedFields:
 			values[i] = new([]byte)
@@ -260,19 +260,19 @@ func (_m *Media) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field extended_fields: %w", err)
 				}
 			}
-		case media.FieldAttachmentID:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field attachment_id", values[i])
-			} else if value.Valid {
-				_m.AttachmentID = new(uuid.UUID)
-				*_m.AttachmentID = *value.S.(*uuid.UUID)
-			}
 		case media.FieldCurrentVersionID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field current_version_id", values[i])
 			} else if value.Valid {
 				_m.CurrentVersionID = new(uuid.UUID)
 				*_m.CurrentVersionID = *value.S.(*uuid.UUID)
+			}
+		case media.FieldAttachmentID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field attachment_id", values[i])
+			} else if value.Valid {
+				_m.AttachmentID = new(uuid.UUID)
+				*_m.AttachmentID = *value.S.(*uuid.UUID)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -394,13 +394,13 @@ func (_m *Media) String() string {
 	builder.WriteString("extended_fields=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ExtendedFields))
 	builder.WriteString(", ")
-	if v := _m.AttachmentID; v != nil {
-		builder.WriteString("attachment_id=")
+	if v := _m.CurrentVersionID; v != nil {
+		builder.WriteString("current_version_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := _m.CurrentVersionID; v != nil {
-		builder.WriteString("current_version_id=")
+	if v := _m.AttachmentID; v != nil {
+		builder.WriteString("attachment_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')

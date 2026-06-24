@@ -31,6 +31,10 @@ type PropertyVersion struct {
 	ChangedFields map[string]interface{} `json:"changed_fields,omitempty"`
 	// ProcessorVersion holds the value of the "processor_version" field.
 	ProcessorVersion string `json:"processor_version,omitempty"`
+	// SyncEventID holds the value of the "sync_event_id" field.
+	SyncEventID uuid.UUID `json:"sync_event_id,omitempty"`
+	// Nullable — manual fixes may not derive from a raw_output row
+	RawOutputID *uuid.UUID `json:"raw_output_id,omitempty"`
 	// Upstream ModificationTimestamp — canonical ordering
 	SourceModifiedAt time.Time `json:"source_modified_at,omitempty"`
 	// OriginatingSystemName holds the value of the "originating_system_name" field.
@@ -282,11 +286,7 @@ type PropertyVersion struct {
 	// ExtendedFields holds the value of the "extended_fields" field.
 	ExtendedFields map[string]interface{} `json:"extended_fields,omitempty"`
 	// ListingKey holds the value of the "listing_key" field.
-	ListingKey string `json:"listing_key,omitempty"`
-	// SyncEventID holds the value of the "sync_event_id" field.
-	SyncEventID uuid.UUID `json:"sync_event_id,omitempty"`
-	// Nullable — manual fixes may not derive from a raw_output row
-	RawOutputID  *uuid.UUID `json:"raw_output_id,omitempty"`
+	ListingKey   string `json:"listing_key,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -366,6 +366,19 @@ func (_m *PropertyVersion) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field processor_version", values[i])
 			} else if value.Valid {
 				_m.ProcessorVersion = value.String
+			}
+		case propertyversion.FieldSyncEventID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field sync_event_id", values[i])
+			} else if value != nil {
+				_m.SyncEventID = *value
+			}
+		case propertyversion.FieldRawOutputID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_output_id", values[i])
+			} else if value.Valid {
+				_m.RawOutputID = new(uuid.UUID)
+				*_m.RawOutputID = *value.S.(*uuid.UUID)
 			}
 		case propertyversion.FieldSourceModifiedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -1214,19 +1227,6 @@ func (_m *PropertyVersion) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ListingKey = value.String
 			}
-		case propertyversion.FieldSyncEventID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field sync_event_id", values[i])
-			} else if value != nil {
-				_m.SyncEventID = *value
-			}
-		case propertyversion.FieldRawOutputID:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field raw_output_id", values[i])
-			} else if value.Valid {
-				_m.RawOutputID = new(uuid.UUID)
-				*_m.RawOutputID = *value.S.(*uuid.UUID)
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -1279,6 +1279,14 @@ func (_m *PropertyVersion) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("processor_version=")
 	builder.WriteString(_m.ProcessorVersion)
+	builder.WriteString(", ")
+	builder.WriteString("sync_event_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SyncEventID))
+	builder.WriteString(", ")
+	if v := _m.RawOutputID; v != nil {
+		builder.WriteString("raw_output_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("source_modified_at=")
 	builder.WriteString(_m.SourceModifiedAt.Format(time.ANSIC))
@@ -1831,14 +1839,6 @@ func (_m *PropertyVersion) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("listing_key=")
 	builder.WriteString(_m.ListingKey)
-	builder.WriteString(", ")
-	builder.WriteString("sync_event_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.SyncEventID))
-	builder.WriteString(", ")
-	if v := _m.RawOutputID; v != nil {
-		builder.WriteString("raw_output_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
 	builder.WriteByte(')')
 	return builder.String()
 }
