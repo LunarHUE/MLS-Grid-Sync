@@ -112,8 +112,8 @@ func TestPropertiesNear_InvalidArgs(t *testing.T) {
 	require.NotEmpty(t, errs)
 }
 
-const bboxQuery = `query($sw: GeoPoint!, $ne: GeoPoint!) {
-	propertiesInBBox(southWest: $sw, northEast: $ne, first: 50) {
+const bboxQuery = `query($bounds: Bounds!) {
+	propertiesInBBox(bounds: $bounds, first: 50) {
 		totalCount
 		edges { node { id } }
 	}
@@ -131,8 +131,10 @@ func TestPropertiesInBBox(t *testing.T) {
 	}
 	// Viewport around downtown: catches downtown + 1km, not 111km.
 	testutil.GQL(t, srv, bboxQuery, map[string]any{
-		"sw": map[string]any{"latitude": dtLat - 0.01, "longitude": dtLng - 0.01},
-		"ne": map[string]any{"latitude": dtLat + 0.02, "longitude": dtLng + 0.01},
+		"bounds": map[string]any{
+			"southWest": map[string]any{"latitude": dtLat - 0.01, "longitude": dtLng - 0.01},
+			"northEast": map[string]any{"latitude": dtLat + 0.02, "longitude": dtLng + 0.01},
+		},
 	}, &data)
 
 	assert.Equal(t, 2, data.PropertiesInBBox.TotalCount)
@@ -145,8 +147,10 @@ func TestPropertiesInBBox_InvalidArgs(t *testing.T) {
 
 	// southWest north of northEast.
 	errs := testutil.GQLExpectError(t, srv, bboxQuery, map[string]any{
-		"sw": map[string]any{"latitude": dtLat + 1, "longitude": dtLng},
-		"ne": map[string]any{"latitude": dtLat, "longitude": dtLng + 1},
+		"bounds": map[string]any{
+			"southWest": map[string]any{"latitude": dtLat + 1, "longitude": dtLng},
+			"northEast": map[string]any{"latitude": dtLat, "longitude": dtLng + 1},
+		},
 	})
 	require.NotEmpty(t, errs)
 }

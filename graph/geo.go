@@ -41,8 +41,9 @@ func (r *queryResolver) PropertiesNear(ctx context.Context, center model.GeoPoin
 			ent.WithPropertyFilter(where.Filter))
 }
 
-func (r *queryResolver) PropertiesInBBox(ctx context.Context, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
+func (r *queryResolver) PropertiesInBBox(ctx context.Context, bounds model.Bounds, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
+	southWest, northEast := *bounds.SouthWest, *bounds.NorthEast
 	if err := validatePoint("southWest", southWest); err != nil {
 		return nil, err
 	}

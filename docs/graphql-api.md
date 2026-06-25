@@ -260,14 +260,14 @@ spheroid distance of a point:
 }
 ```
 
-**`propertiesInBBox(southWest, northEast)`** — a map viewport.
-`southWest` must be south and west of `northEast`; boxes crossing the
-antimeridian aren't supported.
+**`propertiesInBBox(bounds)`** — a map viewport. `bounds` is a `Bounds`
+input (`{ southWest, northEast }`); `southWest` must be south and west of
+`northEast`; boxes crossing the antimeridian aren't supported.
 
 ```graphql
 {
-  propertiesInBBox(southWest: { latitude: 30.25, longitude: -97.76 },
-                   northEast: { latitude: 30.29, longitude: -97.72 },
+  propertiesInBBox(bounds: { southWest: { latitude: 30.25, longitude: -97.76 },
+                             northEast: { latitude: 30.29, longitude: -97.72 } },
                    first: 25) {
     totalCount
     edges { node { id latitude longitude } }
