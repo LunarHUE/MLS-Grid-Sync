@@ -72,10 +72,11 @@ type Thresholds struct {
 // may be nil — Live works regardless, and Ready/Sync fail cleanly rather than
 // panicking (so a partially-wired caller still gets an honest answer).
 type Service struct {
-	db   *ent.Client
-	ping func(context.Context) error
-	th   Thresholds
-	now  func() time.Time
+	db      *ent.Client
+	ping    func(context.Context) error
+	trigram func(context.Context) error
+	th      Thresholds
+	now     func() time.Time
 }
 
 // NewService wires a health service. A nil now defaults to time.Now.
@@ -84,6 +85,16 @@ func NewService(db *ent.Client, ping func(context.Context) error, th Thresholds,
 		now = time.Now
 	}
 	return &Service{db: db, ping: ping, th: th, now: now}
+}
+
+// WithTrigramProbe registers the readiness probe for the pg_trgm extension the
+// fuzzy address-search resolvers depend on. serve wires it to
+// search.CheckExtension over the raw *sql.DB. When unset, the readiness
+// `trigram` check reports skipped (never a fail) so a partially-wired caller
+// still gets an honest answer. Returns the service for chaining.
+func (s *Service) WithTrigramProbe(fn func(context.Context) error) *Service {
+	s.trigram = fn
+	return s
 }
 
 // Live reports process liveness only — no DB, MLS, or storage dependency. It
@@ -98,6 +109,7 @@ func (s *Service) Ready(ctx context.Context) HealthStatus {
 	checks := []HealthCheck{
 		safeCheck("database", func() HealthCheck { return s.checkDatabase(ctx) }),
 		safeCheck("schema", func() HealthCheck { return s.checkSchema(ctx) }),
+		safeCheck("trigram", func() HealthCheck { return s.checkTrigram(ctx) }),
 		// Startup-derived: serve would not be answering if config failed to load
 		// or the GraphQL handler failed to build. Named so they read as
 		// startup facts, not fresh probes.
@@ -181,6 +193,26 @@ func (s *Service) checkSchema(ctx context.Context) HealthCheck {
 		return fail("schema", "required schema missing or incompatible: "+sanitizeError(err))
 	}
 	return pass("schema", "required schema present")
+}
+
+// checkTrigram verifies the pg_trgm extension the fuzzy address-search
+// resolvers depend on is installed. Without it, every word_similarity(...)
+// query 500s at request time, so a serve process missing it is not ready to
+// serve those endpoints safely. The probe is injected (search.CheckExtension
+// over the raw *sql.DB); when unset the check is skipped rather than failed so
+// a partially-wired caller still gets an honest answer.
+func (s *Service) checkTrigram(ctx context.Context) HealthCheck {
+	const name = "trigram"
+	if s.trigram == nil {
+		return skip(name, "pg_trgm probe not configured")
+	}
+	cctx, cancel := context.WithTimeout(ctx, checkTimeout)
+	defer cancel()
+	if err := s.trigram(cctx); err != nil {
+		return fail(name, "fuzzy search unavailable: "+sanitizeError(err)+
+			" — run `mls-cli migrate` to install pg_trgm")
+	}
+	return pass(name, "pg_trgm extension available")
 }
 
 func (s *Service) checkHealthConfig() HealthCheck {

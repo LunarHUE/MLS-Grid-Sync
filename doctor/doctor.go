@@ -11,6 +11,7 @@ package doctor
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -19,6 +20,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/config"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/migrate"
 	"github.com/LunarHUE/MLS-Grid-Sync/mls"
+	"github.com/LunarHUE/MLS-Grid-Sync/search"
 	"github.com/LunarHUE/MLS-Grid-Sync/server"
 	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 )
@@ -79,7 +81,7 @@ var (
 	// remainingCheckNames is every check other than "config", in display
 	// order — used to emit "skipped" rows when config itself won't load.
 	remainingCheckNames = append(append([]string{}, mlsCheckNames...),
-		"postgres", "postgis", "tables", "schema_version", "clock_skew",
+		"postgres", "postgis", "trigram", "tables", "schema_version", "clock_skew",
 		"storage", "server_api_key", "server_cors", "pprof", "rate_limits",
 		"deployment_id",
 	)
@@ -149,6 +151,7 @@ func (r *runner) run() {
 	// Database group (strictly read-only).
 	r.check("postgres", r.checkPostgres)
 	r.check("postgis", r.checkPostGIS)
+	r.check("trigram", r.checkTrigram)
 	r.check("tables", r.checkTables)
 	r.skip("schema_version", "no versioned-migration ledger exists yet (deferred); nothing to compare")
 	r.check("clock_skew", r.checkClockSkew)
@@ -264,6 +267,41 @@ func (r *runner) checkPostGIS() CheckResult {
 			Message: "could not query for the PostGIS extension: " + sanitizeError(err, r.deps.Config)}
 	}
 	return CheckResult{Status: StatusPass, Message: "PostGIS extension available"}
+}
+
+// checkTrigram verifies the pg_trgm extension (a hard requirement — without it
+// every fuzzy address-search query fails with `word_similarity(...) does not
+// exist`) and the trigram/btree indexes (advisory — queries are correct without
+// them, just slow). A missing extension fails; missing indexes only warn.
+func (r *runner) checkTrigram() CheckResult {
+	if r.deps.DB == nil {
+		return CheckResult{Status: StatusFail, Message: "no database handle"}
+	}
+	ctx, cancel := r.timeoutCtx()
+	defer cancel()
+
+	switch err := search.CheckExtension(ctx, r.deps.DB); {
+	case errors.Is(err, search.ErrExtensionMissing):
+		return CheckResult{Status: StatusFail,
+			Message:     "pg_trgm extension is not installed — fuzzy address search will fail at query time",
+			Remediation: "run `mls-cli migrate` (or normal sync startup) — it installs pg_trgm and the trigram indexes"}
+	case err != nil:
+		return CheckResult{Status: StatusFail,
+			Message: "could not query for the pg_trgm extension: " + sanitizeError(err, r.deps.Config)}
+	}
+
+	missing, err := search.MissingIndexes(ctx, r.deps.DB)
+	if err != nil {
+		return CheckResult{Status: StatusWarn,
+			Message:     "pg_trgm installed, but could not verify fuzzy-search indexes: " + sanitizeError(err, r.deps.Config),
+			Remediation: "run `mls-cli migrate` to (idempotently) ensure the trigram/btree indexes exist"}
+	}
+	if len(missing) > 0 {
+		return CheckResult{Status: StatusWarn,
+			Message:     fmt.Sprintf("pg_trgm installed, but %d fuzzy-search index(es) missing: %s — searches work but scan sequentially", len(missing), strings.Join(missing, ", ")),
+			Remediation: "run `mls-cli migrate` to create the missing trigram/btree indexes"}
+	}
+	return CheckResult{Status: StatusPass, Message: "pg_trgm extension and all fuzzy-search indexes present"}
 }
 
 func (r *runner) checkTables() CheckResult {

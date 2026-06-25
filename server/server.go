@@ -8,6 +8,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/graph"
 	"github.com/LunarHUE/MLS-Grid-Sync/health"
+	"github.com/LunarHUE/MLS-Grid-Sync/tracing"
 )
 
 // Options configures the API HTTP stack. Decoupled from the config
@@ -55,7 +56,11 @@ func NewMux(client *ent.Client, h *health.Service, opts Options) http.Handler {
 	mux.HandleFunc("/syncz", func(w http.ResponseWriter, r *http.Request) {
 		writeHealth(w, h.Sync(r.Context()))
 	})
-	return CORS(opts.AllowedOrigins, mux)
+	// tracing is outermost so every request — including CORS preflights and
+	// health probes — gets a trace ID, an echoed response header, and a
+	// completion log line. The trace ID it stores in the context flows into the
+	// GraphQL operation log for end-to-end correlation.
+	return tracing.Middleware(CORS(opts.AllowedOrigins, mux))
 }
 
 // writeHealth renders a HealthStatus as indented JSON, returning 200 when
