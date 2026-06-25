@@ -63,46 +63,18 @@ func (r *queryResolver) PropertiesInBBox(ctx context.Context, bounds model.Bound
 			ent.WithPropertyFilter(where.Filter))
 }
 
-// maxPolygonVertices caps propertiesInPolygon input. Map-drawing tools
-// produce dozens of vertices; anything past this is either a client bug
-// or an attempt to make the server chew on a degenerate geometry.
-const maxPolygonVertices = 1024
-
-func (r *queryResolver) PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
-	first, last = clampPage(first, last)
-	if len(vertices) < 3 {
-		return nil, fmt.Errorf("polygon needs at least 3 vertices, got %d", len(vertices))
-	}
-	if len(vertices) > maxPolygonVertices {
-		return nil, fmt.Errorf("polygon supports at most %d vertices, got %d", maxPolygonVertices, len(vertices))
-	}
-	latLngs := make([][2]float64, len(vertices))
-	for i, v := range vertices {
-		if err := validatePoint(fmt.Sprintf("vertices[%d]", i), *v); err != nil {
-			return nil, err
-		}
-		latLngs[i] = [2]float64{v.Latitude, v.Longitude}
-	}
-	return r.client.Property.Query().
-		Where(property.MlgCanView(true), geo.InPolygon(geo.PolygonWKT(latLngs))).
-		Paginate(ctx, after, first, before, last,
-			ent.WithPropertyOrder(orderBy),
-			ent.WithPropertyFilter(where.Filter))
-}
-
 // multipolygon caps. Each polygon still needs >= 3 vertices (a ring); the
-// total vertex count across all polygons bounds the work ST_Covers does,
-// mirroring how maxPolygonVertices bounds the single-polygon path.
+// total vertex count across all polygons bounds the work ST_Covers does.
 const (
 	maxMultiPolygons             = 64
 	maxMultiPolygonTotalVertices = 4096
 )
 
 // PropertiesInMultiPolygon matches properties covered by ANY of several
-// polygons (a multipolygon), so consumers can search discontiguous regions
-// — several separate neighborhoods, say — in a single query. Each polygon
-// is validated and built into a ring exactly like propertiesInPolygon, then
-// all rings are combined into one MULTIPOLYGON and tested with ST_Covers
+// polygons (a multipolygon), so consumers can search one or more regions —
+// several separate neighborhoods, say — in a single query (a single shape is
+// just a one-element list). Each polygon is validated and built into a ring,
+// then all rings are combined into one MULTIPOLYGON and tested with ST_Covers
 // (true when a point lies in any constituent polygon). Same visibility
 // filter as the rest of the geo searches.
 func (r *queryResolver) PropertiesInMultiPolygon(ctx context.Context, polygons [][]*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {

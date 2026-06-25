@@ -81,15 +81,13 @@ func InBBox(minLat, minLng, maxLat, maxLng float64) predicate.Property {
 	})
 }
 
-// InPolygon matches properties covered by the polygon (boundary
-// inclusive, planar lat/lng — matching a shape drawn on a map). The
-// ring is closed automatically when the last vertex differs from the
-// first. Vertices are (lat, lng) pairs; the WKT is passed as a single
-// bind parameter, never interpolated.
-//
-// The predicate is geometry-agnostic: ST_GeomFromText also parses a
-// MULTIPOLYGON, so InMultiPolygon delegates here.
-func InPolygon(wkt string) predicate.Property {
+// InMultiPolygon matches properties covered by ANY of the polygons in a
+// MULTIPOLYGON (boundary inclusive, planar lat/lng — matching shapes drawn
+// on a map). ST_Covers over a multipolygon is true when the point lies in
+// any constituent polygon, so several discontiguous search regions resolve
+// in a single query (a single region is just a one-element MULTIPOLYGON).
+// The WKT is passed as a single bind parameter, never interpolated.
+func InMultiPolygon(wkt string) predicate.Property {
 	return predicate.Property(func(s *entsql.Selector) {
 		s.Where(entsql.P(func(b *entsql.Builder) {
 			b.WriteString("ST_Covers(ST_SetSRID(ST_GeomFromText(")
@@ -101,20 +99,9 @@ func InPolygon(wkt string) predicate.Property {
 	})
 }
 
-// InMultiPolygon matches properties covered by ANY of the polygons in a
-// MULTIPOLYGON (boundary inclusive, planar lat/lng). ST_Covers over a
-// multipolygon is true when the point lies in any constituent polygon, so
-// several discontiguous search regions resolve in a single query. Same
-// generated column and bind-parameter safety as InPolygon, which it
-// delegates to.
-func InMultiPolygon(wkt string) predicate.Property {
-	return InPolygon(wkt)
-}
-
 // writeRingWKT writes a single WKT linear ring — "(lng lat, lng lat, …)" —
 // from (lat, lng) pairs, closing it when the last vertex differs from the
-// first. Shared by PolygonWKT and MultiPolygonWKT. Callers validate that
-// the ring is non-empty.
+// first. Callers validate that the ring is non-empty.
 func writeRingWKT(b *strings.Builder, ring [][2]float64) {
 	b.WriteByte('(')
 	writeVertex := func(v [2]float64) {
@@ -135,21 +122,11 @@ func writeRingWKT(b *strings.Builder, ring [][2]float64) {
 	b.WriteByte(')')
 }
 
-// PolygonWKT builds a POLYGON WKT string from (lat, lng) vertex pairs,
-// closing the ring if needed. Callers validate vertex count and ranges.
-func PolygonWKT(latLngs [][2]float64) string {
-	var b strings.Builder
-	b.WriteString("POLYGON(")
-	writeRingWKT(&b, latLngs)
-	b.WriteByte(')')
-	return b.String()
-}
-
 // MultiPolygonWKT builds a MULTIPOLYGON WKT string from several rings, one
-// per discontiguous shape. Each ring is closed independently (same rule as
-// PolygonWKT). Callers validate that there is at least one ring, each has
-// enough vertices, and ranges are in bounds. The result is passed to
-// InMultiPolygon as a single bind parameter, never interpolated.
+// per discontiguous shape. Each ring is closed independently. Callers
+// validate that there is at least one ring, each has enough vertices, and
+// ranges are in bounds. The result is passed to InMultiPolygon as a single
+// bind parameter, never interpolated.
 func MultiPolygonWKT(rings [][][2]float64) string {
 	var b strings.Builder
 	b.WriteString("MULTIPOLYGON(")

@@ -91,9 +91,9 @@ history also expose an audit list:
 |---|---|
 | `lookups`, `mediaSlice`¹, `members`, `offices`, `openHouses`, `properties`, `propertyRooms`, `propertyUnitTypes`, `sourceSystems` | `mediaVersions`, `memberVersions`, `officeVersions`, `openHouseVersions`, `propertyVersions`, `propertyRoomVersions`, `propertyUnitTypeVersions` |
 
-Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, four
+Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, three
 **geo-search** queries over properties: `propertiesNear`,
-`propertiesInBBox`, `propertiesInPolygon`, and `propertiesInMultiPolygon`
+`propertiesInBBox`, and `propertiesInMultiPolygon`
 (see [Geo search](#geo-search)), and two **address-search** queries:
 `propertiesByAddress` and `propertiesByAddressFields` (see
 [Address search](#address-search)).
@@ -275,34 +275,15 @@ input (`{ southWest, northEast }`); `southWest` must be south and west of
 }
 ```
 
-**`propertiesInPolygon(vertices)`** — a shape drawn on a map: between 3
-and 1024 vertices, boundary inclusive. The ring closes automatically
-(repeating the first vertex also works). Edges are straight lines in
-lat/lng space.
-
-```graphql
-{
-  propertiesInPolygon(vertices: [
-    { latitude: 30.257, longitude: -97.750 },
-    { latitude: 30.257, longitude: -97.736 },
-    { latitude: 30.279, longitude: -97.729 },
-    { latitude: 30.287, longitude: -97.743 },
-    { latitude: 30.279, longitude: -97.757 }
-  ], first: 25) {
-    totalCount
-    edges { node { id unparsedAddress } }
-  }
-}
-```
-
-**`propertiesInMultiPolygon(polygons)`** — several discontiguous shapes in
-one query (e.g. a handful of separate neighborhoods). `polygons` is a list
-of rings (`[[GeoPoint!]!]!`); each ring follows the `propertiesInPolygon`
-rules (≥ 3 vertices, closes automatically, planar lat/lng edges, boundary
-inclusive). A property matches if it falls inside **any** one of the
-polygons — under the hood it's a single `ST_Covers` against a PostGIS
-`MULTIPOLYGON`, so there's no extra round-trip per shape. At most 64
-polygons and 4096 total vertices across all of them.
+**`propertiesInMultiPolygon(polygons)`** — one or more shapes drawn on a
+map, including several discontiguous ones in a single query (e.g. a handful
+of separate neighborhoods). `polygons` is a list of rings (`[[GeoPoint!]!]!`);
+each ring has ≥ 3 vertices, closes automatically (repeating the first vertex
+also works), uses planar lat/lng edges, and is boundary inclusive. A property
+matches if it falls inside **any** one of the polygons — under the hood it's a
+single `ST_Covers` against a PostGIS `MULTIPOLYGON`, so there's no extra
+round-trip per shape. At most 64 polygons and 4096 total vertices across all
+of them. For a single shape, pass a one-element list.
 
 ```graphql
 {
