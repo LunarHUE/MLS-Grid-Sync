@@ -82,6 +82,15 @@ input GeoPoint {
   longitude: Float!
 }
 
+"""
+A lat/lng bounding box (a map viewport). southWest must be south and west of
+northEast; boxes crossing the antimeridian are not supported.
+"""
+input Bounds {
+  southWest: GeoPoint!
+  northEast: GeoPoint!
+}
+
 extend type Query {
   """
   Properties within radiusMeters of center, measured on the WGS84
@@ -106,8 +115,7 @@ extend type Query {
   rows with coordinates match.
   """
   propertiesInBBox(
-    southWest: GeoPoint!
-    northEast: GeoPoint!
+    bounds: Bounds!
     after: Cursor
     first: Int
     before: Cursor

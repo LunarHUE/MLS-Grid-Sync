@@ -120,7 +120,7 @@ func complexityRoot() ComplexityRoot {
 	root.Query.PropertiesNear = func(childComplexity int, _ model.GeoPoint, _ float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
-	root.Query.PropertiesInBBox = func(childComplexity int, _ model.GeoPoint, _ model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+	root.Query.PropertiesInBBox = func(childComplexity int, _ model.Bounds, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
 	root.Query.PropertiesInPolygon = func(childComplexity int, _ []*model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {

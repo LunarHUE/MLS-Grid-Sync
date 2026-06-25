@@ -2,6 +2,13 @@
 
 package model
 
+// A lat/lng bounding box (a map viewport). southWest must be south and west of
+// northEast; boxes crossing the antimeridian are not supported.
+type Bounds struct {
+	SouthWest *GeoPoint `json:"southWest"`
+	NorthEast *GeoPoint `json:"northEast"`
+}
+
 // A WGS84 coordinate pair for geo-search inputs.
 type GeoPoint struct {
 	Latitude  float64 `json:"latitude"`

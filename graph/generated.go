@@ -876,7 +876,7 @@ type ComplexityRoot struct {
 		Properties                func(childComplexity int, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesByAddress       func(childComplexity int, query string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesByAddressFields func(childComplexity int, street *string, city *string, state *string, zip *string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
-		PropertiesInBBox          func(childComplexity int, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
+		PropertiesInBBox          func(childComplexity int, bounds model.Bounds, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesInMultiPolygon  func(childComplexity int, polygons [][]*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesInPolygon       func(childComplexity int, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
 		PropertiesNear            func(childComplexity int, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) int
@@ -1062,7 +1062,7 @@ type QueryResolver interface {
 	PropertyVersions(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyVersionOrder, where *ent.PropertyVersionWhereInput) (*ent.PropertyVersionConnection, error)
 	SourceSystems(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, where *ent.SourceSystemWhereInput) (*ent.SourceSystemConnection, error)
 	PropertiesNear(ctx context.Context, center model.GeoPoint, radiusMeters float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
-	PropertiesInBBox(ctx context.Context, southWest model.GeoPoint, northEast model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
+	PropertiesInBBox(ctx context.Context, bounds model.Bounds, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
 	PropertiesInPolygon(ctx context.Context, vertices []*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
 	PropertiesInMultiPolygon(ctx context.Context, polygons [][]*model.GeoPoint, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
 	PropertiesByAddress(ctx context.Context, query string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error)
@@ -5253,7 +5253,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.PropertiesInBBox(childComplexity, args["southWest"].(model.GeoPoint), args["northEast"].(model.GeoPoint), args["after"].(*entgql.Cursor[string]), args["first"].(*int), args["before"].(*entgql.Cursor[string]), args["last"].(*int), args["orderBy"].(*ent.PropertyOrder), args["where"].(*ent.PropertyWhereInput)), true
+		return e.ComplexityRoot.Query.PropertiesInBBox(childComplexity, args["bounds"].(model.Bounds), args["after"].(*entgql.Cursor[string]), args["first"].(*int), args["before"].(*entgql.Cursor[string]), args["last"].(*int), args["orderBy"].(*ent.PropertyOrder), args["where"].(*ent.PropertyWhereInput)), true
 	case "Query.propertiesInMultiPolygon":
 		if e.ComplexityRoot.Query.PropertiesInMultiPolygon == nil {
 			break
@@ -5419,6 +5419,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputBounds,
 		ec.unmarshalInputGeoPoint,
 		ec.unmarshalInputLookupOrder,
 		ec.unmarshalInputLookupWhereInput,
@@ -7975,70 +7976,62 @@ func (ec *executionContext) field_Query_propertiesByAddress_args(ctx context.Con
 func (ec *executionContext) field_Query_propertiesInBBox_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "southWest",
-		func(ctx context.Context, v any) (model.GeoPoint, error) {
-			return ec.unmarshalNGeoPoint2githubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPoint(ctx, v)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "bounds",
+		func(ctx context.Context, v any) (model.Bounds, error) {
+			return ec.unmarshalNBounds2githubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐBounds(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["southWest"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "northEast",
-		func(ctx context.Context, v any) (model.GeoPoint, error) {
-			return ec.unmarshalNGeoPoint2githubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPoint(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["northEast"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+	args["bounds"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*entgql.Cursor[string], error) {
 			return ec.unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["after"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
 			return ec.unmarshalOInt2ᚖint(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["first"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+	args["first"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*entgql.Cursor[string], error) {
 			return ec.unmarshalOCursor2ᚖentgoᚗioᚋcontribᚋentgqlᚐCursor(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["before"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
 			return ec.unmarshalOInt2ᚖint(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["last"] = arg5
-	arg6, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+	args["last"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*ent.PropertyOrder, error) {
 			return ec.unmarshalOPropertyOrder2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋentᚐPropertyOrder(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["orderBy"] = arg6
-	arg7, err := graphql.ProcessArgField(ctx, rawArgs, "where",
+	args["orderBy"] = arg5
+	arg6, err := graphql.ProcessArgField(ctx, rawArgs, "where",
 		func(ctx context.Context, v any) (*ent.PropertyWhereInput, error) {
 			return ec.unmarshalOPropertyWhereInput2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋentᚐPropertyWhereInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["where"] = arg7
+	args["where"] = arg6
 	return args, nil
 }
 
@@ -25263,7 +25256,7 @@ func (ec *executionContext) _Query_propertiesInBBox(ctx context.Context, field g
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().PropertiesInBBox(ctx, fc.Args["southWest"].(model.GeoPoint), fc.Args["northEast"].(model.GeoPoint), fc.Args["after"].(*entgql.Cursor[string]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[string]), fc.Args["last"].(*int), fc.Args["orderBy"].(*ent.PropertyOrder), fc.Args["where"].(*ent.PropertyWhereInput))
+			return ec.Resolvers.Query().PropertiesInBBox(ctx, fc.Args["bounds"].(model.Bounds), fc.Args["after"].(*entgql.Cursor[string]), fc.Args["first"].(*int), fc.Args["before"].(*entgql.Cursor[string]), fc.Args["last"].(*int), fc.Args["orderBy"].(*ent.PropertyOrder), fc.Args["where"].(*ent.PropertyWhereInput))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *ent.PropertyConnection) graphql.Marshaler {
@@ -26841,6 +26834,43 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
+
+func (ec *executionContext) unmarshalInputBounds(ctx context.Context, obj any) (model.Bounds, error) {
+	var it model.Bounds
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"southWest", "northEast"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "southWest":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("southWest"))
+			data, err := ec.unmarshalNGeoPoint2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPoint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SouthWest = data
+		case "northEast":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("northEast"))
+			data, err := ec.unmarshalNGeoPoint2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐGeoPoint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NorthEast = data
+		}
+	}
+	return it, nil
+}
 
 func (ec *executionContext) unmarshalInputGeoPoint(ctx context.Context, obj any) (model.GeoPoint, error) {
 	var it model.GeoPoint
@@ -72736,6 +72766,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNBounds2githubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋgraphᚋmodelᚐBounds(ctx context.Context, v any) (model.Bounds, error) {
+	res, err := ec.unmarshalInputBounds(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCursor2entgoᚗioᚋcontribᚋentgqlᚐCursor(ctx context.Context, v any) (entgql.Cursor[string], error) {
