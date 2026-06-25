@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/lunarhue/libs-go/config"
 	"github.com/lunarhue/libs-go/log"
@@ -133,6 +134,17 @@ type ServerConfig struct {
 	CORSAllowedOrigins string `mapstructure:"cors_allowed_origins" yaml:"cors_allowed_origins"`
 }
 
+// HealthConfig tunes the /syncz endpoint's sync-health thresholds (the
+// /healthz and /readyz endpoints take no thresholds). sync_max_staleness
+// accepts a Go duration string ("30m", "1h"). Overrides:
+// MLS_SYNC_HEALTH_SYNC_MAX_STALENESS, MLS_SYNC_HEALTH_MAX_RAW_PENDING,
+// MLS_SYNC_HEALTH_MAX_ATTACHMENT_FAILURES.
+type HealthConfig struct {
+	SyncMaxStaleness      time.Duration `mapstructure:"sync_max_staleness" yaml:"sync_max_staleness"`
+	MaxRawPending         int           `mapstructure:"max_raw_pending" yaml:"max_raw_pending"`
+	MaxAttachmentFailures int           `mapstructure:"max_attachment_failures" yaml:"max_attachment_failures"`
+}
+
 type Config struct {
 	LogLevel string `mapstructure:"log_level" yaml:"log_level"`
 	// Progress selects how init/import render pull/type/enqueue progress:
@@ -146,6 +158,7 @@ type Config struct {
 	Storage   StorageConfig   `mapstructure:"storage" yaml:"storage"`
 	Server    ServerConfig    `mapstructure:"server" yaml:"server"`
 	Processor ProcessorConfig `mapstructure:"processor" yaml:"processor"`
+	Health    HealthConfig    `mapstructure:"health" yaml:"health"`
 }
 
 func Load() (*Config, error) {
