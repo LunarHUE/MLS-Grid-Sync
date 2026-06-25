@@ -6,7 +6,8 @@
       "Bash(go test *)",
       "Bash(grep -E '\\\\.go$')",
       "Bash(go tool *)",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "Bash(go doc *)"
     ]
   }
 }

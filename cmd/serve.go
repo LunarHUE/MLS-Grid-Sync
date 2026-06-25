@@ -18,6 +18,7 @@ import (
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/health"
+	"github.com/LunarHUE/MLS-Grid-Sync/search"
 	"github.com/LunarHUE/MLS-Grid-Sync/server"
 )
 
@@ -50,7 +51,9 @@ var serveCmd = &cobra.Command{
 			SyncMaxStaleness:      appConfig.Health.SyncMaxStaleness,
 			MaxRawPending:         appConfig.Health.MaxRawPending,
 			MaxAttachmentFailures: appConfig.Health.MaxAttachmentFailures,
-		}, time.Now)
+		}, time.Now).WithTrigramProbe(func(ctx context.Context) error {
+			return search.CheckExtension(ctx, sqlDB)
+		})
 
 		// Own mux, never http.DefaultServeMux — root.go's pprof import
 		// registers /debug/pprof/ there, which must not face the network.

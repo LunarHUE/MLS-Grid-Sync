@@ -19,6 +19,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/syncevent"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
+	"github.com/LunarHUE/MLS-Grid-Sync/search"
 	"github.com/LunarHUE/MLS-Grid-Sync/sync/processor"
 )
 
@@ -351,6 +352,42 @@ func TestReady_InvalidThresholdsFail(t *testing.T) {
 	hs := NewService(c, okPing, Thresholds{SyncMaxStaleness: 0, MaxRawPending: -1, MaxAttachmentFailures: -1}, fixedNow).Ready(ctx)
 	assert.False(t, hs.Healthy)
 	assert.Equal(t, StatusFail, byName(hs)["health_config"].Status)
+}
+
+func TestReady_TrigramProbePass(t *testing.T) {
+	ctx := context.Background()
+	// The test DB is cloned from a template that ran search.Migrate, so the
+	// real extension probe passes.
+	c, sqlDB := testutil.NewTestDBWithSQL(t)
+	svc := newSvc(c, defaultThresholds()).WithTrigramProbe(func(ctx context.Context) error {
+		return search.CheckExtension(ctx, sqlDB)
+	})
+	hs := svc.Ready(ctx)
+	assert.True(t, hs.Healthy, "%+v", hs.Checks)
+	assert.Equal(t, StatusPass, byName(hs)["trigram"].Status)
+}
+
+func TestReady_TrigramProbeFailUnhealthy(t *testing.T) {
+	ctx := context.Background()
+	c := testutil.NewTestDB(t)
+	svc := newSvc(c, defaultThresholds()).WithTrigramProbe(func(context.Context) error {
+		return search.ErrExtensionMissing
+	})
+	hs := svc.Ready(ctx)
+	assert.False(t, hs.Healthy)
+	tr := byName(hs)["trigram"]
+	assert.Equal(t, StatusFail, tr.Status)
+	assert.Contains(t, tr.Message, "mls-cli migrate")
+}
+
+func TestReady_TrigramProbeUnsetSkipped(t *testing.T) {
+	ctx := context.Background()
+	c := testutil.NewTestDB(t)
+	// newSvc wires no probe; the check is skipped, not failed, so readiness
+	// stays healthy for a partially-wired caller.
+	hs := newSvc(c, defaultThresholds()).Ready(ctx)
+	assert.True(t, hs.Healthy, "%+v", hs.Checks)
+	assert.Equal(t, StatusSkipped, byName(hs)["trigram"].Status)
 }
 
 // --- Live & nil-dependency guards ---

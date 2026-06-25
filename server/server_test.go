@@ -16,6 +16,7 @@ import (
 
 	"github.com/LunarHUE/MLS-Grid-Sync/health"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
+	"github.com/LunarHUE/MLS-Grid-Sync/search"
 	"github.com/LunarHUE/MLS-Grid-Sync/server"
 )
 
@@ -28,11 +29,16 @@ func testThresholds() health.Thresholds {
 	return health.Thresholds{SyncMaxStaleness: 30 * time.Minute, MaxRawPending: 10000, MaxAttachmentFailures: 100}
 }
 
-// newHarness wires a real test DB into a NewMux-backed httptest server.
+// newHarness wires a real test DB into a NewMux-backed httptest server. The
+// test DB is cloned from a template that already ran search.Migrate, so the
+// trigram readiness probe (search.CheckExtension) passes against it.
 func newHarness(t *testing.T, opts server.Options, ping func(context.Context) error) *httptest.Server {
 	t.Helper()
-	client := testutil.NewTestDB(t)
-	hsvc := health.NewService(client, ping, testThresholds(), time.Now)
+	client, sqlDB := testutil.NewTestDBWithSQL(t)
+	hsvc := health.NewService(client, ping, testThresholds(), time.Now).
+		WithTrigramProbe(func(ctx context.Context) error {
+			return search.CheckExtension(ctx, sqlDB)
+		})
 	srv := httptest.NewServer(server.NewMux(client, hsvc, opts))
 	t.Cleanup(srv.Close)
 	return srv
@@ -178,6 +184,30 @@ func TestHealthEndpoints_StayOpenWithAPIKey(t *testing.T) {
 		// Open by construction (only /query is behind the API key), so never 401.
 		assert.NotEqual(t, http.StatusUnauthorized, resp.StatusCode, path)
 	}
+}
+
+// ---- tracing ----
+
+func TestTracing_EchoesTraceHeaders(t *testing.T) {
+	t.Parallel()
+	srv := newHarness(t, server.Options{}, okPing)
+
+	// No inbound trace: the mux generates one and echoes it back, even on a
+	// health probe.
+	resp, err := http.Get(srv.URL + "/healthz")
+	require.NoError(t, err)
+	resp.Body.Close()
+	assert.Len(t, resp.Header.Get("X-Trace-Id"), 32)
+	assert.Contains(t, resp.Header.Get("traceparent"), resp.Header.Get("X-Trace-Id"))
+
+	// Inbound trace ID is reused on the response.
+	const traceID = "4bf92f3577b34da6a3ce929d0e0e4736"
+	req, _ := http.NewRequest(http.MethodGet, srv.URL+"/readyz", nil)
+	req.Header.Set("traceparent", "00-"+traceID+"-00f067aa0ba902b7-01")
+	resp2, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	resp2.Body.Close()
+	assert.Equal(t, traceID, resp2.Header.Get("X-Trace-Id"))
 }
 
 func TestAPIKey_PlaygroundStaysOpen(t *testing.T) {

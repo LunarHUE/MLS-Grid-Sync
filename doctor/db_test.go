@@ -28,8 +28,40 @@ func TestRun_DBHealthy(t *testing.T) {
 	m := byName(results)
 	assert.Equal(t, StatusPass, m["postgres"].Status, m["postgres"].Message)
 	assert.Equal(t, StatusPass, m["postgis"].Status, m["postgis"].Message)
+	assert.Equal(t, StatusPass, m["trigram"].Status, m["trigram"].Message)
 	assert.Equal(t, StatusPass, m["tables"].Status, m["tables"].Message)
 	assert.Equal(t, StatusPass, m["clock_skew"].Status, m["clock_skew"].Message)
+}
+
+func TestRun_TrigramExtensionMissing_Fail(t *testing.T) {
+	_, sqlDB := testutil.NewTestDBWithSQL(t)
+	// CASCADE drops the trigram indexes that depend on the extension too.
+	_, err := sqlDB.Exec("DROP EXTENSION IF EXISTS pg_trgm CASCADE")
+	require.NoError(t, err)
+
+	results := Run(context.Background(), Deps{
+		Config: baseConfig(), DB: sqlDB, BuildStorer: okStorer,
+	}, Options{SkipMLS: true, SkipStorage: true})
+
+	tr := byName(results)["trigram"]
+	assert.Equal(t, StatusFail, tr.Status)
+	assert.Contains(t, tr.Remediation, "mls-cli migrate")
+}
+
+func TestRun_TrigramIndexMissing_Warn(t *testing.T) {
+	_, sqlDB := testutil.NewTestDBWithSQL(t)
+	// Extension present, one index dropped — searches still work, just slower,
+	// so this is advisory, not a hard fail.
+	_, err := sqlDB.Exec("DROP INDEX IF EXISTS property_city_trgm")
+	require.NoError(t, err)
+
+	results := Run(context.Background(), Deps{
+		Config: baseConfig(), DB: sqlDB, BuildStorer: okStorer,
+	}, Options{SkipMLS: true, SkipStorage: true})
+
+	tr := byName(results)["trigram"]
+	assert.Equal(t, StatusWarn, tr.Status)
+	assert.Contains(t, tr.Message, "property_city_trgm")
 }
 
 func TestRun_PostGISMissing_Fail(t *testing.T) {
