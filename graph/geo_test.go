@@ -1,7 +1,6 @@
 package graph_test
 
 import (
-	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -155,108 +154,8 @@ func TestPropertiesInBBox_InvalidArgs(t *testing.T) {
 	require.NotEmpty(t, errs)
 }
 
-const polygonQuery = `query($vertices: [GeoPoint!]!) {
-	propertiesInPolygon(vertices: $vertices, first: 50) {
-		totalCount
-		edges { node { id } }
-	}
-}`
-
 func pt(lat, lng float64) map[string]any {
 	return map[string]any{"latitude": lat, "longitude": lng}
-}
-
-func TestPropertiesInPolygon_Triangle(t *testing.T) {
-	t.Parallel()
-	srv, client := testutil.NewTestServer(t)
-	seedPropertyAt(t, client, "geo-inside", dtLat, dtLng, true)
-	seedPropertyAt(t, client, "geo-west", dtLat, dtLng-0.02, true) // outside, to the west
-
-	var data struct {
-		PropertiesInPolygon geoConn `json:"propertiesInPolygon"`
-	}
-	// Open ring (3 vertices) — server closes it.
-	testutil.GQL(t, srv, polygonQuery, map[string]any{
-		"vertices": []any{
-			pt(dtLat-0.007, dtLng-0.007),
-			pt(dtLat-0.007, dtLng+0.007),
-			pt(dtLat+0.013, dtLng),
-		},
-	}, &data)
-
-	assert.Equal(t, 1, data.PropertiesInPolygon.TotalCount)
-	assert.Equal(t, []string{"geo-inside"}, data.PropertiesInPolygon.ids())
-}
-
-// "x number of vertices": a 5-vertex polygon (roughly a pentagon around
-// downtown) with an explicit closing vertex — both shapes consumers
-// produce from map-drawing tools must work.
-func TestPropertiesInPolygon_PentagonClosedRing(t *testing.T) {
-	t.Parallel()
-	srv, client := testutil.NewTestServer(t)
-	seedPropertyAt(t, client, "geo-inside", dtLat, dtLng, true)
-	seedPropertyAt(t, client, "geo-1km", dtLat+0.01, dtLng, true)  // inside the pentagon
-	seedPropertyAt(t, client, "geo-far", dtLat+1.0, dtLng, true)   // far outside
-	seedPropertyAt(t, client, "geo-east", dtLat, dtLng+0.05, true) // outside, east
-
-	pentagon := []any{
-		pt(dtLat-0.010, dtLng-0.010),
-		pt(dtLat-0.010, dtLng+0.010),
-		pt(dtLat+0.012, dtLng+0.014),
-		pt(dtLat+0.020, dtLng),
-		pt(dtLat+0.012, dtLng-0.014),
-		pt(dtLat-0.010, dtLng-0.010), // explicit closing vertex
-	}
-
-	var data struct {
-		PropertiesInPolygon geoConn `json:"propertiesInPolygon"`
-	}
-	testutil.GQL(t, srv, polygonQuery, map[string]any{"vertices": pentagon}, &data)
-
-	assert.Equal(t, 2, data.PropertiesInPolygon.TotalCount)
-	assert.ElementsMatch(t, []string{"geo-inside", "geo-1km"}, data.PropertiesInPolygon.ids())
-}
-
-func TestPropertiesInPolygon_TooFewVertices(t *testing.T) {
-	t.Parallel()
-	srv, _ := testutil.NewTestServer(t)
-
-	errs := testutil.GQLExpectError(t, srv, polygonQuery, map[string]any{
-		"vertices": []any{pt(dtLat, dtLng), pt(dtLat+0.01, dtLng)},
-	})
-	require.NotEmpty(t, errs)
-}
-
-func TestPropertiesInPolygon_VertexCap(t *testing.T) {
-	t.Parallel()
-	srv, client := testutil.NewTestServer(t)
-	seedPropertyAt(t, client, "geo-cap-inside", dtLat, dtLng, true)
-
-	// circleVertices approximates a circle of the given radius (in
-	// degrees) around downtown with n vertices.
-	circleVertices := func(n int, radiusDeg float64) []any {
-		out := make([]any, n)
-		for i := range n {
-			angle := 2 * math.Pi * float64(i) / float64(n)
-			out[i] = pt(dtLat+radiusDeg*math.Sin(angle), dtLng+radiusDeg*math.Cos(angle))
-		}
-		return out
-	}
-
-	// Exactly at the cap: accepted, and the point inside matches.
-	var data struct {
-		PropertiesInPolygon geoConn `json:"propertiesInPolygon"`
-	}
-	testutil.GQL(t, srv, polygonQuery, map[string]any{
-		"vertices": circleVertices(1024, 0.01),
-	}, &data)
-	assert.Equal(t, 1, data.PropertiesInPolygon.TotalCount)
-
-	// One past the cap: rejected.
-	errs := testutil.GQLExpectError(t, srv, polygonQuery, map[string]any{
-		"vertices": circleVertices(1025, 0.01),
-	})
-	require.NotEmpty(t, errs)
 }
 
 const multiPolygonQuery = `query($polygons: [[GeoPoint!]!]!) {
@@ -301,9 +200,9 @@ func TestPropertiesInMultiPolygon_DiscontiguousRegions(t *testing.T) {
 	assert.ElementsMatch(t, []string{"geo-downtown", "geo-north"}, data.PropertiesInMultiPolygon.ids())
 }
 
-// TestPropertiesInMultiPolygon_SinglePolygonMatchesPolygonQuery pins that a
-// one-element multipolygon behaves exactly like propertiesInPolygon — the
-// multipolygon path is a strict superset.
+// TestPropertiesInMultiPolygon_SinglePolygon pins the single-shape case: a
+// one-element polygons list searches one region, with the same open-ring
+// auto-close behavior as a discontiguous search (square is an open ring).
 func TestPropertiesInMultiPolygon_SinglePolygon(t *testing.T) {
 	t.Parallel()
 	srv, client := testutil.NewTestServer(t)
