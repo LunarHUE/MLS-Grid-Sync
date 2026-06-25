@@ -4,14 +4,20 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    claude-code.url = "github:sadjow/claude-code-nix";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
+
           config.allowUnfree = true;
+
+          overlays = [
+            claude-code.overlays.default
+          ];
         };
 
         # Toolchain shared by local dev and CI — keep the two shells in
@@ -30,7 +36,7 @@
           bashInteractive
           bash-completion
           nix-bash-completions
-          claude-code
+          pkgs.claude-code
           opencode
         ];
       in {
