@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
+	"github.com/LunarHUE/MLS-Grid-Sync/health"
 	"github.com/LunarHUE/MLS-Grid-Sync/server"
 )
 
@@ -45,9 +46,15 @@ var serveCmd = &cobra.Command{
 			addr = ":8080"
 		}
 
+		hsvc := health.NewService(db, sqlDB.PingContext, health.Thresholds{
+			SyncMaxStaleness:      appConfig.Health.SyncMaxStaleness,
+			MaxRawPending:         appConfig.Health.MaxRawPending,
+			MaxAttachmentFailures: appConfig.Health.MaxAttachmentFailures,
+		}, time.Now)
+
 		// Own mux, never http.DefaultServeMux — root.go's pprof import
 		// registers /debug/pprof/ there, which must not face the network.
-		handler := server.NewMux(db, sqlDB.PingContext, server.Options{
+		handler := server.NewMux(db, hsvc, server.Options{
 			APIKey:         appConfig.Server.APIKey,
 			AllowedOrigins: server.SplitOrigins(appConfig.Server.CORSAllowedOrigins),
 		})

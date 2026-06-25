@@ -2,16 +2,19 @@ package server_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/LunarHUE/MLS-Grid-Sync/health"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
 	"github.com/LunarHUE/MLS-Grid-Sync/server"
 )
@@ -21,11 +24,16 @@ const queryBody = `{"query":"{ sourceSystems(first:1){ totalCount } }"}`
 func okPing(context.Context) error  { return nil }
 func badPing(context.Context) error { return errors.New("down") }
 
+func testThresholds() health.Thresholds {
+	return health.Thresholds{SyncMaxStaleness: 30 * time.Minute, MaxRawPending: 10000, MaxAttachmentFailures: 100}
+}
+
 // newHarness wires a real test DB into a NewMux-backed httptest server.
 func newHarness(t *testing.T, opts server.Options, ping func(context.Context) error) *httptest.Server {
 	t.Helper()
 	client := testutil.NewTestDB(t)
-	srv := httptest.NewServer(server.NewMux(client, ping, opts))
+	hsvc := health.NewService(client, ping, testThresholds(), time.Now)
+	srv := httptest.NewServer(server.NewMux(client, hsvc, opts))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -106,12 +114,70 @@ func TestAPIKey_HealthzStaysOpen(t *testing.T) {
 	resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	// A failing ping surfaces 503 from the same open endpoint.
+	// /healthz is process-only: a down DB must NOT flip it to 503.
 	srvBad := newHarness(t, server.Options{APIKey: "secret"}, badPing)
 	respBad, err := http.Get(srvBad.URL + "/healthz")
 	require.NoError(t, err)
 	respBad.Body.Close()
-	assert.Equal(t, http.StatusServiceUnavailable, respBad.StatusCode)
+	assert.Equal(t, http.StatusOK, respBad.StatusCode)
+}
+
+// ---- health endpoints ----
+
+func getJSON(t *testing.T, url string) (*http.Response, health.HealthStatus) {
+	t.Helper()
+	resp, err := http.Get(url)
+	require.NoError(t, err)
+	var hs health.HealthStatus
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&hs))
+	resp.Body.Close()
+	return resp, hs
+}
+
+func TestHealthz_ProcessOnly(t *testing.T) {
+	t.Parallel()
+	srv := newHarness(t, server.Options{}, badPing)
+	resp, hs := getJSON(t, srv.URL+"/healthz")
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.True(t, hs.Healthy)
+	require.Len(t, hs.Checks, 1)
+	assert.Equal(t, "process", hs.Checks[0].Name)
+}
+
+func TestReadyz_DBUpDown(t *testing.T) {
+	t.Parallel()
+	srvUp := newHarness(t, server.Options{}, okPing)
+	respUp, hsUp := getJSON(t, srvUp.URL+"/readyz")
+	assert.Equal(t, http.StatusOK, respUp.StatusCode)
+	assert.True(t, hsUp.Healthy)
+
+	srvDown := newHarness(t, server.Options{}, badPing)
+	respDown, hsDown := getJSON(t, srvDown.URL+"/readyz")
+	assert.Equal(t, http.StatusServiceUnavailable, respDown.StatusCode)
+	assert.False(t, hsDown.Healthy)
+}
+
+func TestSyncz_FreshDeployUnhealthy(t *testing.T) {
+	t.Parallel()
+	// A migrated-but-unsynced DB has no successful fetches → 503 with a stable
+	// JSON body the operator can parse.
+	srv := newHarness(t, server.Options{}, okPing)
+	resp, hs := getJSON(t, srv.URL+"/syncz")
+	assert.Equal(t, http.StatusServiceUnavailable, resp.StatusCode)
+	assert.False(t, hs.Healthy)
+	assert.NotEmpty(t, hs.Checks)
+}
+
+func TestHealthEndpoints_StayOpenWithAPIKey(t *testing.T) {
+	t.Parallel()
+	srv := newHarness(t, server.Options{APIKey: "secret"}, okPing)
+	for _, path := range []string{"/healthz", "/readyz", "/syncz"} {
+		resp, err := http.Get(srv.URL + path)
+		require.NoError(t, err)
+		resp.Body.Close()
+		// Open by construction (only /query is behind the API key), so never 401.
+		assert.NotEqual(t, http.StatusUnauthorized, resp.StatusCode, path)
+	}
 }
 
 func TestAPIKey_PlaygroundStaysOpen(t *testing.T) {

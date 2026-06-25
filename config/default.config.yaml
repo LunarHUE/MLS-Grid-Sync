@@ -113,3 +113,16 @@ storage:
     access_key_id: ""
     secret_access_key: ""
     use_path_style: false
+
+health:
+  # Thresholds for the /syncz endpoint (operators use it to know whether the
+  # customer website's MLS data is current). /healthz and /readyz ignore these.
+  # Max age of the last successful fetch / processing pass before /syncz reports
+  # a resource stale (Go duration string). Override: MLS_SYNC_HEALTH_SYNC_MAX_STALENESS.
+  sync_max_staleness: "30m"
+  # Max unprocessed raw_output rows (summed across resources) before /syncz
+  # fails on backlog. Override: MLS_SYNC_HEALTH_MAX_RAW_PENDING.
+  max_raw_pending: 10000
+  # Max permanently-failed attachment downloads before /syncz fails. Override:
+  # MLS_SYNC_HEALTH_MAX_ATTACHMENT_FAILURES.
+  max_attachment_failures: 100

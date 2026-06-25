@@ -153,6 +153,56 @@ extend type Query {
   ): PropertyConnection!
 }
 
+extend type Query {
+  """
+  Fuzzy free-text address search (a single search box). query is matched
+  with PostgreSQL trigram similarity (pg_trgm word_similarity) against a
+  combined address — street number + street name + city + state + postal
+  code — so typos and partial inputs ("123 Mian St Austin", "Maplewod
+  Ave") still match. threshold (0..1, default 0.3) sets how loose a match
+  is: higher is stricter. As a special case, an all-digit query (a ZIP or
+  ZIP+4 like "78704" or "78704-1234") skips trigram and does an exact /
+  prefix postal_code lookup, because bare digits share no useful trigrams
+  with an address. Only mlg_can_view=true rows match; results are
+  ID-ordered (not relevance-ordered) so they remain stable for cursor
+  pagination.
+  """
+  propertiesByAddress(
+    query: String!
+    threshold: Float
+    after: Cursor
+    first: Int
+    before: Cursor
+    last: Int
+    orderBy: PropertyOrder
+    where: PropertyWhereInput
+  ): PropertyConnection!
+
+  """
+  Structured address search (separate fields, e.g. an advanced-search
+  form). Every field is optional; the ones provided are AND-combined.
+  street and city are fuzzy (trigram word_similarity, governed by
+  threshold — 0..1, default 0.3). state is matched case-insensitively and
+  exactly. zip is matched exactly when it is a full 5-digit code, otherwise
+  as a prefix ("787" matches 787xx). At least one of street/city/state/zip
+  must be provided. Only mlg_can_view=true rows match; results are
+  ID-ordered for stable cursor pagination.
+  """
+  propertiesByAddressFields(
+    street: String
+    city: String
+    state: String
+    zip: String
+    threshold: Float
+    after: Cursor
+    first: Int
+    before: Cursor
+    last: Int
+    orderBy: PropertyOrder
+    where: PropertyWhereInput
+  ): PropertyConnection!
+}
+
 extend type Member {
   """
   Member's office via soft key officeKey (no DB FK). Null when the office is
