@@ -14,9 +14,11 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/member"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/office"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/openhouse"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyroom"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/propertyunittype"
+	"github.com/LunarHUE/MLS-Grid-Sync/graph/model"
 )
 
 type Resolver struct{ client *ent.Client }
@@ -241,10 +243,18 @@ func (r *queryResolver) OpenHouseVersions(ctx context.Context, after *entgql.Cur
 			ent.WithOpenHouseVersionFilter(where.Filter))
 }
 
-func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
+func (r *queryResolver) Properties(ctx context.Context, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput, geo *model.GeoFilter) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
+	preds := []predicate.Property{property.MlgCanView(true)}
+	gp, err := geoPredicate(geo)
+	if err != nil {
+		return nil, err
+	}
+	if gp != nil {
+		preds = append(preds, gp)
+	}
 	return r.client.Property.Query().
-		Where(property.MlgCanView(true)).
+		Where(preds...).
 		Paginate(ctx, after, first, before, last,
 			ent.WithPropertyOrder(orderBy),
 			ent.WithPropertyFilter(where.Filter))

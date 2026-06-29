@@ -1,11 +1,9 @@
+# UUID/Decimal/StringArray are entgql.Skip-ed from where-inputs, so entgql never
+# emits them into ent.graphql — they are declared here. Time and Map are NOT
+# declared here: WithWhereInputs(true) makes entities expose Time/Map predicates,
+# so the pinned entgql now emits `scalar Time` / `scalar Map` into ent.graphql
+# itself. Re-declaring them here would make gqlgen fail with "Cannot redeclare
+# type Time/Map".
 scalar UUID
 scalar Decimal
 scalar StringArray
-# Time and Map are hand-maintained here as a fallback. Although Phase 3
-# where-inputs (WithWhereInputs) make every entity expose time/Map predicates,
-# the entgql version pinned in go.mod does NOT emit `scalar Time` / `scalar Map`
-# into ent.graphql — so without these declarations gqlgen fails with
-# "Undefined type Time/Map". UUID/Decimal/StringArray are entgql.Skip-ed from
-# where-inputs and likewise never emitted, so they stay here too.
-scalar Time
-scalar Map

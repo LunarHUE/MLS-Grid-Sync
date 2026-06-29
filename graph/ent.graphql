@@ -212,6 +212,10 @@ input LookupWhereInput {
   standardLookupValueEqualFold: String
   standardLookupValueContainsFold: String
 }
+"""
+The builtin Map type
+"""
+scalar Map
 type Media implements Node {
   """
   RESO MediaKey
@@ -8724,37 +8728,6 @@ type Query {
     """
     where: OpenHouseVersionWhereInput
   ): OpenHouseVersionConnection!
-  properties(
-    """
-    Returns the elements in the list that come after the specified cursor.
-    """
-    after: Cursor
-
-    """
-    Returns the first _n_ elements from the list.
-    """
-    first: Int
-
-    """
-    Returns the elements in the list that come before the specified cursor.
-    """
-    before: Cursor
-
-    """
-    Returns the last _n_ elements from the list.
-    """
-    last: Int
-
-    """
-    Ordering options for Properties returned from the connection.
-    """
-    orderBy: PropertyOrder
-
-    """
-    Filtering options for Properties returned from the connection.
-    """
-    where: PropertyWhereInput
-  ): PropertyConnection!
   propertyRooms(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -9036,3 +9009,7 @@ input SourceSystemWhereInput {
   sourceSystemNameEqualFold: String
   sourceSystemNameContainsFold: String
 }
+"""
+The builtin Time type
+"""
+scalar Time

@@ -10,6 +10,7 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/predicate"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
+	"github.com/LunarHUE/MLS-Grid-Sync/graph/model"
 	"github.com/LunarHUE/MLS-Grid-Sync/search"
 )
 
@@ -43,7 +44,7 @@ func resolveThreshold(threshold *float64) (float64, error) {
 // query is a ZIP and routes to an exact/prefix postal_code lookup (trigram is
 // useless on bare digits); everything else is matched with trigram
 // word_similarity against the combined address.
-func (r *queryResolver) PropertiesByAddress(ctx context.Context, query string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
+func (r *queryResolver) PropertiesByAddress(ctx context.Context, query string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput, geo *model.GeoFilter) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
 	q := strings.TrimSpace(query)
 	if q == "" {
@@ -60,8 +61,16 @@ func (r *queryResolver) PropertiesByAddress(ctx context.Context, query string, t
 	} else {
 		addrPred = search.FuzzyAddress(q, thr)
 	}
+	preds := []predicate.Property{property.MlgCanView(true), addrPred}
+	gp, err := geoPredicate(geo)
+	if err != nil {
+		return nil, err
+	}
+	if gp != nil {
+		preds = append(preds, gp)
+	}
 	return r.client.Property.Query().
-		Where(property.MlgCanView(true), addrPred).
+		Where(preds...).
 		Paginate(ctx, after, first, before, last,
 			ent.WithPropertyOrder(orderBy),
 			ent.WithPropertyFilter(where.Filter))
@@ -71,7 +80,7 @@ func (r *queryResolver) PropertiesByAddress(ctx context.Context, query string, t
 // fields are AND-combined: street/city are fuzzy (word_similarity), state is
 // exact case-insensitive, zip is exact (5 digits) or prefix. At least one
 // field must be set, otherwise the query degenerates to "every visible row".
-func (r *queryResolver) PropertiesByAddressFields(ctx context.Context, street *string, city *string, state *string, zip *string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput) (*ent.PropertyConnection, error) {
+func (r *queryResolver) PropertiesByAddressFields(ctx context.Context, street *string, city *string, state *string, zip *string, threshold *float64, after *entgql.Cursor[string], first *int, before *entgql.Cursor[string], last *int, orderBy *ent.PropertyOrder, where *ent.PropertyWhereInput, geo *model.GeoFilter) (*ent.PropertyConnection, error) {
 	first, last = clampPage(first, last)
 	thr, err := resolveThreshold(threshold)
 	if err != nil {
@@ -93,6 +102,13 @@ func (r *queryResolver) PropertiesByAddressFields(ctx context.Context, street *s
 	}
 	if len(preds) == 1 { // only the visibility predicate
 		return nil, fmt.Errorf("at least one of street, city, state, or zip must be provided")
+	}
+	gp, err := geoPredicate(geo)
+	if err != nil {
+		return nil, err
+	}
+	if gp != nil {
+		preds = append(preds, gp)
 	}
 	return r.client.Property.Query().
 		Where(preds...).
