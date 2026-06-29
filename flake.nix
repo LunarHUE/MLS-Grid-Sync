@@ -2,9 +2,15 @@
   description = "MLS-Grid-Sync";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    development tool.url = "github:sadjow/development tool-nix";
+
+    development tool = {
+      url = "github:sadjow/development tool-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
   };
 
   outputs = { self, nixpkgs, flake-utils, development tool, ... }:
