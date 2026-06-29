@@ -152,61 +152,6 @@ extend type Query {
 
 extend type Query {
   """
-  Properties within radiusMeters of center, measured on the WGS84
-  spheroid (true meters). Only mlg_can_view=true rows with coordinates
-  match; results are ID-ordered (not distance-ordered).
-  """
-  propertiesNear(
-    center: GeoPoint!
-    radiusMeters: Float!
-    after: Cursor
-    first: Int
-    before: Cursor
-    last: Int
-    orderBy: PropertyOrder
-    where: PropertyWhereInput
-  ): PropertyConnection!
-
-  """
-  Properties inside the lat/lng bounding box (a map viewport), boundary
-  inclusive. southWest must be south and west of northEast; boxes
-  crossing the antimeridian are not supported. Only mlg_can_view=true
-  rows with coordinates match.
-  """
-  propertiesInBBox(
-    bounds: Bounds!
-    after: Cursor
-    first: Int
-    before: Cursor
-    last: Int
-    orderBy: PropertyOrder
-    where: PropertyWhereInput
-  ): PropertyConnection!
-
-  """
-  Properties inside ANY of several polygons — a multipolygon search over
-  discontiguous regions (e.g. a handful of separate neighborhoods) in one
-  query. Each polygon is a ring of GeoPoints with at least 3 vertices; the
-  ring closes automatically (the first vertex need not be repeated), edges
-  are straight lines in lat/lng space, and the boundary is inclusive. A
-  property matches if it falls inside any one of the polygons. At most 64
-  polygons and 4096 total vertices across all of them. For a single search
-  region, pass a one-element list. Only mlg_can_view=true rows with
-  coordinates match.
-  """
-  propertiesInMultiPolygon(
-    polygons: [[GeoPoint!]!]!
-    after: Cursor
-    first: Int
-    before: Cursor
-    last: Int
-    orderBy: PropertyOrder
-    where: PropertyWhereInput
-  ): PropertyConnection!
-}
-
-extend type Query {
-  """
   Fuzzy free-text address search (a single search box). query is matched
   with PostgreSQL trigram similarity (pg_trgm word_similarity) against a
   combined address — street number + street name + city + state + postal

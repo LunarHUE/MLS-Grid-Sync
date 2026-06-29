@@ -12,15 +12,15 @@ type Bounds struct {
 // A geo-region predicate composed into the property list queries. Exactly one of
 // withinPolygons, withinBounds, or withinRadius must be set; it is AND-combined
 // with `where` (facets) and any address search, and enforced server-side so the
-// list, its totalCount, and map pins all share one predicate. Each sub-field
-// mirrors a standalone geo query: withinPolygons ↔ propertiesInMultiPolygon,
-// withinBounds ↔ propertiesInBBox, withinRadius ↔ propertiesNear. Only
-// mlg_can_view=true rows with coordinates match.
+// list, its totalCount, and map pins all share one predicate. Each sub-field is a
+// distinct region test: withinPolygons (point inside any of a set of polygons),
+// withinBounds (point inside a bounding box), withinRadius (point within a
+// distance of a center). Only mlg_can_view=true rows with coordinates match.
 type GeoFilter struct {
 	// Point inside ANY of these polygons (a multipolygon search over discontiguous
-	// regions). Same rules and caps as propertiesInMultiPolygon: each polygon is a
-	// ring of at least 3 GeoPoints (the ring closes automatically), at most 64
-	// polygons and 4096 total vertices, boundary inclusive.
+	// regions, e.g. a handful of separate neighborhoods). Each polygon is a ring of
+	// at least 3 GeoPoints (the ring closes automatically), at most 64 polygons and
+	// 4096 total vertices, boundary inclusive.
 	WithinPolygons [][]*GeoPoint `json:"withinPolygons,omitempty"`
 	// Point inside this lat/lng bounding box (a map viewport), boundary inclusive.
 	// southWest must be south and west of northEast; antimeridian-crossing boxes

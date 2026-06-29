@@ -13,68 +13,12 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/testutil"
 )
 
-// Tests for the composable `geo: GeoFilter` argument on the list queries.
-// The three sub-fields reproduce the standalone geo root queries
-// (withinBounds↔propertiesInBBox, withinPolygons↔propertiesInMultiPolygon,
-// withinRadius↔propertiesNear), and — the point of the whole change — they
-// AND-compose with `where` and with address search in a single server-side
-// query so the list and the map pins can never diverge. Reuses geoConn, pt,
-// square, dtLat/dtLng, and seedPropertyAt from geo_test.go (same package).
-
-// downtownBox is a viewport around downtown that catches a property at
-// (dtLat, dtLng) and one ~1.1km north (+0.01°) but not one ~111km north (+1.0°).
-func downtownBox() map[string]any {
-	return map[string]any{
-		"southWest": pt(dtLat-0.01, dtLng-0.01),
-		"northEast": pt(dtLat+0.02, dtLng+0.01),
-	}
-}
-
-const propertiesGeoQuery = `query($where: PropertyWhereInput, $geo: GeoFilter) {
-	properties(where: $where, geo: $geo, first: 50) {
-		totalCount
-		edges { node { id } }
-	}
-}`
-
-// TestPropertiesGeoArg_AllRegions checks each GeoFilter sub-field narrows the
-// plain list to the same set its retired root field did.
-func TestPropertiesGeoArg_AllRegions(t *testing.T) {
-	t.Parallel()
-	srv, client := testutil.NewTestServer(t)
-	seedPropertyAt(t, client, "geo-downtown", dtLat, dtLng, true)
-	seedPropertyAt(t, client, "geo-1km", dtLat+0.01, dtLng, true)
-	seedPropertyAt(t, client, "geo-111km", dtLat+1.0, dtLng, true)
-
-	var data struct {
-		Properties geoConn `json:"properties"`
-	}
-
-	// withinBounds ↔ propertiesInBBox: downtown + 1km, not the 111km outlier.
-	testutil.GQL(t, srv, propertiesGeoQuery, map[string]any{
-		"geo": map[string]any{"withinBounds": downtownBox()},
-	}, &data)
-	assert.Equal(t, 2, data.Properties.TotalCount)
-	assert.ElementsMatch(t, []string{"geo-downtown", "geo-1km"}, data.Properties.ids())
-
-	// withinRadius ↔ propertiesNear: 100m catches downtown only.
-	testutil.GQL(t, srv, propertiesGeoQuery, map[string]any{
-		"geo": map[string]any{"withinRadius": map[string]any{"center": pt(dtLat, dtLng), "radiusMeters": 100.0}},
-	}, &data)
-	assert.Equal(t, 1, data.Properties.TotalCount)
-	assert.Equal(t, []string{"geo-downtown"}, data.Properties.ids())
-
-	// withinPolygons ↔ propertiesInMultiPolygon: two discontiguous boxes pick
-	// up downtown and the 111km outlier but not the 1km neighbor between them.
-	testutil.GQL(t, srv, propertiesGeoQuery, map[string]any{
-		"geo": map[string]any{"withinPolygons": []any{
-			square(dtLat, dtLng, 0.005),
-			square(dtLat+1.0, dtLng, 0.005),
-		}},
-	}, &data)
-	assert.Equal(t, 2, data.Properties.TotalCount)
-	assert.ElementsMatch(t, []string{"geo-downtown", "geo-111km"}, data.Properties.ids())
-}
+// Composition tests for the `geo: GeoFilter` argument — the point of the whole
+// change is that a region AND-combines with `where` (facets) and with address
+// search in a single server-side query, so the list and the map pins can never
+// diverge. Region semantics themselves live in geo_test.go; the shared helpers
+// (geoConn, pt, propertiesGeoQuery, downtownBoxGeo, withinBoundsGeo) come from
+// there too (same package).
 
 // TestPropertiesGeoArg_AndsWithWhere is the composition guarantee for the list:
 // a facet predicate (here an id filter) AND a region run in one query.
@@ -90,7 +34,8 @@ func TestPropertiesGeoArg_AndsWithWhere(t *testing.T) {
 	// Both are inside the box, but `where` keeps only one → intersection.
 	testutil.GQL(t, srv, propertiesGeoQuery, map[string]any{
 		"where": map[string]any{"id": "geo-keep"},
-		"geo":   map[string]any{"withinBounds": downtownBox()},
+		"geo":   downtownBoxGeo(),
+		"first": 50,
 	}, &data)
 	assert.Equal(t, 1, data.Properties.TotalCount)
 	assert.Equal(t, []string{"geo-keep"}, data.Properties.ids())
@@ -139,16 +84,16 @@ func TestPropertiesByAddress_AndsWithGeo(t *testing.T) {
 	// Address AND region: only the row inside the box survives.
 	testutil.GQL(t, srv, query, map[string]any{
 		"q":   "78704",
-		"geo": map[string]any{"withinBounds": downtownBox()},
+		"geo": downtownBoxGeo(),
 	}, &data)
 	assert.Equal(t, 1, data.PropertiesByAddress.TotalCount)
 	assert.Equal(t, []string{"addr-in"}, data.PropertiesByAddress.ids())
 }
 
-// TestPropertiesGeoArg_InvalidArgs covers the GeoFilter-specific validation:
-// it must hold exactly one sub-field, and the sub-fields keep the per-region
-// validation the root queries had.
-func TestPropertiesGeoArg_InvalidArgs(t *testing.T) {
+// TestPropertiesGeoArg_ExactlyOneSubfield covers the GeoFilter-structural rule
+// that the per-region validation (in geo_test.go) does not: exactly one of the
+// three sub-fields must be set.
+func TestPropertiesGeoArg_ExactlyOneSubfield(t *testing.T) {
 	t.Parallel()
 	srv, _ := testutil.NewTestServer(t)
 
@@ -161,15 +106,9 @@ func TestPropertiesGeoArg_InvalidArgs(t *testing.T) {
 	// More than one sub-field set.
 	errs = testutil.GQLExpectError(t, srv, propertiesGeoQuery, map[string]any{
 		"geo": map[string]any{
-			"withinBounds": downtownBox(),
+			"withinBounds": map[string]any{"southWest": pt(dtLat-0.01, dtLng-0.01), "northEast": pt(dtLat+0.02, dtLng+0.01)},
 			"withinRadius": map[string]any{"center": pt(dtLat, dtLng), "radiusMeters": 1000.0},
 		},
-	})
-	require.NotEmpty(t, errs)
-
-	// Non-positive radius (per-region validation still applies).
-	errs = testutil.GQLExpectError(t, srv, propertiesGeoQuery, map[string]any{
-		"geo": map[string]any{"withinRadius": map[string]any{"center": pt(dtLat, dtLng), "radiusMeters": 0.0}},
 	})
 	require.NotEmpty(t, errs)
 }

@@ -50,7 +50,8 @@ Status legend: ⬜ pending · 🔶 in progress · ✅ done
 - `propertiesNearest(center, limit ≤ 100, where?) → [PropertyDistanceResult!]!`
   (`{ property, distanceMeters }`), ordered by `ST_Distance` in SQL.
 - Non-paginated by design (distance order doesn't compose with relay
-  cursors); `propertiesNear` remains the paginated radius query.
+  cursors); the paginated radius filter remains
+  `properties(geo: { withinRadius })`.
 
 ## Phase 6 — Observability
 - `GET /metrics` (Prometheus): GraphQL request count/duration/errors.
