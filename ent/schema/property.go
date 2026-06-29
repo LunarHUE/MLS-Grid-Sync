@@ -14,7 +14,11 @@ type Property struct{ ent.Schema }
 
 func (Property) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entgql.QueryField(),
+		// No entgql.QueryField(): the root `properties` query is hand-declared
+		// in graph/extensions.graphql so it can take a `geo: GeoFilter` argument
+		// (the generated field can't be given extra args). RelayConnection is
+		// kept — the PropertyConnection/Edge/Order types and node(id:) resolution
+		// it generates are still used by the hand-written query.
 		entgql.RelayConnection(),
 		entsql.Annotation{Table: "property"},
 	}

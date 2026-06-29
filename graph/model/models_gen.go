@@ -9,8 +9,37 @@ type Bounds struct {
 	NorthEast *GeoPoint `json:"northEast"`
 }
 
+// A geo-region predicate composed into the property list queries. Exactly one of
+// withinPolygons, withinBounds, or withinRadius must be set; it is AND-combined
+// with `where` (facets) and any address search, and enforced server-side so the
+// list, its totalCount, and map pins all share one predicate. Each sub-field
+// mirrors a standalone geo query: withinPolygons ↔ propertiesInMultiPolygon,
+// withinBounds ↔ propertiesInBBox, withinRadius ↔ propertiesNear. Only
+// mlg_can_view=true rows with coordinates match.
+type GeoFilter struct {
+	// Point inside ANY of these polygons (a multipolygon search over discontiguous
+	// regions). Same rules and caps as propertiesInMultiPolygon: each polygon is a
+	// ring of at least 3 GeoPoints (the ring closes automatically), at most 64
+	// polygons and 4096 total vertices, boundary inclusive.
+	WithinPolygons [][]*GeoPoint `json:"withinPolygons,omitempty"`
+	// Point inside this lat/lng bounding box (a map viewport), boundary inclusive.
+	// southWest must be south and west of northEast; antimeridian-crossing boxes
+	// are not supported.
+	WithinBounds *Bounds `json:"withinBounds,omitempty"`
+	// Point within radiusMeters of center, measured on the WGS84 spheroid (true
+	// meters).
+	WithinRadius *RadiusFilter `json:"withinRadius,omitempty"`
+}
+
 // A WGS84 coordinate pair for geo-search inputs.
 type GeoPoint struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
+}
+
+// A center + radius (meters) circle for GeoFilter.withinRadius, measured on the
+// WGS84 spheroid (ST_DWithin on geography).
+type RadiusFilter struct {
+	Center       *GeoPoint `json:"center"`
+	RadiusMeters float64   `json:"radiusMeters"`
 }

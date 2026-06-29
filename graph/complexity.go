@@ -95,7 +95,7 @@ func complexityRoot() ComplexityRoot {
 	root.Query.OpenHouseVersions = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.OpenHouseVersionOrder, _ *ent.OpenHouseVersionWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
-	root.Query.Properties = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+	root.Query.Properties = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput, _ *model.GeoFilter) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
 	root.Query.PropertyRooms = func(childComplexity int, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyRoomOrder, _ *ent.PropertyRoomWhereInput) int {
@@ -126,10 +126,10 @@ func complexityRoot() ComplexityRoot {
 	root.Query.PropertiesInMultiPolygon = func(childComplexity int, _ [][]*model.GeoPoint, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
-	root.Query.PropertiesByAddress = func(childComplexity int, _ string, _ *float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+	root.Query.PropertiesByAddress = func(childComplexity int, _ string, _ *float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput, _ *model.GeoFilter) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
-	root.Query.PropertiesByAddressFields = func(childComplexity int, _ *string, _ *string, _ *string, _ *string, _ *float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput) int {
+	root.Query.PropertiesByAddressFields = func(childComplexity int, _ *string, _ *string, _ *string, _ *string, _ *float64, _ *entgql.Cursor[string], first *int, _ *entgql.Cursor[string], last *int, _ *ent.PropertyOrder, _ *ent.PropertyWhereInput, _ *model.GeoFilter) int {
 		return connectionComplexity(childComplexity, first, last)
 	}
 

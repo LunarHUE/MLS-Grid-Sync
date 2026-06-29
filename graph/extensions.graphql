@@ -91,6 +91,65 @@ input Bounds {
   northEast: GeoPoint!
 }
 
+"""
+A geo-region predicate composed into the property list queries. Exactly one of
+withinPolygons, withinBounds, or withinRadius must be set; it is AND-combined
+with `where` (facets) and any address search, and enforced server-side so the
+list, its totalCount, and map pins all share one predicate. Each sub-field is a
+distinct region test: withinPolygons (point inside any of a set of polygons),
+withinBounds (point inside a bounding box), withinRadius (point within a
+distance of a center). Only mlg_can_view=true rows with coordinates match.
+"""
+input GeoFilter {
+  """
+  Point inside ANY of these polygons (a multipolygon search over discontiguous
+  regions, e.g. a handful of separate neighborhoods). Each polygon is a ring of
+  at least 3 GeoPoints (the ring closes automatically), at most 64 polygons and
+  4096 total vertices, boundary inclusive.
+  """
+  withinPolygons: [[GeoPoint!]!]
+  """
+  Point inside this lat/lng bounding box (a map viewport), boundary inclusive.
+  southWest must be south and west of northEast; antimeridian-crossing boxes
+  are not supported.
+  """
+  withinBounds: Bounds
+  """
+  Point within radiusMeters of center, measured on the WGS84 spheroid (true
+  meters).
+  """
+  withinRadius: RadiusFilter
+}
+
+"""
+A center + radius (meters) circle for GeoFilter.withinRadius, measured on the
+WGS84 spheroid (ST_DWithin on geography).
+"""
+input RadiusFilter {
+  center: GeoPoint!
+  radiusMeters: Float!
+}
+
+extend type Query {
+  """
+  The Property list. Optional `where` (facets) and `geo` (a polygon, bounding
+  box, or radius region) are AND-combined and enforced server-side, so the
+  list, its totalCount, and map pins all share one predicate. Only
+  mlg_can_view=true rows match; results are ID-ordered for stable cursor
+  pagination. Pass a GeoFilter to constrain results to a polygon, bounding
+  box, or radius region.
+  """
+  properties(
+    after: Cursor
+    first: Int
+    before: Cursor
+    last: Int
+    orderBy: PropertyOrder
+    where: PropertyWhereInput
+    geo: GeoFilter
+  ): PropertyConnection!
+}
+
 extend type Query {
   """
   Properties within radiusMeters of center, measured on the WGS84
@@ -169,6 +228,7 @@ extend type Query {
     last: Int
     orderBy: PropertyOrder
     where: PropertyWhereInput
+    geo: GeoFilter
   ): PropertyConnection!
 
   """
@@ -193,6 +253,7 @@ extend type Query {
     last: Int
     orderBy: PropertyOrder
     where: PropertyWhereInput
+    geo: GeoFilter
   ): PropertyConnection!
 }
 
