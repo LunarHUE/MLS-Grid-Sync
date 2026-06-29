@@ -71,7 +71,7 @@ A `200` with `errors` set and `data: null` (or a null field inside
 input validation:
 
 ```json
-{"errors":[{"message":"center.latitude 99 out of range [-90, 90]","path":["propertiesNear"]}],"data":null}
+{"errors":[{"message":"withinRadius.center.latitude 99 out of range [-90, 90]","path":["properties"]}],"data":null}
 ```
 
 ### Execution model
@@ -91,12 +91,11 @@ history also expose an audit list:
 |---|---|
 | `lookups`, `mediaSlice`¹, `members`, `offices`, `openHouses`, `properties`, `propertyRooms`, `propertyUnitTypes`, `sourceSystems` | `mediaVersions`, `memberVersions`, `officeVersions`, `openHouseVersions`, `propertyVersions`, `propertyRoomVersions`, `propertyUnitTypeVersions` |
 
-Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch, three
-**geo-search** queries over properties: `propertiesNear`,
-`propertiesInBBox`, and `propertiesInMultiPolygon`
-(see [Geo search](#geo-search)), and two **address-search** queries:
-`propertiesByAddress` and `propertiesByAddressFields` (see
-[Address search](#address-search)).
+Plus `node(id: ID!)` and `nodes(ids: [ID!]!)` for direct fetch. Property
+lists take an optional `geo` argument for **location filtering** (see
+[Geo search](#geo-search)), and two **address-search** queries —
+`propertiesByAddress` and `propertiesByAddressFields` — match on address
+text (see [Address search](#address-search)).
 
 ¹ The Media list is named `mediaSlice` because `Property.media` already
 exists as a field name.
@@ -239,72 +238,83 @@ expected state.
 
 ## Geo search
 
-Three property queries filter by location, backed by PostGIS (a
-`geography(Point,4326)` column generated from each property's
-`latitude`/`longitude`, GIST-indexed). All take a `GeoPoint` input
-(`{ latitude: Float!, longitude: Float! }`, WGS84), return a standard
-`PropertyConnection`, apply the usual visibility filter, and skip
-properties without coordinates. Results are ID-ordered, not
+The property list queries filter by location through an optional `geo`
+argument of type `GeoFilter`, backed by PostGIS (a `geography(Point,4326)`
+column generated from each property's `latitude`/`longitude`, GIST-indexed).
+`geo` is accepted by `properties`, `propertiesByAddress`, and
+`propertiesByAddressFields`, where it is **AND-combined** with `where` and the
+address match and enforced server-side — so the list, its `totalCount`, and a
+map's pins all evaluate the same set. Matches apply the usual visibility
+filter and skip properties without coordinates; results stay ID-ordered, not
 distance-ordered.
 
-**`propertiesNear(center, radiusMeters)`** — everything within a true
-spheroid distance of a point:
+A `GeoFilter` sets **exactly one** of three region tests (`GeoPoint` is
+`{ latitude: Float!, longitude: Float! }`, WGS84):
+
+**`withinRadius: { center: GeoPoint!, radiusMeters: Float! }`** — everything
+within a true spheroid distance of a point:
 
 ```graphql
 {
-  propertiesNear(center: { latitude: 30.2672, longitude: -97.7431 },
-                 radiusMeters: 5000, first: 25) {
+  properties(geo: { withinRadius: { center: { latitude: 30.2672, longitude: -97.7431 },
+                                    radiusMeters: 5000 } },
+             first: 25) {
     totalCount
     edges { node { id unparsedAddress listPrice latitude longitude } }
   }
 }
 ```
 
-**`propertiesInBBox(bounds)`** — a map viewport. `bounds` is a `Bounds`
-input (`{ southWest, northEast }`); `southWest` must be south and west of
-`northEast`; boxes crossing the antimeridian aren't supported.
+**`withinBounds: Bounds`** — a map viewport. `Bounds` is
+`{ southWest, northEast }`; `southWest` must be south and west of `northEast`;
+boxes crossing the antimeridian aren't supported.
 
 ```graphql
 {
-  propertiesInBBox(bounds: { southWest: { latitude: 30.25, longitude: -97.76 },
-                             northEast: { latitude: 30.29, longitude: -97.72 } },
-                   first: 25) {
+  properties(geo: { withinBounds: { southWest: { latitude: 30.25, longitude: -97.76 },
+                                    northEast: { latitude: 30.29, longitude: -97.72 } } },
+             first: 25) {
     totalCount
     edges { node { id latitude longitude } }
   }
 }
 ```
 
-**`propertiesInMultiPolygon(polygons)`** — one or more shapes drawn on a
-map, including several discontiguous ones in a single query (e.g. a handful
-of separate neighborhoods). `polygons` is a list of rings (`[[GeoPoint!]!]!`);
-each ring has ≥ 3 vertices, closes automatically (repeating the first vertex
-also works), uses planar lat/lng edges, and is boundary inclusive. A property
-matches if it falls inside **any** one of the polygons — under the hood it's a
-single `ST_Covers` against a PostGIS `MULTIPOLYGON`, so there's no extra
-round-trip per shape. At most 64 polygons and 4096 total vertices across all
-of them. For a single shape, pass a one-element list.
+**`withinPolygons: [[GeoPoint!]!]`** — one or more shapes drawn on a map,
+including several discontiguous ones in a single query (e.g. a handful of
+separate neighborhoods). Each ring has ≥ 3 vertices, closes automatically
+(repeating the first vertex also works), uses planar lat/lng edges, and is
+boundary inclusive. A property matches if it falls inside **any** one of the
+polygons — under the hood it's a single `ST_Covers` against a PostGIS
+`MULTIPOLYGON`, so there's no extra round-trip per shape. At most 64 polygons
+and 4096 total vertices across all of them. For a single shape, pass a
+one-element list.
 
 ```graphql
 {
-  propertiesInMultiPolygon(polygons: [
+  properties(geo: { withinPolygons: [
     [ { latitude: 30.257, longitude: -97.750 },
       { latitude: 30.257, longitude: -97.736 },
       { latitude: 30.279, longitude: -97.743 } ],
     [ { latitude: 30.500, longitude: -97.700 },
       { latitude: 30.500, longitude: -97.680 },
       { latitude: 30.520, longitude: -97.690 } ]
-  ], first: 25) {
+  ] }, first: 25) {
     totalCount
     edges { node { id unparsedAddress } }
   }
 }
 ```
 
-Validation errors (radius ≤ 0, coordinates out of range, inverted bbox,
-fewer than 3 or more than 1024 polygon vertices, an empty `polygons` list,
-a ring with fewer than 3 vertices, or more than 64 polygons / 4096 total
-multipolygon vertices) come back as GraphQL errors.
+Because `geo` AND-composes, you can combine a region with facets and address
+text in one query — e.g.
+`properties(where: { listPrice: { gte: "500000" } }, geo: { withinBounds: … })`
+or `propertiesByAddress(query: "Main St", geo: { withinPolygons: … })`.
+
+Validation errors — no sub-field set or more than one, radius ≤ 0, coordinates
+out of range, inverted bbox, an empty `withinPolygons` list, a ring with fewer
+than 3 vertices, or more than 64 polygons / 4096 total multipolygon vertices —
+come back as GraphQL errors.
 
 **Infrastructure note:** these queries require a PostGIS-enabled
 Postgres (the compose file and tests use `imresamu/postgis:15-3.5-alpine`).
@@ -319,7 +329,9 @@ trigram similarity (the `pg_trgm` extension, GIN-indexed). Both return a
 standard `PropertyConnection`, apply the usual visibility filter, and are
 **ID-ordered, not relevance-ordered** — trigram search _filters_ rows, it
 does not rank them, so cursor pagination stays stable. To narrow results,
-raise the `threshold`; there is no "best match first."
+raise the `threshold`; there is no "best match first." Both also accept the
+optional `geo` argument ([Geo search](#geo-search)) to intersect the address
+match with a region.
 
 ### `propertiesByAddress(query, threshold)` — single search box
 

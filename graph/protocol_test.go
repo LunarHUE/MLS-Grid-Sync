@@ -82,7 +82,7 @@ func TestProtocol_ResolverErrorIs200(t *testing.T) {
 	srv, _ := testutil.NewTestServer(t)
 
 	status, env := rawPost(t, srv.URL,
-		`{"query":"{ propertiesNear(center:{latitude:99,longitude:0}, radiusMeters:10, first:1){totalCount} }"}`)
+		`{"query":"{ properties(geo:{withinRadius:{center:{latitude:99,longitude:0}, radiusMeters:10}}, first:1){totalCount} }"}`)
 	assert.Equal(t, http.StatusOK, status)
 	require.NotEmpty(t, env.Errors)
 	assert.Contains(t, env.Errors[0].Message, "out of range")
