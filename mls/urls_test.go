@@ -98,14 +98,19 @@ func TestMediaRefreshURL(t *testing.T) {
 
 	// The filter must pin BOTH the originating system and the single listing;
 	// dropping either would re-fetch far more than the caller asked for.
+	//
+	// It must use ListingId, NOT ListingKey: MLS Grid rejects replication
+	// requests filtered on ListingKey with a 400 listing the permitted fields.
+	// That mistake silently breaks every refresh, so it is pinned here.
 	filter := decodeFilter(t, u)
-	assert.Equal(t, "OriginatingSystemName eq 'flinthills' and ListingKey eq 'FHR12345'", filter)
+	assert.Equal(t, "OriginatingSystemName eq 'flinthills' and ListingId eq 'FHR12345'", filter)
+	assert.NotContains(t, filter, "ListingKey", "MLS Grid rejects ListingKey as a filter field")
 }
 
 // The filter is interpolated into a query string, so it has to survive
 // encoding rather than truncating at the first space or quote.
 func TestMediaRefreshURL_EscapesFilter(t *testing.T) {
 	u := MediaRefreshURL("https://api.mlsgrid.com/v2", "sys", "KEY-1")
-	assert.NotContains(t, u, "ListingKey eq", "filter must be percent-encoded, not raw")
-	assert.Equal(t, "OriginatingSystemName eq 'sys' and ListingKey eq 'KEY-1'", decodeFilter(t, u))
+	assert.NotContains(t, u, "ListingId eq", "filter must be percent-encoded, not raw")
+	assert.Equal(t, "OriginatingSystemName eq 'sys' and ListingId eq 'KEY-1'", decodeFilter(t, u))
 }
