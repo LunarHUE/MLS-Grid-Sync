@@ -19,6 +19,17 @@ func (f *FakeStorer) Upload(_ context.Context, key string, body io.Reader, _ str
 	return "https://fake-s3.local/" + key, nil
 }
 
+// Download always reports a miss. FakeStorer discards on upload, so there is
+// never anything to read back — returning ErrObjectNotFound is the honest
+// answer and keeps the read-through handler on its origin-fetch path rather
+// than serving zero bytes as if they were a cache hit.
+func (f *FakeStorer) Download(_ context.Context, key string) (io.ReadCloser, string, error) {
+	if err := validateKey(key); err != nil {
+		return nil, "", err
+	}
+	return nil, "", ErrObjectNotFound
+}
+
 // CleanupPrefix is a no-op: FakeStorer never persisted anything.
 func (f *FakeStorer) CleanupPrefix(_ context.Context, _ string) error {
 	return nil

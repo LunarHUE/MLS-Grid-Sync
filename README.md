@@ -14,7 +14,7 @@ go build -o mls-cli .
 
 | Command | Purpose |
 |---------|---------|
-| `serve` | Serve the GraphQL API over HTTP (playground at `/`, API at `/query`, health at `/healthz`) — see [docs/graphql-api.md](docs/graphql-api.md) |
+| `serve` | Serve the GraphQL API over HTTP (API at `/query`, media at `/media/{mediaKey}`, health at `/healthz`; playground at `/` when enabled) — see [docs/graphql-api.md](docs/graphql-api.md) |
 | `init` | Full initial corpus import across all resources in FK-dependency order |
 | `import <Resource>` | Initial bulk import of one resource (e.g. `import Property`) |
 | `sync` | Continuous delta sync daemon |
@@ -37,6 +37,8 @@ environment variables prefixed `MLS_SYNC_` (nested keys joined with `_`):
 | `MLS_SYNC_MLS_ORIGINATING_SYSTEM` | Originating system name (e.g. `actris`) |
 | `MLS_SYNC_SERVER_ADDR` | Listen address for `serve` (default `:8080`) |
 | `MLS_SYNC_STORAGE_BACKEND` | `fake` \| `local` \| `azure` \| `s3` |
+| `MLS_SYNC_SERVER_PLAYGROUND_ENABLED` | Serve GraphiQL at `/`. **Default `false`** — it is deliberately not behind `api_key`, so on a public host it advertises the API |
+| `MLS_SYNC_SERVER_INTROSPECTION_ENABLED` | Allow `__schema`/`__type` queries. **Default `false`** so a leaked API key does not additionally hand over the full schema |
 | `MLS_SYNC_LOG_LEVEL` | Log level (default `info`); `debug` restores the per-page/per-chunk fetch lines |
 | `MLS_SYNC_PROGRESS` | Import progress display: `auto` (default), `never`, or `always` |
 

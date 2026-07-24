@@ -82,6 +82,18 @@ server:
   # Comma-separated CORS allowlist; "*" allows any origin. Override:
   # MLS_SYNC_SERVER_CORS_ALLOWED_ORIGINS.
   cors_allowed_origins: "*"
+  # Serve the GraphiQL playground at /. OFF by default: unlike /query it is
+  # deliberately not behind api_key (a UI cannot send the header before you
+  # have typed it in), so on a public host it advertises the API to anyone
+  # who finds it. Enable for local development.
+  # Override: MLS_SYNC_SERVER_PLAYGROUND_ENABLED.
+  playground_enabled: false
+  # Allow __schema/__type queries. OFF by default so that possession of the
+  # API key does not additionally yield a complete map of every queryable
+  # field and filter. The playground needs this for autocomplete, so local
+  # development usually turns on both.
+  # Override: MLS_SYNC_SERVER_INTROSPECTION_ENABLED.
+  introspection_enabled: false
 
 storage:
   # Attachment backend. Phase 1 wires fake and local; azure and s3

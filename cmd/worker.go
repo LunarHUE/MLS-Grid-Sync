@@ -42,6 +42,10 @@ var workerCmd = &cobra.Command{
 		worker := sync.NewAttachmentWorker(svc,
 			sync.WithMediaLimiter(limiter),
 			sync.WithKeyPrefix(appConfig.Storage.KeyPrefix),
+			// Without this the worker downloads from URLs captured at sync
+			// time, which MLS Grid expires after an hour and invalidates
+			// after a single use — so every job older than that fails.
+			sync.WithMediaRefresh(appConfig.MLS.V2URL, appConfig.MLS.OriginatingSystem),
 		)
 		log.Infof("Starting attachment worker daemon (worker_id=%s, media_rps=%.2f)...", worker.WorkerID(), rps)
 		return runWorkerLoop(ctx, worker, workerLoopOpts{
