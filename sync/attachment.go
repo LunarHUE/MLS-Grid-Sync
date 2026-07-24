@@ -19,10 +19,11 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/property"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
-	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 	"github.com/LunarHUE/MLS-Grid-Sync/storage"
 	"github.com/google/uuid"
 	"github.com/lunarhue/libs-go/log"
@@ -487,20 +488,43 @@ func (w *AttachmentWorker) refreshMediaURLs(ctx context.Context, jobs []*ent.Att
 
 	// Distinct parent listings. Media is polymorphic, so only rows that hang
 	// off a Property can be refreshed by a Property query.
-	listings := make(map[string]struct{})
+	listingKeys := make([]string, 0, len(rows))
+	seen := make(map[string]struct{})
 	for _, m := range rows {
-		if m.ResourceType == media.ResourceTypeProperty && m.ResourceRecordKey != "" {
-			listings[m.ResourceRecordKey] = struct{}{}
+		if m.ResourceType != media.ResourceTypeProperty || m.ResourceRecordKey == "" {
+			continue
+		}
+		if _, dup := seen[m.ResourceRecordKey]; dup {
+			continue
+		}
+		seen[m.ResourceRecordKey] = struct{}{}
+		listingKeys = append(listingKeys, m.ResourceRecordKey)
+	}
+
+	// media.resource_record_key holds the ListingKey, but MLS Grid refuses to
+	// filter Property on ListingKey — only ListingId is accepted (see
+	// mls.MediaRefreshURL). They are equal on some feeds and not on others, so
+	// translate rather than assume.
+	props, err := w.svc.dbClient.Property.Query().
+		Where(property.IDIn(listingKeys...)).
+		All(ctx)
+	if err != nil {
+		return fresh, fmt.Errorf("load listings for refresh: %w", err)
+	}
+	listings := make(map[string]string, len(props)) // listingKey -> listingID
+	for _, p := range props {
+		if p.ListingID != nil && *p.ListingID != "" {
+			listings[p.ID] = *p.ListingID
 		}
 	}
 
-	for listingKey := range listings {
+	for listingKey, listingID := range listings {
 		select {
 		case <-ctx.Done():
 			return fresh, ctx.Err()
 		default:
 		}
-		url := mls.MediaRefreshURL(w.v2URL, w.originatingSystem, listingKey)
+		url := mls.MediaRefreshURL(w.v2URL, w.originatingSystem, listingID)
 		resp, err := w.svc.mlsClient.FetchPage(ctx, url)
 		if err != nil {
 			log.Warnf("worker %s: refresh listing %s: %v", w.workerID, listingKey, err)

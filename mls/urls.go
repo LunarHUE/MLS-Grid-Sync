@@ -75,12 +75,21 @@ func DiscoveryURL(v2url string) string {
 // request re-arms all of a listing's photos for the next hour. Per-image
 // refresh would multiply OData calls by ~20 against the same ~1 rps budget.
 //
-// $top=1 because ListingKey is unique; the $expand is the part that matters.
-func MediaRefreshURL(v2url, originatingSystem, listingKey string) string {
+// It filters on ListingId, NOT ListingKey. MLS Grid rejects the latter on
+// replication requests:
+//
+//	400 Invalid filter field 'ListingKey' — Replication requests to the
+//	Property resource can only be filtered using the following fields:
+//	MlgCanView, ModificationTimestamp, OriginatingSystemName, StandardStatus,
+//	ListingId, PropertyType, ListOfficeMlsId
+//
+// $top=1 because ListingId is unique per originating system; the $expand is
+// the part that actually matters.
+func MediaRefreshURL(v2url, originatingSystem, listingID string) string {
 	filter := fmt.Sprintf(
-		"OriginatingSystemName eq '%s' and ListingKey eq '%s'",
+		"OriginatingSystemName eq '%s' and ListingId eq '%s'",
 		originatingSystem,
-		listingKey,
+		listingID,
 	)
 	return fmt.Sprintf("%s/%s?$filter=%s&$top=1&$expand=Media",
 		v2url, ResourceProperty, url.QueryEscape(filter))
