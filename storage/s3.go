@@ -154,6 +154,29 @@ func (s *S3Storer) CleanupPrefix(ctx context.Context, prefix string) error {
 	return nil
 }
 
+// Download streams the object back out, satisfying Fetcher. NoSuchKey (and
+// the bare 404 some S3-compatible servers return instead) maps to
+// storage.ErrObjectNotFound so callers can treat a miss uniformly.
+func (s *S3Storer) Download(ctx context.Context, key string) (io.ReadCloser, string, error) {
+	resp, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &s.bucket,
+		Key:    &key,
+	})
+	if err != nil {
+		var noKey *s3types.NoSuchKey
+		var notFound *s3types.NotFound
+		if errors.As(err, &noKey) || errors.As(err, &notFound) {
+			return nil, "", ErrObjectNotFound
+		}
+		return nil, "", fmt.Errorf("download %q: %w", key, err)
+	}
+	var contentType string
+	if resp.ContentType != nil {
+		contentType = *resp.ContentType
+	}
+	return resp.Body, contentType, nil
+}
+
 // downloadForTest is a package-internal test helper for the
 // conformance suite's readback case. Kept here so it participates in
 // the package build but stays out of the production Storer interface.

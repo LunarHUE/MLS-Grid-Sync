@@ -82,3 +82,30 @@ func TestInitialURL_PropertyExpand(t *testing.T) {
 	u2 := InitialURL("https://api.example/v2", "actris", ResourceMember)
 	assert.NotContains(t, u2, "$expand=", "$expand is Property-only")
 }
+
+// MLS Grid media links are single-use and expire an hour after the response
+// that minted them, so the worker must re-request the parent listing before
+// downloading. These pin the shape of that request.
+func TestMediaRefreshURL(t *testing.T) {
+	u := MediaRefreshURL("https://api.mlsgrid.com/v2", "flinthills", "FHR12345")
+
+	// Must expand Media — the whole point is to mint fresh child links.
+	assert.Contains(t, u, "$expand=Media")
+	// One listing, so one record is enough.
+	assert.Contains(t, u, "$top=1")
+	assert.True(t, strings.HasPrefix(u, "https://api.mlsgrid.com/v2/Property?"),
+		"refresh must target Property (Media is expand-only), got %q", u)
+
+	// The filter must pin BOTH the originating system and the single listing;
+	// dropping either would re-fetch far more than the caller asked for.
+	filter := decodeFilter(t, u)
+	assert.Equal(t, "OriginatingSystemName eq 'flinthills' and ListingKey eq 'FHR12345'", filter)
+}
+
+// The filter is interpolated into a query string, so it has to survive
+// encoding rather than truncating at the first space or quote.
+func TestMediaRefreshURL_EscapesFilter(t *testing.T) {
+	u := MediaRefreshURL("https://api.mlsgrid.com/v2", "sys", "KEY-1")
+	assert.NotContains(t, u, "ListingKey eq", "filter must be percent-encoded, not raw")
+	assert.Equal(t, "OriginatingSystemName eq 'sys' and ListingKey eq 'KEY-1'", decodeFilter(t, u))
+}
