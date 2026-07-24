@@ -670,6 +670,25 @@ func (w *AttachmentWorker) compareAndSetSucceeded(ctx context.Context, jobID uui
 		log.Infof("worker %s: CAS-success on job %s matched 0 rows (canceled or reaped mid-download — discarding)", w.workerID, jobID)
 		return jobLostCAS, nil
 	}
+
+	// Point the media row at the attachment. media.attachment_id documents
+	// itself as "Set when the binary has been downloaded into attachment", but
+	// nothing ever set it — the link lived only on attachment_job. Anything
+	// reading from the media side (notably the /media/{mediaKey} endpoint)
+	// therefore saw an unattached record and reported a cache miss while the
+	// bytes sat in storage.
+	//
+	// Deliberately AFTER the CAS: a job that lost the race must not relink.
+	// Non-fatal on error — the download did succeed, and warm's backfill
+	// repairs a missed link on its next run.
+	const link = `UPDATE media
+                     SET attachment_id = $1,
+                         modified_at = now()
+                   WHERE media_key = (SELECT media_key FROM attachment_job WHERE attachment_job_id = $2)
+                     AND (attachment_id IS NULL OR attachment_id <> $1)`
+	if _, err := w.svc.sqlDB.ExecContext(ctx, link, attachmentID, jobID); err != nil {
+		log.Errorf("worker %s: link media to attachment for job %s: %v", w.workerID, jobID, err)
+	}
 	return jobSucceeded, nil
 }
 
