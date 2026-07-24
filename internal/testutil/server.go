@@ -20,7 +20,9 @@ import (
 func NewTestServer(t *testing.T) (*httptest.Server, *ent.Client) {
 	t.Helper()
 	client := NewTestDB(t)
-	srv := httptest.NewServer(graph.NewHandler(client))
+	// Introspection on: a test server is not a production surface, and
+	// resolver tests may probe the schema.
+	srv := httptest.NewServer(graph.NewHandler(client, graph.HandlerOptions{Introspection: true}))
 	t.Cleanup(srv.Close)
 	return srv, client
 }

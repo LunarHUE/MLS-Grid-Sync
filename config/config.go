@@ -132,6 +132,16 @@ type ServerConfig struct {
 	Addr               string `mapstructure:"addr" yaml:"addr"`
 	APIKey             string `mapstructure:"api_key" yaml:"api_key"`
 	CORSAllowedOrigins string `mapstructure:"cors_allowed_origins" yaml:"cors_allowed_origins"`
+	// PlaygroundEnabled serves the GraphiQL UI at /. Defaults FALSE: the
+	// playground is deliberately unauthenticated (only /query is key-gated),
+	// so leaving it on advertises the API to anyone who finds the host.
+	// Override: MLS_SYNC_SERVER_PLAYGROUND_ENABLED.
+	PlaygroundEnabled bool `mapstructure:"playground_enabled" yaml:"playground_enabled"`
+	// IntrospectionEnabled allows __schema/__type queries. Defaults FALSE so
+	// a leaked API key does not additionally hand over a complete map of
+	// every queryable field and filter.
+	// Override: MLS_SYNC_SERVER_INTROSPECTION_ENABLED.
+	IntrospectionEnabled bool `mapstructure:"introspection_enabled" yaml:"introspection_enabled"`
 }
 
 // HealthConfig tunes the /syncz endpoint's sync-health thresholds (the

@@ -16,6 +16,18 @@ import (
 type Options struct {
 	APIKey         string   // empty = auth disabled
 	AllowedOrigins []string // empty or containing "*" = allow any origin
+
+	// Playground serves the GraphiQL UI at /. It is intentionally NOT behind
+	// RequireAPIKey — a UI cannot send the header before you have typed it in
+	// — so enabling it publishes the existence and shape of the API to anyone
+	// who reaches the host. Off unless explicitly enabled.
+	Playground bool
+
+	// Introspection allows __schema/__type queries on /query.
+	Introspection bool
+
+	// Media registers GET /media/{mediaKey} when its Storer is non-nil.
+	Media MediaOptions
 }
 
 // SplitOrigins comma-splits a CORS allowlist string, trims surrounding
@@ -43,8 +55,19 @@ func SplitOrigins(s string) []string {
 // balancers and operators without the API key.
 func NewMux(client *ent.Client, h *health.Service, opts Options) http.Handler {
 	mux := http.NewServeMux()
-	mux.Handle("/query", RequireAPIKey(opts.APIKey, graph.NewHandler(client)))
-	mux.Handle("/", graph.NewPlaygroundHandler("/query"))
+	mux.Handle("/query", RequireAPIKey(opts.APIKey, graph.NewHandler(client, graph.HandlerOptions{
+		Introspection: opts.Introspection,
+	})))
+	if opts.Playground {
+		mux.Handle("/", graph.NewPlaygroundHandler("/query"))
+	}
+	// Binary media by RESO MediaKey. Deliberately NOT key-gated: browsers
+	// request these straight from <img>, which cannot carry the header. The
+	// keys are opaque and the handler only ever serves what sync already
+	// pulled, so this exposes no more than the listing pages themselves do.
+	if opts.Media.Storer != nil {
+		mux.Handle("GET /media/{mediaKey}", newMediaHandler(client, opts.Media))
+	}
 	// /healthz: process alive (no DB). /readyz: can serve safely. /syncz: MLS
 	// sync within thresholds. All return the same {healthy, checks} JSON.
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
