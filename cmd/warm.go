@@ -81,6 +81,14 @@ This only queues work. Run 'worker' to actually download:
 		db := ent.NewClient(ent.Driver(drv))
 		defer db.Close()
 
+		// FIRST: repair any media whose binary was already downloaded but never
+		// linked. Doing this up front means the "needs download" set computed
+		// below is accurate — otherwise already-stored images look unattached
+		// and get queued for a pointless re-download.
+		if err := warmRepairLinks(ctx, sqlDB); err != nil {
+			return err
+		}
+
 		statuses := warmStatuses
 		if len(statuses) == 0 {
 			statuses = defaultWarmStatuses
@@ -184,6 +192,39 @@ func warmEnqueue(ctx context.Context, db *ent.Client, todo []string, eventID uui
 		log.Infof("warm: enqueued %d/%d", created, len(todo))
 	}
 	return created, nil
+}
+
+// warmRepairLinks backfills media.attachment_id from jobs that already
+// succeeded.
+//
+// The worker historically recorded the downloaded binary only on
+// attachment_job.attachment_id and left media.attachment_id null, despite that
+// column documenting itself as "Set when the binary has been downloaded into
+// attachment". Readers that start from the media side — the /media/{mediaKey}
+// endpoint above all — therefore reported a cache miss for images that were
+// sitting in storage.
+//
+// The worker now sets the link as it goes, so this only has to repair rows
+// downloaded before that fix. It is idempotent and cheap: the WHERE clause
+// matches nothing once everything is linked, so it is safe to leave in the
+// normal warm path rather than hiding it behind a one-off flag.
+func warmRepairLinks(ctx context.Context, sqlDB *sql.DB) error {
+	const repair = `UPDATE media m
+                       SET attachment_id = j.attachment_id,
+                           modified_at = now()
+                      FROM attachment_job j
+                     WHERE j.media_key = m.media_key
+                       AND j.status = 'succeeded'
+                       AND j.attachment_id IS NOT NULL
+                       AND m.attachment_id IS NULL`
+	res, err := sqlDB.ExecContext(ctx, repair)
+	if err != nil {
+		return fmt.Errorf("repair media links: %w", err)
+	}
+	if n, _ := res.RowsAffected(); n > 0 {
+		log.Infof("warm: linked %d media row(s) to already-downloaded attachments", n)
+	}
+	return nil
 }
 
 // warmCancelOthers cancels pending/retrying jobs whose media is NOT in keep.
