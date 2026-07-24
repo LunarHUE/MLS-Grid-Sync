@@ -18,7 +18,9 @@ import (
 	"github.com/LunarHUE/MLS-Grid-Sync/ent"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachment"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/attachmentjob"
+	"github.com/LunarHUE/MLS-Grid-Sync/ent/media"
 	"github.com/LunarHUE/MLS-Grid-Sync/ent/rawoutput"
+	"github.com/LunarHUE/MLS-Grid-Sync/mls"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/applog"
 	"github.com/LunarHUE/MLS-Grid-Sync/internal/progress"
 	"github.com/LunarHUE/MLS-Grid-Sync/storage"
@@ -222,6 +224,12 @@ type AttachmentWorker struct {
 	// means subsequent uploads use the new prefix; jobs already
 	// uploaded retain their original key.
 	keyPrefix string
+	// v2URL and originatingSystem let the worker re-mint media links before
+	// downloading (refreshMediaURLs). Both empty disables refresh and falls
+	// back to stored URLs — the pre-existing behavior, correct only for jobs
+	// enqueued within the last hour.
+	v2URL             string
+	originatingSystem string
 }
 
 // Limiter is anything the worker can Wait(ctx) on before a media
@@ -277,6 +285,17 @@ func WithKeyPrefix(prefix string) AttachmentWorkerOption {
 			prefix += "/"
 		}
 		w.keyPrefix = prefix
+	}
+}
+
+// WithMediaRefresh enables re-minting media links before download. Without
+// it the worker uses the URL captured at sync time, which MLS Grid expires
+// after an hour and burns after a single use — so any backlog older than that
+// fails wholesale. Production should always set this.
+func WithMediaRefresh(v2URL, originatingSystem string) AttachmentWorkerOption {
+	return func(w *AttachmentWorker) {
+		w.v2URL = v2URL
+		w.originatingSystem = originatingSystem
 	}
 }
 
@@ -399,6 +418,19 @@ func (w *AttachmentWorker) Run(ctx context.Context) (RunResult, error) {
 		return RunResult{Worked: true}, fmt.Errorf("load claimed jobs: %w", err)
 	}
 
+	// 3a) Mint fresh media URLs before downloading anything. The URLs captured
+	// at sync time are single-use and expire an hour after the response that
+	// produced them, so any job not drained almost immediately cannot be
+	// fetched from its stored URL at all. Grouped by listing, because one
+	// Property response re-arms every photo on that listing — see
+	// mls.MediaRefreshURL.
+	freshURLs, err := w.refreshMediaURLs(ctx, jobs)
+	if err != nil {
+		// Non-fatal: processJob falls back to the stored URL, which is still
+		// valid for jobs enqueued within the last hour.
+		log.Errorf("worker %s: refresh media urls: %v", w.workerID, err)
+	}
+
 	var stats cycleStats
 	sem := make(chan struct{}, 8)
 	g, gctx := errgroup.WithContext(ctx)
@@ -406,7 +438,7 @@ func (w *AttachmentWorker) Run(ctx context.Context) (RunResult, error) {
 		sem <- struct{}{}
 		g.Go(func() error {
 			defer func() { <-sem }()
-			return w.processJob(gctx, job.ID, job.MediaKey, job.AttemptCount, &stats)
+			return w.processJob(gctx, job.ID, job.MediaKey, freshURLs[job.MediaKey], job.AttemptCount, &stats)
 		})
 	}
 	err = g.Wait()
@@ -423,7 +455,84 @@ func (w *AttachmentWorker) Run(ctx context.Context) (RunResult, error) {
 	return result, err
 }
 
-func (w *AttachmentWorker) processJob(ctx context.Context, jobID uuid.UUID, mediaKey string, priorAttempts int, stats *cycleStats) error {
+// refreshMediaURLs re-arms the media links for every listing represented in
+// the claimed batch, returning mediaKey -> fresh URL.
+//
+// Cost is one OData call per DISTINCT LISTING, not per image: all of a
+// listing's photos share the token of the response that carried them. A batch
+// of 50 jobs from a handful of listings therefore costs a handful of requests
+// under the API limiter, and re-arms far more images than it claimed.
+//
+// Best effort by design. A listing that fails to refresh simply contributes no
+// entries, and those jobs fall back to their stored URL — correct for anything
+// enqueued in the last hour, and a normal retryable failure otherwise.
+func (w *AttachmentWorker) refreshMediaURLs(ctx context.Context, jobs []*ent.AttachmentJob) (map[string]string, error) {
+	fresh := make(map[string]string)
+	if w.v2URL == "" || w.originatingSystem == "" {
+		// Not configured (unit tests, or a deployment that has not wired the
+		// MLS client into the worker). Callers degrade to stored URLs.
+		return fresh, nil
+	}
+
+	keys := make([]string, 0, len(jobs))
+	for _, j := range jobs {
+		keys = append(keys, j.MediaKey)
+	}
+	rows, err := w.svc.dbClient.Media.Query().
+		Where(media.IDIn(keys...)).
+		All(ctx)
+	if err != nil {
+		return fresh, fmt.Errorf("load media for refresh: %w", err)
+	}
+
+	// Distinct parent listings. Media is polymorphic, so only rows that hang
+	// off a Property can be refreshed by a Property query.
+	listings := make(map[string]struct{})
+	for _, m := range rows {
+		if m.ResourceType == media.ResourceTypeProperty && m.ResourceRecordKey != "" {
+			listings[m.ResourceRecordKey] = struct{}{}
+		}
+	}
+
+	for listingKey := range listings {
+		select {
+		case <-ctx.Done():
+			return fresh, ctx.Err()
+		default:
+		}
+		url := mls.MediaRefreshURL(w.v2URL, w.originatingSystem, listingKey)
+		resp, err := w.svc.mlsClient.FetchPage(ctx, url)
+		if err != nil {
+			log.Warnf("worker %s: refresh listing %s: %v", w.workerID, listingKey, err)
+			continue
+		}
+		for _, rec := range resp.Value {
+			var payload struct {
+				Media []struct {
+					MediaKey string `json:"MediaKey"`
+					MediaURL string `json:"MediaURL"`
+				} `json:"Media"`
+			}
+			if err := json.Unmarshal(rec, &payload); err != nil {
+				log.Warnf("worker %s: decode refresh for %s: %v", w.workerID, listingKey, err)
+				continue
+			}
+			for _, m := range payload.Media {
+				if m.MediaKey != "" && m.MediaURL != "" {
+					fresh[m.MediaKey] = m.MediaURL
+				}
+			}
+		}
+	}
+	log.Debugf("worker %s: refreshed %d media url(s) across %d listing(s)",
+		w.workerID, len(fresh), len(listings))
+	return fresh, nil
+}
+
+// processJob downloads one attachment. freshURL, when non-empty, is a
+// just-minted link from refreshMediaURLs and is strongly preferred; the stored
+// URL is only a fallback for jobs young enough that it has not expired.
+func (w *AttachmentWorker) processJob(ctx context.Context, jobID uuid.UUID, mediaKey, freshURL string, priorAttempts int, stats *cycleStats) error {
 	start := time.Now()
 	var result jobResult
 	var sizeBytes int
@@ -454,9 +563,15 @@ func (w *AttachmentWorker) processJob(ctx context.Context, jobID uuid.UUID, medi
 		return e
 	}
 
-	imageURL, err := w.resolveMediaURL(ctx, mediaKey)
-	if err != nil {
-		return fail(err)
+	// Prefer the freshly minted link. Falling back to the stored URL is only
+	// useful for very young jobs — see refreshMediaURLs.
+	imageURL := freshURL
+	if imageURL == "" {
+		var err error
+		imageURL, err = w.resolveMediaURL(ctx, mediaKey)
+		if err != nil {
+			return fail(err)
+		}
 	}
 
 	// §5: cap media download rate. The OData API limiter in mls/client.go

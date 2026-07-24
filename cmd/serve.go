@@ -28,9 +28,10 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Serve the GraphQL API over HTTP",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// Deliberately not setupComponents: the read-only API server
-		// needs no MLS token, no storage backend, and must not run
-		// schema migrations (sync/worker own the schema).
+		// Deliberately not setupComponents: the read-only API server needs no
+		// MLS token and must not run schema migrations (sync/init own the
+		// schema). It does need a storage backend now — /media/{mediaKey}
+		// streams attachment binaries — but only the read half.
 		sqlDB, err := sql.Open("postgres", appConfig.Database.DSN)
 		if err != nil {
 			return fmt.Errorf("failed opening connection to postgres: %w", err)
@@ -55,11 +56,27 @@ var serveCmd = &cobra.Command{
 			return search.CheckExtension(ctx, sqlDB)
 		})
 
+		// A storage backend the media route can read from. Non-fatal: an
+		// unconfigured or unreachable backend should cost you the image
+		// endpoint, not the whole API, so log and carry on with it nil —
+		// NewMux then simply does not register the route.
+		mediaStorer, err := newStorer(cmd.Context(), appConfig.Storage)
+		if err != nil {
+			log.Warnf("serve: media endpoint disabled — storage backend: %v", err)
+			mediaStorer = nil
+		}
+
 		// Own mux, never http.DefaultServeMux — root.go's pprof import
 		// registers /debug/pprof/ there, which must not face the network.
 		handler := server.NewMux(db, hsvc, server.Options{
 			APIKey:         appConfig.Server.APIKey,
 			AllowedOrigins: server.SplitOrigins(appConfig.Server.CORSAllowedOrigins),
+			Playground:     appConfig.Server.PlaygroundEnabled,
+			Introspection:  appConfig.Server.IntrospectionEnabled,
+			Media: server.MediaOptions{
+				Storer:    mediaStorer,
+				KeyPrefix: appConfig.Storage.KeyPrefix,
+			},
 		})
 
 		ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)

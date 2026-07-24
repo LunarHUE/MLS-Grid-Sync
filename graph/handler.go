@@ -66,12 +66,24 @@ func (traceLogger) InterceptResponse(ctx context.Context, next graphql.ResponseH
 	return resp
 }
 
+// HandlerOptions tunes the GraphQL handler. The zero value is the locked-down
+// shape — introspection off.
+type HandlerOptions struct {
+	// Introspection allows __schema/__type queries. Off unless explicitly
+	// asked for, so that possession of the API key does not additionally
+	// yield a complete map of the schema. See
+	// config.ServerConfig.IntrospectionEnabled.
+	Introspection bool
+}
+
 // NewHandler returns an HTTP handler for the GraphQL API.
-func NewHandler(client *ent.Client) http.Handler {
+func NewHandler(client *ent.Client, opts HandlerOptions) http.Handler {
 	srv := handler.New(NewSchema(client))
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.GET{})
-	srv.Use(extension.Introspection{})
+	if opts.Introspection {
+		srv.Use(extension.Introspection{})
+	}
 	srv.Use(extension.FixedComplexityLimit(MaxComplexity))
 	// Registered before the Transactioner so the logged duration encloses the
 	// transaction; both guard HasOperationContext for pre-parse failures.

@@ -210,9 +210,15 @@ func TestTracing_EchoesTraceHeaders(t *testing.T) {
 	assert.Equal(t, traceID, resp2.Header.Get("X-Trace-Id"))
 }
 
-func TestAPIKey_PlaygroundStaysOpen(t *testing.T) {
+// The playground is unauthenticated by nature — a UI cannot send the API key
+// before you have typed it in. So when enabled it must stay reachable even
+// with a key configured, and when disabled it must not be served at all. The
+// second half is what stops a production deployment from advertising the API
+// to anyone who finds the host.
+
+func TestAPIKey_PlaygroundStaysOpenWhenEnabled(t *testing.T) {
 	t.Parallel()
-	srv := newHarness(t, server.Options{APIKey: "secret"}, okPing)
+	srv := newHarness(t, server.Options{APIKey: "secret", Playground: true}, okPing)
 	resp, err := http.Get(srv.URL + "/")
 	require.NoError(t, err)
 	body, err := io.ReadAll(resp.Body)
@@ -220,6 +226,48 @@ func TestAPIKey_PlaygroundStaysOpen(t *testing.T) {
 	resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Contains(t, strings.ToLower(string(body)), "<html")
+}
+
+func TestPlaygroundDisabledByDefault(t *testing.T) {
+	t.Parallel()
+	srv := newHarness(t, server.Options{APIKey: "secret"}, okPing)
+	resp, err := http.Get(srv.URL + "/")
+	require.NoError(t, err)
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	resp.Body.Close()
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.NotContains(t, strings.ToLower(string(body)), "<html")
+}
+
+// ---- introspection ----
+
+func introspect(t *testing.T, url string) string {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodPost, url+"/query",
+		strings.NewReader(`{"query":"{__schema{types{name}}}"}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	resp.Body.Close()
+	return string(body)
+}
+
+func TestIntrospectionDisabledByDefault(t *testing.T) {
+	t.Parallel()
+	srv := newHarness(t, server.Options{}, okPing)
+	// Without the extension installed gqlgen rejects __schema at validation,
+	// so possession of the API key never yields a map of the schema.
+	assert.NotContains(t, introspect(t, srv.URL), `"types"`)
+}
+
+func TestIntrospectionEnabled(t *testing.T) {
+	t.Parallel()
+	srv := newHarness(t, server.Options{Introspection: true}, okPing)
+	assert.Contains(t, introspect(t, srv.URL), `"types"`)
 }
 
 // ---- CORS ----
