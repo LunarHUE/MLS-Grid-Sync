@@ -143,6 +143,24 @@ func (s *LocalStorer) Upload(_ context.Context, key string, body io.Reader, _ st
 	return "file://" + finalPath, nil
 }
 
+// Download opens <rootDir>/<key> for reading, satisfying Fetcher. The key is
+// validated exactly as on the upload path so a traversal key cannot read back
+// outside the root. Content type is returned empty: the filesystem does not
+// carry one, and the caller falls back to what it recorded at upload time.
+func (s *LocalStorer) Download(_ context.Context, key string) (io.ReadCloser, string, error) {
+	if err := validateKey(key); err != nil {
+		return nil, "", err
+	}
+	f, err := os.Open(filepath.Join(s.rootDir, key))
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, "", ErrObjectNotFound
+		}
+		return nil, "", fmt.Errorf("open %q: %w", key, err)
+	}
+	return f, "", nil
+}
+
 // CleanupPrefix recursively removes <rootDir>/<prefix> and refreshes
 // the byte counter. Empty prefix removes the whole root (subcommand
 // gates this behind explicit confirmation).

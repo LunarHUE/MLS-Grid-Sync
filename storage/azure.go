@@ -122,6 +122,27 @@ func (s *AzureBlobStorer) CleanupPrefix(ctx context.Context, prefix string) erro
 	return nil
 }
 
+// Download streams <container>/<key> back out, satisfying Fetcher. A missing
+// blob maps to storage.ErrObjectNotFound so the read-through handler can tell
+// a cache miss from a real backend fault without knowing about azblob.
+//
+// The body is streamed, not buffered — a large image must not cost the serve
+// process its own copy in memory per in-flight request.
+func (s *AzureBlobStorer) Download(ctx context.Context, key string) (io.ReadCloser, string, error) {
+	resp, err := s.client.DownloadStream(ctx, s.container, key, nil)
+	if err != nil {
+		if bloberror.HasCode(err, bloberror.BlobNotFound, bloberror.ContainerNotFound) {
+			return nil, "", ErrObjectNotFound
+		}
+		return nil, "", fmt.Errorf("download %q: %w", key, err)
+	}
+	var contentType string
+	if resp.ContentType != nil {
+		contentType = *resp.ContentType
+	}
+	return resp.Body, contentType, nil
+}
+
 // downloadForTest is a package-internal test helper for the
 // conformance suite's readback case. Kept here so it participates in
 // the package build but stays out of the production Storer interface.

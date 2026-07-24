@@ -60,6 +60,32 @@ func DiscoveryURL(v2url string) string {
 	return fmt.Sprintf("%s/%s?$top=100", v2url, ResourceLookup)
 }
 
+// MediaRefreshURL builds a single-listing Property query whose only purpose is
+// to mint FRESH media links.
+//
+// MLS Grid media URLs are not stable references. Each carries a token and an
+// `expires` stamp exactly one hour out, and each is SINGLE USE — re-requesting
+// a URL that already served bytes returns 429 "Request limit reached", while a
+// freshly minted URL for the very same image succeeds. So the media_url
+// captured at sync time is unusable for any download that does not happen
+// almost immediately — which is every download, once a backlog exists.
+//
+// Refreshing per LISTING rather than per image is deliberate: every Media
+// entry inside one Property response shares that response's token, so a single
+// request re-arms all of a listing's photos for the next hour. Per-image
+// refresh would multiply OData calls by ~20 against the same ~1 rps budget.
+//
+// $top=1 because ListingKey is unique; the $expand is the part that matters.
+func MediaRefreshURL(v2url, originatingSystem, listingKey string) string {
+	filter := fmt.Sprintf(
+		"OriginatingSystemName eq '%s' and ListingKey eq '%s'",
+		originatingSystem,
+		listingKey,
+	)
+	return fmt.Sprintf("%s/%s?$filter=%s&$top=1&$expand=Media",
+		v2url, ResourceProperty, url.QueryEscape(filter))
+}
+
 // DeltaURL builds the delta sync URL filtered to records modified at or
 // after since. ge (not gt) so the boundary record re-fetches and dedups
 // at the DB unique-index layer — see Phase 4 plan §7.
