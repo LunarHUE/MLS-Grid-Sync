@@ -28,9 +28,10 @@ import (
 var defaultWarmStatuses = []string{"Active", "ActiveUnderContract"}
 
 var (
-	warmStatuses []string
-	warmLimit    int
-	warmDryRun   bool
+	warmStatuses  []string
+	warmLimit     int
+	warmDryRun    bool
+	warmExclusive bool
 )
 
 // warmChunk bounds each bulk insert and each IN (...) list. Postgres accepts
@@ -51,9 +52,21 @@ takes days, and every link is long dead by the time the worker reaches it.
 Restricting to on-market listings turns an impossible backlog into a small
 one that finishes in a couple of hours and then stays warm via delta sync.
 
+Queueing alone is usually NOT enough. 'init' already enqueues a job for every
+media record in the corpus, so by the time you run this the queue holds
+everything and warm has nothing to add — and because the worker claims strictly
+FIFO by created_at, the listings you care about sit behind hundreds of
+thousands of jobs belonging to off-market ones.
+
+--exclusive is the lever that matters: it cancels pending jobs OUTSIDE the
+selected statuses, collapsing the queue to just the listings worth showing.
+Cancelling is recoverable, not destructive — canceled jobs are deliberately not
+treated as blocking, so re-running warm re-queues anything that comes back on
+market.
+
 This only queues work. Run 'worker' to actually download:
 
-  mls-cli warm
+  mls-cli warm --exclusive
   mls-cli worker --max-jobs 10000`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
@@ -128,33 +141,136 @@ This only queues work. Run 'worker' to actually download:
 			log.Info("warm: --dry-run, nothing written")
 			return nil
 		}
-		if len(todo) == 0 {
-			return nil
-		}
 
-		eventID, err := warmSyncEvent(ctx, db)
-		if err != nil {
-			return err
-		}
-
+		// NOTE: no early return when todo is empty. Having nothing to add is
+		// the NORMAL case — init already enqueued the whole corpus — and it is
+		// precisely when --exclusive matters most. Returning here would make
+		// the flag silently do nothing on every real deployment.
 		var created int
-		for chunk := range slices.Chunk(todo, warmChunk) {
-			builders := make([]*ent.AttachmentJobCreate, 0, len(chunk))
-			for _, k := range chunk {
-				builders = append(builders, db.AttachmentJob.Create().
-					SetMediaKey(k).
-					SetSyncEventID(eventID))
+		if len(todo) > 0 {
+			eventID, err := warmSyncEvent(ctx, db)
+			if err != nil {
+				return err
 			}
-			if err := db.AttachmentJob.CreateBulk(builders...).Exec(ctx); err != nil {
-				return fmt.Errorf("bulk enqueue: %w", err)
+			created, err = warmEnqueue(ctx, db, todo, eventID)
+			if err != nil {
+				return err
 			}
-			created += len(chunk)
-			log.Infof("warm: enqueued %d/%d", created, len(todo))
+		}
+
+		if err := warmCancelOthers(ctx, db, mediaKeys); err != nil {
+			return err
 		}
 
 		log.Infof("warm: done — %d job(s) queued. Run 'worker' to download them.", created)
 		return nil
 	},
+}
+
+// warmEnqueue bulk-inserts jobs for the given media keys.
+func warmEnqueue(ctx context.Context, db *ent.Client, todo []string, eventID uuid.UUID) (int, error) {
+	var created int
+	for chunk := range slices.Chunk(todo, warmChunk) {
+		builders := make([]*ent.AttachmentJobCreate, 0, len(chunk))
+		for _, k := range chunk {
+			builders = append(builders, db.AttachmentJob.Create().
+				SetMediaKey(k).
+				SetSyncEventID(eventID))
+		}
+		if err := db.AttachmentJob.CreateBulk(builders...).Exec(ctx); err != nil {
+			return created, fmt.Errorf("bulk enqueue: %w", err)
+		}
+		created += len(chunk)
+		log.Infof("warm: enqueued %d/%d", created, len(todo))
+	}
+	return created, nil
+}
+
+// warmCancelOthers cancels pending/retrying jobs whose media is NOT in keep.
+//
+// This is what actually makes warm effective. `init` enqueues the entire
+// corpus, and ClaimBatch orders strictly by created_at, so without this the
+// on-market listings queue behind every off-market one and are reached days
+// later. Cancelling collapses the queue to the set worth downloading.
+//
+// Only pending and retrying are touched: in_progress belongs to a live worker,
+// and succeeded is already done. canceled is not a tombstone — the enqueue
+// path and warm both treat it as re-queueable — so a listing returning to
+// market is picked up again on the next warm run.
+func warmCancelOthers(ctx context.Context, db *ent.Client, keep []string) error {
+	if !warmExclusive {
+		return nil
+	}
+
+	cancelable := []attachmentjob.Status{
+		attachmentjob.StatusPending,
+		attachmentjob.StatusRetrying,
+	}
+	total, err := db.AttachmentJob.Query().
+		Where(attachmentjob.StatusIn(cancelable...)).
+		Count(ctx)
+	if err != nil {
+		return fmt.Errorf("count cancelable jobs: %w", err)
+	}
+
+	keepSet := make(map[string]struct{}, len(keep))
+	for _, k := range keep {
+		keepSet[k] = struct{}{}
+	}
+
+	// Page by id cursor rather than one enormous NOT IN (...) — the keep list
+	// runs to tens of thousands of keys and the cancelable set to hundreds of
+	// thousands.
+	//
+	// The cursor must be the id, not an offset: rows we cancel drop straight
+	// out of the status filter while rows we keep stay in it, so any
+	// offset-based paging would either skip rows or return the kept ones
+	// forever. Ids only move forward, so neither can happen. uuid.Nil sorts
+	// below every generated id, which makes it a safe starting point.
+	var (
+		canceled int
+		cursor   uuid.UUID
+	)
+	for {
+		batch, err := db.AttachmentJob.Query().
+			Where(
+				attachmentjob.StatusIn(cancelable...),
+				attachmentjob.IDGT(cursor),
+			).
+			Order(ent.Asc(attachmentjob.FieldID)).
+			Limit(warmChunk).
+			All(ctx)
+		if err != nil {
+			return fmt.Errorf("scan cancelable jobs: %w", err)
+		}
+		if len(batch) == 0 {
+			break
+		}
+		cursor = batch[len(batch)-1].ID
+
+		var ids []uuid.UUID
+		for _, j := range batch {
+			if _, keepIt := keepSet[j.MediaKey]; !keepIt {
+				ids = append(ids, j.ID)
+			}
+		}
+		if len(ids) > 0 {
+			n, err := db.AttachmentJob.Update().
+				Where(attachmentjob.IDIn(ids...)).
+				SetStatus(attachmentjob.StatusCanceled).
+				Save(ctx)
+			if err != nil {
+				return fmt.Errorf("cancel jobs: %w", err)
+			}
+			canceled += n
+			if canceled%(warmChunk*20) < len(ids) {
+				log.Infof("warm: cancelled %d/%d so far", canceled, total)
+			}
+		}
+	}
+
+	log.Infof("warm: cancelled %d off-market job(s); %d remain queued", canceled, total-canceled)
+	return nil
 }
 
 // existingJobKeys returns the media keys that already have a job in a state
@@ -229,5 +345,9 @@ func init() {
 		"Cap the number of jobs enqueued this run. 0 means no cap.")
 	warmCmd.Flags().BoolVar(&warmDryRun, "dry-run", false,
 		"Report what would be enqueued without writing anything.")
+	warmCmd.Flags().BoolVar(&warmExclusive, "exclusive", false,
+		"Also cancel pending jobs OUTSIDE the selected statuses, so the worker "+
+			"drains only these listings. Usually required to have any effect at all: "+
+			"init enqueues the whole corpus and the worker claims FIFO.")
 	rootCmd.AddCommand(warmCmd)
 }
