@@ -15,10 +15,14 @@ import (
 var syncCmd = &cobra.Command{
 	Use:   "sync [resource]",
 	Short: "Start the continuous delta sync daemon",
-	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 		resourceName := args[0]
+
+		if resourceName == "" {
+			log.Warnf("No resource specified. Defaulting to 'Property'.")
+			resourceName = "Property"
+		}
 
 		dbResource, err := pkgsync.MLSToDBResource(resourceName)
 		if err != nil {
