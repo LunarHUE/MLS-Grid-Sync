@@ -23,6 +23,8 @@ import (
 //
 // The bucket is created idempotently at construction so a fresh
 // emulator or a misconfigured prod account fails loudly at start.
+// Credentials scoped to objects rather than buckets cannot create one;
+// construction then falls back to proving the bucket already resolves.
 type S3Storer struct {
 	client   *s3.Client
 	uploader *transfermanager.Client
@@ -80,7 +82,23 @@ func NewS3(ctx context.Context, endpoint, bucket, region, accessKeyID, secretAcc
 		var owned *s3types.BucketAlreadyOwnedByYou
 		var exists *s3types.BucketAlreadyExists
 		if !errors.As(err, &owned) && !errors.As(err, &exists) {
-			return nil, fmt.Errorf("create bucket %q: %w", bucket, err)
+			// Object-scoped credentials refuse CreateBucket outright rather
+			// than reporting already-exists: Cloudflare R2 "Object Read &
+			// Write" API tokens and AWS policies granting only
+			// s3:GetObject/s3:PutObject both answer AccessDenied even when the
+			// bucket is present and writable. Widening the tolerated-error set
+			// to include AccessDenied would also swallow a wrong endpoint, a
+			// bad key, or a typo'd bucket name — exactly the misconfiguration
+			// this call exists to surface.
+			//
+			// So ask the authoritative question instead: does the bucket
+			// resolve for these credentials? A HeadBucket that succeeds means
+			// the only thing missing was permission to create a bucket that
+			// already exists, which is not an error. Anything else fails
+			// loudly, carrying both errors so the log says which wall we hit.
+			if _, headErr := client.HeadBucket(ctx, &s3.HeadBucketInput{Bucket: &bucket}); headErr != nil {
+				return nil, fmt.Errorf("create bucket %q: %w (bucket also unreachable: %v)", bucket, err, headErr)
+			}
 		}
 	}
 

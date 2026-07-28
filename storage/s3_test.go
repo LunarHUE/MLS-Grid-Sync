@@ -5,6 +5,11 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 	"sync"
 	"testing"
@@ -174,6 +179,88 @@ func TestNewS3_IdempotentCreate(t *testing.T) {
 	if _, err := NewS3(context.Background(), endpoint, bucket, "us-east-1",
 		"minioadmin", "minioadmin", true); err != nil {
 		t.Fatalf("second construct (idempotent): %v", err)
+	}
+}
+
+// denyCreateBucketProxy fronts MinIO and answers every CreateBucket with
+// AccessDenied, passing everything else through untouched. That is the shape
+// an object-scoped credential presents — Cloudflare R2 "Object Read & Write"
+// tokens and AWS policies limited to s3:GetObject/s3:PutObject both reject the
+// call rather than reporting the bucket already exists. Reproducing it with a
+// proxy keeps the test hermetic; provisioning a restricted MinIO user would
+// need the mc admin client in the test path.
+//
+// CreateBucket in path style is PUT /<bucket> with no key and no query, which
+// is what the matcher below keys on.
+func denyCreateBucketProxy(t *testing.T, upstream string) string {
+	t.Helper()
+	target, err := url.Parse(upstream)
+	if err != nil {
+		t.Fatalf("parse upstream %q: %v", upstream, err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut &&
+			strings.Count(strings.Trim(r.URL.Path, "/"), "/") == 0 &&
+			r.URL.RawQuery == "" {
+			w.Header().Set("Content-Type", "application/xml")
+			w.WriteHeader(http.StatusForbidden)
+			_, _ = io.WriteString(w, `<?xml version="1.0" encoding="UTF-8"?>`+
+				`<Error><Code>AccessDenied</Code><Message>Access Denied</Message></Error>`)
+			return
+		}
+		proxy.ServeHTTP(w, r)
+	}))
+	t.Cleanup(srv.Close)
+	return srv.URL
+}
+
+// A credential that cannot create buckets must still construct against a
+// bucket that already exists. This is the R2 path: the bucket is provisioned
+// out of band and the app is handed an object-scoped token.
+func TestNewS3_ScopedTokenCannotCreateExistingBucket(t *testing.T) {
+	t.Parallel()
+	endpoint := startMinio(t)
+	bucket := randBucketName(t)
+
+	// Provision the bucket with unrestricted creds, standing in for `wrangler
+	// r2 bucket create` or a Terraform resource.
+	if _, err := NewS3(context.Background(), endpoint, bucket, "us-east-1",
+		"minioadmin", "minioadmin", true); err != nil {
+		t.Fatalf("provision bucket: %v", err)
+	}
+
+	scoped := denyCreateBucketProxy(t, endpoint)
+	s, err := NewS3(context.Background(), scoped, bucket, "us-east-1",
+		"minioadmin", "minioadmin", true)
+	if err != nil {
+		t.Fatalf("expected construction to survive AccessDenied on an existing bucket, got %v", err)
+	}
+	if s == nil {
+		t.Fatal("expected non-nil storer")
+	}
+}
+
+// The other half of the contract: tolerating AccessDenied must not become
+// tolerating everything. A denied create against a bucket that does not exist
+// is a real misconfiguration and has to fail at construction rather than
+// surface later as a write error.
+func TestNewS3_CreateDeniedAndBucketMissingFails(t *testing.T) {
+	t.Parallel()
+	scoped := denyCreateBucketProxy(t, startMinio(t))
+
+	_, err := NewS3(context.Background(), scoped, randBucketName(t), "us-east-1",
+		"minioadmin", "minioadmin", true)
+	if err == nil {
+		t.Fatal("expected construction to fail when the bucket cannot be created or reached")
+	}
+	// Both failures belong in the message: the create is what the operator
+	// tried, the head is what proves it was not merely a permissions gap.
+	if !strings.Contains(err.Error(), "create bucket") {
+		t.Errorf("error should name the failed create, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "unreachable") {
+		t.Errorf("error should report the bucket as unreachable, got: %v", err)
 	}
 }
 
