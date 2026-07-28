@@ -94,6 +94,17 @@ server:
   # development usually turns on both.
   # Override: MLS_SYNC_SERVER_INTROSPECTION_ENABLED.
   introspection_enabled: false
+  # Public address of the storage bucket. Set it and /media/{mediaKey}
+  # answers 302 to <base>/<object key> instead of streaming the object
+  # through this process — serve resolves MediaKey -> sha256 out of
+  # Postgres and hands the browser the address, so image bytes never
+  # transit the API replica. Point it at an R2 custom domain, a CDN
+  # origin-pull hostname, or anything else already serving the bucket.
+  # Redirect mode reads no objects, so serve needs no storage backend
+  # and no storage credentials when this is set.
+  # Empty streams the bytes, which needs a backend that can read back.
+  # Override: MLS_SYNC_SERVER_MEDIA_PUBLIC_BASE_URL.
+  media_public_base_url: ""
 
 storage:
   # Attachment backend. Phase 1 wires fake and local; azure and s3

@@ -250,3 +250,139 @@ func TestMedia_PrefetchDisabled(t *testing.T) {
 	require.NoError(t, err)
 	assert.Zero(t, n, "prefetch disabled must not enqueue")
 }
+
+// noRedirectClient returns the 302 itself rather than following it; the target
+// host does not exist in these tests.
+func noRedirectClient() *http.Client {
+	return &http.Client{
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+}
+
+// The point of redirect mode: the browser is sent to the object's public
+// address and the bytes never transit this process.
+func TestMedia_PublicBaseURLRedirectsOnHit(t *testing.T) {
+	t.Parallel()
+	store := newMemStorer()
+	srv, client := newMediaHarness(t, server.MediaOptions{
+		Storer:        store,
+		PublicBaseURL: "https://media.example.test",
+	})
+
+	body := []byte("\xff\xd8\xff-not-really-a-jpeg")
+	key := seedMedia(t, client, "MK-redir", true, body)
+	// Deliberately NOT placed in the store: a redirect must not depend on this
+	// process being able to read the object.
+
+	resp, err := noRedirectClient().Get(srv.URL + "/media/MK-redir")
+	require.NoError(t, err)
+	got, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "https://media.example.test/"+key, resp.Header.Get("Location"))
+	assert.Equal(t, "redirect", resp.Header.Get("X-Media-Status"))
+	// http.Redirect writes its stock <a href> body on a GET; what matters is
+	// that the image itself did not come through this process.
+	assert.NotEqual(t, body, got, "redirect must not carry the image bytes")
+	assert.Less(t, len(got), 256, "redirect body should be the stock hyperlink, not a payload")
+	// A permanent redirect would pin browsers to this sha256 forever; the
+	// MediaKey -> object mapping changes when a listing is re-photographed.
+	assert.Contains(t, resp.Header.Get("Cache-Control"), "max-age=")
+	assert.NotContains(t, resp.Header.Get("Cache-Control"), "immutable")
+}
+
+// Redirect mode reads no objects, so serve must be able to run it with no
+// storage backend configured at all — that is what lets the API process drop
+// its storage credentials.
+func TestMedia_PublicBaseURLNeedsNoStorer(t *testing.T) {
+	t.Parallel()
+	srv, client := newMediaHarness(t, server.MediaOptions{
+		PublicBaseURL: "https://media.example.test/",
+	})
+	key := seedMedia(t, client, "MK-nostorer", true, []byte("x"))
+
+	resp, err := noRedirectClient().Get(srv.URL + "/media/MK-nostorer")
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	// Trailing slash on the base must not double up in the target.
+	assert.Equal(t, "https://media.example.test/"+key, resp.Header.Get("Location"))
+}
+
+// A key prefix belongs in the redirect target too, or the browser is sent
+// somewhere the worker never wrote.
+func TestMedia_PublicBaseURLHonoursKeyPrefix(t *testing.T) {
+	t.Parallel()
+	srv, client := newMediaHarness(t, server.MediaOptions{
+		PublicBaseURL: "https://cdn.example.test/assets",
+		KeyPrefix:     "prod",
+	})
+	key := seedMedia(t, client, "MK-prefixed", true, []byte("x"))
+
+	resp, err := noRedirectClient().Get(srv.URL + "/media/MK-prefixed")
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, "https://cdn.example.test/assets/prod/"+key, resp.Header.Get("Location"))
+}
+
+// A media row with no attachment still takes the miss path in redirect mode —
+// there is no object address to hand out yet.
+func TestMedia_PublicBaseURLMissStillQueuesPrefetch(t *testing.T) {
+	t.Parallel()
+	srv, client := newMediaHarness(t, server.MediaOptions{
+		PublicBaseURL: "https://media.example.test",
+	})
+	seedMedia(t, client, "MK-redir-miss", false, nil)
+
+	ctx := context.Background()
+	require.NoError(t, client.SourceSystem.Create().
+		SetID("SS-redir").
+		SetSourceSystemName("test").
+		Exec(ctx))
+
+	resp, err := noRedirectClient().Get(srv.URL + "/media/MK-redir-miss")
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.Equal(t, "prefetch-queued", resp.Header.Get("X-Media-Status"))
+
+	n, err := client.AttachmentJob.Query().
+		Where(attachmentjob.MediaKey("MK-redir-miss")).
+		Count(ctx)
+	require.NoError(t, err)
+	assert.Equal(t, 1, n)
+}
+
+// An unusable base must not silently become a broken redirect: the handler
+// falls back to streaming when it still has a Fetcher.
+func TestMedia_UnusablePublicBaseURLFallsBackToStreaming(t *testing.T) {
+	t.Parallel()
+	store := newMemStorer()
+	srv, client := newMediaHarness(t, server.MediaOptions{
+		Storer:        store,
+		PublicBaseURL: "not-a-url",
+	})
+
+	body := []byte("streamed")
+	key := seedMedia(t, client, "MK-badbase", true, body)
+	store.objects[key] = body
+	store.types[key] = "image/jpeg"
+
+	resp, err := noRedirectClient().Get(srv.URL + "/media/MK-badbase")
+	require.NoError(t, err)
+	got, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, body, got)
+	assert.Equal(t, "hit", resp.Header.Get("X-Media-Status"))
+}
