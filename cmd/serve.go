@@ -60,9 +60,18 @@ var serveCmd = &cobra.Command{
 		// unconfigured or unreachable backend should cost you the image
 		// endpoint, not the whole API, so log and carry on with it nil —
 		// NewMux then simply does not register the route.
+		//
+		// Unless the route is redirecting, in which case it never reads an
+		// object and the missing backend costs nothing. That is the supported
+		// way to run serve without storage credentials at all.
 		mediaStorer, err := newStorer(cmd.Context(), appConfig.Storage)
 		if err != nil {
-			log.Warnf("serve: media endpoint disabled — storage backend: %v", err)
+			if appConfig.Server.MediaPublicBaseURL != "" {
+				log.Infof("serve: no storage backend (%v); /media redirects to %s",
+					err, appConfig.Server.MediaPublicBaseURL)
+			} else {
+				log.Warnf("serve: media endpoint disabled — storage backend: %v", err)
+			}
 			mediaStorer = nil
 		}
 
@@ -74,8 +83,9 @@ var serveCmd = &cobra.Command{
 			Playground:     appConfig.Server.PlaygroundEnabled,
 			Introspection:  appConfig.Server.IntrospectionEnabled,
 			Media: server.MediaOptions{
-				Storer:    mediaStorer,
-				KeyPrefix: appConfig.Storage.KeyPrefix,
+				Storer:        mediaStorer,
+				KeyPrefix:     appConfig.Storage.KeyPrefix,
+				PublicBaseURL: appConfig.Server.MediaPublicBaseURL,
 			},
 		})
 

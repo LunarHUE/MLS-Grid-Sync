@@ -26,7 +26,8 @@ type Options struct {
 	// Introspection allows __schema/__type queries on /query.
 	Introspection bool
 
-	// Media registers GET /media/{mediaKey} when its Storer is non-nil.
+	// Media registers GET /media/{mediaKey} when its Storer is non-nil or a
+	// PublicBaseURL is set.
 	Media MediaOptions
 }
 
@@ -65,7 +66,9 @@ func NewMux(client *ent.Client, h *health.Service, opts Options) http.Handler {
 	// request these straight from <img>, which cannot carry the header. The
 	// keys are opaque and the handler only ever serves what sync already
 	// pulled, so this exposes no more than the listing pages themselves do.
-	if opts.Media.Storer != nil {
+	// A PublicBaseURL alone is enough: redirect mode never reads an object, so
+	// it needs no backend and no storage credentials on this process.
+	if opts.Media.Storer != nil || opts.Media.PublicBaseURL != "" {
 		mux.Handle("GET /media/{mediaKey}", newMediaHandler(client, opts.Media))
 	}
 	// /healthz: process alive (no DB). /readyz: can serve safely. /syncz: MLS
