@@ -142,6 +142,13 @@ type ServerConfig struct {
 	// every queryable field and filter.
 	// Override: MLS_SYNC_SERVER_INTROSPECTION_ENABLED.
 	IntrospectionEnabled bool `mapstructure:"introspection_enabled" yaml:"introspection_enabled"`
+	// MediaPublicBaseURL, when set, makes /media/{mediaKey} answer 302 to
+	// <base>/<object key> rather than streaming the object through this
+	// process. Set it to whatever serves the storage bucket publicly (an R2
+	// custom domain, a CDN origin-pull hostname). Empty streams the bytes,
+	// which requires a backend that can read them back.
+	// Override: MLS_SYNC_SERVER_MEDIA_PUBLIC_BASE_URL.
+	MediaPublicBaseURL string `mapstructure:"media_public_base_url" yaml:"media_public_base_url"`
 }
 
 // HealthConfig tunes the /syncz endpoint's sync-health thresholds (the
