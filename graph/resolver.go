@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"entgo.io/contrib/entgql"
+	"entgo.io/ent/dialect/sql"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -529,6 +530,27 @@ func (r *propertyResolver) Media(ctx context.Context, obj *ent.Property) ([]*ent
 			entmedia.MlgCanView(true),
 		).
 		All(ctx)
+}
+
+// PrimaryPhoto ranks preferred_photo_yn true > false > NULL, then ascending
+// `order` — so one query returns the flagged photo when present and falls
+// back to the lowest-order visible row otherwise.
+func (r *propertyResolver) PrimaryPhoto(ctx context.Context, obj *ent.Property) (*ent.Media, error) {
+	m, err := r.client.Media.Query().
+		Where(
+			entmedia.ResourceTypeEQ(entmedia.ResourceTypeProperty),
+			entmedia.ResourceRecordKeyEQ(obj.ID),
+			entmedia.MlgCanView(true),
+		).
+		Order(
+			entmedia.ByPreferredPhotoYn(sql.OrderDesc(), sql.OrderNullsLast()),
+			entmedia.ByOrder(sql.OrderNullsLast()),
+		).
+		First(ctx)
+	if ent.IsNotFound(err) {
+		return nil, nil
+	}
+	return m, err
 }
 
 func (r *propertyResolver) resolveMember(ctx context.Context, key *string) (*ent.Member, error) {

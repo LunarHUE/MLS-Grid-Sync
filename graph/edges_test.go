@@ -48,6 +48,68 @@ func TestPropertyMedia_Polymorphic(t *testing.T) {
 	assert.Equal(t, "med-visible", data.Node.Media[0].ID)
 }
 
+// TestPropertyPrimaryPhoto covers the ranking contract of the primaryPhoto
+// resolver: preferred_photo_yn=true beats any order value; without a flag
+// the lowest order wins and NULL order sorts last; tombstoned rows never
+// surface; no visible media resolves null.
+func TestPropertyPrimaryPhoto(t *testing.T) {
+	t.Parallel()
+	srv, client := testutil.NewTestServer(t)
+
+	ptrI16 := func(v int16) *int16 { return &v }
+	ptrBool := func(v bool) *bool { return &v }
+
+	queryPrimary := func(listingKey string) *string {
+		var data struct {
+			Node struct {
+				PrimaryPhoto *struct {
+					ID string `json:"id"`
+				} `json:"primaryPhoto"`
+			} `json:"node"`
+		}
+		testutil.GQL(t, srv, `query($id: ID!) {
+			node(id: $id) { ... on Property { primaryPhoto { id } } }
+		}`, map[string]any{"id": listingKey}, &data)
+		if data.Node.PrimaryPhoto == nil {
+			return nil
+		}
+		return &data.Node.PrimaryPhoto.ID
+	}
+
+	// Flagged photo wins even though its order is higher.
+	seedProperty(t, client, "LK-pp-flag", true)
+	seedMediaPhoto(t, client, "pp-flag-first", "LK-pp-flag", true, ptrI16(0), nil)
+	seedMediaPhoto(t, client, "pp-flag-pref", "LK-pp-flag", true, ptrI16(7), ptrBool(true))
+	require.NotNil(t, queryPrimary("LK-pp-flag"))
+	assert.Equal(t, "pp-flag-pref", *queryPrimary("LK-pp-flag"))
+
+	// No flag anywhere: lowest order is the fallback.
+	seedProperty(t, client, "LK-pp-fb", true)
+	seedMediaPhoto(t, client, "pp-fb-late", "LK-pp-fb", true, ptrI16(3), nil)
+	seedMediaPhoto(t, client, "pp-fb-first", "LK-pp-fb", true, ptrI16(1), ptrBool(false))
+	require.NotNil(t, queryPrimary("LK-pp-fb"))
+	assert.Equal(t, "pp-fb-first", *queryPrimary("LK-pp-fb"))
+
+	// The flagged photo is tombstoned: fall back to a visible row rather
+	// than surfacing it or returning null.
+	seedProperty(t, client, "LK-pp-tomb", true)
+	seedMediaPhoto(t, client, "pp-tomb-pref", "LK-pp-tomb", false, ptrI16(0), ptrBool(true))
+	seedMediaPhoto(t, client, "pp-tomb-vis", "LK-pp-tomb", true, ptrI16(5), nil)
+	require.NotNil(t, queryPrimary("LK-pp-tomb"))
+	assert.Equal(t, "pp-tomb-vis", *queryPrimary("LK-pp-tomb"))
+
+	// NULL order/preferred sort last, after any row with a concrete order.
+	seedProperty(t, client, "LK-pp-null", true)
+	seedMediaPhoto(t, client, "pp-null-bare", "LK-pp-null", true, nil, nil)
+	seedMediaPhoto(t, client, "pp-null-ord", "LK-pp-null", true, ptrI16(2), nil)
+	require.NotNil(t, queryPrimary("LK-pp-null"))
+	assert.Equal(t, "pp-null-ord", *queryPrimary("LK-pp-null"))
+
+	// No visible media at all: null, not an error.
+	seedProperty(t, client, "LK-pp-none", true)
+	assert.Nil(t, queryPrimary("LK-pp-none"))
+}
+
 func TestPropertyChildEdges(t *testing.T) {
 	t.Parallel()
 	srv, client := testutil.NewTestServer(t)

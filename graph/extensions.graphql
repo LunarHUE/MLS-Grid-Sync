@@ -21,6 +21,14 @@ extend type Property {
   """
   media: [Media!]!
 
+  """
+  The listing's primary/cover photo. Resolves the mlg_can_view=true media row
+  with preferredPhotoYn=true (lowest `order` wins if several are flagged);
+  when no row is flagged, falls back to the visible row with the lowest
+  `order`. Null only when the listing has no visible media.
+  """
+  primaryPhoto: Media
+
   # Agent and office references on a Property are SOFT KEYS — the underlying
   # *_key columns are not constrained by a DB foreign key, because real MLS
   # feeds routinely reference agents and offices that are absent from the feed

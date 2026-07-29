@@ -85,6 +85,26 @@ func seedMedia(t *testing.T, client *ent.Client, id, recordKey string, visible b
 		SaveX(context.Background())
 }
 
+// seedMediaPhoto is seedMedia with the photo-ranking fields. order and
+// preferred are nillable in the schema — pass nil to leave them NULL.
+func seedMediaPhoto(t *testing.T, client *ent.Client, id, recordKey string, visible bool, order *int16, preferred *bool) {
+	t.Helper()
+	b := client.Media.Create().
+		SetID(id).
+		SetSourceModifiedAt(time.Now()).
+		SetMlgCanView(visible).
+		SetResourceType(media.ResourceTypeProperty).
+		SetResourceRecordKey(recordKey).
+		SetMediaURL("https://cdn.example.com/" + id + ".jpg")
+	if order != nil {
+		b.SetOrder(*order)
+	}
+	if preferred != nil {
+		b.SetPreferredPhotoYn(*preferred)
+	}
+	b.SaveX(context.Background())
+}
+
 // The child tables carry a real FK on parent_listing_key → property, so
 // the seed helpers leave it unset ("parked"). Tests exercising the
 // Property edges use the *Linked variants after seeding the parent.

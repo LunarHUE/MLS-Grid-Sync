@@ -230,6 +230,12 @@ feed (retired agents, out-of-subscription offices).
 - `Member`: `office` (via `officeKey`).
 - `Property.media` is polymorphic: Media rows with
   `resourceType=property` and `resourceRecordKey=<listing key>`.
+- `Property.primaryPhoto` is the single cover image drawn from the same
+  visible media set: the row with `preferredPhotoYn=true` (lowest `order`
+  wins if several are flagged), falling back to the lowest-`order` visible
+  row when no flag is set. `null` only when the listing has no visible
+  media — so clients don't need to fetch `media` and filter for the flag
+  themselves.
 
 Resolution rules: the `*Key` string is **always served**. The resolved
 entity is `null` when the target is absent from the feed ("orphan") **or**

@@ -543,6 +543,7 @@ type ComplexityRoot struct {
 		PostalCode                          func(childComplexity int) int
 		PostalCodePlus4                     func(childComplexity int) int
 		PreviousListPrice                   func(childComplexity int) int
+		PrimaryPhoto                        func(childComplexity int) int
 		PropertyCondition                   func(childComplexity int) int
 		PropertySubType                     func(childComplexity int) int
 		PropertyType                        func(childComplexity int) int
@@ -972,6 +973,7 @@ type PropertyResolver interface {
 	CurrentVersionID(ctx context.Context, obj *ent.Property) (*string, error)
 
 	Media(ctx context.Context, obj *ent.Property) ([]*ent.Media, error)
+	PrimaryPhoto(ctx context.Context, obj *ent.Property) (*ent.Media, error)
 	ListAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error)
 	CoListAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error)
 	BuyerAgent(ctx context.Context, obj *ent.Property) (*ent.Member, error)
@@ -3473,6 +3475,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Property.PreviousListPrice(childComplexity), true
+	case "Property.primaryPhoto":
+		if e.ComplexityRoot.Property.PrimaryPhoto == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Property.PrimaryPhoto(childComplexity), true
 	case "Property.propertyCondition":
 		if e.ComplexityRoot.Property.PropertyCondition == nil {
 			break
@@ -6501,6 +6509,8 @@ func (ec *executionContext) childFields_Property(ctx context.Context, field grap
 		return ec.fieldContext_Property_openHouses(ctx, field)
 	case "media":
 		return ec.fieldContext_Property_media(ctx, field)
+	case "primaryPhoto":
+		return ec.fieldContext_Property_primaryPhoto(ctx, field)
 	case "listAgent":
 		return ec.fieldContext_Property_listAgent(ctx, field)
 	case "coListAgent":
@@ -18436,6 +18446,38 @@ func (ec *executionContext) _Property_media(ctx context.Context, field graphql.C
 	)
 }
 func (ec *executionContext) fieldContext_Property_media(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Property",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Media(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Property_primaryPhoto(ctx context.Context, field graphql.CollectedField, obj *ent.Property) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Property_primaryPhoto(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Property().PrimaryPhoto(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *ent.Media) graphql.Marshaler {
+			return ec.marshalOMedia2ᚖgithubᚗcomᚋLunarHUEᚋMLSᚑGridᚑSyncᚋentᚐMedia(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Property_primaryPhoto(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Property",
 		Field:      field,
@@ -68386,6 +68428,39 @@ func (ec *executionContext) _Property(ctx context.Context, sel ast.SelectionSet,
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "primaryPhoto":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Property_primaryPhoto(ctx, field, obj)
 				return res
 			}
 
