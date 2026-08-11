@@ -1,6 +1,6 @@
 {
   "nodes": {
-    "development tool": {
+    "claude-code": {
       "inputs": {
         "flake-utils": [
           "flake-utils"
@@ -13,13 +13,36 @@
         "lastModified": 1784948311,
         "narHash": "sha256-zXmyx6HuIjH0RQPV4VjVAXQttLyLDk55x9c3NmDke8c=",
         "owner": "sadjow",
-        "repo": "development tool-nix",
+        "repo": "claude-code-nix",
         "rev": "0d3cd1d6260b6f0ed232224c274c565407446fa1",
         "type": "github"
       },
       "original": {
         "owner": "sadjow",
-        "repo": "development tool-nix",
+        "repo": "claude-code-nix",
+        "type": "github"
+      }
+    },
+    "codex-cli-nix": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786067426,
+        "narHash": "sha256-Qvi7ZJ9MpkUXdeu+zjxYkR92BIvwqp7LpqxbnZzVTOg=",
+        "owner": "sadjow",
+        "repo": "codex-cli-nix",
+        "rev": "edc92332229d4e8c658f5f2fda3a8e29280e8a1a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sadjow",
+        "repo": "codex-cli-nix",
         "type": "github"
       }
     },
@@ -59,7 +82,8 @@
     },
     "root": {
       "inputs": {
-        "development tool": "development tool",
+        "claude-code": "claude-code",
+        "codex-cli-nix": "codex-cli-nix",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs"
       }

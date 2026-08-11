@@ -5,15 +5,19 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
 
-    development tool = {
-      url = "github:sadjow/development tool-nix";
+    claude-code = {
+      url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
-
+    codex-cli-nix = {
+      url = "github:sadjow/codex-cli-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, development tool, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, codex-cli-nix, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -22,7 +26,8 @@
           config.allowUnfree = true;
 
           overlays = [
-            development tool.overlays.default
+            claude-code.overlays.default
+            codex-cli-nix.overlays.default
           ];
         };
 
@@ -42,7 +47,8 @@
           bashInteractive
           bash-completion
           nix-bash-completions
-          pkgs.development tool
+          pkgs.claude-code
+          pkgs.codex
           opencode
         ];
       in {
