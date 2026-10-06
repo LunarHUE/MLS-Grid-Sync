@@ -2,23 +2,24 @@
   "name": "${localWorkspaceFolderBasename} — Nix Dev Environment",
   "build": {
     "context": ".",
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "args": {
+      "PRETTY_HOSTNAME": "${localWorkspaceFolderBasename} Repo"
+    }
   },
 
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
 
-  "mounts": ["source=lunarhue-containers-nix-store,target=/nix,type=volume"],
-
-  "containerEnv": {
-    "NIX_CONFIG": "experimental-features = nix-command flakes"
-  },
+  "mounts": ["source=/mnt/user-home,target=/mnt/user-home,type=bind", "source=lunarhue-containers-nix-store,target=/nix,type=volume"],
+  "runArgs": ["--tmpfs", "/mnt/user-home/codex/tmp:rw,exec,nosuid,nodev,mode=0700,uid=1000,gid=1000,size=64m"],
+  "updateRemoteUserUID": false,
 
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "username": "vscode",
-      "uid": "1000",
-      "gid": "1000",
+      "userUid": "1000",
+      "userGid": "1000",
       "installZsh": false,
       "installOhMyZsh": false,
       "configureZshAsDefaultShell": false
@@ -28,6 +29,17 @@
       "enableNonRootDocker": "true",
       "moby": "false"
     }
+  },
+  // The Coder template supplies these; start.sh launches T3 Code when both are set.
+  "remoteEnv": {
+    "T3CODE_INSTANCE": "${localEnv:T3CODE_INSTANCE}",
+    "T3CODE_RELAY_PRIVATE_URL": "${localEnv:T3CODE_RELAY_PRIVATE_URL}"
+  },
+  "containerEnv": {
+    "CODEX_HOME": "/mnt/user-home/codex",
+    "CLAUDE_CONFIG_DIR": "/mnt/user-home/claude",
+    "T3CODE_HOME": "/mnt/user-home/t3code",
+    "GH_CONFIG_DIR": "/mnt/user-home/gh"
   },
 
   "postCreateCommand": "bash .devcontainer/create.sh",

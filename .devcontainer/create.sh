@@ -42,3 +42,12 @@ fi
 git config --global --get-all safe.directory | grep -qxF "$WORKSPACE_DIR" \
   || git config --global --add safe.directory "$WORKSPACE_DIR"
 git lfs install --skip-repo
+
+# Private flake inputs such as headless-paper are fetched over HTTPS with the
+# gh login, which lives on the shared volume (GH_CONFIG_DIR). Run `gh auth login`
+# once if the dev shell fails to build; Coder's own git credentials still apply.
+git config --global credential.https://github.com.helper '!/usr/bin/gh auth git-credential'
+
+# Build the dev shell now so the first start (and its T3 server) loads quickly.
+nix develop "$WORKSPACE_DIR" --command true \
+  || echo "warning: the dev shell failed to build; T3 Code will not start until it does" >&2
