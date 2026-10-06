@@ -1,14 +1,18 @@
 FROM debian:bookworm-slim
+ARG PRETTY_HOSTNAME
 
+RUN printf 'PRETTY_HOSTNAME="%s"\n' "$PRETTY_HOSTNAME" > /etc/machine-info
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     bash-completion \
     ca-certificates \
     curl \
     direnv \
+    gh \
     git \
     git-lfs \
     gnupg \
+    libatomic1 \
     locales \
     openssh-client \
     sudo \
@@ -25,7 +29,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L \
     --no-confirm --init none --extra-conf "filter-syscalls = false" \
 && sed -i '/install\.determinate\.systems/d' /etc/nix/nix.conf
 
-ENV PATH="/nix/var/nix/profiles/default/bin:/root/.nix-profile/bin:${PATH}"
+ENV PATH="/nix/var/nix/profiles/default/bin:${PATH}"
 ENV NIX_CONFIG="experimental-features = nix-command flakes"
 
 WORKDIR /workspace

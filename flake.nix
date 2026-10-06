@@ -8,16 +8,24 @@
     claude-code = {
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
     codex-cli-nix = {
       url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
+    headless-paper = {
+      url = "git+https://github.com/LunarHUE/headless-paper.git?ref=main";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+    t3code = {
+      url = "github:LunarHUE/t3code";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, claude-code, codex-cli-nix, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, codex-cli-nix, headless-paper, t3code, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -30,6 +38,10 @@
             codex-cli-nix.overlays.default
           ];
         };
+
+        # headless-paper is private, so only the dev shell may touch it.
+        # Putting its overlay on the shared pkgs would make CI fetch it too.
+        devPkgs = pkgs.extend headless-paper.overlays.default;
 
         # Toolchain shared by local dev and CI — keep the two shells in
         # sync by editing this list, not the shells.
@@ -50,6 +62,11 @@
           pkgs.claude-code
           pkgs.codex
           opencode
+          devPkgs.headless-paper
+        ]
+        ++ pkgs.lib.optionals (t3code.packages ? ${system}) [
+          t3code.packages.${system}.t3
+          t3code.packages.${system}.t3-devcontainer
         ];
       in {
         devShells = {
